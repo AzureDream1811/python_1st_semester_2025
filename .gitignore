@@ -6,7 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
+venv
 node_modules
 dist
 dist-ssr
@@ -23,4 +23,4 @@ dist-ssr
 *.sln
 *.sw?
 .venv/
-.idea/
+idea
