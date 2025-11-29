@@ -1,0 +1,5 @@
+emoji
+pandas
+underthesea
+fasttext
+huggingface_hub
