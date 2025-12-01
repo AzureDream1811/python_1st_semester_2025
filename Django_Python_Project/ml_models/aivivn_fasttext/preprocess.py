@@ -86,12 +86,26 @@ class preprocess_text(object):
 
     def __init__(self):
         (
-            self._replacements_pattern,  # regex thay slang
-            self._replacements,  # dict map slang → từ chuẩn
-            self._remove_pattern,  # regex xóa mặt cười / symbol
+            self._replacements_pattern,
+            self._replacements,
+            self._remove_pattern,
         ) = self._get_replacements_pattern()
 
     def forward(self, text: str) -> str:
+        """
+        Clean a text by:
+        1. Lowering all string
+        2. Normalizing
+        3. Removing emoji
+        4. Removing special strings
+        5. Replacing slang
+        6. Removing any ',' left after cleaning words
+        7. Tokenizing via underthesea
+        :param text: The text to clean
+        :type text: str
+        :return: The cleaned text
+        :rtype: str
+        """
         if not isinstance(text, str):
             return ""
 
