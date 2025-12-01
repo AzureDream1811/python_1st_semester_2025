@@ -1,15 +1,6 @@
-from underthesea import word_tokenize, text_normalize
-import re
-import emoji
-
-
-class preprocess_text(object):
+def preprocess_text(parameter_list):
     """
-    Xử lý văn bản:
-    - chuẩn hóa tiếng Việt
-    - thay slang / viết tắt → từ đầy đủ
-    - xóa emoji, mặt cười, ký hiệu
-    - tokenize bằng underthesea
+    prepared to merge from preprocess
     """
 
     # Các từ viết tắt / slang → dạng chuẩn
