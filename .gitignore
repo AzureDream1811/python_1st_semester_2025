@@ -92,10 +92,6 @@ data/
 *.njsproj
 *.sln
 *.sw?
-
-# =========================
-# FastText / ML outputs
-# =========================
-output/
-models/
-checkpoints/
+.idea/
+.venv
+.__pycache__
