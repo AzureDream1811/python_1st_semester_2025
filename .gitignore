@@ -95,3 +95,6 @@ data/
 .idea/
 .venv
 .__pycache__
+\test\
+\templates\
+/templates/
