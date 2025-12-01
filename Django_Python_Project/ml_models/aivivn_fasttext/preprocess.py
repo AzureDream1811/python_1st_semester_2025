@@ -1,4 +1,8 @@
-def preprocess_text(parameter_list):
+import re
+from underthesea import word_tokenize, text_normalize
+import emoji
+
+class PreprocessText():
     """
     prepared to merge from preprocess
     """
@@ -64,14 +68,14 @@ def preprocess_text(parameter_list):
         """
         replacements = {}
 
-        for k, v in preprocess_text._replacements.items():
+        for k, v in PreprocessText._replacements.items():
             if k != "k bt ntn":
                 replacements[f" {k} "] = f" {v} "
             else:
                 replacements[f"{k} "] = f"{v} "
 
         replace_pattern = re.compile("|".join(replacements.keys()))
-        remove_pattern = re.compile("|".join(preprocess_text._remove_tokens))
+        remove_pattern = re.compile("|".join(PreprocessText._remove_tokens))
 
         return replace_pattern, replacements, remove_pattern
 
@@ -133,6 +137,6 @@ def preprocess_text(parameter_list):
 
 
 if __name__ == "__main__":
-    p = preprocess_text()
+    p = PreprocessText()
     s = "Shop ơi sp này siu đẹp ko :))) tks ❤"
     print(p.forward(s))

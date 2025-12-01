@@ -1,6 +1,6 @@
 import pandas as pd
 
-from .preprocess import preprocess_text
+from .preprocess import PreprocessText
 from .config import DATASET_DIR, FASTESTTEXT_DATA_DIR
 
 
@@ -12,7 +12,7 @@ class FastTextDatasetBuilder:
     def __init__(self, text_col: str = "comment", label_col: str = "label"):
         self.text_col = text_col
         self.label_col = label_col
-        self._preprocess = preprocess_text()
+        self._preprocess = PreprocessText()
 
     def _load_CSV(self, filename: str) -> pd.DataFrame:
         """
