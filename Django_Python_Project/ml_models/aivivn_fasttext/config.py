@@ -9,7 +9,7 @@ FASTESTTEXT_DATA_DIR = DATASET_DIR / "fasttext_format"
 FASTESTTEXT_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 TRAIN_FILE = FASTESTTEXT_DATA_DIR / "train.txt"
-VALID_FILE = FASTESTTEXT_DATA_DIR / "valid.txt"
+TEST_FILE = FASTESTTEXT_DATA_DIR / "test.txt"
 
 MODEL_DIR = BASE_DIR / "ml_models" / "aivivn_fasttext" / "models"
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
