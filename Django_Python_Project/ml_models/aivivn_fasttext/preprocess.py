@@ -61,7 +61,8 @@ class preprocess_text(object):
         r"\:\)\)\)",
         r"\:\)\)",
         r"\:\)",
-        r"\:\("
+        r"\:\(",
+        r"\:\(\(",
     ]
 
     def _get_replacements_pattern(self):
