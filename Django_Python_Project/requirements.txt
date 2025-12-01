@@ -1,5 +1,4 @@
 Django>=4.2,<5.0
-pybind11
 mysqlclient>=2.2
 pandas>=2.1
 numpy>=1.26
