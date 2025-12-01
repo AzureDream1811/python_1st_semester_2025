@@ -1,5 +1,5 @@
 def preprocess_text(parameter_list):
     """
-    prepared
+    prepared to merge from preprocess
     """
     pass
