@@ -1,8 +1,9 @@
 Django>=4.2,<5.0
+pybind11
 mysqlclient>=2.2
 pandas>=2.1
 numpy>=1.26
-fasttext-wheel
+fasttext==0.9.2
 emoji
 underthesea>=6.8.0
 django-environ>=0.11
