@@ -1,27 +1,101 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Byte-compiled / optimized / DLL files
+*.so
+*.dll
+*.dylib
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
 # Logs
-logs
+logs/
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+pip-log.txt
+pip-delete-this-directory.txt
 
-node_modules
-dist
-dist-ssr
-*.local
+# =========================
+# Django
+# =========================
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+static/
+local_settings.py
 
-# Editor directories and files
-.vscode/*
+# =========================
+# Jupyter / Data science
+# =========================
+.ipynb_checkpoints/
+*.ipynb
+
+# Large datasets
+datasets/
+data/
+*.csv
+*.tsv
+*.jsonl
+*.bin
+*.h5
+*.pth
+*.pt
+
+# =========================
+# VSCode
+# =========================
+.vscode/
 !.vscode/extensions.json
-.idea\
+
+# IDE
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-.idea/
-.venv
-__pycache__
+
+# =========================
+# FastText / ML outputs
+# =========================
+output/
+models/
+checkpoints/
