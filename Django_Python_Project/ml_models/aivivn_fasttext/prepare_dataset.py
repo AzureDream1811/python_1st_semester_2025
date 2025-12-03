@@ -1,7 +1,20 @@
 import pandas as pd
+import os
+import sys
+import django
 
-from .preprocess import PreprocessText
-from .config import DATASET_DIR, FASTESTTEXT_DATA_DIR
+# Thêm BASE_DIR vào sys.path
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, BASE_DIR)
+
+# ===== THÊM DJANGO SETUP Ở ĐÂY =====
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+django.setup()
+# ====================================
+
+# Import SAU KHI django.setup()
+from ml_models.aivivn_fasttext.preprocess import PreprocessText
+from ml_models.aivivn_fasttext.config import DATASET_DIR, FASTESTTEXT_DATA_DIR
 
 
 class FastTextDatasetBuilder:
