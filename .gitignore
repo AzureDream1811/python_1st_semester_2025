@@ -61,6 +61,7 @@ staticfiles/
 static/
 local_settings.py
 
+
 # =========================
 # Jupyter / Data science
 # =========================
@@ -92,7 +93,7 @@ data/
 *.njsproj
 *.sln
 *.sw?
-.idea/
 .venv
 __pycache__
 /test/
+/Django_Python_Project/.env
