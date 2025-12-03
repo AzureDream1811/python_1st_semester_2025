@@ -4,6 +4,7 @@ pandas>=2.1
 numpy>=1.26
 fasttext-wheel
 emoji
+emot==3.1
 underthesea>=6.8.0
 django-environ>=0.11
 python-dotenv>=1.0

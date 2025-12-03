@@ -94,6 +94,6 @@ data/
 *.sln
 *.sw?
 .venv
-.__pycache__
+__pycache__
 /test/
 /Django_Python_Project/.env

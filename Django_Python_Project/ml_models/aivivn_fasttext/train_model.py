@@ -1,7 +1,8 @@
 from pathlib import Path
 import fasttext
 
-from .config import TRAIN_FILE, TEST_FILE, MODEL_DIR, EPOCHS, LR, DIM, WORD_NGRAMS
+from Django_Python_Project.ml_models.aivivn_fasttext.config import (TRAIN_FILE, TEST_FILE, MODEL_DIR, EPOCHS, LR, DIM,
+                                                                    WORD_NGRAMS)
 
 MODEL_PATH = MODEL_DIR / "fasttext_sentiment.bin"
 
