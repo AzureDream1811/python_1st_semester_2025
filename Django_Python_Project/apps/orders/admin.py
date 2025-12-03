@@ -21,7 +21,7 @@ class OrderHistoryInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
         'order_number', 'full_name', 'phone', 'total_display',
-        'payment_method', 'payment_status', 'status_display', 'created_at'
+        'payment_method', 'payment_status', 'status_display', 'created_at', 'status'
     ]
     list_filter = ['status', 'payment_status', 'payment_method', 'created_at']
     search_fields = ['order_number', 'full_name', 'email', 'phone']
