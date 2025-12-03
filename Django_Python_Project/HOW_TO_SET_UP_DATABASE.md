@@ -95,7 +95,7 @@ DATABASES = {
 ### 3.1. Mở Terminal trong thư mục project
 
 ```bash
-cd "C:\Users\Admin\Downloads\New folder"
+cd "C:\Users\Admin\PycharmProjects\python_1st_semester_2025"
 ```
 
 ### 3.2. Tạo Virtual Environment

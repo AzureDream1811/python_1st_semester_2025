@@ -21,7 +21,7 @@ class OrderHistoryInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
         'order_number', 'full_name', 'phone', 'total_display',
-        'payment_method', 'payment_status', 'status_display', 'created_at'
+        'payment_method', 'payment_status', 'status', 'created_at'
     ]
     list_filter = ['status', 'payment_status', 'payment_method', 'created_at']
     search_fields = ['order_number', 'full_name', 'email', 'phone']
@@ -29,7 +29,7 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline, OrderHistoryInline]
     list_editable = ['status']
     date_hierarchy = 'created_at'
-    
+
     fieldsets = (
         ('Thông tin đơn hàng', {
             'fields': ('order_number', 'user', 'status')
@@ -45,11 +45,12 @@ class OrderAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-    
+
     def total_display(self, obj):
         return f"{obj.total:,.0f}đ"
+
     total_display.short_description = 'Tổng tiền'
-    
+
     def status_display(self, obj):
         colors = {
             'pending': 'orange',
@@ -67,11 +68,12 @@ class OrderAdmin(admin.ModelAdmin):
             color,
             obj.get_status_display()
         )
+
     status_display.short_description = 'Trạng thái'
-    
+
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
-        
+
         # Tạo lịch sử khi admin thay đổi trạng thái
         if change and 'status' in form.changed_data:
             OrderHistory.objects.create(
