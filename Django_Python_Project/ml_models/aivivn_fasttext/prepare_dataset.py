@@ -1,7 +1,7 @@
 import pandas as pd
 
-from .preprocess import PreprocessText
-from .config import DATASET_DIR, FASTESTTEXT_DATA_DIR
+from ml_models.aivivn_fasttext.preprocess import PreprocessText
+from ml_models.aivivn_fasttext.config import DATASET_DIR, FASTESTTEXT_DATA_DIR
 
 
 class FastTextDatasetBuilder:
