@@ -56,6 +56,7 @@ CREATE DATABASE ecommerce_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ## PHẦN 2: CẤU HÌNH DJANGO KẾT NỐI MYSQL
 
 ### 2.1. Mở file `.env` trong thư mục gốc project
+Không dùng .env.example, nếu không có .env thì tạo cùng cấp 
 
 ```env
 # Django Settings

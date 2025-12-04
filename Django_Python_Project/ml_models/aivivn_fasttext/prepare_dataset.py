@@ -86,7 +86,7 @@ class FastTextDatasetBuilder:
             ]
         )
 
-    def _build_train_test_txt(
+    def build_train_test_txt(
         self,
         train_csv: str = "train.csv",
         test_csv: str = "test.csv",
@@ -131,7 +131,7 @@ if __name__ == "__main__":
         text_col="comment",  # sửa theo cột thực của bạn
         label_col="label",   # sửa theo cột thực của bạn
     )
-    builder._build_train_test_txt(
+    builder.build_train_test_txt(
         train_csv="train.csv",   # nằm trong DATASET_DIR
         test_csv="test.csv",
     )
