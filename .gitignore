@@ -58,7 +58,6 @@ pip-delete-this-directory.txt
 db.sqlite3
 media/
 staticfiles/
-static/
 local_settings.py
 
 
