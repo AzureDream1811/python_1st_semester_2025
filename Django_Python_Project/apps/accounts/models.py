@@ -1,10 +1,12 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 
 
-class User(AbstractUser):
+class Profile(models.Model):
     """Custom User Model với thông tin bổ sung"""
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
 
     phone_regex = RegexValidator(
         regex=r'^(0|\+84)[0-9]{9,10}$',
@@ -31,25 +33,21 @@ class User(AbstractUser):
         null=True,
         verbose_name='Ngày sinh'
     )
-
+    gender = models.CharField(max_length=10, blank=True, choices=[
+        ('male', 'Nam'),
+        ('female', 'Nữ'),
+        ('other', 'Khác'),
+    ], verbose_name='Giới tính')
     # Thông tin bổ sung
-    is_verified = models.BooleanField(default=False, verbose_name='Đã xác thực')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Ngày cập nhật')
 
     class Meta:
-        verbose_name = 'Người dùng'
-        verbose_name_plural = 'Người dùng'
-        ordering = ['-created_at']
+        verbose_name = 'Hồ sơ người dùng'
+        verbose_name_plural = 'Hồ sơ người dùng'
 
     def __str__(self):
-        return self.email or self.username
-
-    def get_full_name(self):
-        """Lấy họ tên đầy đủ"""
-        if self.first_name and self.last_name:
-            return f"{self.last_name} {self.first_name}"
-        return self.username
+        return f'Profile of {self.user.username}'
 
     def get_avatar_url(self):
         """Lấy URL avatar hoặc avatar mặc định"""
@@ -68,12 +66,13 @@ class Address(models.Model):
         verbose_name='Người dùng'
     )
     full_name = models.CharField(max_length=100, verbose_name='Họ tên người nhận')
-    phone = models.CharField(max_length=15, verbose_name='Số điện thoại')
-    address_line = models.CharField(max_length=255, verbose_name='Địa chỉ')
+    address = models.TextField(blank=True, verbose_name='Địa chỉ')
+    city = models.CharField(max_length=100, blank=True, verbose_name='Thành phố')
+    city_code = models.CharField(max_length=10, blank=True, verbose_name='Mã thành phố')
+    district = models.CharField(max_length=100, blank=True, verbose_name='Quận/Huyện')
+    district_code = models.CharField(max_length=10, blank=True, verbose_name='Mã quận/huyện')
     ward = models.CharField(max_length=100, blank=True, verbose_name='Phường/Xã')
-    district = models.CharField(max_length=100, verbose_name='Quận/Huyện')
-    city = models.CharField(max_length=100, verbose_name='Tỉnh/Thành phố')
-    is_default = models.BooleanField(default=False, verbose_name='Địa chỉ mặc định')
+    ward_code = models.CharField(max_length=10, blank=True, verbose_name='Mã phường/xã')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -82,18 +81,12 @@ class Address(models.Model):
         ordering = ['-is_default', '-created_at']
 
     def __str__(self):
-        return f"{self.full_name} - {self.address_line}, {self.district}, {self.city}"
+        return f"{self.full_name} - {self.address}, {self.district}, {self.city}"
 
     def get_full_address(self):
         """Lấy địa chỉ đầy đủ"""
-        parts = [self.address_line]
+        parts = [self.address]
         if self.ward:
             parts.append(self.ward)
         parts.extend([self.district, self.city])
         return ', '.join(parts)
-
-    def save(self, *args, **kwargs):
-        # Nếu đặt làm địa chỉ mặc định, bỏ mặc định các địa chỉ khác
-        if self.is_default:
-            Address.objects.filter(user=self.user, is_default=True).update(is_default=False)
-        super().save(*args, **kwargs)

@@ -1,8 +1,6 @@
 from django.db import models
-from django.conf import settings
+from django.contrib.auth.models import User
 from apps.products.models import Product
-import uuid
-
 
 class Order(models.Model):
     """Model đơn hàng"""
@@ -42,8 +40,8 @@ class Order(models.Model):
     
     # Người đặt
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
+        User,
+        on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name='orders',
@@ -113,8 +111,6 @@ class Order(models.Model):
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Ngày đặt')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Cập nhật')
-    shipped_at = models.DateTimeField(null=True, blank=True, verbose_name='Ngày giao')
-    delivered_at = models.DateTimeField(null=True, blank=True, verbose_name='Ngày nhận')
     
     class Meta:
         verbose_name = 'Đơn hàng'
@@ -122,28 +118,8 @@ class Order(models.Model):
         ordering = ['-created_at']
     
     def __str__(self):
-        return f"Đơn hàng #{self.order_number}"
-    
-    def save(self, *args, **kwargs):
-        if not self.order_number:
-            self.order_number = self.generate_order_number()
-        super().save(*args, **kwargs)
-    
-    def generate_order_number(self):
-        """Tạo mã đơn hàng duy nhất"""
-        import datetime
-        prefix = datetime.datetime.now().strftime('%Y%m%d')
-        unique_id = uuid.uuid4().hex[:6].upper()
-        return f"DH{prefix}{unique_id}"
-    
-    def get_full_address(self):
-        """Lấy địa chỉ đầy đủ"""
-        parts = [self.address]
-        if self.ward:
-            parts.append(self.ward)
-        parts.extend([self.district, self.city])
-        return ', '.join(parts)
-    
+        return f"Đơn hàng #{self.order_number} - {self.user.username}"
+
     def calculate_total(self):
         """Tính tổng tiền đơn hàng"""
         self.subtotal = sum(item.total_price for item in self.items.all())
@@ -153,11 +129,6 @@ class Order(models.Model):
     def can_cancel(self):
         """Kiểm tra có thể hủy đơn không"""
         return self.status in ['pending', 'confirmed']
-    
-    def can_review(self):
-        """Kiểm tra có thể đánh giá không"""
-        return self.status in ['delivered', 'completed']
-
 
 class OrderItem(models.Model):
     """Model chi tiết đơn hàng"""
@@ -178,7 +149,6 @@ class OrderItem(models.Model):
     
     # Lưu thông tin sản phẩm tại thời điểm đặt
     product_name = models.CharField(max_length=255, verbose_name='Tên sản phẩm')
-    product_sku = models.CharField(max_length=50, verbose_name='SKU')
     product_image = models.CharField(max_length=255, blank=True, verbose_name='Hình ảnh')
     
     price = models.DecimalField(
@@ -187,10 +157,7 @@ class OrderItem(models.Model):
         verbose_name='Đơn giá'
     )
     quantity = models.PositiveIntegerField(default=1, verbose_name='Số lượng')
-    
-    # Review đã viết chưa
-    is_reviewed = models.BooleanField(default=False, verbose_name='Đã đánh giá')
-    
+
     class Meta:
         verbose_name = 'Chi tiết đơn hàng'
         verbose_name_plural = 'Chi tiết đơn hàng'
@@ -214,14 +181,6 @@ class OrderHistory(models.Model):
         verbose_name='Đơn hàng'
     )
     status = models.CharField(max_length=20, verbose_name='Trạng thái')
-    note = models.TextField(blank=True, verbose_name='Ghi chú')
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name='Người cập nhật'
-    )
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:

@@ -1,5 +1,5 @@
 from django.db import models
-from django.conf import settings
+from django.contrib.auth.models import User
 from apps.products.models import Product
 
 
@@ -7,7 +7,7 @@ class Cart(models.Model):
     """Model giỏ hàng"""
     
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        User,
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -30,7 +30,7 @@ class Cart(models.Model):
     def __str__(self):
         if self.user:
             return f"Giỏ hàng của {self.user.email}"
-        return f"Giỏ hàng #{self.pk}"
+        return f"Giỏ hàng #{self.session_key}"
     
     @property
     def total_items(self):
