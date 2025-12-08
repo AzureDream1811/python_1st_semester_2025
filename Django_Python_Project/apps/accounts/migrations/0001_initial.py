@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                 ('is_staff', models.BooleanField(default=False, help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
                 ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
                 ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
-                ('email', models.EmailField(max_length=254, unique=True, verbose_name='Email')),
+                ('email', models.EmailField(max_length=150, unique=True, verbose_name='Email')),
                 ('phone', models.CharField(blank=True, max_length=15, null=True, validators=[django.core.validators.RegexValidator(message="Số điện thoại phải có định dạng: '0xxxxxxxxx' hoặc '+84xxxxxxxxx'", regex='^(0|\\+84)[0-9]{9,10}$')], verbose_name='Số điện thoại')),
                 ('address', models.TextField(blank=True, null=True, verbose_name='Địa chỉ')),
                 ('avatar', models.ImageField(blank=True, null=True, upload_to='avatars/', verbose_name='Ảnh đại diện')),
