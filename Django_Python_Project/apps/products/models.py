@@ -1,7 +1,9 @@
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.text import slugify
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.auth.models import User
 import uuid
 
 
@@ -16,14 +18,6 @@ class Category(models.Model):
         blank=True,
         null=True,
         verbose_name='Hình ảnh'
-    )
-    parent = models.ForeignKey(
-        'self',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name='children',
-        verbose_name='Danh mục cha'
     )
     is_active = models.BooleanField(default=True, verbose_name='Đang hoạt động')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -86,8 +80,7 @@ class Product(models.Model):
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     sku = models.CharField(max_length=50, unique=True, blank=True, verbose_name='Mã SKU')
     description = models.TextField(verbose_name='Mô tả')
-    short_description = models.CharField(max_length=500, blank=True, verbose_name='Mô tả ngắn')
-    
+
     # Phân loại
     category = models.ForeignKey(
         Category,
@@ -260,7 +253,7 @@ class Wishlist(models.Model):
     """Model danh sách yêu thích"""
     
     user = models.ForeignKey(
-        'accounts.User',
+        User,
         on_delete=models.CASCADE,
         related_name='wishlists',
         verbose_name='Người dùng'
@@ -280,3 +273,33 @@ class Wishlist(models.Model):
     
     def __str__(self):
         return f"{self.user.email} - {self.product.name}"
+
+class FlashSale(models.Model):
+    """Model cho sản phẩm Flash Sale"""
+
+    name = models.CharField(max_length=200, verbose_name='Tên Flash Sale')
+    products = models.ManyToManyField(Product, related_name='flash_sales', verbose_name='Sản phẩm')
+    discount_percent = models.PositiveIntegerField(verbose_name='Phần trăm giảm giá')
+    start_time = models.DateTimeField(verbose_name='Thời gian bắt đầu')
+    end_time = models.DateTimeField(verbose_name='Thời gian kết thúc')
+    is_active = models.BooleanField(default=True, verbose_name='Hoạt động')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Flash Sale'
+        verbose_name_plural = 'Flash Sale'
+        ordering = ['-start_time']
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def is_ongoing(self):
+        now = timezone.now()
+        return self.is_active and self.start_time <= now <= self.end_time
+
+    @property
+    def time_remaining(self):
+        if not self.is_ongoing:
+            return None
+        return self.end_time - timezone.now()
