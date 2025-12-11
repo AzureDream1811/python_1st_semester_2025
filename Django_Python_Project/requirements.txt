@@ -9,3 +9,7 @@ underthesea>=6.8.0
 django-environ>=0.11
 python-dotenv>=1.0
 Pillow>=10.0
+python-decouple>=3.8
+django-crispy-forms>=2.0
+crispy-bootstrap4>=2022.1
+django-widget-tweaks>=1.5
