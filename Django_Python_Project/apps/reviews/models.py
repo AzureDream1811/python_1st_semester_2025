@@ -1,5 +1,5 @@
 from django.db import models
-from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from apps.products.models import Product
 from apps.orders.models import OrderItem
@@ -30,7 +30,7 @@ class Review(models.Model):
         verbose_name='Sản phẩm'
     )
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        User,
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='Người đánh giá'
@@ -50,11 +50,6 @@ class Review(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(5)],
         verbose_name='Đánh giá sao'
     )
-    title = models.CharField(
-        max_length=200,
-        blank=True,
-        verbose_name='Tiêu đề'
-    )
     comment = models.TextField(verbose_name='Nội dung đánh giá')
     
     # Sentiment Analysis
@@ -68,10 +63,6 @@ class Review(models.Model):
         default=0,
         validators=[MinValueValidator(-1), MaxValueValidator(1)],
         verbose_name='Điểm sentiment'
-    )
-    processed_comment = models.TextField(
-        blank=True,
-        verbose_name='Nội dung đã xử lý'
     )
     
     # Hình ảnh đánh giá
@@ -174,7 +165,7 @@ class ReviewHelpful(models.Model):
         verbose_name='Đánh giá'
     )
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        User,
         on_delete=models.CASCADE,
         related_name='helpful_votes',
         verbose_name='Người dùng'
