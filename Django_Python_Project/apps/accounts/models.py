@@ -73,6 +73,7 @@ class Address(models.Model):
     district_code = models.CharField(max_length=10, blank=True, verbose_name='Mã quận/huyện')
     ward = models.CharField(max_length=100, blank=True, verbose_name='Phường/Xã')
     ward_code = models.CharField(max_length=10, blank=True, verbose_name='Mã phường/xã')
+    is_default = models.BooleanField(default=False, verbose_name='Địa chỉ mặc định')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
