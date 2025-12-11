@@ -52,7 +52,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
-AUTH_USER_MODEL = "accounts.User"
 
 TEMPLATES = [
     {
@@ -106,8 +105,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Custom User Model
-AUTH_USER_MODEL = 'accounts.User'
 
 # Internationalization
 LANGUAGE_CODE = 'vi'
