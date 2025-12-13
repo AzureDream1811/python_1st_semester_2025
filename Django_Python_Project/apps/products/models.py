@@ -19,6 +19,13 @@ class Category(models.Model):
         null=True,
         verbose_name='Hình ảnh'
     )
+    parent_id = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='children'
+    )
     is_active = models.BooleanField(default=True, verbose_name='Đang hoạt động')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
