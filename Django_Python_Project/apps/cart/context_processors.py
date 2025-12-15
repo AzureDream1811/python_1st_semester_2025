@@ -1,6 +1,6 @@
 from .models import Cart
 
-def cart_items_count(request):
+def cart_context(request):
     count = 0
     try:
         if request.user.is_authenticated:
@@ -16,4 +16,4 @@ def cart_items_count(request):
     except Exception:
         pass
 
-    return {'cart_items_count': count}
+    return {'cart_context': count}
