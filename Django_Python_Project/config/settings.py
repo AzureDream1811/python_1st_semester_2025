@@ -32,6 +32,9 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap4',
     'widget_tweaks',
+    'channels',
+    'django_celery_beat',
+    'django_celery_results',
 
     # Local apps
     'apps.accounts',
@@ -39,6 +42,7 @@ INSTALLED_APPS = [
     'apps.cart',
     'apps.orders',
     'apps.reviews',
+    'apps.admin_dashboard',
 ]
 
 MIDDLEWARE = [
@@ -104,6 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
 
 # Internationalization
 LANGUAGE_CODE = 'vi'

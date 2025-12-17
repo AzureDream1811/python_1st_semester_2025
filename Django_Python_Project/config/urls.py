@@ -6,8 +6,13 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+# Import admin config để customize admin site
+import apps.admin_config  # noqa
+import apps.admin_dashboard.admin  # noqa
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('admin/', include('apps.admin_dashboard.urls', namespace='admin_dashboard')),
     path('', include('apps.products.urls', namespace='products')),
     path('accounts/', include('apps.accounts.urls', namespace='accounts')),
     path('cart/', include('apps.cart.urls', namespace='cart')),
