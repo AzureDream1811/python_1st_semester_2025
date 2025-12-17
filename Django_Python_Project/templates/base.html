@@ -1,198 +1,117 @@
-<!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}ElectroShop - Điện tử & Điện gia dụng{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-          integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ElectroShop{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="/static/css/style.css" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-<header>
-    <div class="header-container">
-        <div class="header-top">
-            <a class="logo-brand" href="">LOGO?</a>
-            <div class="search-bar">
-                <form action="" class="d-flex mx-auto search-box" method="GET"
-                      style="max-width: 500px; flex: 1;">
-                    <div class="input-group">
-                        <input class="form-control" name="q" placeholder="Tìm kiếm sản phẩm..." type="search"
-                               value="">
-                        <button class="btn btn-primary" type="submit">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </div>
-                </form>
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link" href="">
-                            <i class="bi bi-grid-3x3-gap me-1"></i> Sản phẩm
-                        </a>
-                    </li>
-                    <li class="nav-item position-relative">
-                        <a class="nav-link" href="">
-                            <i class="bi bi-bag me-1"></i> Giỏ hàng
-                            {% if cart_items_count > 0 %}
-                            <span class="cart-badge">{{ cart_items_count }}</span>
-                            {% endif %}
-                        </a>
-                    </li>
-                    {% if user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">
-                            <i class="bi bi-person-circle me-1"></i> {{ user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
-                            <li><a class="dropdown-item py-2" href=""><i
-                                    class="bi bi-person me-2"></i> Tài khoản</a></li>
-                            <li><a class="dropdown-item py-2" href=""><i
-                                    class="bi bi-box-seam me-2"></i> Đơn hàng</a></li>
-                            {% if user.is_staff %}
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item py-2" href=""><i
-                                    class="bi bi-speedometer2 me-2"></i> Quản trị</a></li>
-                            {% endif %}
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item py-2 text-danger" href=""><i
-                                    class="bi bi-box-arrow-right me-2"></i> Đăng xuất</a></li>
-                        </ul>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="">
-                            <i class="bi bi-box-arrow-in-right me-1"></i> Đăng nhập
-                        </a>
-                    </li>
-                    <li class="nav-item ms-2">
-                        <a class="btn btn-primary btn-sm px-3" href="">
-                            <i class="bi bi-person-plus me-1"></i> Đăng ký
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-        <div class="header-bottom">
-            <nav>
-                <ul class="nav justify-content-center">
-                    <li class="nav-item has-dropdown">
-                        <a class="nav-link category-list" href="">Danh mục
-                            <i class="icon-menu"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="">Thiết bị Nhà bếp</a></li>
-                            <li><a class="dropdown-item" href="">Thiết bị Giặt giũ & Chăm sóc quần áo</a></li>
-                            <li><a class="dropdown-item" href="">Điện lạnh & Xử lý không khí</a></li>
-                            <li><a class="dropdown-item" href="">Thiết bị Vệ sinh nhà cửa</a></li>
-                            <li><a class="dropdown-item" href="">Thiết bị Phòng tắm & Nước nóng</a></li>
-                            <li><a class="dropdown-item" href="">Thiết bị Chăm sóc cá nhân</a></li>
-                            <li><a class="dropdown-item" href="">Sản phẩm khác</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Tủ lạnh</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Máy giặt</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Máy lạnh</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Máy hút bụi</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Tin tức</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Liên hệ</a>
-                    </li>
-                </ul>
-            </nav>
+<header class="bg-white shadow-sm">
+    <div class="container">
+        <div class="d-flex align-items-center py-3">
+            <a class="text-decoration-none fw-bold fs-4 text-primary me-4" href="{% url 'products:home' %}">ElectroShop</a>
+            
+            <form action="" method="GET" class="flex-grow-1 mx-4">
+                <div class="input-group">
+                    <input type="search" name="q" class="form-control" placeholder="Tìm kiếm sản phẩm..." value="{{ request.GET.q }}" id="searchInput" autocomplete="off">
+                    <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
+                </div>
+                <div id="autocompleteResults" class="position-absolute bg-white border rounded shadow-sm" style="display:none; z-index:1000; width:100%;"></div>
+            </form>
+            
+            <ul class="nav align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link text-danger" href=""><i class="bi bi-lightning-charge-fill me-1"></i>Flash Sale</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href=""><i class="bi bi-grid me-1"></i>Sản phẩm</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link position-relative" href="">
+                        <i class="bi bi-cart3 me-1"></i>Giỏ hàng
+                        {% if cart_items_count > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ cart_items_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                {% if user.is_authenticated %}
+                <!-- Notifications -->
+                <li class="nav-item">
+                    <a class="nav-link position-relative" href="" id="notificationBell">
+                        <i class="bi bi-bell"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-count" style="display:none;">0</span>
+                    </a>
+                </li>
+                <!-- Chat -->
+                <li class="nav-item">
+                    <a class="nav-link" href="" title="Hỗ trợ">
+                        <i class="bi bi-chat-dots"></i>
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i>{{ user.first_name|default:user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href=""><i class="bi bi-person me-2"></i>Tài khoản</a></li>
+                        <li><a class="dropdown-item" href=""><i class="bi bi-box-seam me-2"></i>Đơn hàng</a></li>
+                        <li><a class="dropdown-item" href=""><i class="bi bi-star me-2 text-warning"></i>Điểm thưởng</a></li>
+                        <li><a class="dropdown-item" href=""><i class="bi bi-ticket-perforated me-2 text-primary"></i>Voucher</a></li>
+                        <li><a class="dropdown-item" href=""><i class="bi bi-bell me-2"></i>Thông báo</a></li>
+                        {% if user.is_staff %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href=""><i class="bi bi-speedometer2 me-2"></i>Quản trị</a></li>
+                        {% endif %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href=""><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
+                    </ul>
+                </li>
+                {% else %}
+                <li class="nav-item"><a class="nav-link" href="">Đăng nhập</a></li>
+                <li class="nav-item"><a class="btn btn-primary btn-sm ms-2" href="">Đăng ký</a></li>
+                {% endif %}
+            </ul>
         </div>
     </div>
 </header>
-<main>
-    {% block content %}{% endblock %}
-</main>
-<footer>
-    <!--Footer Top-->
-    <div class="footer-container">
-        <div class="row g-4">
-            <div class="col-lg-4 footer-col">
-                <h5><i class=""></i>LOGO?</h5>
-                <p class="text-secondary mb-4">Cửa hàng điện tử và điện gia dụng uy tín, chất lượng với giá tốt nhất.
-                    Cam kết sản phẩm chính hãng, bảo hành đầy đủ.</p>
-                <div class="social-links">
-                    <a href="#"><i class="bi bi-facebook"></i></a>
-                    <a href="#"><i class="bi bi-instagram"></i></a>
-                    <a href="#"><i class="bi bi-youtube"></i></a>
-                    <a href="#"><i class="bi bi-tiktok"></i></a>
-                </div>
-            </div>
-            <div class="col-lg-2 footer-col">
-                <h6>Danh mục</h6>
-                <a href="">Tất cả sản phẩm</a>
-                <a href="#">Tủ lạnh</a>
-                <a href="#">Máy giặt</a>
-                <a href="#">Máy lạnh</a>
-                <a href="#">Máy hút bụi</a>
-            </div>
-            <div class="col-lg-3 footer-col">
-                <h6>Hỗ trợ khách hàng</h6>
-                <a href="#">Chính sách đổi trả</a>
-                <a href="#">Hướng dẫn mua hàng</a>
-                <a href="#">Phương thức thanh toán</a>
-                <a href="#">Chính sách bảo hành</a>
-                <a href="#">Liên hệ</a>
-            </div>
-            <div class="col-lg-3 footer-col">
-                <h6>Liên hệ</h6>
-                <p class="text-secondary mb-2">
-                    <i class="bi bi-geo-alt me-2"></i>Khu Phố 6, P. Linh Trung, Q. Thủ Đức, TP.HCM
-                </p>
-                <p class="text-secondary mb-2">
-                    <i class="bi bi-telephone me-2"></i>Hotline: <strong style="color: #ff6b35;">1900 1234</strong>
-                </p>
-                <p class="text-secondary mb-2">
-                    <i class="bi bi-envelope me-2"></i>support@giadungdien.vn
-                </p>
-                <p class="text-secondary mb-0">
-                    <i class="bi bi-clock me-2"></i>8:00 - 21:00 (T2 - CN)
-                </p>
-            </div>
-        </div>
+
+<main class="py-4">
+    <div class="container">
+        {% block content %}{% endblock %}
     </div>
-    <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
-    <!--Footer Botton-->
-    <div class="footer-bottom">
-        <div class="footer-bottom-content">
-            <div class="text-center text-md-start">
-                <p class="">&copy; 2024 LOGO?. All rights reserved.</p>
+</main>
+
+<footer class="bg-dark text-white py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>ElectroShop</h5>
+                <p class="text-secondary">Cửa hàng điện tử và điện gia dụng uy tín.</p>
             </div>
-            <div class="payment-methods">
-                <img alt="Visa" class="me-2" height="25"
-                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Visa.svg/121px-Visa.svg.png">
-                <img alt="Mastercard"
-                     class="me-2" height="25"
-                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mastercard_2019_logo.svg/120px-Mastercard_2019_logo.svg.png">
-                <img alt="MoMo" class="me-2" height="25"
-                     src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png">
+            <div class="col-md-4">
+                <h6>Liên kết</h6>
+                <ul class="list-unstyled text-secondary">
+                    <li><a href="" class="text-secondary">Sản phẩm</a></li>
+                    <li><a href="#" class="text-secondary">Liên hệ</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6>Liên hệ</h6>
+                <p class="text-secondary mb-1"><i class="bi bi-telephone me-2"></i>1900 1234</p>
+                <p class="text-secondary mb-1"><i class="bi bi-envelope me-2"></i>support@electroshop.vn</p>
             </div>
         </div>
+        <hr class="border-secondary">
+        <p class="text-center text-secondary mb-0">&copy; 2024 ElectroShop</p>
     </div>
 </footer>
 
-{% block extra_js %}{% endblock %}
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>
