@@ -1,27 +1,120 @@
-{% extends "base.html" %} {% block content %}
-<h1>Checkout</h1>
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/orders/checkout.css' %}">
 
-<form method="post">
-  {% csrf_token %}
-  <h2>Shipping</h2>
-  <label>Name</label>
-  <input type="text" name="name" value="{{ shipping.name|default:'' }}" />
-  <label>Address</label>
-  <input type="text" name="address" value="{{ shipping.address|default:'' }}" />
+<div class="checkout-container">
+  <h1>Checkout</h1>
 
-  <h2>Order Summary</h2>
-  <ul>
-    {% for item in cart_items %}
-    <li>
-      {{ item.product.name }} × {{ item.quantity }} — {{ item.line_total }}
-    </li>
-    {% empty %}
-    <li>Your cart is empty.</li>
-    {% endfor %}
-  </ul>
+  <form method="post" class="checkout-form">
+    {% csrf_token %}
+    
+    <div class="form-section">
+      <h2>Shipping Information</h2>
+      <div class="form-group">
+        <label for="full_name">Full Name</label>
+        <input type="text" id="full_name" name="full_name" value="{{ order.full_name|default:'' }}" required />
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" value="{{ order.email|default:'' }}" required />
+      </div>
+      
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone" value="{{ order.phone|default:'' }}" required />
+      </div>
+      
+      <div class="form-group">
+        <label for="address">Address</label>
+        <input type="text" id="address" name="address" value="{{ order.address|default:'' }}" required />
+      </div>
+      
+      <div class="form-group">
+        <label for="ward">Ward/Commune</label>
+        <input type="text" id="ward" name="ward" value="{{ order.ward|default:'' }}" />
+      </div>
+      
+      <div class="form-group">
+        <label for="district">District</label>
+        <input type="text" id="district" name="district" value="{{ order.district|default:'' }}" required />
+      </div>
+      
+      <div class="form-group">
+        <label for="city">City/Province</label>
+        <input type="text" id="city" name="city" value="{{ order.city|default:'' }}" required />
+      </div>
+      
+      <div class="form-group">
+        <label for="note">Special Notes</label>
+        <textarea id="note" name="note">{{ order.note|default:'' }}</textarea>
+      </div>
+    </div>
 
-  <p><strong>Total: </strong>{{ order_total }}</p>
+    <div class="form-section">
+      <h2>Payment Method</h2>
+      <div class="form-group">
+        <label for="payment_method">Choose Payment Method</label>
+        <select id="payment_method" name="payment_method" required>
+          <option value="cod" {% if order.payment_method == 'cod' %}selected{% endif %}>Cash on Delivery (COD)</option>
+          <option value="bank_transfer" {% if order.payment_method == 'bank_transfer' %}selected{% endif %}>Bank Transfer</option>
+          <option value="momo" {% if order.payment_method == 'momo' %}selected{% endif %}>MoMo Wallet</option>
+          <option value="vnpay" {% if order.payment_method == 'vnpay' %}selected{% endif %}>VNPay</option>
+        </select>
+      </div>
+    </div>
 
-  <button type="submit">Place Order</button>
-</form>
+    <div class="form-section">
+      <h2>Order Summary</h2>
+      <table class="order-summary">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in cart_items %}
+          <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>${{ item.product.price }}</td>
+            <td>${{ item.line_total }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="empty-cart">Your cart is empty.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="order-totals">
+        <div class="total-row">
+          <span>Subtotal:</span>
+          <span>${{ order.subtotal|default:0 }}</span>
+        </div>
+        <div class="total-row">
+          <span>Shipping Fee:</span>
+          <span>${{ order.shipping_fee|default:0 }}</span>
+        </div>
+        {% if order.discount > 0 %}
+        <div class="total-row discount">
+          <span>Discount:</span>
+          <span>-${{ order.discount }}</span>
+        </div>
+        {% endif %}
+        <div class="total-row final">
+          <span><strong>Total:</strong></span>
+          <span><strong>${{ order.total|default:0 }}</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-checkout">Place Order</button>
+  </form>
+</div>
 {% endblock %}
