@@ -1,47 +1,42 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Product List{% endblock %}
-
 {% block content %}
 <div class="container mt-4">
 
-    <h2 class="mb-4">Danh sách sản phẩm</h2>
+    <h2>Product List</h2>
 
-    <!-- FILTER + SORT -->
-    <form method="get" class="row g-3 mb-4">
+    <!-- FILTER & SORT -->
+    <form method="get" class="row mb-3">
 
-        <!-- Search -->
         <div class="col-md-4">
             <input type="text"
                    name="q"
                    class="form-control"
-                   placeholder="Tìm kiếm sản phẩm..."
+                   placeholder="Search product..."
                    value="{{ request.GET.q }}">
         </div>
 
-        <!-- Sort -->
         <div class="col-md-3">
             <select name="sort" class="form-select">
-                <option value="">Sắp xếp</option>
+                <option value="">Sort</option>
                 <option value="price_asc" {% if request.GET.sort == "price_asc" %}selected{% endif %}>
-                    Giá tăng dần
+                    Price ↑
                 </option>
                 <option value="price_desc" {% if request.GET.sort == "price_desc" %}selected{% endif %}>
-                    Giá giảm dần
+                    Price ↓
                 </option>
                 <option value="newest" {% if request.GET.sort == "newest" %}selected{% endif %}>
-                    Mới nhất
+                    Newest
                 </option>
             </select>
         </div>
 
-        <!-- Price filter -->
         <div class="col-md-2">
             <input type="number"
                    name="min_price"
                    class="form-control"
-                   placeholder="Giá từ"
+                   placeholder="Min price"
                    value="{{ request.GET.min_price }}">
         </div>
 
@@ -49,14 +44,13 @@
             <input type="number"
                    name="max_price"
                    class="form-control"
-                   placeholder="Giá đến"
+                   placeholder="Max price"
                    value="{{ request.GET.max_price }}">
         </div>
 
-        <div class="col-md-1 d-grid">
-            <button class="btn btn-primary">Lọc</button>
+        <div class="col-md-1">
+            <button class="btn btn-primary w-100">Filter</button>
         </div>
-
     </form>
 
     <!-- PRODUCT LIST -->
@@ -66,13 +60,13 @@
             <div class="card h-100">
 
                 {% if product.image %}
-                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                    <img src="{{ product.image.url }}" class="card-img-top">
                 {% else %}
-                <img src="{% static 'img/no-image.png' %}" class="card-img-top">
+                    <img src="{% static 'img/no-image.png' %}" class="card-img-top">
                 {% endif %}
 
                 <div class="card-body d-flex flex-column">
-                    <h6 class="card-title">{{ product.name }}</h6>
+                    <h6>{{ product.name }}</h6>
 
                     <p class="text-danger fw-bold">
                         {{ product.price }} $
@@ -80,20 +74,19 @@
 
                     <a href="{% url 'product_detail' product.id %}"
                        class="btn btn-outline-primary mt-auto">
-                        Xem chi tiết
+                        View Detail
                     </a>
                 </div>
-
             </div>
         </div>
         {% empty %}
-        <p>Không có sản phẩm nào.</p>
+        <p>No products found.</p>
         {% endfor %}
     </div>
 
     <!-- PAGINATION -->
     {% if page_obj.paginator.num_pages > 1 %}
-    <nav class="mt-4">
+    <nav>
         <ul class="pagination justify-content-center">
 
             {% if page_obj.has_previous %}
@@ -105,11 +98,11 @@
             </li>
             {% endif %}
 
-            {% for num in page_obj.paginator.page_range %}
-            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+            {% for page in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == page %}active{% endif %}">
                 <a class="page-link"
-                   href="?page={{ num }}&{{ request.GET.urlencode }}">
-                    {{ num }}
+                   href="?page={{ page }}&{{ request.GET.urlencode }}">
+                    {{ page }}
                 </a>
             </li>
             {% endfor %}
