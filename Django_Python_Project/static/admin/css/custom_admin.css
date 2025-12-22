@@ -1,0 +1,173 @@
+/* Custom Admin Styles for ElectroShop */
+
+/* Header */
+#header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+#branding h1 {
+    color: #fff;
+    font-weight: 600;
+}
+
+#branding h1 a:link, #branding h1 a:visited {
+    color: #fff;
+}
+
+/* Sidebar */
+#nav-sidebar {
+    background: #f8f9fa;
+}
+
+/* Module headers */
+.module h2, .module caption, .inline-group h2 {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    color: #fff;
+}
+
+/* Buttons */
+.submit-row input[type="submit"] {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    border: none;
+}
+
+.submit-row input[type="submit"]:hover {
+    background: linear-gradient(135deg, #0a58ca 0%, #084298 100%);
+}
+
+.addlink, .changelink, .deletelink {
+    background: #0d6efd;
+}
+
+/* Links */
+a:link, a:visited {
+    color: #0d6efd;
+}
+
+/* Dashboard */
+.dashboard .module table th {
+    background: #f8f9fa;
+}
+
+/* Breadcrumbs */
+div.breadcrumbs {
+    background: #f8f9fa;
+    color: #495057;
+}
+
+div.breadcrumbs a:link, div.breadcrumbs a:visited {
+    color: #0d6efd;
+}
+
+/* Object tools */
+.object-tools a:link, .object-tools a:visited {
+    background: #0d6efd;
+}
+
+.object-tools a:hover {
+    background: #0a58ca;
+}
+
+/* Change list */
+#changelist-filter h2 {
+    background: #0d6efd;
+}
+
+#changelist-filter li.selected a {
+    color: #0d6efd;
+}
+
+/* Tables */
+#result_list th {
+    background: #f8f9fa;
+}
+
+#result_list tr:nth-child(odd) {
+    background: #fff;
+}
+
+#result_list tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+/* Messages */
+.messagelist li.success {
+    background: #d4edda;
+    border-left: 4px solid #28a745;
+}
+
+.messagelist li.warning {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+}
+
+.messagelist li.error {
+    background: #f8d7da;
+    border-left: 4px solid #dc3545;
+}
+
+/* Inline groups */
+.inline-group .tabular td {
+    padding: 10px;
+}
+
+/* Form rows */
+.form-row {
+    padding: 12px 14px;
+}
+
+/* Fieldsets */
+fieldset.module {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Calendar and clock widgets */
+.calendarbox, .clockbox {
+    border-radius: 8px;
+}
+
+/* Pagination */
+.paginator {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+/* Actions */
+.actions {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+/* Help text */
+.help {
+    color: #6c757d;
+    font-size: 11px;
+}
+
+/* Errors */
+.errorlist li {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+/* Related widget wrapper */
+.related-widget-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    #header {
+        padding: 10px;
+    }
+    
+    .module h2 {
+        padding: 10px;
+    }
+}

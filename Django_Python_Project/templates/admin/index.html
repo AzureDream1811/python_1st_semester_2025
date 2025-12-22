@@ -1,0 +1,161 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'admin_dashboard/css/dashboard.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div id="dashboard-container">
+    <!-- KPI Cards -->
+    <div class="dashboard-kpis">
+        <div class="kpi-card revenue">
+            <div class="kpi-icon">💰</div>
+            <div class="kpi-content">
+                <h3>Doanh thu tháng</h3>
+                <p class="kpi-value">
+                    {% if dashboard_stats.revenue.total_revenue %}
+                        {{ dashboard_stats.revenue.total_revenue|floatformat:0 }}đ
+                    {% else %}
+                        0đ
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        
+        <div class="kpi-card orders">
+            <div class="kpi-icon">📦</div>
+            <div class="kpi-content">
+                <h3>Tổng đơn hàng</h3>
+                <p class="kpi-value">{{ dashboard_stats.orders.total|default:0 }}</p>
+            </div>
+        </div>
+        
+        <div class="kpi-card customers">
+            <div class="kpi-icon">👥</div>
+            <div class="kpi-content">
+                <h3>Khách hàng</h3>
+                <p class="kpi-value">{{ dashboard_stats.customers|default:0 }}</p>
+            </div>
+        </div>
+        
+        <div class="kpi-card products">
+            <div class="kpi-icon">🏷️</div>
+            <div class="kpi-content">
+                <h3>Sản phẩm</h3>
+                <p class="kpi-value">{{ dashboard_stats.products|default:0 }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="dashboard-charts">
+        <div class="chart-card">
+            <h3>📈 Doanh thu 30 ngày gần nhất</h3>
+            <canvas id="revenueChart"></canvas>
+        </div>
+        
+        <div class="chart-card">
+            <h3>📊 Trạng thái đơn hàng</h3>
+            <canvas id="orderStatusChart"></canvas>
+        </div>
+    </div>
+
+    <div class="dashboard-charts">
+        <div class="chart-card">
+            <h3>😊 Phân tích Sentiment</h3>
+            <canvas id="sentimentChart"></canvas>
+            <div class="sentiment-summary">
+                <span class="sentiment-badge positive">
+                    Tích cực: {{ dashboard_stats.sentiment.positive|default:0 }}
+                </span>
+                <span class="sentiment-badge negative">
+                    Tiêu cực: {{ dashboard_stats.sentiment.negative|default:0 }}
+                </span>
+                <span class="sentiment-badge neutral">
+                    Trung lập: {{ dashboard_stats.sentiment.neutral|default:0 }}
+                </span>
+            </div>
+        </div>
+        
+        <div class="chart-card">
+            <h3>📂 Doanh thu theo danh mục</h3>
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Orders & Top Products -->
+    <div class="dashboard-tables">
+        <div class="table-card">
+            <h3>🕐 Đơn hàng gần đây</h3>
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in dashboard_stats.recent_orders %}
+                    <tr>
+                        <td><a href="{% url 'admin:orders_order_change' order.id %}">{{ order.order_number }}</a></td>
+                        <td>{{ order.full_name }}</td>
+                        <td>{{ order.total|floatformat:0 }}đ</td>
+                        <td>
+                            <span class="status-badge status-{{ order.status }}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="empty-message">Chưa có đơn hàng</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="{% url 'admin:orders_order_changelist' %}" class="view-all-link">
+                Xem tất cả đơn hàng →
+            </a>
+        </div>
+
+        <div class="table-card">
+            <h3>🔥 Sản phẩm bán chạy</h3>
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Đã bán</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in dashboard_stats.top_products %}
+                    <tr>
+                        <td>{{ product.name|truncatechars:30 }}</td>
+                        <td><strong>{{ product.sold }}</strong></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="empty-message">Chưa có dữ liệu</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="{% url 'admin:products_product_changelist' %}" class="view-all-link">
+                Xem tất cả sản phẩm →
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Default Admin Content -->
+<div id="content-main">
+    {% include "admin/app_list.html" %}
+</div>
+
+<script src="{% static 'admin_dashboard/js/charts.js' %}"></script>
+{% endblock %}
