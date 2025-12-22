@@ -2,10 +2,873 @@
 {% load static %}
 
 {% block title %}Điện gia dụng Chính hãng{% endblock %}
+{% block extra_css %}
+<style>
+    /*section product*/
+    section {
+        display: flex;
+        flex-direction: column;
+        margin-left: 8%;
+        margin-right: 8%;
+        margin-bottom: 20px;
+    }
+
+    section .title-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 44px;
+        width: 290px;
+        background-color: rgb(4, 107, 210);
+        text-align: center;
+        border-start-start-radius: 10px;
+        border-end-end-radius: 10px;
+        margin-bottom: 10px;
+
+    }
+
+    section .title-section span {
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    section .show-more-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    section .showMoreSection {
+        margin-bottom: 10px;
+        width: 120px;
+        height: 39px;
+        background-color: rgb(4, 107, 210);
+        color: white;
+        border: 1px solid rgb(4, 107, 210);
+        border-radius: 4px;
+        margin-top: 25px;
+    }
+
+    section .list-product-by-section {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+    }
+
+    /*commit from shop*/
+    .commit {
+        display: flex;
+        flex-direction: row;
+
+        justify-content: center;
+    }
+
+    .commit .content-commit {
+        padding-right: 120px;
+        padding-left: 20px;
+        padding-top: 40px;
+    }
+
+    .commit .img-shop img {
+        height: 400px;
+        width: 560px;
+        padding-left: 120px;
+    }
+
+    .commit .content-commit ol li {
+        list-style: none;
+        padding: 12px;
+    }
+
+    /*Item product*/
+    .item-wrap {
+        width: 190px;
+        height: 332px;
+        margin-bottom: 5px;
+    }
+
+    .container-item:hover #product-item:hover {
+        width: 190px;
+        height: 332px;
+        position: relative;
+    }
+
+    .item-wrap .container-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.3);
+        border-radius: 4px;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+    }
+
+    .item-wrap .container-item .title-product-item {
+        width: 174px;
+        height: 50px;
+        font-weight: bolder;
+        font-size: 1em;
+
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
 
+    .item-wrap .container-item .price-product-item-after-sale {
+        padding-right: 16px;
+        width: 174px;
+        font-size: 18px;
+        text-align: end;
+        color: red;
+        margin-bottom: 5px;
+
+        font-weight: bolder;
+    }
+
+    .item-wrap .container-item .price-product-item {
+        padding-right: 16px;
+        width: 174px;
+        font-size: 18px;
+        text-align: end;
+        color: #878787;
+        font-weight: bolder;
+        text-decoration: line-through;
+    }
+
+    .item-wrap .container-item .image-product-item img {
+        padding-top: 10px;
+        width: 174px;
+        height: 230px;
+        border-radius: 4px;
+    }
+
+    .container-product-item .wrap-btn-add-cart {
+        margin-bottom: 20px;
+    }
+
+    .container-product-item .wrap-btn-add-cart .add-cart {
+        display: none;
+    }
+
+    .container-product-item:hover .wrap-btn-add-cart .add-cart {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .container-product-item .wrap-btn-add-cart .add-cart {
+        position: absolute;
+        width: 190px;
+        padding: 8px;
+        border-radius: 4px;
+        background-color: rgb(4, 107, 210);
+        color: white;
+        border: rgb(4, 107, 210) 1px solid;
+    }
+
+    .underline_dong {
+        text-decoration: underline;
+    }
+
+
+</style>
+{% endblock %}
 {% block content %}
+<!--        open product sections-->
+<section id="newProducts" class="product-section">
+    <div class="title-section"><span>SẢN PHẨM MỚI</span></div>
+    <div class="list-product-by-section">
+        <!--                item 1-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://cdn.tgdd.vn/Products/Images/1922/296809/ks-com183mv-wh-1-700x467.jpg"
+                             loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Nồi cơm điện tử Sharp 1.8 lít KS-COM183MV-WH</div>
+                    <div class="price-product-item">200.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">150.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 2-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://cdn.tgdd.vn/Products/Images/1922/296809/ks-com183mv-wh-1-700x467.jpg"
+                             loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Nồi cơm điện tử Sharp 1.8 lít KS-COM183MV-WH</div>
+                    <div class="price-product-item">200.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">150.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 3-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://cdn.tgdd.vn/Products/Images/1922/296809/ks-com183mv-wh-1-700x467.jpg"
+                             loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Nồi cơm điện tử Sharp 1.8 lít KS-COM183MV-WH</div>
+                    <div class="price-product-item">200.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">150.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 4-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://cdn.tgdd.vn/Products/Images/1922/296809/ks-com183mv-wh-1-700x467.jpg"
+                             loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Nồi cơm điện tử Sharp 1.8 lít KS-COM183MV-WH</div>
+                    <div class="price-product-item">200.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">150.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 5-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://cdn.tgdd.vn/Products/Images/1922/296809/ks-com183mv-wh-1-700x467.jpg"
+                             loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Nồi cơm điện tử Sharp 1.8 lít KS-COM183MV-WH</div>
+                    <div class="price-product-item">200.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">150.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 6-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://cdn.tgdd.vn/Products/Images/1922/296809/ks-com183mv-wh-1-700x467.jpg"
+                             loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Nồi cơm điện tử Sharp 1.8 lít KS-COM183MV-WH</div>
+                    <div class="price-product-item">200.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">150.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                end item-->
+    </div>
 
+</section>
 
+<section id="featuredProducts" class="product-section">
+    <div class="title-section"><span>SẢN PHẨM NỔI BẬT</span></div>
+    <div class="list-product-by-section">
+        <!--                item 1-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://cdn.tgdd.vn/Products/Images/1989/68568/sunhouse-shd1182-18-lit-700x467-03.jpg"
+                             loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Bình đun siêu tốc Sunhouse 1.8 lít SHD1182</div>
+                    <div class="price-product-item">120.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">90.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 2-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://cdn.tgdd.vn/Products/Images/1989/68568/sunhouse-shd1182-18-lit-700x467-03.jpg"
+                             loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Bình đun siêu tốc Sunhouse 1.8 lít SHD1182</div>
+                    <div class="price-product-item">120.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">90.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 3-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://cdn.tgdd.vn/Products/Images/1989/68568/sunhouse-shd1182-18-lit-700x467-03.jpg"
+                             loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Bình đun siêu tốc Sunhouse 1.8 lít SHD1182</div>
+                    <div class="price-product-item">120.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">90.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 4-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://cdn.tgdd.vn/Products/Images/1989/68568/sunhouse-shd1182-18-lit-700x467-03.jpg"
+                             loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Bình đun siêu tốc Sunhouse 1.8 lít SHD1182</div>
+                    <div class="price-product-item">120.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">90.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 5-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://cdn.tgdd.vn/Products/Images/1989/68568/sunhouse-shd1182-18-lit-700x467-03.jpg"
+                             loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Bình đun siêu tốc Sunhouse 1.8 lít SHD1182</div>
+                    <div class="price-product-item">120.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">90.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 6-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://cdn.tgdd.vn/Products/Images/1989/68568/sunhouse-shd1182-18-lit-700x467-03.jpg"
+                             loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Bình đun siêu tốc Sunhouse 1.8 lít SHD1182</div>
+                    <div class="price-product-item">120.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">90.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                end item-->
+    </div>
+</section>
+
+<section id="dienDangDung" class="product-section">
+    <div class="title-section"><span>ĐIỆN DÂN DỤNG</span></div>
+    <div class="list-product-by-section">
+        <!--                item 1-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/F-60MZ2-KS027665325.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Quạt trần màu đèn, hộp số nổi, 5 cấp độ Ø150cm, ti 30.48cm</div>
+                    <div class="price-product-item">1.300.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">1.100.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 2-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/F-60MZ2-KS027665325.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Quạt trần màu đèn, hộp số nổi, 5 cấp độ Ø150cm, ti 30.48cm</div>
+                    <div class="price-product-item">1.300.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">1.100.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 3-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/F-60MZ2-KS027665325.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Quạt trần màu đèn, hộp số nổi, 5 cấp độ Ø150cm, ti 30.48cm</div>
+                    <div class="price-product-item">1.300.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">1.100.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 4-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/F-60MZ2-KS027665325.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Quạt trần màu đèn, hộp số nổi, 5 cấp độ Ø150cm, ti 30.48cm</div>
+                    <div class="price-product-item">1.300.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">1.100.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 5-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/F-60MZ2-KS027665325.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Quạt trần màu đèn, hộp số nổi, 5 cấp độ Ø150cm, ti 30.48cm</div>
+                    <div class="price-product-item">1.300.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">1.100.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 6-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/F-60MZ2-KS027665325.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Quạt trần màu đèn, hộp số nổi, 5 cấp độ Ø150cm, ti 30.48cm</div>
+                    <div class="price-product-item">1.300.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">1.100.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                end item-->
+    </div>
+    <div class="show-more-section">
+        <button id="showMorePhoneProducts" name="showMorePhoneProducts" class="showMoreSection" type="button">
+            Xem thêm
+        </button>
+    </div>
+</section>
+
+<section id="dongTatChongRoDien" class="product-section">
+    <div class="title-section"><span>ĐÓNG CẮT - CHỐNG RÒ ĐIỆN</span></div>
+    <div class="list-product-by-section">
+        <!--                item 1-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/BBD1061CNV446485456.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Cầu dao tự động MCB 1P 6A 6kA 240VAC BBD1061CNV</div>
+                    <div class="price-product-item">120.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">92.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 2-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/BBD1061CNV446485456.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Cầu dao tự động MCB 1P 6A 6kA 240VAC BBD1061CNV</div>
+                    <div class="price-product-item">120.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">92.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 3-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/BBD1061CNV446485456.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Cầu dao tự động MCB 1P 6A 6kA 240VAC BBD1061CNV</div>
+                    <div class="price-product-item">120.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">92.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 4-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/BBD1061CNV446485456.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Cầu dao tự động MCB 1P 6A 6kA 240VAC BBD1061CNV</div>
+                    <div class="price-product-item">120.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">92.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 5-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/BBD1061CNV446485456.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Cầu dao tự động MCB 1P 6A 6kA 240VAC BBD1061CNV</div>
+                    <div class="price-product-item">120.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">92.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 6-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/BBD1061CNV446485456.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Cầu dao tự động MCB 1P 6A 6kA 240VAC BBD1061CNV</div>
+                    <div class="price-product-item">120.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">92.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                end item-->
+    </div>
+    <div class="show-more-section">
+        <button id="showMoreComputerProducts" name="showMoreComputerProducts" class="showMoreSection"
+                type="button">Xem thêm
+        </button>
+    </div>
+</section>
+
+<section id="signalSplitterProducts" class="product-section">
+    <div class="title-section"><span>PHỤ KIỆN TỦ ĐIỆN - VỎ TỦ ĐIỆN</span></div>
+    <div class="list-product-by-section">
+        <!--                item 1-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/F2E-92S-1086472486.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Quạt hút 230VAC 92x92x25mm IP34 | Leipole | Quạt hút | F2E-92S-230
+                    </div>
+                    <div class="price-product-item">400.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">300.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 2-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/F2E-92S-1086472486.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Quạt hút 230VAC 92x92x25mm IP34 | Leipole | Quạt hút | F2E-92S-230
+                    </div>
+                    <div class="price-product-item">400.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">300.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 3-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/F2E-92S-1086472486.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Quạt hút 230VAC 92x92x25mm IP34 | Leipole | Quạt hút | F2E-92S-230
+                    </div>
+                    <div class="price-product-item">400.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">300.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 4-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/F2E-92S-1086472486.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Quạt hút 230VAC 92x92x25mm IP34 | Leipole | Quạt hút | F2E-92S-230
+                    </div>
+                    <div class="price-product-item">400.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">300.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 5-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/F2E-92S-1086472486.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Quạt hút 230VAC 92x92x25mm IP34 | Leipole | Quạt hút | F2E-92S-230
+                    </div>
+                    <div class="price-product-item">400.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">300.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                item 6-->
+        <div class="container-product-item">
+            <div class="item-wrap">
+                <div class="container-item">
+                    <div class="image-product-item">
+                        <img src="https://www.thegioidien.com/PrdGallery/F2E-92S-1086472486.jpg" loading="lazy"
+                             decoding="async">
+                    </div>
+                    <div class="title-product-item">Quạt hút 230VAC 92x92x25mm IP34 | Leipole | Quạt hút | F2E-92S-230
+                    </div>
+                    <div class="price-product-item">400.000<span class="underline_dong">đ</span></div>
+                    <div class="price-product-item-after-sale">300.000<span class="underline_dong">đ</span></div>
+                </div>
+            </div>
+            <div class="wrap-btn-add-cart">
+                <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+            </div>
+        </div>
+        <!--                end item-->
+    </div>
+    <div class="show-more-section">
+        <button id="showMoreSplitterProducts" name="showMoreSplitterProducts" class="showMoreSection"
+                type="button">Xem thêm
+        </button>
+    </div>
+</section>
+<!--        close product sections-->
+<!--        close product sections-->
+<section id="articleOfAdmin" class="product-section">
+    <div class="title-section"><span>TIN TỨC</span></div>
+    <div class="list-article-of-admin">
+        <!--                article 1-->
+        <div class="wrap-article-item">
+            <div class="title-article-of-admin">
+                <h3>Bùng nổ về kính thực tế ảo 2025</h3>
+            </div>
+            <div class="sub-description">
+                <p>Ngày nay kính thực tế ảo đang được nhiều người ưa chuộng, nắm được xu hướng đó, các ông lớn
+                    về công nghệ
+                    như Meta đã chạy đua để cho ra hàng loạt các mẫu mã kính với giá từ vài triệu đến hàng chục
+                    - trăm triệu.
+                    Điển hình là kính thực tế Orion do Meta ra mắt, đây là chiếc kính được nghiên cứu trong 5
+                    năm qua</p>
+            </div>
+            <div class="read-more-article"><em><a href="">Đọc thêm</a></em></div>
+            <div class="wrap-footer-article">
+                <div class="post-date">Ngày đăng: 20/10/2025</div>
+                <div class="num-comment">Không có bình luận</div>
+                <hr>
+            </div>
+        </div>
+        <!--                article 2-->
+        <div class="wrap-article-item">
+            <div class="title-article-of-admin">
+                <h3>Các thiết bị mạng trong hệ thống</h3>
+            </div>
+            <div class="sub-description">
+                <p>Các Thiết bị mạng trong hệ thống mạng bạn cần biết Mạng gia đình hay mạng văn phòng hoặc
+                    các mạng lớn hơn đều gọi chung là một hệ thống mạng. Và trong đó chứa rất nhiều phụ kiện,
+                    Thiết bị mạng khác nhau. Hôm nay, Phụ Kiện Công Nghệ</p>
+            </div>
+            <div class="read-more-article"><em><a href="">Đọc thêm</a></em></div>
+            <div class="wrap-footer-article">
+                <div class="post-date">Ngày đăng: 20/10/2025</div>
+                <div class="num-comment">Không có bình luận</div>
+                <hr>
+            </div>
+        </div>
+        <!--                article 3-->
+        <div class="wrap-article-item">
+            <div class="title-article-of-admin">
+                <h3>Bộ dụng cụ dán phim cách nhiệt</h3>
+            </div>
+            <div class="sub-description">
+                <p>Bộ dụng cụ dán phim cách nhiệt gồm những gì? Bộ dụng cụ dán phim cách nhiệt đóng vai trò quan trọng
+                    giúp những
+                    người kỹ thuật viên dán phim hiệu quả, không bị bong tróc hay thừa bong bóng khí.
+                    Vậy bộ dụng cụ dán phim này gồm những</p>
+            </div>
+            <div class="read-more-article"><em><a href="">Đọc thêm</a></em></div>
+            <div class="wrap-footer-article">
+                <div class="post-date">Ngày đăng: 11/10/2025</div>
+                <div class="num-comment">1 bình luận</div>
+                <hr>
+            </div>
+        </div>
+        <!--                article 4-->
+        <div class="wrap-article-item">
+            <div class="title-article-of-admin">
+                <h3>Kết nối Đàn Piano điện với Máy tính</h3>
+            </div>
+            <div class="sub-description">
+                <p>Hướng dẫn kết nối Đàn Piano điện với Máy tính Làm Thế Nào Để Kết Nối Đàn Piano Điện Với Máy Tính?
+                    Hãy cùng Phụ Kiện Công Nghệ tìm hiểu nhé. – Trong thời đại công nghệ số, làm thế
+                    nào để kết nối đàn piano điện với máy tính</p>
+            </div>
+            <div class="read-more-article"><em><a href="">Đọc thêm</a></em></div>
+            <div class="wrap-footer-article">
+                <div class="post-date">Ngày đăng: 20/10/2024</div>
+                <div class="num-comment">100 bình luận</div>
+                <hr>
+            </div>
+        </div>
+    </div>
+</section>
+<hr style="margin-top: 5px; margin-bottom: 15px; background-color: rgb(4, 107, 210); height: 1px">
+<!--        open commit from shop-->
+<div class="commit">
+            <span class="img-shop">
+                <img src="https://www.thegioidien.com/images/logoEworldcom.jpg">
+            </span>
+    <span class="content-commit">
+                <h2>ElectroShop - Điện tử & Điện gia dụng Cam Kết:</h2>
+                <ol type="1">
+                    <li>
+                        <strong>Giá sản phẩm:</strong>
+                       ElectroShop cam kết luôn bán giá tôt nhất trên thị trường vì vậy Quý khách không sợ bị
+                        mua đắt, mua hớ. Hơn nữa giá cả được niêm yết công khai trên báo giá hàng ngày.
+                    </li>                    <li>
+                        <strong>Chất lượng sản phẩm:</strong>
+                        Chúng tôi cam kết cung cấp cho Quý khách các loại hàng hóa có chất lượng cao, sản phẩm được
+                    test kiểm tra cẩn thận trước khi bàn giao tới tay khách hàng
+                    </li>                    <li>
+                        <strong>Thái độ phục vụ:</strong>
+                        Đến với ElectroShop, các Bạn sẽ được phục vụ theo đúng phương châm:
+                    <strong><em>“SỰ HÀI LÒNG CỦA BẠN LÀ THÀNH CÔNG CỦA CHÚNG TÔI”</em></strong>
+                    </li>                    <li>
+                        <strong>Dịch vụ hoàn hảo:</strong>
+                        Chúng tôi áp dụng chế độ bảo hành siêu tốt, 1 đổi 1 trong suốt thời gian bảo hành, hỗ trợ nhanh
+                    24/7 khi Quý khách mua sản phẩm tại Shop chúng tôi.
+                    </li>
+                </ol>
+            </span>
+</div>
+<!--        close commit from shop-->
 {% endblock %}
 
