@@ -3,7 +3,6 @@ Django settings for E-commerce project.
 Web bán đồ điện tử với tính năng Sentiment Analysis
 """
 
-import os
 from pathlib import Path
 from decouple import config
 

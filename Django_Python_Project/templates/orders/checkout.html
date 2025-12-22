@@ -1,10 +1,27 @@
-{% extends 'base.html' %}
+{% extends "base.html" %} {% block content %}
+<h1>Checkout</h1>
 
-{% block title %}Thanh toán{% endblock %}
+<form method="post">
+  {% csrf_token %}
+  <h2>Shipping</h2>
+  <label>Name</label>
+  <input type="text" name="name" value="{{ shipping.name|default:'' }}" />
+  <label>Address</label>
+  <input type="text" name="address" value="{{ shipping.address|default:'' }}" />
 
-{% block content %}
+  <h2>Order Summary</h2>
+  <ul>
+    {% for item in cart_items %}
+    <li>
+      {{ item.product.name }} × {{ item.quantity }} — {{ item.line_total }}
+    </li>
+    {% empty %}
+    <li>Your cart is empty.</li>
+    {% endfor %}
+  </ul>
 
+  <p><strong>Total: </strong>{{ order_total }}</p>
 
-
-
+  <button type="submit">Place Order</button>
+</form>
 {% endblock %}

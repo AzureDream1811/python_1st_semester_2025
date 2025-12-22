@@ -1,10 +1,18 @@
-{% extends 'base.html' %}
+{% extends "base.html" %} {% block content %}
+<h1>Order #{{ order.id }}</h1>
+<p>Status: {{ order.status }}</p>
+<p>Placed: {{ order.created_at }}</p>
 
-{% block title %}Đơn hàng #{{ order.id }} - ElectroShop{% endblock %}
+<h2>Shipping</h2>
+<p>{{ order.shipping_name }} — {{ order.shipping_address }}</p>
 
-{% block content %}
+<h2>Items</h2>
+<ul>
+  {% for item in order.items.all %}
+  <li>{{ item.product.name }} × {{ item.quantity }} — {{ item.line_total }}</li>
+  {% endfor %}
+</ul>
 
-
-
-
+<p><strong>Subtotal:</strong> {{ order.subtotal }}</p>
+<p><strong>Total:</strong> {{ order.total }}</p>
 {% endblock %}
