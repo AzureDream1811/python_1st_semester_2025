@@ -1,0 +1,767 @@
+/* ============================================
+   Auth Pages - Common/Shared Styles
+   Dùng chung cho tất cả trang: login, register, 
+   forgot_password, password_reset_*
+   ============================================ */
+
+/* Hide header and footer on auth pages */
+.auth-page .main-header,
+.auth-page .main-footer,
+.auth-page main.py-4,
+.auth-page main.py-lg-5 {
+  display: none !important;
+}
+
+/* Auth Container - Base */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-container::before {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  animation: authFloat 8s ease-in-out infinite;
+}
+
+.auth-container::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  animation: authFloat 6s ease-in-out infinite reverse;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+@keyframes authFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-30px) rotate(10deg);
+  }
+}
+
+@keyframes authPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes authBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+@keyframes authSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes authShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes authModalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes authSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes authCheckBounce {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes authConfettiFall {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100px) rotate(720deg);
+  }
+}
+
+@keyframes authScaleIn {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes authCheckDraw {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-45deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* ============================================
+   Auth Branding - Left Side Panel
+   ============================================ */
+.auth-branding {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  color: white;
+  position: relative;
+  z-index: 1;
+}
+
+.auth-branding-content {
+  max-width: 420px;
+  text-align: center;
+}
+
+.auth-logo {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.auth-branding h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+}
+
+.auth-branding p {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-bottom: 1.5rem;
+}
+
+/* Auth Features List */
+.auth-features {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: left;
+}
+
+.auth-feature {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.auth-feature:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateX(10px);
+}
+
+.auth-feature i {
+  font-size: 1.5rem;
+}
+
+/* Register Benefits Grid */
+.register-benefits {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.benefit-item {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.benefit-item:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-5px);
+}
+
+.benefit-item i {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.benefit-item span {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* ============================================
+   Auth Form Side - Right Side Panel
+   ============================================ */
+.auth-form-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Auth Form Card */
+.auth-form-card {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 2rem 2.25rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: authSlideUp 0.6s ease-out;
+}
+
+.auth-form-header {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.auth-form-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 0.25rem;
+}
+
+.auth-form-header p {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* ============================================
+   Form Controls - Input Fields
+   ============================================ */
+.form-floating-custom {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.form-floating-custom input {
+  width: 100%;
+  padding: 0.85rem 0.85rem 0.85rem 2.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  background: #f9fafb;
+}
+
+.form-floating-custom input:focus {
+  outline: none;
+  background: white;
+}
+
+.form-floating-custom input.is-invalid {
+  border-color: #ef4444;
+}
+
+.form-floating-custom .input-icon {
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  transition: color 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.form-floating-custom .toggle-password {
+  position: absolute;
+  right: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.3s ease;
+}
+
+.form-floating-custom .toggle-password:hover {
+  color: #667eea;
+}
+
+/* Form Row - Name fields side by side */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.form-row .form-floating-custom {
+  margin-bottom: 0;
+}
+
+/* ============================================
+   Password Strength Indicator
+   ============================================ */
+.password-strength {
+  display: flex;
+  gap: 3px;
+  margin-top: 0.35rem;
+}
+
+.strength-bar {
+  height: 3px;
+  flex: 1;
+  background: #e5e7eb;
+  border-radius: 2px;
+  transition: background 0.3s ease;
+}
+
+.strength-bar.weak {
+  background: #ef4444;
+}
+
+.strength-bar.medium {
+  background: #f59e0b;
+}
+
+.strength-bar.strong {
+  background: #10b981;
+}
+
+/* Password Requirements Box */
+.password-requirements {
+  background: #f3f4f6;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.password-requirements h4 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.requirement {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.requirement i {
+  font-size: 0.7rem;
+}
+
+.requirement.valid {
+  color: #10b981;
+}
+
+/* ============================================
+   Auth Options - Remember Me & Forgot Link
+   ============================================ */
+.auth-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.custom-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.custom-checkbox input {
+  width: 18px;
+  height: 18px;
+  accent-color: #667eea;
+}
+
+.forgot-link {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.forgot-link:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+/* Terms Checkbox */
+.terms-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.terms-checkbox input {
+  width: 18px;
+  height: 18px;
+  accent-color: #11998e;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.terms-checkbox label {
+  font-size: 0.85rem;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+.terms-checkbox a {
+  color: #11998e;
+  font-weight: 500;
+}
+
+/* ============================================
+   Auth Submit Button - Base Style
+   ============================================ */
+.btn-auth-submit {
+  width: 100%;
+  padding: 0.9rem;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-auth-submit::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-auth-submit:hover {
+  transform: translateY(-2px);
+}
+
+.btn-auth-submit:hover::before {
+  left: 100%;
+}
+
+.btn-auth-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ============================================
+   Auth Divider
+   ============================================ */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 1rem 0;
+  color: #9ca3af;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.auth-divider span {
+  padding: 0 0.75rem;
+  font-size: 0.85rem;
+}
+
+/* ============================================
+   Social Login Buttons
+   ============================================ */
+.social-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-social {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background: white;
+  color: #374151;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-social:hover {
+  transform: translateY(-2px);
+}
+
+.btn-social svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ============================================
+   Auth Footer Link
+   ============================================ */
+.auth-footer {
+  text-align: center;
+  margin-top: 1rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.auth-footer a {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   Auth Alert Messages
+   ============================================ */
+.auth-alert {
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: authShake 0.5s ease;
+}
+
+.auth-alert.error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.auth-alert.info {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.auth-alert ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.text-danger {
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* ============================================
+   Google/Facebook Modal - Fixed class names to match templates
+   ============================================ */
+.google-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.google-modal-overlay.active {
+  display: flex;
+  opacity: 1;
+}
+
+.google-modal {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: authModalSlideIn 0.3s ease;
+  position: relative;
+}
+
+.google-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.3s ease;
+}
+
+.google-modal-close:hover {
+  color: #1a1a2e;
+}
+
+.google-modal-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.google-modal-header h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.google-modal-header p {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.google-modal .form-floating-custom {
+  margin-bottom: 1rem;
+}
+
+.google-modal .btn-auth-submit {
+  background: #4285f4;
+}
+
+.google-modal .btn-auth-submit:hover {
+  background: #3367d6;
+}
+
+/* ============================================
+   Responsive - Auth Pages
+   ============================================ */
+@media (max-width: 992px) {
+  .auth-branding {
+    display: none;
+  }
+
+  .auth-form-side {
+    flex: 1;
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .auth-form-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .auth-form-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .form-row .form-floating-custom {
+    margin-bottom: 1rem;
+  }
+
+  .social-buttons {
+    flex-direction: column;
+  }
+
+  .google-modal {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+}

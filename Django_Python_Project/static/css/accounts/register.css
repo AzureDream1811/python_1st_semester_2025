@@ -1,0 +1,61 @@
+/* ============================================
+   Register Page Specific Styles
+   Template: templates/accounts/register.html
+   ============================================ */
+
+.auth-container.register-page {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 50%, #00c48c 100%);
+}
+
+.auth-container.register-page::before {
+  width: 500px;
+  height: 500px;
+  background: rgba(255, 255, 255, 0.1);
+  top: -150px;
+  left: -150px;
+}
+
+.auth-container.register-page::after {
+  width: 350px;
+  height: 350px;
+  background: rgba(255, 255, 255, 0.08);
+  bottom: -100px;
+  right: -100px;
+}
+
+.auth-container.register-page .auth-logo {
+  animation: authBounce 2s ease-in-out infinite;
+}
+
+.auth-container.register-page .form-floating-custom input:focus {
+  border-color: #11998e;
+  box-shadow: 0 0 0 3px rgba(17, 153, 142, 0.1);
+}
+
+.auth-container.register-page .form-floating-custom input:focus + .input-icon {
+  color: #11998e;
+}
+
+.auth-container.register-page .btn-auth-submit {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.auth-container.register-page .btn-auth-submit:hover {
+  box-shadow: 0 10px 20px -10px rgba(17, 153, 142, 0.5);
+}
+
+.auth-container.register-page .btn-social:hover {
+  border-color: #11998e;
+}
+
+.auth-container.register-page .auth-footer a {
+  color: #11998e;
+}
+
+.auth-container.register-page .terms-checkbox a {
+  color: #11998e;
+}
+
+.auth-container.register-page .terms-checkbox input {
+  accent-color: #11998e;
+}

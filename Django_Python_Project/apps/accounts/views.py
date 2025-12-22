@@ -1,8 +1,8 @@
+from django.contrib.auth.forms import PasswordResetForm
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.urls import reverse
 
 from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, ProfileUpdateForm
 from .models import Profile
@@ -61,6 +61,36 @@ def logout_view(request):
     messages.info(request, 'Bạn đã đăng xuất.')
     return redirect('products:home')
 
+def forgot_password(request):
+    """Nhập email để gửi link đặt lại mật khẩu."""
+    if request.user.is_authenticated:
+        return redirect('products:home')
+
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            # form.save() sẽ:
+            # - tìm user theo email
+            # - tạo token reset
+            # - gửi email theo template_name
+            # Nếu email không tồn tại: không gửi, nhưng vẫn trả về như thành công (tránh lộ tài khoản).
+            form.save(
+                request=request,
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
+                email_template_name='accounts/password_reset_email.html',
+                subject_template_name='accounts/password_reset_subject.txt',
+            )
+            messages.success(request, 'Nếu email tồn tại trong hệ thống, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu.')
+            return redirect('accounts:password_reset_done')
+    else:
+        form = PasswordResetForm()
+
+    return render(request, 'accounts/forgot_password.html', {'form': form})
+
+
+def password_reset_done(request):
+    """Trang thông báo đã gửi email reset."""
+    return render(request, 'accounts/password_reset_done.html')
 
 @login_required
 def profile(request):

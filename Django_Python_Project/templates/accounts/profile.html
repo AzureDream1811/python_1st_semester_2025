@@ -1,8 +1,408 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Tài khoản của tôi{% endblock %}
+{% block title %}Tài khoản của tôi - ElectroShop{% endblock %}
 
 {% block extra_css %}
+<link href="{% static 'css/accounts/auth-common.css' %}" rel="stylesheet">
+<link href="{% static 'css/accounts/profile.css' %}" rel="stylesheet">
+{% endblock %}
 
+{% block content %}
+<div class="profile-page">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="container">
+            <div class="profile-header-content">
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar">
+                        {% if user.first_name %}
+                        {{ user.first_name|slice:":1"|upper }}
+                        {% else %}
+                        {{ user.username|slice:":1"|upper }}
+                        {% endif %}
+                    </div>
+                    <button class="profile-avatar-edit" title="Thay đổi ảnh đại diện">
+                        <i class="bi bi-camera"></i>
+                    </button>
+                </div>
 
+                <div class="profile-user-info">
+                    <h1>{{ user.get_full_name|default:user.username }}</h1>
+                    <p class="email">
+                        <i class="bi bi-envelope"></i>
+                        {{ user.email }}
+                    </p>
+                    <p class="member-since">
+                        <i class="bi bi-calendar3"></i>
+                        Thành viên từ {{ user.date_joined|date:"d/m/Y" }}
+                    </p>
+                </div>
+
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <span class="stat-value">0</span>
+                        <span class="stat-label">Đơn hàng</span>
+                    </div>
+                    <div class="profile-stat">
+                        <span class="stat-value">0</span>
+                        <span class="stat-label">Yêu thích</span>
+                    </div>
+                    <div class="profile-stat">
+                        <span class="stat-value">0</span>
+                        <span class="stat-label">Điểm thưởng</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Content -->
+    <div class="profile-content">
+        <div class="profile-grid">
+            <!-- Sidebar Navigation -->
+            <div class="profile-sidebar">
+                <nav class="profile-nav">
+                    <button class="profile-nav-item active" data-tab="info">
+                        <i class="bi bi-person"></i>
+                        <span>Thông tin cá nhân</span>
+                    </button>
+                    <button class="profile-nav-item" data-tab="orders">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Đơn hàng của tôi</span>
+                    </button>
+                    <button class="profile-nav-item" data-tab="addresses">
+                        <i class="bi bi-geo-alt"></i>
+                        <span>Sổ địa chỉ</span>
+                    </button>
+                    <button class="profile-nav-item" data-tab="loyalty">
+                        <i class="bi bi-star"></i>
+                        <span>Điểm thưởng</span>
+                    </button>
+                    <div class="profile-nav-divider"></div>
+                    <button class="profile-nav-item" data-tab="security">
+                        <i class="bi bi-shield-lock"></i>
+                        <span>Bảo mật</span>
+                    </button>
+                    <button class="profile-nav-item" data-tab="notifications">
+                        <i class="bi bi-bell"></i>
+                        <span>Thông báo</span>
+                    </button>
+                    <div class="profile-nav-divider"></div>
+                    <a class="profile-nav-item logout" href="{% url 'accounts:logout' %}">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Đăng xuất</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="profile-main">
+                {% if messages %}
+                {% for message in messages %}
+                <div class="profile-alert {{ message.tags }}">
+                    <i class="bi bi-{% if 'success' in message.tags %}check-circle{% elif 'error' in message.tags %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                <!-- Tab: Personal Info -->
+                <div class="profile-tab-content active" id="tab-info">
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <h3><i class="bi bi-person-circle"></i> Thông tin cá nhân</h3>
+                            <button class="profile-btn profile-btn-sm profile-btn-secondary" id="editInfoBtn">
+                                <i class="bi bi-pencil"></i> Chỉnh sửa
+                            </button>
+                        </div>
+                        <div class="profile-card-body">
+                            <form class="profile-form" id="profileForm" method="post">
+                                {% csrf_token %}
+                                <div class="profile-form-row">
+                                    <div class="profile-form-group">
+                                        <label for="last_name">Họ</label>
+                                        <input disabled id="last_name" name="last_name"
+                                               type="text" value="{{ user.last_name }}">
+                                    </div>
+                                    <div class="profile-form-group">
+                                        <label for="first_name">Tên</label>
+                                        <input disabled id="first_name" name="first_name"
+                                               type="text" value="{{ user.first_name }}">
+                                    </div>
+                                </div>
+
+                                <div class="profile-form-group">
+                                    <label for="email">Email</label>
+                                    <input disabled id="email" name="email"
+                                           type="email" value="{{ user.email }}">
+                                </div>
+
+                                <div class="profile-form-group">
+                                    <label for="phone">Số điện thoại</label>
+                                    <input disabled id="phone" name="phone"
+                                           placeholder="Chưa cập nhật"
+                                           type="tel" value="{{ user.profile.phone|default:'' }}">
+                                </div>
+
+                                <div class="profile-form-row">
+                                    <div class="profile-form-group">
+                                        <label for="birthday">Ngày sinh</label>
+                                        <input disabled id="birthday" name="birthday"
+                                               type="date" value="{{ user.profile.birthday|date:'Y-m-d'|default:'' }}">
+                                    </div>
+                                    <div class="profile-form-group">
+                                        <label for="gender">Giới tính</label>
+                                        <select disabled id="gender" name="gender">
+                                            <option value="">Chọn giới tính</option>
+                                            <option if user.profile.gender== value="male"
+                                                    selected>Nam</option>
+                                            <option if user.profile.gender== value="female"
+                                                    selected>Nữ</option>
+                                            <option if user.profile.gender== value="other"
+                                                    selected>Khác</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="profile-form-actions" id="formActions" style="display: none;">
+                                    <button class="profile-btn profile-btn-secondary" id="cancelEditBtn" type="button">
+                                        Hủy
+                                    </button>
+                                    <button class="profile-btn profile-btn-primary" type="submit">
+                                        <i class="bi bi-check-lg"></i> Lưu thay đổi
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Orders -->
+                <div class="profile-tab-content" id="tab-orders">
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <h3><i class="bi bi-box-seam"></i> Đơn hàng của tôi</h3>
+                        </div>
+                        <div class="profile-card-body">
+                            <div class="empty-state">
+                                <i class="bi bi-bag-x"></i>
+                                <h4>Chưa có đơn hàng nào</h4>
+                                <p>Bạn chưa thực hiện đơn hàng nào. Hãy bắt đầu mua sắm ngay!</p>
+                                <a class="profile-btn profile-btn-primary" href=""
+                                   style="margin-top: 1rem;">
+                                    <i class="bi bi-shop"></i> Mua sắm ngay
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Addresses -->
+                <div class="profile-tab-content" id="tab-addresses">
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <h3><i class="bi bi-geo-alt"></i> Sổ địa chỉ</h3>
+                            <button class="profile-btn profile-btn-sm profile-btn-primary">
+                                <i class="bi bi-plus-lg"></i> Thêm địa chỉ
+                            </button>
+                        </div>
+                        <div class="profile-card-body">
+                            <div class="address-list">
+                                <div class="add-address-card">
+                                    <i class="bi bi-plus-circle"></i>
+                                    <span>Thêm địa chỉ mới</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Loyalty -->
+                <div class="profile-tab-content" id="tab-loyalty">
+                    <div class="loyalty-card">
+                        <div class="loyalty-header">
+                            <h3><i class="bi bi-star-fill"></i> ElectroShop Rewards</h3>
+                            <span class="loyalty-tier">Hạng Bronze</span>
+                        </div>
+                        <div class="loyalty-points">
+                            <span class="points-value">0</span>
+                            <span class="points-label">điểm thưởng</span>
+                        </div>
+                        <div class="loyalty-progress">
+                            <div class="loyalty-progress-bar">
+                                <div class="loyalty-progress-fill" style="width: 0%;"></div>
+                            </div>
+                            <div class="loyalty-progress-text">
+                                <span>0 điểm</span>
+                                <span>1,000 điểm để lên Silver</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <h3><i class="bi bi-clock-history"></i> Lịch sử điểm thưởng</h3>
+                        </div>
+                        <div class="profile-card-body">
+                            <div class="empty-state">
+                                <i class="bi bi-gift"></i>
+                                <h4>Chưa có hoạt động nào</h4>
+                                <p>Mua sắm để tích lũy điểm thưởng và nhận nhiều ưu đãi hấp dẫn!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Security -->
+                <div class="profile-tab-content" id="tab-security">
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <h3><i class="bi bi-shield-lock"></i> Bảo mật tài khoản</h3>
+                        </div>
+                        <div class="profile-card-body">
+                            <div class="security-item">
+                                <div class="security-icon">
+                                    <i class="bi bi-key"></i>
+                                </div>
+                                <div class="security-info">
+                                    <h4>Mật khẩu</h4>
+                                    <p>Thay đổi mật khẩu để bảo vệ tài khoản của bạn</p>
+                                </div>
+                                <a class="profile-btn profile-btn-secondary profile-btn-sm"
+                                   href="{% url 'accounts:forgot_password' %}">
+                                    Đổi mật khẩu
+                                </a>
+                            </div>
+
+                            <div class="security-item">
+                                <div class="security-icon warning">
+                                    <i class="bi bi-phone"></i>
+                                </div>
+                                <div class="security-info">
+                                    <h4>Xác thực 2 lớp</h4>
+                                    <p>Thêm một lớp bảo mật cho tài khoản của bạn</p>
+                                </div>
+                                <button class="profile-btn profile-btn-secondary profile-btn-sm">
+                                    Thiết lập
+                                </button>
+                            </div>
+
+                            <div class="security-item">
+                                <div class="security-icon">
+                                    <i class="bi bi-laptop"></i>
+                                </div>
+                                <div class="security-info">
+                                    <h4>Thiết bị đăng nhập</h4>
+                                    <p>Quản lý các thiết bị đã đăng nhập vào tài khoản</p>
+                                </div>
+                                <button class="profile-btn profile-btn-secondary profile-btn-sm">
+                                    Xem chi tiết
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Notifications -->
+                <div class="profile-tab-content" id="tab-notifications">
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <h3><i class="bi bi-bell"></i> Cài đặt thông báo</h3>
+                        </div>
+                        <div class="profile-card-body">
+                            <div class="profile-form">
+                                <div class="security-item">
+                                    <div class="security-icon">
+                                        <i class="bi bi-envelope"></i>
+                                    </div>
+                                    <div class="security-info">
+                                        <h4>Thông báo qua Email</h4>
+                                        <p>Nhận thông báo về đơn hàng, khuyến mãi qua email</p>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input checked class="form-check-input" id="emailNotify" type="checkbox">
+                                    </div>
+                                </div>
+
+                                <div class="security-item">
+                                    <div class="security-icon">
+                                        <i class="bi bi-phone-vibrate"></i>
+                                    </div>
+                                    <div class="security-info">
+                                        <h4>Thông báo qua SMS</h4>
+                                        <p>Nhận thông báo về đơn hàng qua tin nhắn SMS</p>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" id="smsNotify" type="checkbox">
+                                    </div>
+                                </div>
+
+                                <div class="security-item">
+                                    <div class="security-icon">
+                                        <i class="bi bi-percent"></i>
+                                    </div>
+                                    <div class="security-info">
+                                        <h4>Khuyến mãi & Ưu đãi</h4>
+                                        <p>Nhận thông tin về chương trình khuyến mãi mới nhất</p>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input checked class="form-check-input" id="promoNotify" type="checkbox">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Tab Navigation
+    document.querySelectorAll('.profile-nav-item[data-tab]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const tabId = this.dataset.tab;
+
+            // Update active nav item
+            document.querySelectorAll('.profile-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            this.classList.add('active');
+
+            // Show corresponding tab content
+            document.querySelectorAll('.profile-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById('tab-' + tabId).classList.add('active');
+        });
+    });
+
+    // Edit Profile Form Toggle
+    const editBtn = document.getElementById('editInfoBtn');
+    const cancelBtn = document.getElementById('cancelEditBtn');
+    const formActions = document.getElementById('formActions');
+    const formInputs = document.querySelectorAll('#profileForm input, #profileForm select');
+
+    if (editBtn) {
+        editBtn.addEventListener('click', function () {
+            formInputs.forEach(input => {
+                input.disabled = false;
+            });
+            formActions.style.display = 'flex';
+            this.style.display = 'none';
+        });
+    }
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function () {
+            formInputs.forEach(input => {
+                input.disabled = true;
+            });
+            formActions.style.display = 'none';
+            editBtn.style.display = 'inline-flex';
+        });
+    }
+</script>
 {% endblock %}
