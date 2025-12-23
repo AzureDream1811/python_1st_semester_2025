@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/orders/orderlist.css' %}">
+
+<div class="orderlist-container">
+  <h1>Your Orders</h1>
+
+  {% if orders %}
+  <table class="orders-table">
+    <thead>
+      <tr>
+        <th>Order #</th>
+        <th>Date</th>
+        <th>Items</th>
+        <th>Total</th>
+        <th>Payment Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.order_number }}</td>
+        <td>{{ order.created_at|date:"M d, Y" }}</td>
+        <td>{{ order.orderitem_set.count }} item(s)</td>
+        <td>${{ order.total }}</td>
+        <td><span class="status-badge status-{{ order.payment_status }}">{{ order.get_payment_status_display }}</span></td>
+        <td>
+          <a href="{% url 'orders:detail' order.id %}" class="btn-view">View Details</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <p>You haven't placed any orders yet.</p>
+    <a href="{% url 'products:list' %}" class="btn-primary">Start Shopping</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

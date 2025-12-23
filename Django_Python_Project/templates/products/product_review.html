@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Reviews for {{ product.name }}</h1>
+
+<h2>Leave a review</h2>
+<form method="post">
+  {% csrf_token %}
+  <label>Rating</label>
+  <select name="rating">
+    <option value="5">5</option>
+    <option value="4">4</option>
+    <option value="3">3</option>
+    <option value="2">2</option>
+    <option value="1">1</option>
+  </select>
+
+  <label>Comment</label>
+  <textarea name="comment">{{ form.comment.value|default:'' }}</textarea>
+
+  <button type="submit">Submit Review</button>
+</form>
+
+<h2>Existing reviews</h2>
+<ul>
+  {% for review in reviews %}
+    <li>{{ review.user.username }} — {{ review.rating }}/5
+      <p>{{ review.comment }}</p>
+      <small>{{ review.created_at }}</small>
+    </li>
+  {% empty %}
+    <li>No reviews yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
