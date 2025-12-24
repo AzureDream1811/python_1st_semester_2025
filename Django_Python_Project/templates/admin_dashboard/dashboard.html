@@ -1,0 +1,181 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+{% load product_tags %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-speedometer2"></i> Dashboard</h2>
+
+<!-- KPI Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-subtitle mb-2">Doanh thu tháng</h6>
+                        <h3 class="card-title mb-0">{{ stats.monthly_revenue|default:0|currency }}</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-currency-dollar fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-subtitle mb-2">Tổng đơn hàng</h6>
+                        <h3 class="card-title mb-0">{{ stats.total_orders|default:0 }}</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-cart-check fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-subtitle mb-2">Khách hàng</h6>
+                        <h3 class="card-title mb-0">{{ stats.total_customers|default:0 }}</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-people fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-subtitle mb-2">Sản phẩm</h6>
+                        <h3 class="card-title mb-0">{{ stats.total_products|default:0 }}</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-box-seam fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-graph-up"></i> Doanh thu 30 ngày qua</h5>
+            </div>
+            <div class="card-body">
+                <canvas height="100" id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Trạng thái đơn hàng</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="orderStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Đơn hàng gần đây</h5>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_dashboard:order_list' %}">Xem tất cả</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày đặt</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for order in recent_orders %}
+                <tr>
+                    <td><a href="{% url 'admin_dashboard:order_detail' order.pk %}">{{ order.order_number }}</a></td>
+                    <td>{{ order.full_name }}</td>
+                    <td>{{ order.total|currency }}</td>
+                    <td>
+                            <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'cancelled' %}danger{% elif order.status == 'pending' %}warning{% else %}info{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                    </td>
+                    <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td class="text-center text-muted" colspan="5">Chưa có đơn hàng nào</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Load chart data
+        fetch('{% url "admin_dashboard:chart_data" %}?type=revenue')
+            .then(response => response.json())
+            .then(data => {
+                new Chart(document.getElementById('revenueChart'), {
+                    type: 'line',
+                    data: {
+                        labels: data.labels || [],
+                        datasets: [{
+                            label: 'Doanh thu (VNĐ)',
+                            data: data.data || [],
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1,
+                            fill: false
+                        }]
+                    },
+                    options: {responsive: true}
+                });
+            });
+
+        fetch('{% url "admin_dashboard:chart_data" %}?type=orders')
+            .then(response => response.json())
+            .then(data => {
+                new Chart(document.getElementById('orderStatusChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.labels || [],
+                        datasets: [{
+                            data: data.data || [],
+                            backgroundColor: ['#ffc107', '#17a2b8', '#28a745', '#dc3545', '#6c757d']
+                        }]
+                    },
+                    options: {responsive: true}
+                });
+            });
+    });
+</script>
+{% endblock %}
