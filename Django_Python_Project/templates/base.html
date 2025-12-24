@@ -1,6 +1,5 @@
 {% load static %}
 {% load product_tags %}
-<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -489,7 +488,7 @@
             </a>
 
             <!-- Search Bar -->
-            <form action="" class="header-search d-none d-md-block" method="GET">
+            <form action="{% url 'search:search' %}" class="header-search d-none d-md-block" method="GET">
                 <input autocomplete="off" id="searchInput" name="q" placeholder="Tìm kiếm sản phẩm..."
                        type="search" value="{{ request.GET.q }}">
                 <i class="bi bi-search search-icon"></i>
@@ -503,19 +502,19 @@
             <!-- Navigation -->
             <nav class="d-flex align-items-center gap-1 gap-lg-2">
                 <!-- Flash Sale -->
-                <a class="nav-link-custom flash-sale-link d-none d-lg-flex" href="">
+                <a class="nav-link-custom flash-sale-link d-none d-lg-flex" href="{% url 'promotions:flash_sales' %}">
                     <i class="bi bi-lightning-charge-fill"></i>
                     <span>Flash Sale</span>
                 </a>
 
                 <!-- Products -->
-                <a class="nav-link-custom d-none d-lg-flex" href="">
+                <a class="nav-link-custom d-none d-lg-flex" href="{% url 'products:product_list' %}">
                     <i class="bi bi-grid-3x3-gap"></i>
                     <span>Sản phẩm</span>
                 </a>
 
                 <!-- Cart -->
-                <a class="nav-link-custom" href="">
+                <a class="nav-link-custom" href="{% url 'cart:detail' %}">
                     <i class="bi bi-bag"></i>
                     <span class="d-none d-lg-inline">Giỏ hàng</span>
                     {% if cart_items_count > 0 %}
@@ -524,18 +523,7 @@
                 </a>
 
                 {% if user.is_authenticated %}
-                <!-- Notifications -->
-                <a class="nav-link-custom" href="" id="notificationBell">
-                    <i class="bi bi-bell"></i>
-                    <span class="d-none d-lg-inline">Thông báo</span>
-                    <span class="badge-count notification-count" style="display:none;">0</span>
-                </a>
 
-                <!-- Chat -->
-                <a class="nav-link-custom d-none d-lg-flex" href="" title="Hỗ trợ">
-                    <i class="bi bi-chat-dots"></i>
-                    <span>Chat</span>
-                </a>
 
                 <!-- User Dropdown -->
                 <div class="dropdown">
@@ -551,16 +539,16 @@
                             khoản của tôi</a></li>
                         <li><a class="dropdown-item" href="{% url 'orders:list' %}"><i class="bi bi-box-seam"></i>Đơn
                             hàng</a></li>
-                        <li><a class="dropdown-item" href=""><i
+                        <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i
                                 class="bi bi-star text-warning"></i>Điểm thưởng</a></li>
-                        <li><a class="dropdown-item" href=""><i
+                        <li><a class="dropdown-item" href="{% url 'promotions:my_vouchers' %}"><i
                                 class="bi bi-ticket-perforated text-primary"></i>Voucher của tôi</a></li>
                         {% if user.is_staff %}
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="bi bi-speedometer2"></i>Trang
-                            quản trị</a></li>
+                        <li><a class="dropdown-item" href="{% url 'admin_dashboard:dashboard' %}"><i
+                                class="bi bi-speedometer2"></i>Trang quản trị</a></li>
                         {% endif %}
                         <li>
                             <hr class="dropdown-divider">
@@ -593,6 +581,7 @@
 <!-- Main content -->
 <main class="py-4 py-lg-5">
     <div class="container">
+        {% include 'partials/_messages.html' %}
         {% block content %}{% endblock %}
     </div>
 </main>
@@ -632,7 +621,7 @@
                 <h6 class="footer-title">Sản phẩm</h6>
                 <ul class="footer-links">
                     <li><a href="{% url 'products:product_list' %}">Tất cả sản phẩm</a></li>
-                    <li><a href="">Flash Sale</a></li>
+                    <li><a href="{% url 'promotions:flash_sales' %}">Flash Sale</a></li>
                     <li><a href="#">Sản phẩm mới</a></li>
                     <li><a href="#">Bán chạy nhất</a></li>
                     <li><a href="#">Khuyến mãi hot</a></li>
