@@ -380,7 +380,7 @@ class DashboardStatistics:
             'customers': self.get_customer_count(),
             'products': self.get_active_product_count(),
             'sentiment': sentiment_stats,
-            'top_products': list(self.get_top_products(5).values('name', 'sold', 'current_price')),
+            'top_products': list(self.get_top_products(5).values('name', 'sold', 'price', 'sale_price')),
             'recent_orders': list(self.get_recent_orders(5).values(
                 'order_number', 'full_name', 'total', 'status', 'created_at'
             ))

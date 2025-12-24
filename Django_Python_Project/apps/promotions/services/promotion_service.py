@@ -13,7 +13,8 @@ from apps.promotions.models import Voucher, VoucherUsage, ComboDeal, FlashSale
 class PromotionService:
     """Service for managing promotions"""
     
-    def validate_voucher(self, code: str, cart_total: Decimal, user=None) -> Dict[str, Any]:
+    @staticmethod
+    def validate_voucher(code: str, cart_total: Decimal, user=None) -> Dict[str, Any]:
         """
         Validate voucher code
         Property 8: Invalid vouchers must return error
@@ -63,7 +64,8 @@ class PromotionService:
             'discount_value': voucher.discount_value
         }
     
-    def calculate_discount(self, voucher: Voucher, cart_total: Decimal) -> Decimal:
+    @staticmethod
+    def calculate_discount(voucher: Voucher, cart_total: Decimal) -> Decimal:
         """
         Calculate discount amount
         Property 9: Discount must be calculated correctly
@@ -83,19 +85,20 @@ class PromotionService:
         
         return discount
     
-    def apply_voucher(self, code: str, cart_total: Decimal, user=None, order=None) -> Dict[str, Any]:
+    @staticmethod
+    def apply_voucher(code: str, cart_total: Decimal, user=None, order=None) -> Dict[str, Any]:
         """
         Apply voucher and return discount
         Property 9: Must calculate correct discount amount
         """
-        validation = self.validate_voucher(code, cart_total, user)
-        
+        validation = PromotionService.validate_voucher(code, cart_total, user)
+
         if not validation['valid']:
             return validation
         
         voucher = validation['voucher']
-        discount = self.calculate_discount(voucher, cart_total)
-        
+        discount = PromotionService.calculate_discount(voucher, cart_total)
+
         # Record usage if order provided
         if order and user:
             with transaction.atomic():
@@ -115,7 +118,8 @@ class PromotionService:
             'voucher_name': voucher.name
         }
     
-    def check_combo_deals(self, cart_items: List[Dict]) -> List[Dict[str, Any]]:
+    @staticmethod
+    def check_combo_deals(cart_items: List[Dict]) -> List[Dict[str, Any]]:
         """
         Check and return applicable combo deals
         Property 10: Must auto-apply when cart contains all combo products
@@ -147,7 +151,8 @@ class PromotionService:
         
         return applicable_combos
     
-    def create_voucher(self, config: Dict[str, Any]) -> Voucher:
+    @staticmethod
+    def create_voucher(config: Dict[str, Any]) -> Voucher:
         """
         Create new voucher with full configuration
         Property 11: Voucher must have all fields from config
@@ -168,7 +173,8 @@ class PromotionService:
         )
         return voucher
     
-    def get_promotion_report(self, start_date, end_date) -> Dict[str, Any]:
+    @staticmethod
+    def get_promotion_report(start_date, end_date) -> Dict[str, Any]:
         """
         Generate promotion report
         Property 12: Report must match actual usage data

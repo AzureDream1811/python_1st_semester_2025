@@ -13,7 +13,7 @@ class Profile(models.Model):
         message="Số điện thoại phải có định dạng: '0xxxxxxxxx' hoặc '+84xxxxxxxxx'"
     )
 
-    email = models.EmailField(unique=True, verbose_name='Email', max_length=150)
+    email = models.EmailField(unique=True, blank=True, null=True, verbose_name='Email', max_length=150)
     phone = models.CharField(
         validators=[phone_regex],
         max_length=15,

@@ -132,6 +132,23 @@ class UserLoginForm(AuthenticationForm):
         label="Ghi nhớ đăng nhập"
     )
 
+    def clean(self):
+        """
+        Cho phép đăng nhập bằng email hoặc username
+        Nếu người dùng nhập email, tìm username tương ứng
+        """
+        username = self.cleaned_data.get('username')
+
+        if username and '@' in username:
+            # Nếu nhập email, tìm user theo email
+            try:
+                user = User.objects.get(email__iexact=username)
+                self.cleaned_data['username'] = user.username
+            except User.DoesNotExist:
+                pass  # Để AuthenticationForm xử lý lỗi
+
+        return super().clean()
+
 
 class UserUpdateForm(forms.ModelForm):
     """
