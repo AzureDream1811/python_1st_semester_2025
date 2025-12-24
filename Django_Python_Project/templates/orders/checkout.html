@@ -1,120 +1,332 @@
-{% extends "base.html" %}
-{% load static %}
+{% extends 'base.html' %}
+{% load product_tags %}
+
+{% block title %}Thanh toán - ElectroShop{% endblock %}
+
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/orders/checkout.css' %}">
+<!-- Redesigned checkout page with modern styling -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'products:home' %}"><i class="bi bi-house me-1"></i>Trang chủ</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cart:detail' %}">Giỏ hàng</a></li>
+        <li class="breadcrumb-item active">Thanh toán</li>
+    </ol>
+</nav>
 
-<div class="checkout-container">
-  <h1>Checkout</h1>
-
-  <form method="post" class="checkout-form">
-    {% csrf_token %}
-    
-    <div class="form-section">
-      <h2>Shipping Information</h2>
-      <div class="form-group">
-        <label for="full_name">Full Name</label>
-        <input type="text" id="full_name" name="full_name" value="{{ order.full_name|default:'' }}" required />
-      </div>
-      
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" value="{{ order.email|default:'' }}" required />
-      </div>
-      
-      <div class="form-group">
-        <label for="phone">Phone</label>
-        <input type="tel" id="phone" name="phone" value="{{ order.phone|default:'' }}" required />
-      </div>
-      
-      <div class="form-group">
-        <label for="address">Address</label>
-        <input type="text" id="address" name="address" value="{{ order.address|default:'' }}" required />
-      </div>
-      
-      <div class="form-group">
-        <label for="ward">Ward/Commune</label>
-        <input type="text" id="ward" name="ward" value="{{ order.ward|default:'' }}" />
-      </div>
-      
-      <div class="form-group">
-        <label for="district">District</label>
-        <input type="text" id="district" name="district" value="{{ order.district|default:'' }}" required />
-      </div>
-      
-      <div class="form-group">
-        <label for="city">City/Province</label>
-        <input type="text" id="city" name="city" value="{{ order.city|default:'' }}" required />
-      </div>
-      
-      <div class="form-group">
-        <label for="note">Special Notes</label>
-        <textarea id="note" name="note">{{ order.note|default:'' }}</textarea>
-      </div>
+<!-- Checkout Progress - Redesigned -->
+<div class="mb-5">
+    <div class="d-flex justify-content-center align-items-center">
+        <div class="d-flex align-items-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: var(--success); color: white;">
+                <i class="bi bi-check"></i>
+            </div>
+            <span class="ms-2 me-3 fw-semibold" style="color: var(--success);">Giỏ hàng</span>
+        </div>
+        <div style="width: 80px; height: 3px; background: linear-gradient(90deg, var(--success), var(--primary)); border-radius: 2px;"></div>
+        <div class="d-flex align-items-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center ms-3" style="width: 40px; height: 40px; background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);">
+                2
+            </div>
+            <span class="ms-2 me-3 fw-semibold" style="color: var(--primary);">Thanh toán</span>
+        </div>
+        <div style="width: 80px; height: 3px; background: var(--gray-200); border-radius: 2px;"></div>
+        <div class="d-flex align-items-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center ms-3" style="width: 40px; height: 40px; background: var(--gray-200); color: var(--gray-500);">
+                3
+            </div>
+            <span class="ms-2 text-muted">Hoàn tất</span>
+        </div>
     </div>
-
-    <div class="form-section">
-      <h2>Payment Method</h2>
-      <div class="form-group">
-        <label for="payment_method">Choose Payment Method</label>
-        <select id="payment_method" name="payment_method" required>
-          <option value="cod" {% if order.payment_method == 'cod' %}selected{% endif %}>Cash on Delivery (COD)</option>
-          <option value="bank_transfer" {% if order.payment_method == 'bank_transfer' %}selected{% endif %}>Bank Transfer</option>
-          <option value="momo" {% if order.payment_method == 'momo' %}selected{% endif %}>MoMo Wallet</option>
-          <option value="vnpay" {% if order.payment_method == 'vnpay' %}selected{% endif %}>VNPay</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="form-section">
-      <h2>Order Summary</h2>
-      <table class="order-summary">
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for item in cart_items %}
-          <tr>
-            <td>{{ item.product.name }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>${{ item.product.price }}</td>
-            <td>${{ item.line_total }}</td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="4" class="empty-cart">Your cart is empty.</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-
-      <div class="order-totals">
-        <div class="total-row">
-          <span>Subtotal:</span>
-          <span>${{ order.subtotal|default:0 }}</span>
-        </div>
-        <div class="total-row">
-          <span>Shipping Fee:</span>
-          <span>${{ order.shipping_fee|default:0 }}</span>
-        </div>
-        {% if order.discount > 0 %}
-        <div class="total-row discount">
-          <span>Discount:</span>
-          <span>-${{ order.discount }}</span>
-        </div>
-        {% endif %}
-        <div class="total-row final">
-          <span><strong>Total:</strong></span>
-          <span><strong>${{ order.total|default:0 }}</strong></span>
-        </div>
-      </div>
-    </div>
-
-    <button type="submit" class="btn-checkout">Place Order</button>
-  </form>
 </div>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="row g-4">
+        <!-- Shipping & Payment -->
+        <div class="col-lg-7">
+            <!-- Shipping Info -->
+            <div class="card mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 d-flex align-items-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 36px; height: 36px; background: var(--primary-50);">
+                            <i class="bi bi-geo-alt" style="color: var(--primary);"></i>
+                        </div>
+                        Thông tin giao hàng
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Họ tên người nhận <span class="text-danger">*</span></label>
+                            <input type="text" name="full_name" class="form-control" value="{{ profile.user.get_full_name }}"
+                                   placeholder="Nguyễn Văn A" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                            <input type="tel" name="phone" class="form-control" value="{{ profile.phone }}"
+                                   placeholder="0912 345 678" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control" value="{{ user.email }}"
+                                   placeholder="email@example.com" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Địa chỉ <span class="text-danger">*</span></label>
+                            <input type="text" name="address" class="form-control" placeholder="Số nhà, tên đường" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                            <select name="city" class="form-select" required>
+                                <option value="">-- Chọn --</option>
+                                <option value="Hà Nội">Hà Nội</option>
+                                <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                                <option value="Đà Nẵng">Đà Nẵng</option>
+                                <option value="Hải Phòng">Hải Phòng</option>
+                                <option value="Cần Thơ">Cần Thơ</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Quận/Huyện <span class="text-danger">*</span></label>
+                            <input type="text" name="district" class="form-control" placeholder="Quận/Huyện" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Phường/Xã</label>
+                            <input type="text" name="ward" class="form-control" placeholder="Phường/Xã">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Ghi chú đơn hàng</label>
+                            <textarea name="note" class="form-control" rows="2" placeholder="Ghi chú cho shipper (không bắt buộc)"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="card">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 d-flex align-items-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 36px; height: 36px; background: var(--primary-50);">
+                            <i class="bi bi-credit-card" style="color: var(--primary);"></i>
+                        </div>
+                        Phương thức thanh toán
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column gap-3">
+                        <!-- COD -->
+                        <label class="payment-option">
+                            <input class="form-check-input" type="radio" name="payment_method" value="cod" checked>
+                            <div class="payment-content">
+                                <div class="payment-icon" style="background: var(--success-light);">
+                                    <i class="bi bi-cash-stack" style="color: var(--success);"></i>
+                                </div>
+                                <div class="payment-info">
+                                    <span class="payment-title">Thanh toán khi nhận hàng (COD)</span>
+                                    <span class="payment-desc">Thanh toán bằng tiền mặt khi nhận hàng</span>
+                                </div>
+                                <i class="bi bi-check-circle-fill payment-check"></i>
+                            </div>
+                        </label>
+
+                        <!-- Bank Transfer -->
+                        <label class="payment-option">
+                            <input class="form-check-input" type="radio" name="payment_method" value="bank_transfer">
+                            <div class="payment-content">
+                                <div class="payment-icon" style="background: var(--primary-50);">
+                                    <i class="bi bi-bank" style="color: var(--primary);"></i>
+                                </div>
+                                <div class="payment-info">
+                                    <span class="payment-title">Chuyển khoản ngân hàng</span>
+                                    <span class="payment-desc">Chuyển khoản qua tài khoản ngân hàng</span>
+                                </div>
+                                <i class="bi bi-check-circle-fill payment-check"></i>
+                            </div>
+                        </label>
+
+                        <!-- MoMo -->
+                        <label class="payment-option">
+                            <input class="form-check-input" type="radio" name="payment_method" value="momo">
+                            <div class="payment-content">
+                                <div class="payment-icon" style="background: var(--danger-light);">
+                                    <i class="bi bi-wallet2" style="color: var(--danger);"></i>
+                                </div>
+                                <div class="payment-info">
+                                    <span class="payment-title">Ví MoMo</span>
+                                    <span class="payment-desc">Thanh toán qua ví điện tử MoMo</span>
+                                </div>
+                                <i class="bi bi-check-circle-fill payment-check"></i>
+                            </div>
+                        </label>
+
+                        <!-- VNPay -->
+                        <label class="payment-option">
+                            <input class="form-check-input" type="radio" name="payment_method" value="vnpay">
+                            <div class="payment-content">
+                                <div class="payment-icon" style="background: var(--info-light);">
+                                    <i class="bi bi-credit-card-2-front" style="color: var(--info);"></i>
+                                </div>
+                                <div class="payment-info">
+                                    <span class="payment-title">VNPay</span>
+                                    <span class="payment-desc">Thanh toán qua cổng VNPay (ATM/Visa/Master)</span>
+                                </div>
+                                <i class="bi bi-check-circle-fill payment-check"></i>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-5">
+            <div class="card cart-summary" style="border: 2px solid var(--gray-200); position: sticky; top: 100px;">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 d-flex align-items-center">
+                        <i class="bi bi-bag-check me-2 text-primary"></i>Đơn hàng của bạn
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Order Items -->
+                    <div class="mb-4" style="max-height: 280px; overflow-y: auto;">
+                        {% for item in items %}
+                        <div class="d-flex align-items-center py-3 {% if not forloop.last %}border-bottom{% endif %}">
+                            <div class="position-relative me-3">
+                                {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" width="60" height="60" class="rounded-3" style="object-fit: contain; background: var(--gray-50); padding: 0.25rem;">
+                                {% else %}
+                                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; background: var(--gray-100);">
+                                    <i class="bi bi-image text-muted"></i>
+                                </div>
+                                {% endif %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size: 0.625rem;">
+                                    x{{ item.quantity }}
+                                </span>
+                            </div>
+                            <div class="flex-grow-1 pe-2">
+                                <h6 class="mb-0 small" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ item.product.name }}</h6>
+                            </div>
+                            <span class="fw-bold text-nowrap">{{ item.total_price|currency }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Voucher -->
+                    <div class="mb-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="bi bi-ticket-perforated text-primary"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0" placeholder="Nhập mã giảm giá">
+                            <button class="btn btn-primary" type="button">Áp dụng</button>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Summary -->
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Tạm tính</span>
+                        <span class="fw-medium">{{ cart.subtotal|currency }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Phí vận chuyển</span>
+                        <span class="fw-medium" style="color: var(--success);">Miễn phí</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Giảm giá</span>
+                        <span class="fw-medium" style="color: var(--danger);">-0₫</span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="h6 mb-0">Tổng thanh toán</span>
+                        <span class="h4 mb-0 fw-bold" style="color: var(--primary);">{{ cart.total|currency }}</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 btn-lg">
+                        <i class="bi bi-check-lg me-2"></i>Đặt hàng
+                    </button>
+
+                    <p class="text-muted small text-center mt-3 mb-0">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Thông tin của bạn được bảo mật an toàn
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<style>
+/* Payment Option Styles */
+.payment-option {
+    cursor: pointer;
+    display: block;
+}
+
+.payment-option input {
+    display: none;
+}
+
+.payment-content {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    transition: all 0.25s ease;
+    gap: 1rem;
+}
+
+.payment-content:hover {
+    border-color: var(--primary-light);
+    background: var(--primary-50);
+}
+
+.payment-option input:checked + .payment-content {
+    border-color: var(--primary);
+    background: var(--primary-50);
+    box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+}
+
+.payment-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.payment-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.payment-title {
+    font-weight: 600;
+    color: var(--gray-800);
+}
+
+.payment-desc {
+    font-size: 0.8125rem;
+    color: var(--gray-500);
+}
+
+.payment-check {
+    color: var(--primary);
+    font-size: 1.25rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.payment-option input:checked + .payment-content .payment-check {
+    opacity: 1;
+}
+</style>
 {% endblock %}
