@@ -12,3 +12,6 @@ def home(request):
         'categories': categories,
     }
     return render(request, 'products/home.html', context)
+
+def search_result(request, name):
+    return render(request, 'products/search_result.html')
