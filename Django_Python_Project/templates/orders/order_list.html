@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+{% load product_tags %}
+{% block content %}
+<link href="{% static 'css/orders/orderlist.css' %}" rel="stylesheet">
+
+<div class="orderlist-container">
+    <h1>Đơn hàng của bạn</h1>
+
+    {% if orders %}
+    <table class="orders-table">
+        <thead>
+        <tr>
+            <th>Mã đơn</th>
+            <th>Ngày đặt</th>
+            <th>Số sản phẩm</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái thanh toán</th>
+            <th>Thao tác</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.order_number }}</td>
+            <td>{{ order.created_at|date:"d/m/Y" }}</td>
+            <td>{{ order.orderitem_set.count }} sản phẩm</td>
+            <td>{{ order.total|currency }}</td>
+            <td><span
+                    class="status-badge status-{{ order.payment_status }}">{{ order.get_payment_status_display }}</span>
+            </td>
+            <td>
+                <a class="btn-view" href="{% url 'orders:detail' order.order_number %}">Xem chi tiết</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>Bạn chưa có đơn hàng nào.</p>
+        <a class="btn-primary" href="{% url 'products:product_list' %}">Mua sắm ngay</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
