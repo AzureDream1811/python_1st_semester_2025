@@ -1,122 +1,224 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load product_tags %}
 
 {% block title %}Giỏ hàng - ElectroShop{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/cart/cart.css' %}">
-{% endblock %}
+
 {% block content %}
-<div class="container-shopping-cart">
-    <div class="content-center">
-        <div class="title-shopping-cart">
-            <h2>Giỏ hàng</h2>
-        </div>
-        <div class="info-flex">
-            <div class="info-items">
-                <form class="items-form">
-                    <table class="items-table">
-                        <!--open header table-->
-                        <thead>
-                        <tr>
-                            <th class="th-remove-item">Xóa</th>
-                            <th class="th-image-item"></th>
-                            <th class="th-product-name">Sản phẩm</th>
-                            <th class="th-price">Giá</th>
-                            <th class="th-quantity">Số lượng</th>
-                            <th class="th-subtotal">Tạm tính</th>
-                        </tr>
-                        </thead>
-                        <!--close header table-->
-                        <!--open body table-->
-                        <tbody>
-                        <tr class="row-item">
-                            <td class="icon-remove"><i class="fa-regular fa-circle-xmark"></i></td>
-                            <td class="image-product">
-                                <a href="">
-                                    <img src="assets/image/fake_products/item_pkdt_4.webp">
+<!-- Redesigned cart page with modern styling -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'products:home' %}"><i class="bi bi-house me-1"></i>Trang chủ</a></li>
+        <li class="breadcrumb-item active">Giỏ hàng</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 mb-0">
+        <i class="bi bi-bag me-2 text-primary"></i>Giỏ hàng của bạn
+    </h2>
+    {% if items %}
+    <span class="badge bg-primary px-3 py-2">{{ cart.total_items }} sản phẩm</span>
+    {% endif %}
+</div>
+
+{% if items %}
+<div class="row">
+    <!-- Cart Items -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-body p-0">
+                {% for item in items %}
+                <div class="cart-item p-4 {% if not forloop.last %}border-bottom{% endif %}">
+                    <div class="row align-items-center">
+                        <!-- Product Image -->
+                        <div class="col-md-2 col-3 mb-3 mb-md-0">
+                            <a href="{{ item.product.get_absolute_url }}" class="d-block">
+                                {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" class="img-fluid rounded-3 shadow-sm" alt="{{ item.product.name }}" style="max-height: 100px; object-fit: contain; background: var(--gray-50); padding: 0.5rem;">
+                                {% else %}
+                                <div class="bg-light rounded-3 d-flex align-items-center justify-content-center" style="height: 100px;">
+                                    <i class="bi bi-image text-muted display-6"></i>
+                                </div>
+                                {% endif %}
+                            </a>
+                        </div>
+
+                        <!-- Product Info -->
+                        <div class="col-md-4 col-9 mb-3 mb-md-0">
+                            <h6 class="mb-1">
+                                <a href="{{ item.product.get_absolute_url }}" class="text-decoration-none text-dark">
+                                    {{ item.product.name }}
                                 </a>
-                            </td>
-                            <td class="product-name">
-                                <div class="wrap-product-name">
-                                    <a href="">Kính Cường Lực Panda</a>
-                                </div>
-                            </td>
-                            <td class="product-price">
-                                <div class="price-amount">100.000<span class="underline-dong">đ</span></div>
-                            </td>
-                            <td class="product-quantity">
-                                <div class="quantity-wrap">
-                                    <div class="quantity-input">
-                                        <button id="quantityDecItemCart" class="btn-dec-item-quantity btn"
-                                                type="button">
-                                            -
-                                        </button>
-                                        <span class="num-quantity-item">100</span>
-                                        <button id="quantityIncItemCart" class="btn-inc-item-quantity btn"
-                                                type="button">
-                                            +
-                                        </button>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="product-subtotal">
-                                <div class="subtotal-price-amount">100.000đ</div>
-                            </td>
-                        </tr>
+                            </h6>
+                            <small class="text-muted d-block mb-2">{{ item.product.category.name }}</small>
+                            {% if item.product.in_stock %}
+                            <span class="badge bg-success-subtle text-success">
+                                <i class="bi bi-check-circle me-1"></i>Còn hàng
+                            </span>
+                            {% else %}
+                            <span class="badge bg-danger-subtle text-danger">
+                                <i class="bi bi-x-circle me-1"></i>Hết hàng
+                            </span>
+                            {% endif %}
+                        </div>
 
+                        <!-- Price -->
+                        <div class="col-md-2 col-4 text-center">
+                            <span class="fw-bold" style="color: var(--primary);">{{ item.price|currency }}</span>
+                        </div>
 
-                        </tbody>
-                        <!--close body table-->
-                    </table>
-                </form>
-            </div>
-            <!--open bill-->
-            <div class="bill-products">
-                <h2>Tổng cộng phải thanh toán</h2>
-                <table>
-                    <tbody>
-                    <tr class="bill-subtotal">
-                        <th>
-                            <h4>Tạm tính</h4>
-                        </th>
-                        <td><span class="bill-subtoal-amount">100.000đ</span></td>
-                    </tr>
-                    <tr class="bill-voucher">
-                        <th>
-                            <h4>Discount</h4>
-                        </th>
-                        <td><span class="bill-voucher-discount">- 0đ</span>
-                        </td>
-                    </tr>
-                    <tr class="bill-total">
-                        <th>
-                            <h4>Tổng cộng (Discount)</h4>
-                        </th>
-                        <td><span class="bill-toal-amount">100.000đ</span></td>
-                    </tr>
-                    </tbody>
-                </table>
-                <div class="process-checkout">
-                    <div class="bill-voucher">
-                                <span>
-                                    <form>
-                                        <input id="inputVoucherAtCart" class="input" placeholder="Nhập mã voucher">
-                                        <button id="btnApplyVoucherAtCart" class="btn-submit-voucher" type="submit">Áp
-                                            dụng</button>
-                                    </form>
-                                </span>
+                        <!-- Quantity -->
+                        <div class="col-md-2 col-4">
+                            <form action="{% url 'cart:update' item.pk %}" method="post" class="d-flex align-items-center justify-content-center">
+                                {% csrf_token %}
+                                <div class="d-flex align-items-center" style="border: 2px solid var(--gray-200); border-radius: 10px; overflow: hidden;">
+                                    <button type="button" class="btn btn-link text-dark px-3 py-2" onclick="updateQty(this, -1)" style="text-decoration: none;">
+                                        <i class="bi bi-dash"></i>
+                                    </button>
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}"
+                                           class="form-control border-0 text-center p-0" style="width: 40px; box-shadow: none;">
+                                    <button type="button" class="btn btn-link text-dark px-3 py-2" onclick="updateQty(this, 1)" style="text-decoration: none;">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Subtotal & Remove -->
+                        <div class="col-md-2 col-4 text-end">
+                            <span class="fw-bold d-block mb-2" style="color: var(--danger); font-size: 1.125rem;">{{ item.total_price|currency }}</span>
+                            <form action="{% url 'cart:remove' item.pk %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle" title="Xóa" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                    <div class="go-to-checkout">
-                        <button id="btnGotoCheckout" class="submit-checkout">
-                            <!--                                    mai mốt bỏ a đi-->
-                            <a href="payment.html" style="color: white">TIẾN HÀNH THANH TOÁN</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
 
-                        </button>
+        <!-- Continue Shopping -->
+        <div class="mt-4">
+            <a href="{% url 'products:product_list' %}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left me-2"></i>Tiếp tục mua sắm
+            </a>
+        </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="col-lg-4">
+        <div class="card cart-summary" style="border: 2px solid var(--gray-200);">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 d-flex align-items-center">
+                    <i class="bi bi-receipt me-2 text-primary"></i>Tóm tắt đơn hàng
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted">Tạm tính ({{ cart.total_items }} sản phẩm)</span>
+                    <span class="fw-semibold">{{ cart.subtotal|currency }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted">Phí vận chuyển</span>
+                    <span class="fw-semibold" style="color: var(--success);">Miễn phí</span>
+                </div>
+
+                <!-- Voucher Input -->
+                <div class="mb-4">
+                    <label class="form-label small text-muted mb-2">Mã giảm giá</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-ticket-perforated text-primary"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0" placeholder="Nhập mã">
+                        <button class="btn btn-primary" type="button">Áp dụng</button>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="h6 mb-0">Tổng cộng</span>
+                    <span class="h4 mb-0 fw-bold" style="color: var(--danger);">{{ cart.total|currency }}</span>
+                </div>
+
+                {% if user.is_authenticated %}
+                <a href="{% url 'orders:checkout' %}" class="btn btn-primary w-100 btn-lg">
+                    <i class="bi bi-credit-card me-2"></i>Tiến hành thanh toán
+                </a>
+                {% else %}
+                <a href="{% url 'accounts:login' %}?next={% url 'orders:checkout' %}" class="btn btn-primary w-100 btn-lg">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập để thanh toán
+                </a>
+                {% endif %}
+
+                <!-- Trust Badges -->
+                <div class="mt-4 pt-4 border-top">
+                    <div class="row text-center g-3">
+                        <div class="col-4">
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center mb-2" style="width: 44px; height: 44px; background: var(--success-light);">
+                                    <i class="bi bi-shield-check" style="color: var(--success);"></i>
+                                </div>
+                                <small class="text-muted">Bảo mật</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center mb-2" style="width: 44px; height: 44px; background: var(--primary-50);">
+                                    <i class="bi bi-truck" style="color: var(--primary);"></i>
+                                </div>
+                                <small class="text-muted">Giao nhanh</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center mb-2" style="width: 44px; height: 44px; background: var(--warning-light);">
+                                    <i class="bi bi-arrow-repeat" style="color: var(--warning);"></i>
+                                </div>
+                                <small class="text-muted">Đổi trả</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <!--close bill-->
         </div>
     </div>
 </div>
+
+<script>
+function updateQty(btn, delta) {
+    const form = btn.closest('form');
+    const input = form.querySelector('input');
+    let val = parseInt(input.value) + delta;
+    const max = parseInt(input.max);
+    if (val >= 1 && val <= max) {
+        input.value = val;
+        form.submit();
+    }
+}
+</script>
+
+{% else %}
+<!-- Empty Cart -->
+<div class="card">
+    <div class="card-body py-5">
+        <div class="text-center">
+            <div class="mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 120px; height: 120px; background: var(--gray-100);">
+                    <i class="bi bi-bag-x" style="font-size: 3rem; color: var(--gray-400);"></i>
+                </div>
+            </div>
+            <h4 class="mb-2">Giỏ hàng trống</h4>
+            <p class="text-muted mb-4">Bạn chưa có sản phẩm nào trong giỏ hàng.</p>
+            <a href="{% url 'products:product_list' %}" class="btn btn-primary btn-lg">
+                <i class="bi bi-grid me-2"></i>Khám phá sản phẩm
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
