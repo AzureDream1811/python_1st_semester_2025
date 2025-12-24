@@ -1,0 +1,73 @@
+/* ============================================
+   Register Page Specific Styles
+   Template: templates/accounts/register.html
+   ============================================ */
+
+.auth-container.register-page {
+  background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+}
+
+.auth-container.register-page::before {
+  width: 500px;
+  height: 500px;
+  background: rgba(255, 255, 255, 0.08);
+  top: -150px;
+  left: -150px;
+}
+
+.auth-container.register-page::after {
+  width: 350px;
+  height: 350px;
+  background: rgba(255, 255, 255, 0.05);
+  bottom: -100px;
+  right: -100px;
+}
+
+.auth-container.register-page .auth-logo {
+  animation: authBounce 2.5s ease-in-out infinite;
+}
+
+.auth-container.register-page .form-floating-custom input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.auth-container.register-page .form-floating-custom input:focus + .input-icon,
+.auth-container.register-page .form-floating-custom input:focus ~ .input-icon {
+  color: #10b981;
+}
+
+.auth-container.register-page .btn-auth-submit {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+
+.auth-container.register-page .btn-auth-submit:hover {
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.auth-container.register-page .btn-social:hover {
+  border-color: #10b981;
+  background: #ecfdf5;
+}
+
+.auth-container.register-page .auth-footer a {
+  color: #10b981;
+}
+
+.auth-container.register-page .auth-footer a:hover {
+  color: #059669;
+}
+
+.auth-container.register-page .terms-checkbox a {
+  color: #10b981;
+}
+
+.auth-container.register-page .terms-checkbox input {
+  accent-color: #10b981;
+}
+
+/* Password strength colors */
+.auth-container.register-page .strength-bar.strong {
+  background: #10b981;
+}

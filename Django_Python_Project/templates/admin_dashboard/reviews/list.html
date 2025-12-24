@@ -1,0 +1,107 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block title %}Quản lý đánh giá{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-star"></i> Quản lý đánh giá</h2>
+
+<!-- Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form class="row g-3" method="get">
+            <div class="col-md-10">
+                <select class="form-select" name="sentiment">
+
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-primary w-100" type="submit">
+                    <i class="bi bi-filter"></i> Lọc
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Người đánh giá</th>
+                <th>Đánh giá</th>
+                <th>Sentiment</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for review in reviews %}
+            <tr>
+                <td>{{ review.product.name|truncatechars:30 }}</td>
+                <td>{{ review.user.username }}</td>
+                <td>
+                    {% for i in "12345" %}
+                    <i class="bi bi-star{% if forloop.counter <= review.rating %}-fill text-warning{% endif %}"></i>
+                    {% endfor %}
+                </td>
+                <td>
+                        <span class="badge bg-{{ review.sentiment_color }}">
+                            {{ review.get_sentiment_display|default:"-" }}
+                        </span>
+                </td>
+                <td>
+                    {% if review.is_approved %}
+                    <span class="badge bg-success">Đã duyệt</span>
+                    {% else %}
+                    <span class="badge bg-warning">Chờ duyệt</span>
+                    {% endif %}
+                </td>
+                <td>{{ review.created_at|date:"d/m/Y" }}</td>
+                <td>
+                    {% if not review.is_approved %}
+                    <form action="{% url 'admin_dashboard:review_approve' review.pk %}" class="d-inline" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-success" title="Duyệt" type="submit">
+                            <i class="bi bi-check-lg"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                    {% if review.is_approved %}
+                    <form action="{% url 'admin_dashboard:review_reject' review.pk %}" class="d-inline" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-danger" title="Từ chối" type="submit">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td class="text-center text-muted" colspan="7">Chưa có đánh giá</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% if page_obj.has_other_pages %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Trước</a>
+                </li>
+                {% endif %}
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Sau</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

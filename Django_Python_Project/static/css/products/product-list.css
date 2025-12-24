@@ -1,0 +1,134 @@
+/* ============================================
+   Product List Page Styles
+   Template: templates/products/product_list.html
+   ============================================ */
+
+/* Filters Card */
+.filters-card {
+  position: sticky;
+  top: 100px;
+}
+
+/* Sort Bar */
+.sort-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 1rem;
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  margin-bottom: 1.25rem;
+}
+
+.results-count {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+}
+
+.results-count strong {
+  color: var(--gray-900);
+  font-weight: 700;
+}
+
+.sort-select {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sort-select label {
+  font-size: 0.875rem;
+  color: var(--gray-500);
+  white-space: nowrap;
+}
+
+.sort-select .form-select {
+  width: auto;
+  padding: 0.5rem 2rem 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  border-radius: var(--radius-md);
+}
+
+/* Filter Tags */
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background: var(--primary-50);
+  color: var(--primary);
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.filter-tag .remove-tag {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--primary);
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+}
+
+.filter-tag .remove-tag:hover {
+  opacity: 1;
+}
+
+/* Products Grid */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+@media (max-width: 991.98px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+/* Mobile Filter Toggle */
+.mobile-filter-toggle {
+  display: none;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 991.98px) {
+  .mobile-filter-toggle {
+    display: block;
+  }
+
+  .filters-sidebar {
+    display: none;
+  }
+
+  .filters-sidebar.show {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1050;
+    background: var(--white);
+    padding: 1rem;
+    overflow-y: auto;
+  }
+}

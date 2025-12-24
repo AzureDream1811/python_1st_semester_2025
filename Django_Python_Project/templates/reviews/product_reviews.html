@@ -4,106 +4,107 @@
 {% block title %}Đánh giá {{ product.name }}{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/reviews/product_reviews.css' %}">
+<link href="{% static 'css/reviews/product_reviews.css' %}" rel="stylesheet">
 
 <div class="reviews-container">
-  <h1>Reviews for {{ product.name }}</h1>
+    <h1>Reviews for {{ product.name }}</h1>
 
-  <div class="review-form-section">
-    <h2>Leave a Review</h2>
-    <form method="post" class="review-form" enctype="multipart/form-data">
-      {% csrf_token %}
-      
-      <div class="form-group">
-        <label for="rating">Rating</label>
-        <select id="rating" name="rating" required>
-          <option value="" disabled selected>Select rating</option>
-          <option value="5">⭐⭐⭐⭐⭐ 5 Stars - Excellent</option>
-          <option value="4">⭐⭐⭐⭐ 4 Stars - Good</option>
-          <option value="3">⭐⭐⭐ 3 Stars - Average</option>
-          <option value="2">⭐⭐ 2 Stars - Poor</option>
-          <option value="1">⭐ 1 Star - Very Poor</option>
-        </select>
-      </div>
+    <div class="review-form-section">
+        <h2>Leave a Review</h2>
+        <form class="review-form" enctype="multipart/form-data" method="post">
+            {% csrf_token %}
 
-      <div class="form-group">
-        <label for="comment">Your Review</label>
-        <textarea id="comment" name="comment" rows="5" placeholder="Share your experience with this product..." required>{{ form.comment.value|default:'' }}</textarea>
-      </div>
+            <div class="form-group">
+                <label for="rating">Rating</label>
+                <select id="rating" name="rating" required>
+                    <option disabled selected value="">Select rating</option>
+                    <option value="5">⭐⭐⭐⭐⭐ 5 Stars - Excellent</option>
+                    <option value="4">⭐⭐⭐⭐ 4 Stars - Good</option>
+                    <option value="3">⭐⭐⭐ 3 Stars - Average</option>
+                    <option value="2">⭐⭐ 2 Stars - Poor</option>
+                    <option value="1">⭐ 1 Star - Very Poor</option>
+                </select>
+            </div>
 
-      <div class="form-group">
-        <label for="image1">Image 1 (Optional)</label>
-        <input type="file" id="image1" name="image1" accept="image/*" />
-      </div>
+            <div class="form-group">
+                <label for="comment">Your Review</label>
+                <textarea id="comment" name="comment" placeholder="Share your experience with this product..." required
+                          rows="5">{{ form.comment.value|default:'' }}</textarea>
+            </div>
 
-      <div class="form-group">
-        <label for="image2">Image 2 (Optional)</label>
-        <input type="file" id="image2" name="image2" accept="image/*" />
-      </div>
+            <div class="form-group">
+                <label for="image1">Image 1 (Optional)</label>
+                <input accept="image/*" id="image1" name="image1" type="file"/>
+            </div>
 
-      <div class="form-group">
-        <label for="image3">Image 3 (Optional)</label>
-        <input type="file" id="image3" name="image3" accept="image/*" />
-      </div>
+            <div class="form-group">
+                <label for="image2">Image 2 (Optional)</label>
+                <input accept="image/*" id="image2" name="image2" type="file"/>
+            </div>
 
-      <button type="submit" class="btn-submit">Submit Review</button>
-    </form>
-  </div>
+            <div class="form-group">
+                <label for="image3">Image 3 (Optional)</label>
+                <input accept="image/*" id="image3" name="image3" type="file"/>
+            </div>
 
-  <div class="reviews-list-section">
-    <h2>Customer Reviews ({{ reviews.count }})</h2>
-    
-    {% if reviews %}
-    <div class="reviews-list">
-      {% for review in reviews %}
-      <div class="review-item">
-        <div class="review-header">
-          <div class="reviewer-info">
-            <strong class="reviewer-name">{{ review.user.username }}</strong>
-            {% if review.is_verified_purchase %}
-            <span class="verified-badge">✓ Verified Purchase</span>
-            {% endif %}
-          </div>
-          <div class="review-rating">
-            <span class="stars">{{ review.get_rating_display }}</span>
-            <span class="rating-value">{{ review.rating }}/5</span>
-          </div>
+            <button class="btn-submit" type="submit">Submit Review</button>
+        </form>
+    </div>
+
+    <div class="reviews-list-section">
+        <h2>Customer Reviews ({{ reviews.count }})</h2>
+
+        {% if reviews %}
+        <div class="reviews-list">
+            {% for review in reviews %}
+            <div class="review-item">
+                <div class="review-header">
+                    <div class="reviewer-info">
+                        <strong class="reviewer-name">{{ review.user.username }}</strong>
+                        {% if review.is_verified_purchase %}
+                        <span class="verified-badge">✓ Verified Purchase</span>
+                        {% endif %}
+                    </div>
+                    <div class="review-rating">
+                        <span class="stars">{{ review.get_rating_display }}</span>
+                        <span class="rating-value">{{ review.rating }}/5</span>
+                    </div>
+                </div>
+
+                <div class="review-meta">
+                    <span class="review-date">{{ review.created_at|date:"F d, Y" }}</span>
+                    {% if review.sentiment %}
+                    <span class="sentiment-badge sentiment-{{ review.sentiment }}">{{ review.get_sentiment_display }}</span>
+                    {% endif %}
+                </div>
+
+                <p class="review-comment">{{ review.comment }}</p>
+
+                {% if review.image1 or review.image2 or review.image3 %}
+                <div class="review-images">
+                    {% if review.image1 %}
+                    <img alt="Review image 1" class="review-img" src="{{ review.image1.url }}"/>
+                    {% endif %}
+                    {% if review.image2 %}
+                    <img alt="Review image 2" class="review-img" src="{{ review.image2.url }}"/>
+                    {% endif %}
+                    {% if review.image3 %}
+                    <img alt="Review image 3" class="review-img" src="{{ review.image3.url }}"/>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="review-footer">
+                    <span class="helpful-count">👍 {{ review.helpful_count }} found this helpful</span>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-
-        <div class="review-meta">
-          <span class="review-date">{{ review.created_at|date:"F d, Y" }}</span>
-          {% if review.sentiment %}
-          <span class="sentiment-badge sentiment-{{ review.sentiment }}">{{ review.get_sentiment_display }}</span>
-          {% endif %}
-        </div>
-
-        <p class="review-comment">{{ review.comment }}</p>
-
-        {% if review.image1 or review.image2 or review.image3 %}
-        <div class="review-images">
-          {% if review.image1 %}
-          <img src="{{ review.image1.url }}" alt="Review image 1" class="review-img" />
-          {% endif %}
-          {% if review.image2 %}
-          <img src="{{ review.image2.url }}" alt="Review image 2" class="review-img" />
-          {% endif %}
-          {% if review.image3 %}
-          <img src="{{ review.image3.url }}" alt="Review image 3" class="review-img" />
-          {% endif %}
+        {% else %}
+        <div class="empty-reviews">
+            <p>No reviews yet. Be the first to review this product!</p>
         </div>
         {% endif %}
-
-        <div class="review-footer">
-          <span class="helpful-count">👍 {{ review.helpful_count }} found this helpful</span>
-        </div>
-      </div>
-      {% endfor %}
     </div>
-    {% else %}
-    <div class="empty-reviews">
-      <p>No reviews yet. Be the first to review this product!</p>
-    </div>
-    {% endif %}
-  </div>
 </div>
 {% endblock %}

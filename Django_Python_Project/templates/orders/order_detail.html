@@ -1,112 +1,113 @@
 {% extends "base.html" %}
 {% load static %}
+{% load product_tags %}
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/orders/order_detail.css' %}">
+<link href="{% static 'css/orders/order_detail.css' %}" rel="stylesheet">
 
 <div class="order-detail-container">
-  <div class="order-header">
-    <h1>Order #{{ order.order_number }}</h1>
-    <div class="order-status">
-      <span class="status-badge status-{{ order.payment_status }}">{{ order.get_payment_status_display }}</span>
-      <span class="status-badge">{{ order.get_payment_method_display }}</span>
-    </div>
-  </div>
-
-  <div class="order-info-grid">
-    <div class="info-section">
-      <h2>Shipping Information</h2>
-      <div class="info-item">
-        <strong>Name:</strong>
-        <p>{{ order.full_name }}</p>
-      </div>
-      <div class="info-item">
-        <strong>Email:</strong>
-        <p>{{ order.email }}</p>
-      </div>
-      <div class="info-item">
-        <strong>Phone:</strong>
-        <p>{{ order.phone }}</p>
-      </div>
-      <div class="info-item">
-        <strong>Address:</strong>
-        <p>
-          {{ order.address }}, 
-          {% if order.ward %}{{ order.ward }},{% endif %}
-          {{ order.district }}, {{ order.city }}
-        </p>
-      </div>
-      {% if order.note %}
-      <div class="info-item">
-        <strong>Notes:</strong>
-        <p>{{ order.note }}</p>
-      </div>
-      {% endif %}
+    <div class="order-header">
+        <h1>Đơn hàng #{{ order.order_number }}</h1>
+        <div class="order-status">
+            <span class="status-badge status-{{ order.payment_status }}">{{ order.get_payment_status_display }}</span>
+            <span class="status-badge">{{ order.get_payment_method_display }}</span>
+        </div>
     </div>
 
-    <div class="info-section">
-      <h2>Order Details</h2>
-      <div class="info-item">
-        <strong>Order Date:</strong>
-        <p>{{ order.created_at|date:"F d, Y H:i" }}</p>
-      </div>
-      <div class="info-item">
-        <strong>Payment Status:</strong>
-        <p class="status-{{ order.payment_status }}">{{ order.get_payment_status_display }}</p>
-      </div>
-      <div class="info-item">
-        <strong>Payment Method:</strong>
-        <p>{{ order.get_payment_method_display }}</p>
-      </div>
-    </div>
-  </div>
+    <div class="order-info-grid">
+        <div class="info-section">
+            <h2>Thông tin giao hàng</h2>
+            <div class="info-item">
+                <strong>Họ tên:</strong>
+                <p>{{ order.full_name }}</p>
+            </div>
+            <div class="info-item">
+                <strong>Email:</strong>
+                <p>{{ order.email }}</p>
+            </div>
+            <div class="info-item">
+                <strong>Số điện thoại:</strong>
+                <p>{{ order.phone }}</p>
+            </div>
+            <div class="info-item">
+                <strong>Địa chỉ:</strong>
+                <p>
+                    {{ order.address }},
+                    {% if order.ward %}{{ order.ward }},{% endif %}
+                    {{ order.district }}, {{ order.city }}
+                </p>
+            </div>
+            {% if order.note %}
+            <div class="info-item">
+                <strong>Ghi chú:</strong>
+                <p>{{ order.note }}</p>
+            </div>
+            {% endif %}
+        </div>
 
-  <div class="items-section">
-    <h2>Order Items</h2>
-    <table class="items-table">
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Quantity</th>
-          <th>Price</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in order.orderitem_set.all %}
-        <tr>
-          <td>{{ item.product.name }}</td>
-          <td>{{ item.quantity }}</td>
-          <td>${{ item.product.price }}</td>
-          <td>${{ item.get_line_total }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+        <div class="info-section">
+            <h2>Chi tiết đơn hàng</h2>
+            <div class="info-item">
+                <strong>Ngày đặt:</strong>
+                <p>{{ order.created_at|date:"d/m/Y H:i" }}</p>
+            </div>
+            <div class="info-item">
+                <strong>Trạng thái thanh toán:</strong>
+                <p class="status-{{ order.payment_status }}">{{ order.get_payment_status_display }}</p>
+            </div>
+            <div class="info-item">
+                <strong>Phương thức thanh toán:</strong>
+                <p>{{ order.get_payment_method_display }}</p>
+            </div>
+        </div>
+    </div>
 
-  <div class="payment-summary">
-    <div class="summary-item">
-      <span>Subtotal:</span>
-      <span>${{ order.subtotal }}</span>
+    <div class="items-section">
+        <h2>Sản phẩm đã đặt</h2>
+        <table class="items-table">
+            <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Số lượng</th>
+                <th>Đơn giá</th>
+                <th>Thành tiền</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in order.orderitem_set.all %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.product.price|currency }}</td>
+                <td>{{ item.get_line_total|currency }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
-    <div class="summary-item">
-      <span>Shipping Fee:</span>
-      <span>${{ order.shipping_fee }}</span>
-    </div>
-    {% if order.discount > 0 %}
-    <div class="summary-item discount">
-      <span>Discount:</span>
-      <span>-${{ order.discount }}</span>
-    </div>
-    {% endif %}
-    <div class="summary-item total">
-      <span><strong>Total:</strong></span>
-      <span><strong>${{ order.total }}</strong></span>
-    </div>
-  </div>
 
-  <div class="action-buttons">
-    <a href="{% url 'orders:list' %}" class="btn-secondary">Back to Orders</a>
-  </div>
+    <div class="payment-summary">
+        <div class="summary-item">
+            <span>Tạm tính:</span>
+            <span>{{ order.subtotal|currency }}</span>
+        </div>
+        <div class="summary-item">
+            <span>Phí vận chuyển:</span>
+            <span>{{ order.shipping_fee|currency }}</span>
+        </div>
+        {% if order.discount > 0 %}
+        <div class="summary-item discount">
+            <span>Giảm giá:</span>
+            <span>-{{ order.discount|currency }}</span>
+        </div>
+        {% endif %}
+        <div class="summary-item total">
+            <span><strong>Tổng cộng:</strong></span>
+            <span><strong>{{ order.total|currency }}</strong></span>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <a class="btn-secondary" href="{% url 'orders:list' %}">Quay lại danh sách đơn hàng</a>
+    </div>
 </div>
 {% endblock %}

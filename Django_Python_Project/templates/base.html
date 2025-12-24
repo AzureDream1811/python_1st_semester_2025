@@ -1,198 +1,726 @@
-<!DOCTYPE html>
-<html lang="en">
+{% load static %}
+{% load product_tags %}
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="ElectroShop - Cửa hàng điện tử và điện gia dụng chính hãng hàng đầu Việt Nam" name="description">
+    <meta content="#0066FF" name="theme-color">
     <title>{% block title %}ElectroShop - Điện tử & Điện gia dụng{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-          integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="/static/css/style.css" rel="stylesheet">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+          rel="stylesheet">
+
+    <!-- Styles -->
+    <link crossorigin="anonymous"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+    <!-- Added custom header/footer styles -->
+    <style>
+        /* Modern Header Styles */
+        .main-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .main-header.scrolled {
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0066FF 0%, #00D4AA 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+
+        .header-logo:hover {
+            transform: scale(1.02);
+        }
+
+        .header-logo i {
+            background: linear-gradient(135deg, #0066FF 0%, #00D4AA 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.75rem;
+        }
+
+        .header-search {
+            position: relative;
+            max-width: 500px;
+            flex: 1;
+        }
+
+        .header-search input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 50px;
+            background: #f8fafc;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .header-search input:focus {
+            outline: none;
+            border-color: #0066FF;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+        }
+
+        .header-search .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            transition: color 0.3s ease;
+        }
+
+        .header-search input:focus + .search-icon {
+            color: #0066FF;
+        }
+
+        .header-search button {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #0066FF 0%, #00D4AA 100%);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .header-search button:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+        }
+
+        .nav-link-custom {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 0.75rem;
+            color: #4b5563;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-link-custom i {
+            font-size: 1.25rem;
+        }
+
+        .nav-link-custom:hover {
+            color: #0066FF;
+            background: rgba(0, 102, 255, 0.08);
+        }
+
+        .nav-link-custom.active {
+            color: #0066FF;
+        }
+
+        .nav-link-custom .badge-count {
+            position: absolute;
+            top: 0;
+            right: 0.25rem;
+            background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+            color: white;
+            font-size: 0.65rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .flash-sale-link {
+            background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+            color: white !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 50px;
+            animation: pulse 2s infinite;
+        }
+
+        .flash-sale-link:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #ea580c 100%);
+            color: white !important;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+            }
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #0066FF 0%, #00D4AA 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+        }
+
+        .btn-auth {
+            padding: 0.5rem 1.25rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-auth-login {
+            color: #0066FF;
+            background: transparent;
+            border: 2px solid #0066FF;
+        }
+
+        .btn-auth-login:hover {
+            background: #0066FF;
+            color: white;
+        }
+
+        .btn-auth-register {
+            background: linear-gradient(135deg, #0066FF 0%, #00D4AA 100%);
+            color: white;
+            border: none;
+        }
+
+        .btn-auth-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+            color: white;
+        }
+
+        /* Modern Footer Styles */
+        .main-footer {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            color: #94a3b8;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #0066FF 0%, #00D4AA 50%, #0066FF 100%);
+            background-size: 200% 100%;
+            animation: gradientMove 3s linear infinite;
+        }
+
+        @keyframes gradientMove {
+            0% {
+                background-position: 0% 0%;
+            }
+            100% {
+                background-position: 200% 0%;
+            }
+        }
+
+        .footer-logo {
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0066FF 0%, #00D4AA 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-logo i {
+            font-size: 2rem;
+        }
+
+        .footer-title {
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 1.25rem;
+            position: relative;
+            padding-bottom: 0.75rem;
+        }
+
+        .footer-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(135deg, #0066FF 0%, #00D4AA 100%);
+            border-radius: 2px;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-links a:hover {
+            color: #00D4AA;
+            padding-left: 0.5rem;
+        }
+
+        .footer-contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-contact-item i {
+            width: 36px;
+            height: 36px;
+            background: rgba(0, 102, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0066FF;
+            flex-shrink: 0;
+        }
+
+        .footer-contact-item a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-contact-item a:hover {
+            color: #00D4AA;
+        }
+
+        .social-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        .social-btn.facebook {
+            background: #1877F2;
+        }
+
+        .social-btn.youtube {
+            background: #FF0000;
+        }
+
+        .social-btn.tiktok {
+            background: #000000;
+        }
+
+        .social-btn.zalo {
+            background: #0068FF;
+        }
+
+        .social-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+
+        .payment-methods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .payment-badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .footer-badge {
+            background: rgba(0, 102, 255, 0.1);
+            border: 1px solid rgba(0, 102, 255, 0.2);
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .footer-badge i {
+            font-size: 1.5rem;
+            color: #0066FF;
+        }
+
+        .footer-badge span {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .footer-badge strong {
+            color: white;
+            display: block;
+        }
+
+        /* Dropdown Menu Styles */
+        .dropdown-menu {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            padding: 0.75rem;
+            min-width: 220px;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            color: #374151;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(0, 102, 255, 0.08);
+            color: #0066FF;
+        }
+
+        .dropdown-divider {
+            margin: 0.5rem 0;
+            border-color: #e5e7eb;
+        }
+    </style>
     {% block extra_css %}{% endblock %}
 </head>
-<body>
-<header>
-    <div class="header-container">
-        <div class="header-top">
-            <a class="logo-brand" href="">LOGO?</a>
-            <div class="search-bar">
-                <form action="" class="d-flex mx-auto search-box" method="GET"
-                      style="max-width: 500px; flex: 1;">
-                    <div class="input-group">
-                        <input class="form-control" name="q" placeholder="Tìm kiếm sản phẩm..." type="search"
-                               value="">
-                        <button class="btn btn-primary" type="submit">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </div>
-                </form>
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link" href="">
-                            <i class="bi bi-grid-3x3-gap me-1"></i> Sản phẩm
-                        </a>
-                    </li>
-                    <li class="nav-item position-relative">
-                        <a class="nav-link" href="">
-                            <i class="bi bi-bag me-1"></i> Giỏ hàng
-                            {% if cart_items_count > 0 %}
-                            <span class="cart-badge">{{ cart_items_count }}</span>
-                            {% endif %}
-                        </a>
-                    </li>
-                    {% if user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">
-                            <i class="bi bi-person-circle me-1"></i> {{ user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
-                            <li><a class="dropdown-item py-2" href=""><i
-                                    class="bi bi-person me-2"></i> Tài khoản</a></li>
-                            <li><a class="dropdown-item py-2" href=""><i
-                                    class="bi bi-box-seam me-2"></i> Đơn hàng</a></li>
-                            {% if user.is_staff %}
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item py-2" href=""><i
-                                    class="bi bi-speedometer2 me-2"></i> Quản trị</a></li>
-                            {% endif %}
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item py-2 text-danger" href=""><i
-                                    class="bi bi-box-arrow-right me-2"></i> Đăng xuất</a></li>
-                        </ul>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="">
-                            <i class="bi bi-box-arrow-in-right me-1"></i> Đăng nhập
-                        </a>
-                    </li>
-                    <li class="nav-item ms-2">
-                        <a class="btn btn-primary btn-sm px-3" href="">
-                            <i class="bi bi-person-plus me-1"></i> Đăng ký
-                        </a>
-                    </li>
+<body class="{% block body_class %}{% endblock %}">
+<!-- Redesigned header with glassmorphism and better styling -->
+<header class="main-header">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between py-3 gap-3 gap-lg-4">
+            <!-- Logo -->
+            <a class="header-logo" href="{% url 'products:home' %}">
+                <i class="bi bi-lightning-charge-fill"></i>
+                <span class="d-none d-sm-inline">ElectroShop</span>
+            </a>
+
+            <!-- Search Bar -->
+            <form action="{% url 'search:search' %}" class="header-search d-none d-md-block" method="GET">
+                <input autocomplete="off" id="searchInput" name="q" placeholder="Tìm kiếm sản phẩm..."
+                       type="search" value="{{ request.GET.q }}">
+                <i class="bi bi-search search-icon"></i>
+                <button type="submit">
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+                <div class="position-absolute bg-white border rounded-3 shadow-lg mt-2" id="autocompleteResults"
+                     style="display:none; z-index:1000; width:100%; left: 0;"></div>
+            </form>
+
+            <!-- Navigation -->
+            <nav class="d-flex align-items-center gap-1 gap-lg-2">
+                <!-- Flash Sale -->
+                <a class="nav-link-custom flash-sale-link d-none d-lg-flex" href="{% url 'promotions:flash_sales' %}">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                    <span>Flash Sale</span>
+                </a>
+
+                <!-- Products -->
+                <a class="nav-link-custom d-none d-lg-flex" href="{% url 'products:product_list' %}">
+                    <i class="bi bi-grid-3x3-gap"></i>
+                    <span>Sản phẩm</span>
+                </a>
+
+                <!-- Cart -->
+                <a class="nav-link-custom" href="{% url 'cart:detail' %}">
+                    <i class="bi bi-bag"></i>
+                    <span class="d-none d-lg-inline">Giỏ hàng</span>
+                    {% if cart_items_count > 0 %}
+                    <span class="badge-count">{{ cart_items_count }}</span>
                     {% endif %}
-                </ul>
-            </div>
-        </div>
-        <div class="header-bottom">
-            <nav>
-                <ul class="nav justify-content-center">
-                    <li class="nav-item has-dropdown">
-                        <a class="nav-link category-list" href="">Danh mục
-                            <i class="icon-menu"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="">Thiết bị Nhà bếp</a></li>
-                            <li><a class="dropdown-item" href="">Thiết bị Giặt giũ & Chăm sóc quần áo</a></li>
-                            <li><a class="dropdown-item" href="">Điện lạnh & Xử lý không khí</a></li>
-                            <li><a class="dropdown-item" href="">Thiết bị Vệ sinh nhà cửa</a></li>
-                            <li><a class="dropdown-item" href="">Thiết bị Phòng tắm & Nước nóng</a></li>
-                            <li><a class="dropdown-item" href="">Thiết bị Chăm sóc cá nhân</a></li>
-                            <li><a class="dropdown-item" href="">Sản phẩm khác</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Tủ lạnh</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Máy giặt</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Máy lạnh</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Máy hút bụi</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Tin tức</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Liên hệ</a>
-                    </li>
-                </ul>
+                </a>
+
+                {% if user.is_authenticated %}
+
+
+                <!-- User Dropdown -->
+                <div class="dropdown">
+                    <div aria-expanded="false" class="user-avatar" data-bs-toggle="dropdown">
+                        {{ user.first_name|slice:":1"|default:user.username|slice:":1"|upper }}
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li class="px-3 py-2 border-bottom mb-2">
+                            <strong class="d-block text-dark">{{ user.first_name|default:user.username }}</strong>
+                            <small class="text-muted">{{ user.email }}</small>
+                        </li>
+                        <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person"></i>Tài
+                            khoản của tôi</a></li>
+                        <li><a class="dropdown-item" href="{% url 'orders:list' %}"><i class="bi bi-box-seam"></i>Đơn
+                            hàng</a></li>
+                        <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i
+                                class="bi bi-star text-warning"></i>Điểm thưởng</a></li>
+                        <li><a class="dropdown-item" href="{% url 'promotions:my_vouchers' %}"><i
+                                class="bi bi-ticket-perforated text-primary"></i>Voucher của tôi</a></li>
+                        {% if user.is_staff %}
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="{% url 'admin_dashboard:dashboard' %}"><i
+                                class="bi bi-speedometer2"></i>Trang quản trị</a></li>
+                        {% endif %}
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i
+                                class="bi bi-box-arrow-right"></i>Đăng xuất</a></li>
+                    </ul>
+                </div>
+                {% else %}
+                <div class="d-flex align-items-center gap-2 ms-2">
+                    <a class="btn btn-auth btn-auth-login" href="{% url 'accounts:login' %}">Đăng nhập</a>
+                    <a class="btn btn-auth btn-auth-register d-none d-sm-inline-block"
+                       href="{% url 'accounts:register' %}">Đăng ký</a>
+                </div>
+                {% endif %}
             </nav>
         </div>
+
+        <!-- Mobile Search -->
+        <form action="" class="header-search d-md-none pb-3" method="GET">
+            <input autocomplete="off" name="q" placeholder="Tìm kiếm..." type="search" value="{{ request.GET.q }}">
+            <i class="bi bi-search search-icon"></i>
+            <button type="submit">
+                <i class="bi bi-arrow-right"></i>
+            </button>
+        </form>
     </div>
 </header>
-<main>
-    {% block content %}{% endblock %}
+
+<!-- Main content -->
+<main class="py-4 py-lg-5">
+    <div class="container">
+        {% include 'partials/_messages.html' %}
+        {% block content %}{% endblock %}
+    </div>
 </main>
-<footer>
-    <!--Footer Top-->
-    <div class="footer-container">
-        <div class="row g-4">
-            <div class="col-lg-4 footer-col">
-                <h5><i class=""></i>LOGO?</h5>
-                <p class="text-secondary mb-4">Cửa hàng điện tử và điện gia dụng uy tín, chất lượng với giá tốt nhất.
-                    Cam kết sản phẩm chính hãng, bảo hành đầy đủ.</p>
-                <div class="social-links">
-                    <a href="#"><i class="bi bi-facebook"></i></a>
-                    <a href="#"><i class="bi bi-instagram"></i></a>
-                    <a href="#"><i class="bi bi-youtube"></i></a>
-                    <a href="#"><i class="bi bi-tiktok"></i></a>
+
+<footer class="main-footer py-5 mt-5">
+    <div class="container">
+        <div class="row g-4 g-lg-5">
+            <!-- Brand Column -->
+            <div class="col-lg-4">
+                <div class="footer-logo mb-3">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                    <span>ElectroShop</span>
+                </div>
+                <p class="mb-4">Cửa hàng điện tử và điện gia dụng chính hãng hàng đầu Việt Nam. Cam kết chất lượng tốt
+                    nhất, giá cả cạnh tranh nhất thị trường.</p>
+
+                <!-- Social Links -->
+                <div class="d-flex gap-2 mb-4">
+                    <a class="social-btn facebook" href="#"><i class="bi bi-facebook"></i></a>
+                    <a class="social-btn youtube" href="#"><i class="bi bi-youtube"></i></a>
+                    <a class="social-btn tiktok" href="#"><i class="bi bi-tiktok"></i></a>
+                    <a class="social-btn zalo" href="#">Z</a>
+                </div>
+
+                <!-- Payment Methods -->
+                <p class="small mb-2 text-white">Phương thức thanh toán:</p>
+                <div class="payment-methods">
+                    <span class="payment-badge"><i class="bi bi-credit-card"></i> Visa</span>
+                    <span class="payment-badge"><i class="bi bi-credit-card-2-front"></i> MasterCard</span>
+                    <span class="payment-badge"><i class="bi bi-wallet2"></i> MoMo</span>
+                    <span class="payment-badge"><i class="bi bi-bank"></i> VNPay</span>
                 </div>
             </div>
-            <div class="col-lg-2 footer-col">
-                <h6>Danh mục</h6>
-                <a href="">Tất cả sản phẩm</a>
-                <a href="#">Tủ lạnh</a>
-                <a href="#">Máy giặt</a>
-                <a href="#">Máy lạnh</a>
-                <a href="#">Máy hút bụi</a>
+
+            <!-- Products Column -->
+            <div class="col-6 col-lg-2">
+                <h6 class="footer-title">Sản phẩm</h6>
+                <ul class="footer-links">
+                    <li><a href="{% url 'products:product_list' %}">Tất cả sản phẩm</a></li>
+                    <li><a href="{% url 'promotions:flash_sales' %}">Flash Sale</a></li>
+                    <li><a href="#">Sản phẩm mới</a></li>
+                    <li><a href="#">Bán chạy nhất</a></li>
+                    <li><a href="#">Khuyến mãi hot</a></li>
+                </ul>
             </div>
-            <div class="col-lg-3 footer-col">
-                <h6>Hỗ trợ khách hàng</h6>
-                <a href="#">Chính sách đổi trả</a>
-                <a href="#">Hướng dẫn mua hàng</a>
-                <a href="#">Phương thức thanh toán</a>
-                <a href="#">Chính sách bảo hành</a>
-                <a href="#">Liên hệ</a>
+
+            <!-- Support Column -->
+            <div class="col-6 col-lg-2">
+                <h6 class="footer-title">Hỗ trợ</h6>
+                <ul class="footer-links">
+                    <li><a href="#">Hướng dẫn mua hàng</a></li>
+                    <li><a href="#">Chính sách đổi trả</a></li>
+                    <li><a href="#">Chính sách bảo hành</a></li>
+                    <li><a href="#">Câu hỏi thường gặp</a></li>
+                    <li><a href="#">Liên hệ hỗ trợ</a></li>
+                </ul>
             </div>
-            <div class="col-lg-3 footer-col">
-                <h6>Liên hệ</h6>
-                <p class="text-secondary mb-2">
-                    <i class="bi bi-geo-alt me-2"></i>Khu Phố 6, P. Linh Trung, Q. Thủ Đức, TP.HCM
-                </p>
-                <p class="text-secondary mb-2">
-                    <i class="bi bi-telephone me-2"></i>Hotline: <strong style="color: #ff6b35;">1900 1234</strong>
-                </p>
-                <p class="text-secondary mb-2">
-                    <i class="bi bi-envelope me-2"></i>support@giadungdien.vn
-                </p>
-                <p class="text-secondary mb-0">
-                    <i class="bi bi-clock me-2"></i>8:00 - 21:00 (T2 - CN)
-                </p>
+
+            <!-- Contact Column -->
+            <div class="col-lg-4">
+                <h6 class="footer-title">Liên hệ với chúng tôi</h6>
+
+                <div class="footer-contact-item">
+                    <i class="bi bi-geo-alt"></i>
+                    <div>
+                        <strong class="text-white d-block">Địa chỉ</strong>
+                        123 Đường ABC, Quận XYZ, TP.HCM
+                    </div>
+                </div>
+
+                <div class="footer-contact-item">
+                    <i class="bi bi-telephone"></i>
+                    <div>
+                        <strong class="text-white d-block">Hotline</strong>
+                        <a href="tel:19001234">1900 1234</a> (8:00 - 21:00)
+                    </div>
+                </div>
+
+                <div class="footer-contact-item">
+                    <i class="bi bi-envelope"></i>
+                    <div>
+                        <strong class="text-white d-block">Email</strong>
+                        <a href="mailto:support@electroshop.vn">support@electroshop.vn</a>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
-    <!--Footer Botton-->
-    <div class="footer-bottom">
-        <div class="footer-bottom-content">
-            <div class="text-center text-md-start">
-                <p class="">&copy; 2024 LOGO?. All rights reserved.</p>
-            </div>
-            <div class="payment-methods">
-                <img alt="Visa" class="me-2" height="25"
-                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Visa.svg/121px-Visa.svg.png">
-                <img alt="Mastercard"
-                     class="me-2" height="25"
-                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mastercard_2019_logo.svg/120px-Mastercard_2019_logo.svg.png">
-                <img alt="MoMo" class="me-2" height="25"
-                     src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png">
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="row align-items-center g-3">
+                <div class="col-lg-4">
+                    <p class="mb-0 small">&copy; 2025 ElectroShop. Tất cả quyền được bảo lưu.</p>
+                </div>
+                <div class="col-lg-8">
+                    <div class="d-flex flex-wrap justify-content-lg-end gap-3">
+                        <div class="footer-badge">
+                            <i class="bi bi-shield-check"></i>
+                            <div>
+                                <strong>100% Chính hãng</strong>
+                                <span>Cam kết hàng thật</span>
+                            </div>
+                        </div>
+                        <div class="footer-badge">
+                            <i class="bi bi-truck"></i>
+                            <div>
+                                <strong>Giao hàng toàn quốc</strong>
+                                <span>Miễn phí từ 500K</span>
+                            </div>
+                        </div>
+                        <div class="footer-badge">
+                            <i class="bi bi-arrow-repeat"></i>
+                            <div>
+                                <strong>Đổi trả 30 ngày</strong>
+                                <span>Hoàn tiền 100%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </footer>
 
-{% block extra_js %}{% endblock %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{% static 'js/main.js' %}"></script>
 
+<!-- Added header scroll effect -->
+<script>
+    // Header scroll effect
+    window.addEventListener('scroll', function () {
+        const header = document.querySelector('.main-header');
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+</script>
 </body>
 </html>

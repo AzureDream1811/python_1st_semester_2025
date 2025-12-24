@@ -3,6 +3,7 @@ Django settings for E-commerce project.
 Web bán đồ điện tử với tính năng Sentiment Analysis
 """
 
+import os
 from pathlib import Path
 from decouple import config
 
@@ -15,8 +16,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-produc
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = str(config('ALLOWED_HOSTS', default='localhost,127.0.0.1')).split(',')
-
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -32,6 +32,9 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap4',
     'widget_tweaks',
+    'channels',
+    'django_celery_beat',
+    'django_celery_results',
 
     # Local apps
     'apps.accounts',
@@ -39,6 +42,9 @@ INSTALLED_APPS = [
     'apps.cart',
     'apps.orders',
     'apps.reviews',
+    'apps.admin_dashboard',
+    'apps.promotions',
+    'apps.search',
 ]
 
 MIDDLEWARE = [
@@ -104,6 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
 
 # Internationalization
 LANGUAGE_CODE = 'vi'
