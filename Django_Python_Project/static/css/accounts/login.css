@@ -4,67 +4,59 @@
    ============================================ */
 
 .auth-container.login-page {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
 }
 
 .auth-container.login-page::before {
-  width: 600px;
-  height: 600px;
-  background: rgba(255, 255, 255, 0.1);
-  top: -200px;
-  right: -200px;
+  width: 500px;
+  height: 500px;
+  background: rgba(255, 255, 255, 0.08);
+  top: -150px;
+  right: -150px;
 }
 
 .auth-container.login-page::after {
-  width: 400px;
-  height: 400px;
-  background: rgba(255, 255, 255, 0.08);
-  bottom: -150px;
-  left: -150px;
+  width: 350px;
+  height: 350px;
+  background: rgba(255, 255, 255, 0.05);
+  bottom: -100px;
+  left: -100px;
 }
 
 .auth-container.login-page .auth-logo {
-  animation: authPulse 2s ease-in-out infinite;
+  animation: authPulse 3s ease-in-out infinite;
 }
 
 .auth-container.login-page .form-floating-custom input:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.auth-container.login-page .form-floating-custom input:focus + .input-icon {
-  color: #667eea;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .auth-container.login-page .btn-auth-submit {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
 }
 
 .auth-container.login-page .btn-auth-submit:hover {
-  box-shadow: 0 10px 20px -10px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
 }
 
 .auth-container.login-page .btn-social:hover {
-  border-color: #667eea;
-  background: #f9fafb;
+  border-color: #2563eb;
+  background: #eff6ff;
 }
 
 .auth-container.login-page .auth-footer a {
-  color: #667eea;
+  color: #2563eb;
 }
 
 .auth-container.login-page .auth-footer a:hover {
-  color: #764ba2;
+  color: #1d4ed8;
 }
 
 .auth-container.login-page .forgot-link {
-  color: #667eea;
-}
-
-.auth-container.login-page .forgot-link:hover {
-  color: #764ba2;
+  color: #2563eb;
 }
 
 .auth-container.login-page .custom-checkbox input {
-  accent-color: #667eea;
+  accent-color: #2563eb;
 }

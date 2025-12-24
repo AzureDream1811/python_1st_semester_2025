@@ -56,13 +56,15 @@
                 <!-- form-row now has margin-bottom for spacing -->
                 <div class="form-row">
                     <div class="form-floating-custom">
-                        <input class="{% if form.last_name.errors %}is-invalid{% endif %}" id="last_name" name="last_name"
+                        <input class="{% if form.last_name.errors %}is-invalid{% endif %}" id="last_name"
+                               name="last_name"
                                placeholder="Họ"
                                type="text" value="{{ form.last_name.value|default:'' }}">
                         <i class="bi bi-person input-icon"></i>
                     </div>
                     <div class="form-floating-custom">
-                        <input class="{% if form.first_name.errors %}is-invalid{% endif %}" id="first_name" name="first_name"
+                        <input class="{% if form.first_name.errors %}is-invalid{% endif %}" id="first_name"
+                               name="first_name"
                                placeholder="Tên"
                                type="text" value="{{ form.first_name.value|default:'' }}">
                         <i class="bi bi-person input-icon"></i>
