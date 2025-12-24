@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load product_tags %}
+
+{% block title %}Combo Deals - ElectroShop{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="text-center mb-5">
+        <h1><i class="bi bi-box-seam me-2 text-primary"></i>Combo Deals</h1>
+        <p class="lead text-muted">Mua combo tiết kiệm hơn!</p>
+    </div>
+
+    {% if combo_deals %}
+    <div class="row">
+        {% for combo in combo_deals %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">{{ combo.name }}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">{{ combo.description }}</p>
+
+                    <h6>Sản phẩm trong combo:</h6>
+                    <ul class="list-unstyled">
+                        {% for product in combo.products.all %}
+                        <li class="d-flex align-items-center mb-2">
+                            <img alt="{{ product.name }}" class="me-2" src="{{ product.image.url }}"
+                                 style="width: 50px; height: 50px; object-fit: cover;">
+                            <div>
+                                <span>{{ product.name }}</span>
+                                <br>
+                                <small class="text-muted">{{ product.price|currency }}</small>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted text-decoration-line-through">{{ combo.original_price|currency }}</span>
+                            <br>
+                            <span class="text-danger fs-4 fw-bold">{{ combo.combo_price|currency }}</span>
+                        </div>
+                        <span class="badge bg-danger fs-6">Tiết kiệm {{ combo.discount_value }}{% if combo.discount_type == 'percentage' %}%{% else %}đ{% endif %}</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-primary w-100" href="#">
+                        <i class="bi bi-cart-plus me-2"></i>Thêm combo vào giỏ
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-box-seam display-1 text-muted mb-3"></i>
+        <h4>Không có combo deal nào</h4>
+        <p class="text-muted">Hãy quay lại sau để xem các combo hấp dẫn!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
