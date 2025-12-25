@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Kết quả tìm kiếm{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/products/search_result.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="search-result-page">
+        <h3>Kết quả tìm kiếm</h3>
+        <p class="result-summary">Từ khóa: <strong>"xxx"</strong></p>
+
+        <form method="get" action="" class="form-filter">
+            <div class="filter-bar">
+                <h3>Bộ Lọc Sản Phẩm</h3>
+
+                <div class="filter-grid">
+                    <!-- Filter giá -->
+                    <div class="filter-item">
+                        <label for="price">Khoảng giá</label>
+                        <select name="price" id="price">
+                            <option value="">Tất cả</option>
+                            <option value="0-100">Dưới 100.000đ</option>
+                            <option value="100-300">100.000đ - 300.000đ</option>
+                            <option value="300-500">300.000đ - 500.000đ</option>
+                            <option value="500-1000">500.000đ - 1.000.000đ</option>
+                            <option value="1000-up">Trên 1.000.000đ</option>
+                        </select>
+                    </div>
+
+                    <!-- Filter danh mục -->
+                    <div class="filter-item">
+                        <label for="category">Danh mục</label>
+                        <select name="category" id="category">
+                            <option value="">Tất cả</option>
+                            <option value="ddd">Điện dân dụng</option>
+                            <option value="xxx">xxx</option>
+                        </select>
+                    </div>
+
+                    <!-- Filter đánh giá -->
+                    <div class="filter-item">
+                        <label for="rating">Đánh giá</label>
+                        <select name="rating" id="rating">
+                            <option value="">Tất cả</option>
+                            <option value="5">★★★★★ (5 sao)</option>
+                            <option value="4">★★★★☆ trở lên</option>
+                            <option value="3">★★★☆☆ trở lên</option>
+                            <option value="2">★★☆☆☆ trở lên</option>
+                            <option value="1">★☆☆☆☆ trở lên</option>
+                        </select>
+                    </div>
+
+                    <!-- Nút lọc -->
+                    <div class="filter-item">
+                        <button type="submit" id="btnFilter">
+                            <i class="fa-solid fa-filter"></i> Lọc
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+
+        <div class="wrap-center-content">
+            <div class="products-flex">
+                <!--                item 1-->
+                <div class="container-product-item">
+                    <div class="item-wrap">
+                        <div class="container-item">
+                            <div class="image-product-item">
+                                <img src="https://cdn.tgdd.vn/Products/Images/1922/296809/ks-com183mv-wh-1-700x467.jpg"
+                                     loading="lazy"
+                                     decoding="async">
+                            </div>
+                            <div class="title-product-item">Nồi cơm điện tử Sharp 1.8 lít KS-COM183MV-WH</div>
+                            <div class="price-product-item">200.000<span class="underline_dong">đ</span></div>
+                            <div class="price-product-item-after-sale">150.000<span class="underline_dong">đ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wrap-btn-add-cart">
+                        <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+                    </div>
+                </div>
+                <!--                item 2-->
+                <div class="container-product-item">
+                    <div class="item-wrap">
+                        <div class="container-item">
+                            <div class="image-product-item">
+                                <img src="https://cdn.tgdd.vn/Products/Images/1922/296809/ks-com183mv-wh-1-700x467.jpg"
+                                     loading="lazy"
+                                     decoding="async">
+                            </div>
+                            <div class="title-product-item">Nồi cơm điện tử Sharp 1.8 lít KS-COM183MV-WH</div>
+                            <div class="price-product-item">200.000<span class="underline_dong">đ</span></div>
+                            <div class="price-product-item-after-sale">150.000<span class="underline_dong">đ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wrap-btn-add-cart">
+                        <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+                    </div>
+                </div>
+                <!--                item 3-->
+                <div class="container-product-item">
+                    <div class="item-wrap">
+                        <div class="container-item">
+                            <div class="image-product-item">
+                                <img src="https://cdn.tgdd.vn/Products/Images/1922/296809/ks-com183mv-wh-1-700x467.jpg"
+                                     loading="lazy"
+                                     decoding="async">
+                            </div>
+                            <div class="title-product-item">Nồi cơm điện tử Sharp 1.8 lít KS-COM183MV-WH</div>
+                            <div class="price-product-item">200.000<span class="underline_dong">đ</span></div>
+                            <div class="price-product-item-after-sale">150.000<span class="underline_dong">đ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wrap-btn-add-cart">
+                        <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+                    </div>
+                </div>
+                <!--                item 4-->
+                <div class="container-product-item">
+                    <div class="item-wrap">
+                        <div class="container-item">
+                            <div class="image-product-item">
+                                <img src="https://cdn.tgdd.vn/Products/Images/1989/68568/sunhouse-shd1182-18-lit-700x467-03.jpg"
+                                     loading="lazy"
+                                     decoding="async">
+                            </div>
+                            <div class="title-product-item">Bình đun siêu tốc Sunhouse 1.8 lít SHD1182</div>
+                            <div class="price-product-item">120.000<span class="underline_dong">đ</span></div>
+                            <div class="price-product-item-after-sale">90.000<span class="underline_dong">đ</span></div>
+                        </div>
+                    </div>
+                    <div class="wrap-btn-add-cart">
+                        <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+                    </div>
+                </div>
+                <!--                item 5-->
+                <div class="container-product-item">
+                    <div class="item-wrap">
+                        <div class="container-item">
+                            <div class="image-product-item">
+                                <img src="https://cdn.tgdd.vn/Products/Images/1989/68568/sunhouse-shd1182-18-lit-700x467-03.jpg"
+                                     loading="lazy"
+                                     decoding="async">
+                            </div>
+                            <div class="title-product-item">Bình đun siêu tốc Sunhouse 1.8 lít SHD1182</div>
+                            <div class="price-product-item">120.000<span class="underline_dong">đ</span></div>
+                            <div class="price-product-item-after-sale">90.000<span class="underline_dong">đ</span></div>
+                        </div>
+                    </div>
+                    <div class="wrap-btn-add-cart">
+                        <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+                    </div>
+                </div>
+                <!--                item 6-->
+                <div class="container-product-item">
+                    <div class="item-wrap">
+                        <div class="container-item">
+                            <div class="image-product-item">
+                                <img src="https://cdn.tgdd.vn/Products/Images/1989/68568/sunhouse-shd1182-18-lit-700x467-03.jpg"
+                                     loading="lazy"
+                                     decoding="async">
+                            </div>
+                            <div class="title-product-item">Bình đun siêu tốc Sunhouse 1.8 lít SHD1182</div>
+                            <div class="price-product-item">120.000<span class="underline_dong">đ</span></div>
+                            <div class="price-product-item-after-sale">90.000<span class="underline_dong">đ</span></div>
+                        </div>
+                    </div>
+                    <div class="wrap-btn-add-cart">
+                        <button class="add-cart">THÊM VÀO GIỎ HÀNG</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
