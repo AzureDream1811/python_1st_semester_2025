@@ -1,0 +1,103 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load product_tags %}
+
+{% block title %}Quản lý đơn hàng{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-cart3"></i> Quản lý đơn hàng</h2>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form class="row g-3" method="get">
+            <div class="col-md-4">
+                <select class="form-select" name="status">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    {% for value, label in status_choices %}
+                    <option %} %}selected{% endif if request.GET.status== value value="{{ value }}" {%>{{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <input class="form-control" name="search" placeholder="Tìm theo mã đơn hoặc tên khách..." type="text"
+                       value="{{ request.GET.search }}">
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-primary w-100" type="submit">
+                    <i class="bi bi-search"></i> Lọc
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Orders Table -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>SĐT</th>
+                    <th>Tổng tiền</th>
+                    <th>Thanh toán</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày đặt</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><strong>{{ order.order_number }}</strong></td>
+                    <td>{{ order.full_name }}</td>
+                    <td>{{ order.phone }}</td>
+                    <td>{{ order.total|currency }}</td>
+                    <td>
+                            <span class="badge bg-{% if order.payment_status == 'paid' %}success{% elif order.payment_status == 'failed' %}danger{% else %}warning{% endif %}">
+                                {{ order.get_payment_status_display }}
+                            </span>
+                    </td>
+                    <td>
+                            <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'cancelled' %}danger{% elif order.status == 'pending' %}warning{% else %}info{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                    </td>
+                    <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <a class="btn btn-sm btn-outline-primary"
+                           href="{% url 'admin_dashboard:order_detail' order.pk %}">
+                            <i class="bi bi-eye"></i> Chi tiết
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td class="text-center text-muted" colspan="8">Chưa có đơn hàng nào</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.has_other_pages %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Trước</a>
+                </li>
+                {% endif %}
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Sau</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

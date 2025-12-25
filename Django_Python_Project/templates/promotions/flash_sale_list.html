@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load product_tags %}
+
+{% block title %}Flash Sale - ElectroShop{% endblock %}
+
+{% block content %}
+<!-- Flash Sale Banner -->
+<div class="flash-sale-banner mb-5">
+    <div class="row align-items-center position-relative" style="z-index: 1;">
+        <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+            <h1 class="display-5 fw-bold mb-2">
+                <i class="bi bi-lightning-charge-fill me-2"></i>Flash Sale
+            </h1>
+            <p class="lead mb-0 opacity-90">Giảm giá sốc - Số lượng có hạn!</p>
+        </div>
+        <div class="col-md-6">
+            {% if active_sale %}
+            <div class="d-flex justify-content-center justify-content-md-end">
+                <div class="countdown-timer" data-end="{{ active_sale.end_time|date:'c' }}" id="mainCountdown">
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="hours">00</span>
+                        <span class="countdown-label">Giờ</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="minutes">00</span>
+                        <span class="countdown-label">Phút</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="seconds">00</span>
+                        <span class="countdown-label">Giây</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if flash_sales %}
+<!-- Flash Sale Products -->
+<div class="row g-4">
+    {% for sale in flash_sales %}
+    <div class="col-6 col-md-4 col-lg-3">
+        <div class="card product-card h-100">
+            <!-- Discount Badge -->
+            <span class="discount-badge">-{{ sale.discount_percent }}%</span>
+
+            <!-- Flash Badge -->
+            <span class="position-absolute top-0 end-0 m-2 badge bg-danger" style="z-index: 2;">
+                <i class="bi bi-lightning-charge-fill"></i> Flash
+            </span>
+
+            <!-- Product Image -->
+            <a href="{{ sale.product.get_absolute_url }}">
+                {% if sale.product.image %}
+                <img alt="{{ sale.product.name }}" class="card-img-top product-image"
+                     src="{{ sale.product.image.url }}">
+                {% else %}
+                <div class="product-image bg-light d-flex align-items-center justify-content-center">
+                    <i class="bi bi-image text-muted display-4"></i>
+                </div>
+                {% endif %}
+            </a>
+
+            <div class="card-body">
+                <h6 class="card-title product-name">
+                    <a class="text-dark text-decoration-none" href="{{ sale.product.get_absolute_url }}">
+                        {{ sale.product.name }}
+                    </a>
+                </h6>
+
+                <!-- Price -->
+                <div class="price-section mb-3">
+                    <span class="current-price">{{ sale.sale_price|currency }}</span>
+                    <span class="original-price">{{ sale.product.price|currency }}</span>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small class="text-muted">Đã bán {{ sale.sold_count }}</small>
+                        <small class="text-danger fw-semibold">Còn {{
+                            sale.quantity_limit|add:sale.sold_count|default:sale.quantity_limit }}</small>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-danger"
+                             style="width: {% widthratio sale.sold_count sale.quantity_limit 100 %}%;"></div>
+                    </div>
+                </div>
+
+                <!-- Mini Countdown -->
+                <div class="text-center">
+                    <small class="text-danger countdown-mini" data-end="{{ sale.end_time|date:'c' }}">
+                        <i class="bi bi-clock me-1"></i>
+                        <span class="timer-text">Đang tải...</span>
+                    </small>
+                </div>
+            </div>
+
+            <div class="card-footer bg-white border-0 pt-0">
+                {% if sale.sold_count < sale.quantity_limit %}
+                <form action="{% url 'cart:add' sale.product.pk %}" class="d-grid" method="post">
+                    {% csrf_token %}
+                    <input name="quantity" type="hidden" value="1">
+                    <button class="btn btn-danger" type="submit">
+                        <i class="bi bi-lightning-charge-fill me-1"></i>Mua ngay
+                    </button>
+                </form>
+                {% else %}
+                <button class="btn btn-secondary w-100" disabled>
+                    <i class="bi bi-x-circle me-1"></i>Đã hết hàng
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<!-- Empty State -->
+<div class="card">
+    <div class="card-body">
+        <div class="empty-state">
+            <i class="bi bi-clock-history"></i>
+            <h4>Không có Flash Sale nào đang diễn ra</h4>
+            <p>Hãy quay lại sau để không bỏ lỡ các ưu đãi hấp dẫn!</p>
+            <a class="btn btn-primary btn-lg" href="{% url 'products:product_list' %}">
+                <i class="bi bi-grid me-2"></i>Xem sản phẩm khác
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Upcoming Flash Sales -->
+{% if upcoming_sales %}
+<div class="mt-5">
+    <h4 class="mb-4">
+        <i class="bi bi-calendar-event me-2 text-primary"></i>Flash Sale sắp diễn ra
+    </h4>
+    <div class="row g-4">
+        {% for sale in upcoming_sales %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card">
+                <div class="card-body d-flex align-items-center">
+                    {% if sale.product.image %}
+                    <img class="rounded me-3" height="80" src="{{ sale.product.image.url }}" style="object-fit: contain;"
+                         width="80">
+                    {% endif %}
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">{{ sale.product.name }}</h6>
+                        <p class="text-danger fw-bold mb-1">{{ sale.sale_price|currency }}</p>
+                        <small class="text-muted">
+                            <i class="bi bi-clock me-1"></i>Bắt đầu: {{ sale.start_time|date:"d/m H:i" }}
+                        </small>
+                    </div>
+                    <span class="badge bg-warning text-dark">-{{ sale.discount_percent }}%</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateCountdowns() {
+        // Main countdown
+        const mainEl = document.getElementById('mainCountdown');
+        if (mainEl) {
+            const endTime = new Date(mainEl.dataset.end);
+            const now = new Date();
+            const diff = endTime - now;
+
+            if (diff > 0) {
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+                document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            }
+        }
+
+        // Mini countdowns
+        document.querySelectorAll('.countdown-mini').forEach(function (el) {
+            const endTime = new Date(el.dataset.end);
+            const now = new Date();
+            const diff = endTime - now;
+
+            if (diff <= 0) {
+                el.querySelector('.timer-text').textContent = 'Đã kết thúc';
+                return;
+            }
+
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            el.querySelector('.timer-text').textContent =
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        });
+    }
+
+    setInterval(updateCountdowns, 1000);
+    updateCountdowns();
+</script>
+{% endblock %}

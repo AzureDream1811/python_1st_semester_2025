@@ -96,3 +96,9 @@ data/
 __pycache__
 /test/
 /Django_Python_Project/.env
+/Django_Python_Project/apps/accounts/migrations/0001_initial.py
+/Django_Python_Project/apps/cart/migrations/0001_initial.py
+/Django_Python_Project/apps/orders/migrations/0001_initial.py
+/Django_Python_Project/apps/products/migrations/0001_initial.py
+/Django_Python_Project/apps/reviews/migrations/0001_initial.py
+/Django_Python_Project/apps/promotions/migrations/0001_initial.py

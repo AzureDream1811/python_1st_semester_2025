@@ -6,7 +6,9 @@ from .models import Profile
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        # Use email if provided, otherwise None (NULL in DB avoids unique constraint issues)
+        email = instance.email if instance.email else None
+        Profile.objects.create(user=instance, email=email)
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):

@@ -1,0 +1,52 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load product_tags %}
+
+{% block title %}Quản lý Flash Sale{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-lightning"></i> Quản lý Flash Sale</h2>
+    <a class="btn btn-primary" href="{% url 'admin_dashboard:flash_sale_create' %}">
+        <i class="bi bi-plus-lg"></i> Thêm Flash Sale
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Giá Flash Sale</th>
+                <th>Số lượng</th>
+                <th>Đã bán</th>
+                <th>Thời gian</th>
+                <th>Trạng thái</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for fs in flash_sales %}
+            <tr>
+                <td>{{ fs.product.name|truncatechars:40 }}</td>
+                <td>{{ fs.sale_price|currency }}</td>
+                <td>{{ fs.quantity_limit }}</td>
+                <td>{{ fs.sold_count }}</td>
+                <td>{{ fs.start_time|date:"d/m H:i" }} - {{ fs.end_time|date:"d/m H:i" }}</td>
+                <td>
+                    {% if fs.is_available %}
+                    <span class="badge bg-success">Đang diễn ra</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Kết thúc</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td class="text-center text-muted" colspan="6">Chưa có flash sale</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

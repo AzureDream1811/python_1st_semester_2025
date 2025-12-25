@@ -1,0 +1,127 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load product_tags %}
+
+{% block title %}Quản lý sản phẩm{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-box-seam"></i> Quản lý sản phẩm</h2>
+    <a class="btn btn-primary" href="{% url 'admin_dashboard:product_create' %}">
+        <i class="bi bi-plus-lg"></i> Thêm sản phẩm
+    </a>
+</div>
+
+<!-- Search -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form class="row g-3" method="get">
+            <div class="col-md-10">
+                <input class="form-control" name="search" placeholder="Tìm theo tên hoặc SKU..." type="text"
+                       value="{{ request.GET.search }}">
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-primary w-100" type="submit">
+                    <i class="bi bi-search"></i> Tìm kiếm
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Products Table -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Hình ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>SKU</th>
+                    <th>Danh mục</th>
+                    <th>Giá</th>
+                    <th>Tồn kho</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>
+                        {% if product.image %}
+                        <img alt="{{ product.name }}" src="{{ product.image.url }}"
+                             style="width: 50px; height: 50px; object-fit: cover;">
+                        {% else %}
+                        <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ product.name }}</td>
+                    <td><code>{{ product.sku }}</code></td>
+                    <td>{{ product.category.name|default:"-" }}</td>
+                    <td>
+                        {% if product.sale_price %}
+                        <del class="text-muted">{{ product.price|currency }}</del>
+                        <br>
+                        <span class="text-danger">{{ product.sale_price|currency }}</span>
+                        {% else %}
+                        {{ product.price|currency }}
+                        {% endif %}
+                    </td>
+                    <td>
+                            <span class="badge bg-{% if product.stock > 10 %}success{% elif product.stock > 0 %}warning{% else %}danger{% endif %}">
+                                {{ product.stock }}
+                            </span>
+                    </td>
+                    <td>
+                        {% if product.is_active %}
+                        <span class="badge bg-success">Đang bán</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Ẩn</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a class="btn btn-sm btn-outline-primary"
+                           href="{% url 'admin_dashboard:product_edit' product.pk %}">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form action="{% url 'admin_dashboard:product_delete' product.pk %}" class="d-inline"
+                              method="post" onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
+                            {% csrf_token %}
+                            <button class="btn btn-sm btn-outline-danger" type="submit">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td class="text-center text-muted" colspan="8">Chưa có sản phẩm nào</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link"
+                                         href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Trước</a>
+                </li>
+                {% endif %}
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link"
+                                         href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Sau</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

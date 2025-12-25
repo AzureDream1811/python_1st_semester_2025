@@ -1,0 +1,96 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block title %}Quản lý người dùng{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-people"></i> Quản lý người dùng</h2>
+
+<!-- Search -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form class="row g-3" method="get">
+            <div class="col-md-10">
+                <input class="form-control" name="search" placeholder="Tìm theo username, email hoặc tên..." type="text"
+                       value="{{ request.GET.search }}">
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-primary w-100" type="submit">
+                    <i class="bi bi-search"></i> Tìm kiếm
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Họ tên</th>
+                    <th>Quyền</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tham gia</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for u in users %}
+                <tr>
+                    <td><strong>{{ u.username }}</strong></td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.get_full_name|default:"-" }}</td>
+                    <td>
+                        {% if u.is_superuser %}
+                        <span class="badge bg-danger">Superuser</span>
+                        {% elif u.is_staff %}
+                        <span class="badge bg-warning">Staff</span>
+                        {% else %}
+                        <span class="badge bg-secondary">User</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if u.is_active %}
+                        <span class="badge bg-success">Hoạt động</span>
+                        {% else %}
+                        <span class="badge bg-danger">Bị khóa</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ u.date_joined|date:"d/m/Y" }}</td>
+                    <td>
+                        <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_dashboard:user_detail' u.pk %}">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td class="text-center text-muted" colspan="7">Chưa có người dùng nào</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.has_other_pages %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Trước</a>
+                </li>
+                {% endif %}
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Sau</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

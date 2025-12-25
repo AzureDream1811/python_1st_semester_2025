@@ -1,13 +1,331 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Đăng ký{% endblock %}
+{% block title %}Đăng ký - ElectroShop{% endblock %}
+
+{% block extra_css %}
+<!-- Link to separate CSS files instead of inline styles -->
+<link href="{% static 'css/accounts/auth-common.css' %}" rel="stylesheet">
+<link href="{% static 'css/accounts/register.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
+<!-- Removed </div></main> to fix white space gap -->
+<div class="auth-container register-page">
+    <!-- Left Side - Branding -->
+    <div class="auth-branding">
+        <div class="auth-branding-content">
+            <div class="auth-logo">
+                <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <h1>Tham gia ngay!</h1>
+            <p>Tạo tài khoản miễn phí và nhận ngay voucher giảm giá 50K cho đơn hàng đầu tiên</p>
 
+            <div class="register-benefits">
+                <div class="benefit-item">
+                    <i class="bi bi-gift"></i>
+                    <span>Voucher 50K</span>
+                </div>
+                <div class="benefit-item">
+                    <i class="bi bi-star"></i>
+                    <span>Tích điểm</span>
+                </div>
+                <div class="benefit-item">
+                    <i class="bi bi-lightning"></i>
+                    <span>Flash Sale</span>
+                </div>
+                <div class="benefit-item">
+                    <i class="bi bi-truck"></i>
+                    <span>Free Ship</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Right Side - Form -->
+    <div class="auth-form-side">
+        <div class="auth-form-card">
+            <div class="auth-form-header">
+                <h2>Tạo tài khoản mới</h2>
+                <p>Đăng ký để nhận nhiều ưu đãi hấp dẫn</p>
+            </div>
 
+            <form method="post" novalidate>
+                {% csrf_token %}
 
+                <!-- form-row now has margin-bottom for spacing -->
+                <div class="form-row">
+                    <div class="form-floating-custom">
+                        <input class="{% if form.last_name.errors %}is-invalid{% endif %}" id="last_name"
+                               name="last_name"
+                               placeholder="Họ"
+                               type="text" value="{{ form.last_name.value|default:'' }}">
+                        <i class="bi bi-person input-icon"></i>
+                    </div>
+                    <div class="form-floating-custom">
+                        <input class="{% if form.first_name.errors %}is-invalid{% endif %}" id="first_name"
+                               name="first_name"
+                               placeholder="Tên"
+                               type="text" value="{{ form.first_name.value|default:'' }}">
+                        <i class="bi bi-person input-icon"></i>
+                    </div>
+                </div>
 
+                <div class="form-floating-custom">
+                    <input class="{% if form.email.errors %}is-invalid{% endif %}" id="email" name="email"
+                           placeholder="Email *"
+                           required type="email" value="{{ form.email.value|default:'' }}">
+                    <i class="bi bi-envelope input-icon"></i>
+                    {% if form.email.errors %}
+                    <small class="text-danger">{{ form.email.errors.0 }}</small>
+                    {% endif %}
+                </div>
 
+                <div class="form-floating-custom">
+                    <input class="{% if form.phone.errors %}is-invalid{% endif %}" id="phone" name="phone"
+                           placeholder="Số điện thoại"
+                           type="tel" value="{{ form.phone.value|default:'' }}">
+                    <i class="bi bi-telephone input-icon"></i>
+                </div>
 
+                <div class="form-floating-custom">
+                    <input class="{% if form.password1.errors %}is-invalid{% endif %}" id="password1" name="password1"
+                           onkeyup="checkPasswordStrength()"
+                           placeholder="Mật khẩu *" required type="password">
+                    <i class="bi bi-lock input-icon"></i>
+                    <button class="toggle-password" onclick="togglePassword('password1', 'icon1')" type="button">
+                        <i class="bi bi-eye" id="icon1"></i>
+                    </button>
+                    {% if form.password1.errors %}
+                    <small class="text-danger">{{ form.password1.errors.0 }}</small>
+                    {% endif %}
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar" id="str1"></div>
+                        <div class="strength-bar" id="str2"></div>
+                        <div class="strength-bar" id="str3"></div>
+                        <div class="strength-bar" id="str4"></div>
+                    </div>
+                </div>
+
+                <div class="form-floating-custom">
+                    <input class="{% if form.password2.errors %}is-invalid{% endif %}" id="password2" name="password2"
+                           placeholder="Xác nhận mật khẩu *"
+                           required type="password">
+                    <i class="bi bi-lock-fill input-icon"></i>
+                    <button class="toggle-password" onclick="togglePassword('password2', 'icon2')" type="button">
+                        <i class="bi bi-eye" id="icon2"></i>
+                    </button>
+                    {% if form.password2.errors %}
+                    <small class="text-danger">{{ form.password2.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="terms-checkbox">
+                    <input id="terms" required type="checkbox">
+                    <label for="terms">
+                        Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a> và <a href="#">Chính sách bảo mật</a> của
+                        ElectroShop
+                    </label>
+                </div>
+
+                <button class="btn-auth-submit" type="submit">
+                    <i class="bi bi-person-plus me-2"></i>Đăng ký ngay
+                </button>
+            </form>
+
+            <div class="auth-divider">
+                <span>hoặc đăng ký với</span>
+            </div>
+
+            <div class="social-buttons">
+                <button class="btn-social" onclick="openGoogleModal()" type="button">
+                    <svg height="20" viewBox="0 0 24 24" width="20">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                              fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                              fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                              fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                              fill="#EA4335"/>
+                    </svg>
+                    Google
+                </button>
+                <button class="btn-social" onclick="openFacebookModal()" type="button">
+                    <svg fill="#1877F2" height="20" viewBox="0 0 24 24" width="20">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                    Facebook
+                </button>
+            </div>
+
+            <div class="auth-footer">
+                Đã có tài khoản? <a href="{% url 'accounts:login' %}">Đăng nhập ngay</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Google Register Modal -->
+<div class="google-modal-overlay" id="googleModal">
+    <div class="google-modal">
+        <button class="google-modal-close" onclick="closeGoogleModal()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="google-modal-header">
+            <svg height="40" viewBox="0 0 24 24" width="40">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                      fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                      fill="#EA4335"/>
+            </svg>
+            <h3>Đăng ký với Google</h3>
+            <p>Nhập thông tin tài khoản Google của bạn</p>
+        </div>
+        <form id="googleRegisterForm">
+            <div class="form-floating-custom">
+                <input id="googleEmail" placeholder="Email Google" required type="email">
+                <i class="bi bi-envelope input-icon"></i>
+            </div>
+            <div class="form-floating-custom">
+                <input id="googlePassword" placeholder="Mật khẩu" type="password">
+                <i class="bi bi-lock input-icon"></i>
+            </div>
+            <button class="btn-auth-submit" type="submit">
+                <i class="bi bi-google me-2"></i>Tiếp tục với Google
+            </button>
+        </form>
+        <div class="text-center mt-3">
+            <small style="color: #6b7280; font-size: 0.75rem;">
+                <i class="bi bi-info-circle me-1"></i>
+                Đây là demo UI - Tính năng cần tích hợp OAuth
+            </small>
+        </div>
+    </div>
+</div>
+
+<!-- Facebook Modal -->
+<div class="google-modal-overlay" id="facebookModal">
+    <div class="google-modal">
+        <button class="google-modal-close" onclick="closeFacebookModal()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="google-modal-header">
+            <svg fill="#1877F2" height="40" viewBox="0 0 24 24" width="40">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            <h3>Đăng ký với Facebook</h3>
+            <p>Nhập thông tin tài khoản Facebook của bạn</p>
+        </div>
+        <form id="facebookRegisterForm">
+            <div class="form-floating-custom">
+                <input id="fbEmail" placeholder="Email hoặc số điện thoại" required type="text">
+                <i class="bi bi-person input-icon"></i>
+            </div>
+            <div class="form-floating-custom">
+                <input id="fbPassword" placeholder="Mật khẩu" type="password">
+                <i class="bi bi-lock input-icon"></i>
+            </div>
+            <button class="btn-auth-submit" style="background: #1877F2;" type="submit">
+                <i class="bi bi-facebook me-2"></i>Tiếp tục với Facebook
+            </button>
+        </form>
+        <div class="text-center mt-3">
+            <small style="color: #6b7280; font-size: 0.75rem;">
+                <i class="bi bi-info-circle me-1"></i>
+                Đây là demo UI - Tính năng cần tích hợp OAuth
+            </small>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('bi-eye', 'bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('bi-eye-slash', 'bi-eye');
+        }
+    }
+
+    function checkPasswordStrength() {
+        const password = document.getElementById('password1').value;
+        const bars = ['str1', 'str2', 'str3', 'str4'];
+        let strength = 0;
+
+        if (password.length >= 8) strength++;
+        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+        if (/\d/.test(password)) strength++;
+        if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+        bars.forEach((bar, index) => {
+            const el = document.getElementById(bar);
+            el.className = 'strength-bar';
+            if (index < strength) {
+                if (strength <= 1) el.classList.add('weak');
+                else if (strength <= 2) el.classList.add('medium');
+                else el.classList.add('strong');
+            }
+        });
+    }
+
+    function openGoogleModal() {
+        document.getElementById('googleModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeGoogleModal() {
+        document.getElementById('googleModal').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    function openFacebookModal() {
+        document.getElementById('facebookModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeFacebookModal() {
+        document.getElementById('facebookModal').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // Close modal when clicking outside
+    document.querySelectorAll('.google-modal-overlay').forEach(modal => {
+        modal.addEventListener('click', function (e) {
+            if (e.target === this) {
+                this.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+    });
+
+    // Handle form submissions (demo)
+    document.getElementById('googleRegisterForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        alert('Tính năng đăng ký Google đang được phát triển. Vui lòng sử dụng form đăng ký thông thường.');
+        closeGoogleModal();
+    });
+
+    document.getElementById('facebookRegisterForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        alert('Tính năng đăng ký Facebook đang được phát triển. Vui lòng sử dụng form đăng ký thông thường.');
+        closeFacebookModal();
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeGoogleModal();
+            closeFacebookModal();
+        }
+    });
+</script>
 {% endblock %}

@@ -1,0 +1,66 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} {% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        <span style="font-size: 24px;">🔌</span>
+        Admin
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}
+<style>
+    #header {
+        background: linear-gradient(135deg, #417690 0%, #2c5364 100%);
+    }
+
+    #branding h1 a {
+        color: white !important;
+        font-weight: 600;
+    }
+
+    #branding h1 a:hover {
+        color: #f0f0f0 !important;
+    }
+
+    /* Navigation */
+    #user-tools a {
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    #user-tools a:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Quick Links */
+    .quick-links {
+        padding: 10px 20px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .quick-links a {
+        margin-right: 15px;
+        color: #417690;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .quick-links a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="quick-links">
+    <a href="{% url 'admin:index' %}">📊 Dashboard</a>
+    <a href="{% url 'admin_dashboard:revenue_report' %}">💰 Báo cáo doanh thu</a>
+    <a href="{% url 'admin:orders_order_changelist' %}">📦 Đơn hàng</a>
+    <a href="{% url 'admin:products_product_changelist' %}">🏷️ Sản phẩm</a>
+    <a href="{% url 'admin:reviews_review_changelist' %}">⭐ Đánh giá</a>
+</div>
+{% endblock %}
