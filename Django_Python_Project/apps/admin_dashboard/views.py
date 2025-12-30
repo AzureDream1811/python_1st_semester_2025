@@ -197,6 +197,8 @@ class UserUpdateView(StaffRequiredMixin, UpdateView):
         return redirect('admin_dashboard:user_detail', pk=self.object.pk)
 
 
+# ==================== Category Management ====================
+
 class CategoryListView(StaffRequiredMixin, ListView):
     """Danh sách danh mục"""
     model = Category
@@ -238,6 +240,8 @@ class CategoryDeleteView(StaffRequiredMixin, DeleteView):
         messages.success(request, 'Xóa danh mục thành công!')
         return super().delete(request, *args, **kwargs)
 
+
+# ==================== Brand Management ====================
 
 class BrandListView(StaffRequiredMixin, ListView):
     """Danh sách thương hiệu"""
@@ -281,6 +285,7 @@ class BrandDeleteView(StaffRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+# ==================== Review Management ====================
 
 class ReviewListView(StaffRequiredMixin, ListView):
     """Danh sách đánh giá"""
@@ -319,6 +324,8 @@ class ReviewRejectView(StaffRequiredMixin, View):
         return redirect('admin_dashboard:review_list')
 
 
+# ==================== Voucher Management ====================
+
 class VoucherListView(StaffRequiredMixin, ListView):
     """Danh sách voucher"""
     model = Voucher
@@ -339,6 +346,8 @@ class VoucherCreateView(StaffRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+# ==================== Flash Sale Management ====================
+
 class FlashSaleListView(StaffRequiredMixin, ListView):
     """Danh sách flash sale"""
     model = FlashSale
@@ -358,6 +367,8 @@ class FlashSaleCreateView(StaffRequiredMixin, CreateView):
         messages.success(self.request, 'Tạo flash sale thành công!')
         return super().form_valid(form)
 
+
+# ==================== API Endpoints ====================
 
 class ChartDataView(StaffRequiredMixin, View):
     """API endpoint cung cấp dữ liệu cho biểu đồ"""
