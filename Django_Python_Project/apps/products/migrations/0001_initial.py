@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -42,7 +41,8 @@ class Migration(migrations.Migration):
                 ('is_active', models.BooleanField(default=True, verbose_name='Đang hoạt động')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('parent_id', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='children', to='products.category')),
+                ('parent_id', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL,
+                                                related_name='children', to='products.category')),
             ],
             options={
                 'verbose_name': 'Danh mục',
@@ -59,7 +59,8 @@ class Migration(migrations.Migration):
                 ('sku', models.CharField(blank=True, max_length=50, unique=True, verbose_name='Mã SKU')),
                 ('description', models.TextField(verbose_name='Mô tả')),
                 ('price', models.DecimalField(decimal_places=0, max_digits=12, verbose_name='Giá gốc (VNĐ)')),
-                ('sale_price', models.DecimalField(blank=True, decimal_places=0, max_digits=12, null=True, verbose_name='Giá khuyến mãi (VNĐ)')),
+                ('sale_price', models.DecimalField(blank=True, decimal_places=0, max_digits=12, null=True,
+                                                   verbose_name='Giá khuyến mãi (VNĐ)')),
                 ('stock', models.PositiveIntegerField(default=0, verbose_name='Số lượng tồn kho')),
                 ('image', models.ImageField(upload_to='products/', verbose_name='Hình ảnh chính')),
                 ('specifications', models.JSONField(blank=True, null=True, verbose_name='Thông số kỹ thuật')),
@@ -68,13 +69,19 @@ class Migration(migrations.Migration):
                 ('is_new', models.BooleanField(default=True, verbose_name='Sản phẩm mới')),
                 ('views', models.PositiveIntegerField(default=0, verbose_name='Lượt xem')),
                 ('sold', models.PositiveIntegerField(default=0, verbose_name='Đã bán')),
-                ('sentiment_score', models.FloatField(default=0, validators=[django.core.validators.MinValueValidator(-1), django.core.validators.MaxValueValidator(1)], verbose_name='Điểm sentiment')),
+                ('sentiment_score', models.FloatField(default=0,
+                                                      validators=[django.core.validators.MinValueValidator(-1),
+                                                                  django.core.validators.MaxValueValidator(1)],
+                                                      verbose_name='Điểm sentiment')),
                 ('positive_reviews', models.PositiveIntegerField(default=0, verbose_name='Reviews tích cực')),
                 ('negative_reviews', models.PositiveIntegerField(default=0, verbose_name='Reviews tiêu cực')),
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')),
                 ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Ngày cập nhật')),
-                ('brand', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='products', to='products.brand', verbose_name='Thương hiệu')),
-                ('category', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='products', to='products.category', verbose_name='Danh mục')),
+                ('brand', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL,
+                                            related_name='products', to='products.brand', verbose_name='Thương hiệu')),
+                ('category',
+                 models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='products',
+                                   to='products.category', verbose_name='Danh mục')),
             ],
             options={
                 'verbose_name': 'Sản phẩm',
@@ -90,7 +97,8 @@ class Migration(migrations.Migration):
                 ('alt_text', models.CharField(blank=True, max_length=255, verbose_name='Alt text')),
                 ('is_primary', models.BooleanField(default=False, verbose_name='Ảnh chính')),
                 ('order', models.PositiveIntegerField(default=0, verbose_name='Thứ tự')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='products.product', verbose_name='Sản phẩm')),
+                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images',
+                                              to='products.product', verbose_name='Sản phẩm')),
             ],
             options={
                 'verbose_name': 'Hình ảnh sản phẩm',
@@ -108,7 +116,8 @@ class Migration(migrations.Migration):
                 ('end_time', models.DateTimeField(verbose_name='Thời gian kết thúc')),
                 ('is_active', models.BooleanField(default=True, verbose_name='Hoạt động')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('products', models.ManyToManyField(related_name='flash_sale_campaigns', to='products.product', verbose_name='Sản phẩm')),
+                ('products', models.ManyToManyField(related_name='flash_sale_campaigns', to='products.product',
+                                                    verbose_name='Sản phẩm')),
             ],
             options={
                 'verbose_name': 'Flash Sale',
@@ -121,8 +130,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='wishlisted_by', to='products.product', verbose_name='Sản phẩm')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='wishlists', to=settings.AUTH_USER_MODEL, verbose_name='Người dùng')),
+                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='wishlisted_by',
+                                              to='products.product', verbose_name='Sản phẩm')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='wishlists',
+                                           to=settings.AUTH_USER_MODEL, verbose_name='Người dùng')),
             ],
             options={
                 'verbose_name': 'Yêu thích',

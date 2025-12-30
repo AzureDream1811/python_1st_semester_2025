@@ -10,7 +10,7 @@ from apps.promotions.models import Voucher, FlashSale
 
 class ProductForm(forms.ModelForm):
     """Form tạo/sửa sản phẩm"""
-    
+
     class Meta:
         model = Product
         fields = [
@@ -38,7 +38,7 @@ class ProductForm(forms.ModelForm):
 
 class CategoryForm(forms.ModelForm):
     """Form tạo/sửa danh mục"""
-    
+
     class Meta:
         model = Category
         fields = ['name', 'slug', 'description', 'image', 'is_active']
@@ -53,7 +53,7 @@ class CategoryForm(forms.ModelForm):
 
 class BrandForm(forms.ModelForm):
     """Form tạo/sửa thương hiệu"""
-    
+
     class Meta:
         model = Brand
         fields = ['name', 'slug', 'logo', 'description', 'is_active']
@@ -66,12 +66,11 @@ class BrandForm(forms.ModelForm):
         }
 
 
-
 class OrderStatusForm(forms.Form):
     """Form cập nhật trạng thái đơn hàng"""
-    
+
     STATUS_CHOICES = Order.STATUS_CHOICES
-    
+
     status = forms.ChoiceField(
         choices=STATUS_CHOICES,
         widget=forms.Select(attrs={'class': 'form-select'})
@@ -84,7 +83,7 @@ class OrderStatusForm(forms.Form):
 
 class UserEditForm(forms.ModelForm):
     """Form chỉnh sửa quyền user"""
-    
+
     class Meta:
         model = User
         fields = ['is_active', 'is_staff', 'is_superuser']
@@ -97,7 +96,7 @@ class UserEditForm(forms.ModelForm):
 
 class VoucherForm(forms.ModelForm):
     """Form tạo/sửa voucher"""
-    
+
     class Meta:
         model = Voucher
         fields = [
@@ -123,7 +122,7 @@ class VoucherForm(forms.ModelForm):
 
 class FlashSaleForm(forms.ModelForm):
     """Form tạo/sửa flash sale"""
-    
+
     class Meta:
         model = FlashSale
         fields = ['product', 'sale_price', 'quantity_limit', 'start_time', 'end_time', 'is_active']

@@ -15,6 +15,7 @@ class CartItemInline(admin.TabularInline):
         if obj.pk:
             return f"{obj.price:,.0f}đ"
         return "-"
+
     price_display.short_description = 'Đơn giá'
 
     def total_price_display(self, obj):
@@ -22,13 +23,15 @@ class CartItemInline(admin.TabularInline):
         if obj.pk:
             return f"{obj.total_price:,.0f}đ"
         return "-"
+
     total_price_display.short_description = 'Thành tiền'
 
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
     """Quản lý giỏ hàng"""
-    list_display = ['id', 'user_display', 'session_key_display', 'total_items', 'subtotal_display', 'created_at', 'updated_at']
+    list_display = ['id', 'user_display', 'session_key_display', 'total_items', 'subtotal_display', 'created_at',
+                    'updated_at']
     list_filter = ['created_at', 'updated_at']
     search_fields = ['user__email', 'user__username', 'session_key']
     inlines = [CartItemInline]
@@ -42,6 +45,7 @@ class CartAdmin(admin.ModelAdmin):
         if obj.user:
             return format_html('<a href="/admin/auth/user/{}/change/">{}</a>', obj.user.pk, obj.user.username)
         return format_html('<span style="color: gray;">Khách vãng lai</span>')
+
     user_display.short_description = 'Người dùng'
 
     def session_key_display(self, obj):
@@ -49,11 +53,13 @@ class CartAdmin(admin.ModelAdmin):
         if obj.session_key:
             return f"...{obj.session_key[-8:]}"
         return "-"
+
     session_key_display.short_description = 'Session'
 
     def subtotal_display(self, obj):
         """Hiển thị tổng tiền với format"""
         return format_html('<strong style="color: green;">{:,.0f}đ</strong>', obj.subtotal)
+
     subtotal_display.short_description = 'Tổng tiền'
 
     actions = ['clear_old_carts']
@@ -65,6 +71,7 @@ class CartAdmin(admin.ModelAdmin):
             cart.clear()
         queryset.delete()
         self.message_user(request, f'Đã xóa {count} giỏ hàng')
+
     clear_old_carts.short_description = 'Xóa giỏ hàng đã chọn'
 
 
@@ -80,9 +87,11 @@ class CartItemAdmin(admin.ModelAdmin):
     def price_display(self, obj):
         """Hiển thị đơn giá"""
         return f"{obj.price:,.0f}đ"
+
     price_display.short_description = 'Đơn giá'
 
     def total_price_display(self, obj):
         """Hiển thị thành tiền"""
         return format_html('<strong>{:,.0f}đ</strong>', obj.total_price)
+
     total_price_display.short_description = 'Thành tiền'

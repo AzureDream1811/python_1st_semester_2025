@@ -38,14 +38,16 @@ class ReviewAdmin(admin.ModelAdmin):
             'fields': ('is_approved', 'helpful_count')
         }),
     )
-    
+
     def rating_display(self, obj):
         """Hiển thị số sao với icon"""
         stars = '⭐' * obj.rating
         empty_stars = '☆' * (5 - obj.rating)
-        return format_html('<span style="color: gold;">{}</span><span style="color: #ddd;">{}</span>', stars, empty_stars)
+        return format_html('<span style="color: gold;">{}</span><span style="color: #ddd;">{}</span>', stars,
+                           empty_stars)
+
     rating_display.short_description = 'Đánh giá'
-    
+
     def sentiment_display(self, obj):
         """Hiển thị sentiment với màu sắc và icon"""
         colors = {
@@ -58,14 +60,16 @@ class ReviewAdmin(admin.ModelAdmin):
             '<span style="color: {}; font-weight: bold;">{} {} ({:.2f})</span>',
             color, icon, label, obj.sentiment_score
         )
+
     sentiment_display.short_description = 'Sentiment'
-    
+
     def images_count(self, obj):
         """Đếm số hình ảnh"""
         count = len(obj.get_images())
         if count > 0:
             return format_html('<span style="color: blue;">📷 {}</span>', count)
         return '-'
+
     images_count.short_description = 'Ảnh'
 
     def images_preview(self, obj):
@@ -77,6 +81,7 @@ class ReviewAdmin(admin.ModelAdmin):
         for img in images:
             html += f'<img src="{img.url}" width="100" height="100" style="object-fit: cover; margin-right: 10px; border-radius: 5px;" />'
         return format_html(html)
+
     images_preview.short_description = 'Preview hình ảnh'
 
     actions = ['approve_reviews', 'disapprove_reviews', 'reanalyze_sentiment', 'mark_verified']
@@ -85,12 +90,14 @@ class ReviewAdmin(admin.ModelAdmin):
         """Duyệt các đánh giá đã chọn"""
         updated = queryset.update(is_approved=True)
         self.message_user(request, f'✅ Đã duyệt {updated} đánh giá')
+
     approve_reviews.short_description = '✅ Duyệt các đánh giá đã chọn'
 
     def disapprove_reviews(self, request, queryset):
         """Bỏ duyệt các đánh giá đã chọn"""
         updated = queryset.update(is_approved=False)
         self.message_user(request, f'❌ Đã bỏ duyệt {updated} đánh giá')
+
     disapprove_reviews.short_description = '❌ Bỏ duyệt các đánh giá đã chọn'
 
     def reanalyze_sentiment(self, request, queryset):
@@ -102,12 +109,14 @@ class ReviewAdmin(admin.ModelAdmin):
                 review.save()
                 count += 1
         self.message_user(request, f'🔄 Đã phân tích lại sentiment cho {count} đánh giá')
+
     reanalyze_sentiment.short_description = '🔄 Phân tích lại sentiment (FastText)'
 
     def mark_verified(self, request, queryset):
         """Đánh dấu là mua hàng xác thực"""
         updated = queryset.update(is_verified_purchase=True)
         self.message_user(request, f'✓ Đã đánh dấu {updated} đánh giá là mua hàng xác thực')
+
     mark_verified.short_description = '✓ Đánh dấu mua hàng xác thực'
 
 
@@ -127,4 +136,5 @@ class ReviewHelpfulAdmin(admin.ModelAdmin):
             'Review #{} - {} ({}⭐)',
             obj.review.pk, obj.review.product.name[:30], obj.review.rating
         )
+
     review_info.short_description = 'Đánh giá'

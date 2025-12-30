@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, Pass
 from django.contrib.auth.models import User
 from .models import Profile, Address
 
+
 class UserRegistrationForm(UserCreationForm):
     """
     Form đăng ký tài khoản: Tạo User và Profile cùng lúc
@@ -107,6 +108,7 @@ class UserRegistrationForm(UserCreationForm):
 
         return user
 
+
 class UserLoginForm(AuthenticationForm):
     """
     Form đăng nhập
@@ -155,6 +157,7 @@ class UserUpdateForm(forms.ModelForm):
     Form cập nhật thông tin cơ bản của User
     Email thường không cho đổi để tránh conflict với username
     """
+
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email']
@@ -179,6 +182,7 @@ class ProfileUpdateForm(forms.ModelForm):
     Form cập nhật thông tin Profile
     Bao gồm: Avatar, SĐT, Địa chỉ, Ngày sinh, Giới tính
     """
+
     class Meta:
         model = Profile
         fields = ['phone', 'address', 'date_of_birth', 'gender', 'avatar']
@@ -204,10 +208,12 @@ class ProfileUpdateForm(forms.ModelForm):
             }),
         }
 
+
 class CustomPasswordChangeForm(PasswordChangeForm):
     """
     Form đổi mật khẩu với style Bootstrap
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
