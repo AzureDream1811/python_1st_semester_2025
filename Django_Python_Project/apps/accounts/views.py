@@ -35,11 +35,12 @@ def login_view(request):
         form = UserLoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
+            old_session_key = request.session.session_key
             login(request, user)
 
             # Merge session cart vào user cart
-            from apps.cart.views import merge_session_cart
-            merge_session_cart(request)
+            from ..cart.views import merge_session_cart
+            merge_session_cart(request, old_session_key)
 
             # Remember me
             if not form.cleaned_data.get('remember_me'):

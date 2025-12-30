@@ -84,7 +84,7 @@ class Product(models.Model):
 
     # Thông tin cơ bản
     name = models.CharField(max_length=255, verbose_name='Tên sản phẩm')
-    slug = models.SlugField(max_length=255, unique=True, blank=True)
+    slug = models.SlugField(max_length=190, unique=True, blank=True)
     sku = models.CharField(max_length=50, unique=True, blank=True, verbose_name='Mã SKU')
     description = models.TextField(verbose_name='Mô tả')
 

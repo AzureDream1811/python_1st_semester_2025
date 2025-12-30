@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
 from .models import Cart, CartItem
-from apps.products.models import Product
+from ..products.models import Product
 
 
 def get_or_create_cart(request):
@@ -20,12 +20,12 @@ def get_or_create_cart(request):
     return cart
 
 
-def merge_session_cart(request):
+def merge_session_cart(request, old_session_key):
     """Gộp giỏ hàng session vào user cart khi login"""
     if not request.user.is_authenticated:
         return
 
-    session_key = request.session.session_key
+    session_key = old_session_key
     if not session_key:
         return
 
