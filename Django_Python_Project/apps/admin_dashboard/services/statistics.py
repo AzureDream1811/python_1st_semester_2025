@@ -375,13 +375,14 @@ class DashboardStatistics:
         sentiment_stats = self.get_sentiment_stats()
 
         return {
+            # Các key cho dashboard template
+            'monthly_revenue': revenue_stats['total_revenue'],
+            'total_orders': order_stats['total'],
+            'total_customers': self.get_customer_count(),
+            'total_products': self.get_active_product_count(),
+            # Chi tiết
             'revenue': revenue_stats,
             'orders': order_stats,
-            'customers': self.get_customer_count(),
-            'products': self.get_active_product_count(),
             'sentiment': sentiment_stats,
-            'top_products': list(self.get_top_products(5).values('name', 'sold', 'price', 'sale_price')),
-            'recent_orders': list(self.get_recent_orders(5).values(
-                'order_number', 'full_name', 'total', 'status', 'created_at'
-            ))
+            'top_products': list(self.get_top_products(5).values('name', 'sold')),
         }
