@@ -4,7 +4,8 @@ from apps.promotions.models import Voucher, VoucherUsage, ComboDeal, FlashSale
 
 @admin.register(Voucher)
 class VoucherAdmin(admin.ModelAdmin):
-    list_display = ['code', 'name', 'discount_type', 'discount_value', 'used_count', 'usage_limit', 'is_active', 'valid_until']
+    list_display = ['code', 'name', 'discount_type', 'discount_value', 'used_count', 'usage_limit', 'is_active',
+                    'valid_until']
     list_filter = ['discount_type', 'is_active', 'valid_from', 'valid_until']
     search_fields = ['code', 'name']
 

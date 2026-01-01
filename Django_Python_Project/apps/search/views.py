@@ -9,6 +9,7 @@ from .services.search_service import SearchService
 def search_products(request):
     """Tìm kiếm sản phẩm"""
     query = request.GET.get('q', '').strip()
+
     # Filters
     filters = {
         'category': request.GET.get('category', ''),
@@ -21,74 +22,34 @@ def search_products(request):
     # Remove empty filters
     filters = {k: v for k, v in filters.items() if v}
 
-    # Validate price range
-    if 'min_price' in filters and 'max_price' in filters:
-        try:
-            min_val = Decimal(filters['min_price'])
-            max_val = Decimal(filters['max_price'])
-            if min_val > max_val:
-                del filters['min_price']
-                del filters['max_price']
-        except (ValueError, InvalidOperation):
-            filters.pop('min_price', None)
-            filters.pop('max_price', None)
+    # Sort
+    sort = request.GET.get('sort', 'relevance')
 
-    # Search service
-    search_service = SearchService()
-
-    # Build base queryset
-    queryset = Product.objects.filter(is_active=True)
-
-    # Apply text search if query exists
     if query:
-        normalized_query = search_service.normalize_vietnamese(query)
-        queryset = queryset.filter(
-            Q(name__icontains=query) |
-            Q(name__icontains=normalized_query) |
-            Q(description__icontains=query) |
-            Q(description__icontains=normalized_query)
-        )
+        # Log search
+        SearchService.log_search(query, request.user if request.user.is_authenticated else None)
 
-    # Apply filters
-    if 'category' in filters:
-        queryset = queryset.filter(category__slug=filters['category'])
+        # Search with Elasticsearch or fallback to DB
+        results = SearchService.search_products(query, filters, sort)
+    else:
+        results = Product.objects.filter(is_active=True)
 
-    if 'brand' in filters:
-        queryset = queryset.filter(brand__slug=filters['brand'])
-
-    if 'min_price' in filters:
-        try:
-            queryset = queryset.filter(price__gte=Decimal(filters['min_price']))
-        except (ValueError, InvalidOperation):
-            pass
-
-    if 'max_price' in filters:
-        try:
-            queryset = queryset.filter(price__lte=Decimal(filters['max_price']))
-        except (ValueError, InvalidOperation):
-            pass
-
-    if 'in_stock' in filters and filters['in_stock'] == 'true':
-        queryset = queryset.filter(stock__gt=0)
-
-
-    # Log search if query exists
-    if query:
-        total_results = queryset.count()
-        search_service.log_search(
-            query,
-            total_results,
-            request.user if request.user.is_authenticated else None
-        )
+        # Apply filters
+        if filters.get('category'):
+            results = results.filter(category__slug=filters['category'])
+        if filters.get('brand'):
+            results = results.filter(brand__slug=filters['brand'])
+        if filters.get('min_price'):
+            results = results.filter(price__gte=filters['min_price'])
+        if filters.get('max_price'):
+            results = results.filter(price__lte=filters['max_price'])
+        if filters.get('in_stock') == 'true':
+            results = results.filter(stock__gt=0)
 
     # Pagination
-    paginator = Paginator(queryset, 20)
-    page_number = request.GET.get('page', 1)
-
-    try:
-        products = paginator.get_page(page_number)
-    except EmptyPage:
-        products = paginator.get_page(1)
+    paginator = Paginator(results, 20)
+    page = request.GET.get('page', 1)
+    products = paginator.get_page(page)
 
     # Get filter options
     categories = Category.objects.filter(is_active=True)
@@ -103,24 +64,23 @@ def search_products(request):
         'total_results': paginator.count,
     }
 
-    # Handle AJAX requests
-    # if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-    #     return JsonResponse({
-    #         'results': [
-    #             {
-    #                 'id': p.id,
-    #                 'name': p.name,
-    #                 'price': float(p.price),
-    #                 'image': p.image.url if p.image else '',
-    #                 'url': p.get_absolute_url(),
-    #             }
-    #             for p in products
-    #         ],
-    #         'total': paginator.count,
-    #         'page': products.number,
-    #         'pages': paginator.num_pages,
-    #         'filters': filters,
-    #     })
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Return JSON for AJAX requests
+        return JsonResponse({
+            'results': [
+                {
+                    'id': p.id,
+                    'name': p.name,
+                    'price': float(p.price),
+                    'image': p.image.url if p.image else '',
+                    'url': p.get_absolute_url(),
+                }
+                for p in products
+            ],
+            'total': paginator.count,
+            'page': products.number,
+            'pages': paginator.num_pages,
+        })
 
     return render(request, 'search/search_results.html', context)
 
@@ -133,8 +93,7 @@ def autocomplete(request):
     if len(query) < 2:
         return JsonResponse({'suggestions': []})
 
-    search_service = SearchService()
-    suggestions = search_service.autocomplete(query, limit)
+    suggestions = SearchService.autocomplete(query, limit)
     return JsonResponse({'suggestions': suggestions})
 
 

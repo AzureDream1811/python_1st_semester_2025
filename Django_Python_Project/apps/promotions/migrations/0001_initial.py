@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -23,10 +22,14 @@ class Migration(migrations.Migration):
                 ('code', models.CharField(max_length=50, unique=True, verbose_name='Mã voucher')),
                 ('name', models.CharField(max_length=200, verbose_name='Tên voucher')),
                 ('description', models.TextField(blank=True, verbose_name='Mô tả')),
-                ('discount_type', models.CharField(choices=[('percentage', 'Phần trăm'), ('fixed', 'Số tiền cố định')], max_length=20, verbose_name='Loại giảm giá')),
+                ('discount_type',
+                 models.CharField(choices=[('percentage', 'Phần trăm'), ('fixed', 'Số tiền cố định')], max_length=20,
+                                  verbose_name='Loại giảm giá')),
                 ('discount_value', models.DecimalField(decimal_places=2, max_digits=12, verbose_name='Giá trị giảm')),
-                ('min_order_value', models.DecimalField(decimal_places=2, default=0, max_digits=12, verbose_name='Giá trị đơn tối thiểu')),
-                ('max_discount', models.DecimalField(blank=True, decimal_places=2, max_digits=12, null=True, verbose_name='Giảm tối đa')),
+                ('min_order_value',
+                 models.DecimalField(decimal_places=2, default=0, max_digits=12, verbose_name='Giá trị đơn tối thiểu')),
+                ('max_discount', models.DecimalField(blank=True, decimal_places=2, max_digits=12, null=True,
+                                                     verbose_name='Giảm tối đa')),
                 ('usage_limit', models.IntegerField(default=0, verbose_name='Giới hạn sử dụng (0=không giới hạn)')),
                 ('used_count', models.IntegerField(default=0, verbose_name='Số lần đã dùng')),
                 ('usage_limit_per_user', models.IntegerField(default=1, verbose_name='Giới hạn/người dùng')),
@@ -48,7 +51,8 @@ class Migration(migrations.Migration):
                 ('used_at', models.DateTimeField(auto_now_add=True)),
                 ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='orders.order')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('voucher', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='usages', to='promotions.voucher')),
+                ('voucher', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='usages',
+                                              to='promotions.voucher')),
             ],
             options={
                 'verbose_name': 'Lịch sử sử dụng voucher',
@@ -65,7 +69,8 @@ class Migration(migrations.Migration):
                 ('start_time', models.DateTimeField(verbose_name='Bắt đầu')),
                 ('end_time', models.DateTimeField(verbose_name='Kết thúc')),
                 ('is_active', models.BooleanField(default=True, verbose_name='Đang hoạt động')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='flash_sales', to='products.product', verbose_name='Sản phẩm')),
+                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='flash_sales',
+                                              to='products.product', verbose_name='Sản phẩm')),
             ],
             options={
                 'verbose_name': 'Flash Sale',
@@ -78,12 +83,15 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=200, verbose_name='Tên combo')),
                 ('description', models.TextField(blank=True, verbose_name='Mô tả')),
-                ('discount_type', models.CharField(choices=[('percentage', 'Phần trăm'), ('fixed', 'Số tiền cố định')], max_length=20, verbose_name='Loại giảm giá')),
+                ('discount_type',
+                 models.CharField(choices=[('percentage', 'Phần trăm'), ('fixed', 'Số tiền cố định')], max_length=20,
+                                  verbose_name='Loại giảm giá')),
                 ('discount_value', models.DecimalField(decimal_places=2, max_digits=12, verbose_name='Giá trị giảm')),
                 ('valid_from', models.DateTimeField(verbose_name='Có hiệu lực từ')),
                 ('valid_until', models.DateTimeField(verbose_name='Hết hạn')),
                 ('is_active', models.BooleanField(default=True, verbose_name='Đang hoạt động')),
-                ('products', models.ManyToManyField(related_name='combo_deals', to='products.product', verbose_name='Sản phẩm')),
+                ('products',
+                 models.ManyToManyField(related_name='combo_deals', to='products.product', verbose_name='Sản phẩm')),
             ],
             options={
                 'verbose_name': 'Combo Deal',

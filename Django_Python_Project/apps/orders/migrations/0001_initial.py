@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -19,7 +18,8 @@ class Migration(migrations.Migration):
             name='Order',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('order_number', models.CharField(editable=False, max_length=20, unique=True, verbose_name='Mã đơn hàng')),
+                ('order_number',
+                 models.CharField(editable=False, max_length=20, unique=True, verbose_name='Mã đơn hàng')),
                 ('full_name', models.CharField(max_length=100, verbose_name='Họ tên người nhận')),
                 ('email', models.EmailField(max_length=254, verbose_name='Email')),
                 ('phone', models.CharField(max_length=15, verbose_name='Số điện thoại')),
@@ -28,16 +28,30 @@ class Migration(migrations.Migration):
                 ('district', models.CharField(max_length=100, verbose_name='Quận/Huyện')),
                 ('city', models.CharField(max_length=100, verbose_name='Tỉnh/Thành phố')),
                 ('note', models.TextField(blank=True, verbose_name='Ghi chú')),
-                ('payment_method', models.CharField(choices=[('cod', 'Thanh toán khi nhận hàng (COD)'), ('bank_transfer', 'Chuyển khoản ngân hàng'), ('momo', 'Ví MoMo'), ('vnpay', 'VNPay')], default='cod', max_length=20, verbose_name='Phương thức thanh toán')),
-                ('payment_status', models.CharField(choices=[('pending', 'Chờ thanh toán'), ('paid', 'Đã thanh toán'), ('failed', 'Thanh toán thất bại'), ('refunded', 'Đã hoàn tiền')], default='pending', max_length=20, verbose_name='Trạng thái thanh toán')),
+                ('payment_method', models.CharField(
+                    choices=[('cod', 'Thanh toán khi nhận hàng (COD)'), ('bank_transfer', 'Chuyển khoản ngân hàng'),
+                             ('momo', 'Ví MoMo'), ('vnpay', 'VNPay')], default='cod', max_length=20,
+                    verbose_name='Phương thức thanh toán')),
+                ('payment_status', models.CharField(choices=[('pending', 'Chờ thanh toán'), ('paid', 'Đã thanh toán'),
+                                                             ('failed', 'Thanh toán thất bại'),
+                                                             ('refunded', 'Đã hoàn tiền')], default='pending',
+                                                    max_length=20, verbose_name='Trạng thái thanh toán')),
                 ('subtotal', models.DecimalField(decimal_places=0, default=0, max_digits=12, verbose_name='Tiền hàng')),
-                ('shipping_fee', models.DecimalField(decimal_places=0, default=0, max_digits=12, verbose_name='Phí vận chuyển')),
+                ('shipping_fee',
+                 models.DecimalField(decimal_places=0, default=0, max_digits=12, verbose_name='Phí vận chuyển')),
                 ('discount', models.DecimalField(decimal_places=0, default=0, max_digits=12, verbose_name='Giảm giá')),
-                ('total', models.DecimalField(decimal_places=0, default=0, max_digits=12, verbose_name='Tổng thanh toán')),
-                ('status', models.CharField(choices=[('pending', 'Chờ xác nhận'), ('confirmed', 'Đã xác nhận'), ('processing', 'Đang xử lý'), ('shipping', 'Đang giao hàng'), ('delivered', 'Đã giao hàng'), ('completed', 'Hoàn thành'), ('cancelled', 'Đã hủy'), ('refunded', 'Đã hoàn tiền')], default='pending', max_length=20, verbose_name='Trạng thái')),
+                ('total',
+                 models.DecimalField(decimal_places=0, default=0, max_digits=12, verbose_name='Tổng thanh toán')),
+                ('status', models.CharField(
+                    choices=[('pending', 'Chờ xác nhận'), ('confirmed', 'Đã xác nhận'), ('processing', 'Đang xử lý'),
+                             ('shipping', 'Đang giao hàng'), ('delivered', 'Đã giao hàng'), ('completed', 'Hoàn thành'),
+                             ('cancelled', 'Đã hủy'), ('refunded', 'Đã hoàn tiền')], default='pending', max_length=20,
+                    verbose_name='Trạng thái')),
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày đặt')),
                 ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Cập nhật')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='orders', to=settings.AUTH_USER_MODEL, verbose_name='Khách hàng')),
+                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                           related_name='orders', to=settings.AUTH_USER_MODEL,
+                                           verbose_name='Khách hàng')),
             ],
             options={
                 'verbose_name': 'Đơn hàng',
@@ -53,8 +67,12 @@ class Migration(migrations.Migration):
                 ('product_image', models.CharField(blank=True, max_length=255, verbose_name='Hình ảnh')),
                 ('price', models.DecimalField(decimal_places=0, max_digits=12, verbose_name='Đơn giá')),
                 ('quantity', models.PositiveIntegerField(default=1, verbose_name='Số lượng')),
-                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='orders.order', verbose_name='Đơn hàng')),
-                ('product', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='order_items', to='products.product', verbose_name='Sản phẩm')),
+                ('order',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='orders.order',
+                                   verbose_name='Đơn hàng')),
+                ('product',
+                 models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='order_items',
+                                   to='products.product', verbose_name='Sản phẩm')),
             ],
             options={
                 'verbose_name': 'Chi tiết đơn hàng',
@@ -67,7 +85,8 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('status', models.CharField(max_length=20, verbose_name='Trạng thái')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='history', to='orders.order', verbose_name='Đơn hàng')),
+                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='history',
+                                            to='orders.order', verbose_name='Đơn hàng')),
             ],
             options={
                 'verbose_name': 'Lịch sử đơn hàng',

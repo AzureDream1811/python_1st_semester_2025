@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -22,7 +21,9 @@ class Migration(migrations.Migration):
                 ('session_key', models.CharField(blank=True, max_length=40, null=True, verbose_name='Session Key')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='carts', to=settings.AUTH_USER_MODEL, verbose_name='Người dùng')),
+                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                           related_name='carts', to=settings.AUTH_USER_MODEL,
+                                           verbose_name='Người dùng')),
             ],
             options={
                 'verbose_name': 'Giỏ hàng',
@@ -36,8 +37,11 @@ class Migration(migrations.Migration):
                 ('quantity', models.PositiveIntegerField(default=1, verbose_name='Số lượng')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('cart', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='cart.cart', verbose_name='Giỏ hàng')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='cart_items', to='products.product', verbose_name='Sản phẩm')),
+                ('cart',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='cart.cart',
+                                   verbose_name='Giỏ hàng')),
+                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='cart_items',
+                                              to='products.product', verbose_name='Sản phẩm')),
             ],
             options={
                 'verbose_name': 'Sản phẩm trong giỏ',

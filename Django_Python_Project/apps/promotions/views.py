@@ -14,7 +14,7 @@ def flash_sale_list(request):
         end_time__gte=now,
         is_active=True
     ).select_related('product').order_by('end_time')
-    
+
     context = {
         'flash_sales': flash_sales,
         'now': now,
@@ -25,7 +25,7 @@ def flash_sale_list(request):
 def flash_sale_detail(request, pk):
     """Chi tiết Flash Sale"""
     flash_sale = get_object_or_404(FlashSale, pk=pk)
-    
+
     context = {
         'flash_sale': flash_sale,
         'now': timezone.now(),
@@ -41,7 +41,7 @@ def combo_deal_list(request):
         valid_until__gte=now,
         is_active=True
     ).prefetch_related('products').order_by('-created_at')
-    
+
     context = {
         'combo_deals': combo_deals,
     }
@@ -56,7 +56,7 @@ def my_vouchers(request):
         valid_until__gte=now,
         is_active=True
     ).order_by('-created_at')
-    
+
     context = {
         'vouchers': vouchers,
     }
@@ -69,10 +69,10 @@ def validate_voucher(request):
     if request.method == 'POST':
         code = request.POST.get('code', '').strip()
         cart_total = float(request.POST.get('cart_total', 0))
-        
+
         result = PromotionService.validate_voucher(code, cart_total, request.user)
         return JsonResponse(result)
-    
+
     return JsonResponse({'valid': False, 'error': 'Invalid request'})
 
 
@@ -82,16 +82,16 @@ def apply_voucher(request):
     if request.method == 'POST':
         code = request.POST.get('code', '').strip()
         cart_total = float(request.POST.get('cart_total', 0))
-        
+
         # Validate first
         validation = PromotionService.validate_voucher(code, cart_total, request.user)
         if not validation.get('valid'):
             return JsonResponse(validation)
-        
+
         # Calculate discount
         voucher = Voucher.objects.get(code=code)
         discount = PromotionService.calculate_discount(voucher, cart_total)
-        
+
         return JsonResponse({
             'success': True,
             'voucher': {
@@ -102,5 +102,5 @@ def apply_voucher(request):
             'discount_amount': discount,
             'final_total': cart_total - discount,
         })
-    
+
     return JsonResponse({'success': False, 'error': 'Invalid request'})
