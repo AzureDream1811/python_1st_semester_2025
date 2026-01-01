@@ -7,6 +7,10 @@ from .models import Cart, CartItem
 from apps.products.models import Product
 
 
+# ==========================================
+# 1. HELPER FUNCTIONS
+# ==========================================
+
 def get_or_create_cart(request):
     """Lấy hoặc tạo giỏ hàng cho user/session"""
     if request.user.is_authenticated:
@@ -57,6 +61,10 @@ def merge_session_cart_with_key(request, old_session_key):
         pass
 
 
+# ==========================================
+# 2. MAIN VIEWS
+# ==========================================
+
 def cart_detail(request):
     """Xem giỏ hàng"""
     cart = get_or_create_cart(request)
@@ -68,6 +76,10 @@ def cart_detail(request):
     }
     return render(request, 'cart/cart.html', context)
 
+
+# ==========================================
+# 3. CART ACTIONS
+# ==========================================
 
 @require_POST
 def add_to_cart(request, product_id):

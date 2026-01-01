@@ -3,6 +3,10 @@ from django.contrib.auth.models import User
 from apps.products.models import Product
 
 
+# ==========================================
+# 1. CART MODEL
+# ==========================================
+
 class Cart(models.Model):
     """Model giỏ hàng"""
 
@@ -64,6 +68,10 @@ class Cart(models.Model):
                 item.save()
         session_cart.delete()
 
+
+# ==========================================
+# 2. CART ITEM MODEL
+# ==========================================
 
 class CartItem(models.Model):
     """Model item trong giỏ hàng"""
