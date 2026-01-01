@@ -4,9 +4,14 @@ Elasticsearch-based search with Vietnamese support
 """
 import re
 import unicodedata
-from typing import List, Dict, Any, Optional
+
+"""
+Search Service for ElectroShop
+Search support with Vietnamese text normalization
+"""
+from typing import List
 from django.db.models import Q
-from apps.products.models import Product
+from ...products.models import Product
 
 
 class SearchService:

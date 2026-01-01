@@ -1,9 +1,10 @@
+from decimal import Decimal, InvalidOperation
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.core.paginator import Paginator
-from apps.products.models import Product, Category, Brand
+from django.core.paginator import Paginator, EmptyPage
+from django.db.models import Q
+from ..products.models import Product, Category, Brand
 from .services.search_service import SearchService
-
 
 def search_products(request):
     """Tìm kiếm sản phẩm"""
@@ -11,12 +12,11 @@ def search_products(request):
 
     # Filters
     filters = {
-        'category': request.GET.get('category'),
-        'brand': request.GET.get('brand'),
-        'min_price': request.GET.get('min_price'),
-        'max_price': request.GET.get('max_price'),
-        'rating': request.GET.get('rating'),
-        'in_stock': request.GET.get('in_stock'),
+        'category': request.GET.get('category', ''),
+        'brand': request.GET.get('brand', ''),
+        'min_price': request.GET.get('min_price', ''),
+        'max_price': request.GET.get('max_price', ''),
+        'in_stock': request.GET.get('in_stock', '')
     }
 
     # Remove empty filters
@@ -61,7 +61,6 @@ def search_products(request):
         'categories': categories,
         'brands': brands,
         'filters': filters,
-        'sort': sort,
         'total_results': paginator.count,
     }
 
@@ -100,5 +99,6 @@ def autocomplete(request):
 
 def search_suggestions(request):
     """API: Từ khóa tìm kiếm phổ biến"""
-    suggestions = SearchService.get_popular_searches(limit=10)
-    return JsonResponse({'suggestions': suggestions})
+    # Implement this method in SearchService if needed
+    # For now, return empty list
+    return JsonResponse({'suggestions': []})
