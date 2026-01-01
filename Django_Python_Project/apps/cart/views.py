@@ -20,11 +20,17 @@ def get_or_create_cart(request):
     return cart
 
 
-def merge_session_cart(request, old_session_key):
+def merge_session_cart_with_key(request, old_session_key):
     """
     Gộp giỏ hàng session vào user cart khi login.
     Sử dụng old_session_key được lưu TRƯỚC khi login để tránh mất cart
     do Django session rotation.
+
+    Flow:
+    1. Lưu session_key cũ trước khi gọi login()
+    2. Gọi login() - Django có thể rotate session
+    3. Gọi hàm này với old_session_key để merge cart
+    4. Xóa cart session cũ sau khi merge
     """
     if not request.user.is_authenticated:
         return
