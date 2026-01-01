@@ -12,7 +12,7 @@ from apps.promotions.models import Voucher, VoucherUsage, ComboDeal, FlashSale
 
 class PromotionService:
     """Service for managing promotions"""
-    
+
     @staticmethod
     def validate_voucher(code: str, cart_total: Decimal, user=None) -> Dict[str, Any]:
         """
@@ -23,47 +23,47 @@ class PromotionService:
             voucher = Voucher.objects.get(code=code.upper())
         except Voucher.DoesNotExist:
             return {'valid': False, 'error': 'Mã voucher không tồn tại'}
-        
+
         now = timezone.now()
-        
+
         # Check if active
         if not voucher.is_active:
             return {'valid': False, 'error': 'Mã voucher đã bị vô hiệu hóa'}
-        
+
         # Check validity period
         if now < voucher.valid_from:
             return {'valid': False, 'error': 'Mã voucher chưa có hiệu lực'}
-        
+
         if now > voucher.valid_until:
             return {'valid': False, 'error': 'Mã voucher đã hết hạn'}
-        
+
         # Check usage limit
         if voucher.usage_limit > 0 and voucher.used_count >= voucher.usage_limit:
             return {'valid': False, 'error': 'Mã voucher đã hết lượt sử dụng'}
-        
+
         # Check min order value
         if cart_total < voucher.min_order_value:
             return {
-                'valid': False, 
+                'valid': False,
                 'error': f'Đơn hàng tối thiểu {voucher.min_order_value:,.0f}đ'
             }
-        
+
         # Check per-user limit
         if user and voucher.usage_limit_per_user > 0:
             user_usage = VoucherUsage.objects.filter(
-                voucher=voucher, 
+                voucher=voucher,
                 user=user
             ).count()
             if user_usage >= voucher.usage_limit_per_user:
                 return {'valid': False, 'error': 'Bạn đã sử dụng hết lượt cho mã này'}
-        
+
         return {
             'valid': True,
             'voucher': voucher,
             'discount_type': voucher.discount_type,
             'discount_value': voucher.discount_value
         }
-    
+
     @staticmethod
     def calculate_discount(voucher: Voucher, cart_total: Decimal) -> Decimal:
         """
@@ -74,17 +74,17 @@ class PromotionService:
             discount = cart_total * voucher.discount_value / 100
         else:  # fixed
             discount = voucher.discount_value
-        
+
         # Apply max discount cap
         if voucher.max_discount and discount > voucher.max_discount:
             discount = voucher.max_discount
-        
+
         # Discount cannot exceed cart total
         if discount > cart_total:
             discount = cart_total
-        
+
         return discount
-    
+
     @staticmethod
     def apply_voucher(code: str, cart_total: Decimal, user=None, order=None) -> Dict[str, Any]:
         """
@@ -95,7 +95,7 @@ class PromotionService:
 
         if not validation['valid']:
             return validation
-        
+
         voucher = validation['voucher']
         discount = PromotionService.calculate_discount(voucher, cart_total)
 
@@ -110,14 +110,14 @@ class PromotionService:
                 )
                 voucher.used_count += 1
                 voucher.save(update_fields=['used_count'])
-        
+
         return {
             'valid': True,
             'discount': discount,
             'voucher_code': voucher.code,
             'voucher_name': voucher.name
         }
-    
+
     @staticmethod
     def check_combo_deals(cart_items: List[Dict]) -> List[Dict[str, Any]]:
         """
@@ -126,20 +126,20 @@ class PromotionService:
         """
         now = timezone.now()
         applicable_combos = []
-        
+
         # Get product IDs in cart
         cart_product_ids = {item['product_id'] for item in cart_items}
-        
+
         # Get active combo deals
         combos = ComboDeal.objects.filter(
             is_active=True,
             valid_from__lte=now,
             valid_until__gte=now
         ).prefetch_related('products')
-        
+
         for combo in combos:
             combo_product_ids = set(combo.products.values_list('id', flat=True))
-            
+
             # Check if all combo products are in cart
             if combo_product_ids.issubset(cart_product_ids):
                 applicable_combos.append({
@@ -148,9 +148,9 @@ class PromotionService:
                     'discount_value': combo.discount_value,
                     'products': list(combo_product_ids)
                 })
-        
+
         return applicable_combos
-    
+
     @staticmethod
     def create_voucher(config: Dict[str, Any]) -> Voucher:
         """
@@ -172,7 +172,7 @@ class PromotionService:
             is_active=config.get('is_active', True)
         )
         return voucher
-    
+
     @staticmethod
     def get_promotion_report(start_date, end_date) -> Dict[str, Any]:
         """
@@ -183,10 +183,10 @@ class PromotionService:
             used_at__date__gte=start_date,
             used_at__date__lte=end_date
         ).select_related('voucher')
-        
+
         total_vouchers_used = usages.count()
         total_discount = sum(u.discount_amount for u in usages)
-        
+
         # Group by voucher
         voucher_stats = {}
         for usage in usages:
@@ -199,11 +199,10 @@ class PromotionService:
                 }
             voucher_stats[code]['count'] += 1
             voucher_stats[code]['total_discount'] += usage.discount_amount
-        
+
         return {
             'period': {'start': start_date, 'end': end_date},
             'total_vouchers_used': total_vouchers_used,
             'total_discount': total_discount,
             'by_voucher': voucher_stats
         }
-

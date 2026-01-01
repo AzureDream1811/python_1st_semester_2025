@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.http import JsonResponse
 
 from .models import Product, Category, Brand
 
@@ -150,4 +151,110 @@ def search(request):
         'query': query,
         'result_count': paginator.count,
     }
-    return render(request, 'search/search_results.html', context)
+    return render(request, 'products/search_results.html', context)
+
+
+# Error Handlers
+def error_404(request, exception):
+    """Custom 404 error handler"""
+    return render(request, '404.html', status=404)
+
+
+def error_500(request):
+    """Custom 500 error handler"""
+    return render(request, '500.html', status=500)
+
+
+def error_403(request, exception):
+    """Custom 403 error handler"""
+    return render(request, '403.html', status=403)
+
+
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from .models import Wishlist
+
+
+@login_required
+def wishlist_view(request):
+    """Hiển thị danh sách sản phẩm yêu thích của người dùng"""
+    wishlist_items = Wishlist.objects.filter(
+        user=request.user
+    ).select_related('product', 'product__category', 'product__brand').order_by('-created_at')
+
+    # Pagination
+    paginator = Paginator(wishlist_items, 12)
+    page = request.GET.get('page', 1)
+    wishlist_items = paginator.get_page(page)
+
+    context = {
+        'wishlist_items': wishlist_items,
+    }
+    return render(request, 'products/wishlist.html', context)
+
+
+@login_required
+@require_POST
+def toggle_wishlist(request, product_id):
+    """Toggle sản phẩm trong wishlist (thêm/xóa)"""
+    try:
+        product = get_object_or_404(Product, id=product_id, is_active=True)
+        wishlist_item, created = Wishlist.objects.get_or_create(
+            user=request.user,
+            product=product
+        )
+
+        if not created:
+            # Đã tồn tại -> xóa
+            wishlist_item.delete()
+            return JsonResponse({
+                'success': True,
+                'action': 'removed',
+                'message': f'Đã xóa "{product.name}" khỏi danh sách yêu thích'
+            })
+        else:
+            # Mới tạo -> thêm
+            return JsonResponse({
+                'success': True,
+                'action': 'added',
+                'message': f'Đã thêm "{product.name}" vào danh sách yêu thích'
+            })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=400)
+
+
+@login_required
+@require_POST
+def remove_from_wishlist(request, product_id):
+    """Xóa sản phẩm khỏi wishlist"""
+    try:
+        wishlist_item = get_object_or_404(
+            Wishlist,
+            user=request.user,
+            product_id=product_id
+        )
+        product_name = wishlist_item.product.name
+        wishlist_item.delete()
+
+        return JsonResponse({
+            'success': True,
+            'message': f'Đã xóa "{product_name}" khỏi danh sách yêu thích'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=400)
+
+
+def get_wishlist_ids(request):
+    """API lấy danh sách product IDs trong wishlist của user"""
+    if request.user.is_authenticated:
+        wishlist_ids = list(
+            Wishlist.objects.filter(user=request.user).values_list('product_id', flat=True)
+        )
+        return JsonResponse({'wishlist_ids': wishlist_ids})
+    return JsonResponse({'wishlist_ids': []})

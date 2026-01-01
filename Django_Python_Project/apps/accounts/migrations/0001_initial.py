@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -20,14 +19,19 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('email', models.EmailField(max_length=150, unique=True, verbose_name='Email')),
-                ('phone', models.CharField(blank=True, max_length=15, null=True, validators=[django.core.validators.RegexValidator(message="Số điện thoại phải có định dạng: '0xxxxxxxxx' hoặc '+84xxxxxxxxx'", regex='^(0|\\+84)[0-9]{9,10}$')], verbose_name='Số điện thoại')),
+                ('phone', models.CharField(blank=True, max_length=15, null=True, validators=[
+                    django.core.validators.RegexValidator(
+                        message="Số điện thoại phải có định dạng: '0xxxxxxxxx' hoặc '+84xxxxxxxxx'",
+                        regex='^(0|\\+84)[0-9]{9,10}$')], verbose_name='Số điện thoại')),
                 ('address', models.TextField(blank=True, null=True, verbose_name='Địa chỉ')),
                 ('avatar', models.ImageField(blank=True, null=True, upload_to='avatars/', verbose_name='Ảnh đại diện')),
                 ('date_of_birth', models.DateField(blank=True, null=True, verbose_name='Ngày sinh')),
-                ('gender', models.CharField(blank=True, choices=[('male', 'Nam'), ('female', 'Nữ'), ('other', 'Khác')], max_length=10, verbose_name='Giới tính')),
+                ('gender', models.CharField(blank=True, choices=[('male', 'Nam'), ('female', 'Nữ'), ('other', 'Khác')],
+                                            max_length=10, verbose_name='Giới tính')),
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')),
                 ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Ngày cập nhật')),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile', to=settings.AUTH_USER_MODEL)),
+                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile',
+                                              to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'verbose_name': 'Hồ sơ người dùng',
@@ -48,7 +52,8 @@ class Migration(migrations.Migration):
                 ('ward_code', models.CharField(blank=True, max_length=10, verbose_name='Mã phường/xã')),
                 ('is_default', models.BooleanField(default=False, verbose_name='Địa chỉ mặc định')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='addresses', to=settings.AUTH_USER_MODEL, verbose_name='Người dùng')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='addresses',
+                                           to=settings.AUTH_USER_MODEL, verbose_name='Người dùng')),
             ],
             options={
                 'verbose_name': 'Địa chỉ',

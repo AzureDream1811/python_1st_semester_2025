@@ -37,8 +37,12 @@ def checkout(request):
         district = request.POST.get('district', '').strip()
         city = request.POST.get('city', '').strip()
         ward = request.POST.get('ward', '').strip()
+        city_code = request.POST.get('city_code', '').strip()
+        district_code = request.POST.get('district_code', '').strip()
+        ward_code = request.POST.get('ward_code', '').strip()
         note = request.POST.get('note', '').strip()
         payment_method = request.POST.get('payment_method', 'cod')
+        save_address = request.POST.get('save_address') == '1'
 
         # Basic validation
         if not all([full_name, email, phone, address, district, city]):
@@ -49,6 +53,22 @@ def checkout(request):
             })
 
         with transaction.atomic():
+            # Lưu địa chỉ vào profile nếu được chọn
+            if save_address:
+                from apps.accounts.models import Address
+                Address.objects.create(
+                    user=request.user,
+                    full_name=full_name,
+                    phone=phone,
+                    address=address,
+                    province=city,
+                    province_code=city_code,
+                    district=district,
+                    district_code=district_code,
+                    ward=ward,
+                    ward_code=ward_code,
+                )
+
             # Tạo Order
             order = Order.objects.create(
                 order_number=generate_order_number(),
@@ -89,15 +109,33 @@ def checkout(request):
             cart.clear()
 
         messages.success(request, f'Đặt hàng thành công! Mã đơn hàng: {order.order_number}')
-        return redirect('orders:detail', order_number=order.order_number)
+
+        # Redirect dựa trên phương thức thanh toán
+        if payment_method == 'bank_transfer':
+            return redirect('payments:bank_transfer', order_id=order.id)
+        elif payment_method == 'momo':
+            return redirect('payments:momo_payment', order_id=order.id)
+        elif payment_method == 'zalopay':
+            return redirect('payments:zalopay_payment', order_id=order.id)
+        else:
+            return redirect('orders:detail', order_number=order.order_number)
 
     # Pre-fill từ profile
     profile = getattr(request.user, 'profile', None)
+
+    # Lấy địa chỉ và thẻ đã lưu
+    from apps.accounts.models import Address, SavedCard
+    saved_addresses = Address.objects.filter(user=request.user)
+    saved_cards = SavedCard.objects.filter(user=request.user, is_expired=False)
+    default_address = saved_addresses.filter(is_default=True).first()
 
     context = {
         'cart': cart,
         'items': items,
         'profile': profile,
+        'saved_addresses': saved_addresses,
+        'saved_cards': saved_cards,
+        'default_address': default_address,
     }
     return render(request, 'orders/checkout.html', context)
 

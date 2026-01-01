@@ -8,7 +8,7 @@ from .services.search_service import SearchService
 def search_products(request):
     """Tìm kiếm sản phẩm"""
     query = request.GET.get('q', '').strip()
-    
+
     # Filters
     filters = {
         'category': request.GET.get('category'),
@@ -18,22 +18,22 @@ def search_products(request):
         'rating': request.GET.get('rating'),
         'in_stock': request.GET.get('in_stock'),
     }
-    
+
     # Remove empty filters
     filters = {k: v for k, v in filters.items() if v}
-    
+
     # Sort
     sort = request.GET.get('sort', 'relevance')
-    
+
     if query:
         # Log search
         SearchService.log_search(query, request.user if request.user.is_authenticated else None)
-        
+
         # Search with Elasticsearch or fallback to DB
         results = SearchService.search_products(query, filters, sort)
     else:
         results = Product.objects.filter(is_active=True)
-        
+
         # Apply filters
         if filters.get('category'):
             results = results.filter(category__slug=filters['category'])
@@ -45,16 +45,16 @@ def search_products(request):
             results = results.filter(price__lte=filters['max_price'])
         if filters.get('in_stock') == 'true':
             results = results.filter(stock__gt=0)
-    
+
     # Pagination
     paginator = Paginator(results, 20)
     page = request.GET.get('page', 1)
     products = paginator.get_page(page)
-    
+
     # Get filter options
     categories = Category.objects.filter(is_active=True)
     brands = Brand.objects.filter(is_active=True)
-    
+
     context = {
         'query': query,
         'products': products,
@@ -64,7 +64,7 @@ def search_products(request):
         'sort': sort,
         'total_results': paginator.count,
     }
-    
+
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         # Return JSON for AJAX requests
         return JsonResponse({
@@ -82,7 +82,7 @@ def search_products(request):
             'page': products.number,
             'pages': paginator.num_pages,
         })
-    
+
     return render(request, 'search/search_results.html', context)
 
 
@@ -90,10 +90,10 @@ def autocomplete(request):
     """API: Autocomplete gợi ý tìm kiếm"""
     query = request.GET.get('q', '').strip()
     limit = int(request.GET.get('limit', 10))
-    
+
     if len(query) < 2:
         return JsonResponse({'suggestions': []})
-    
+
     suggestions = SearchService.autocomplete(query, limit)
     return JsonResponse({'suggestions': suggestions})
 

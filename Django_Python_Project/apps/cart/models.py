@@ -1,11 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
-from ..products.models import Product
+from apps.products.models import Product
 
+
+# ==========================================
+# 1. CART MODEL
+# ==========================================
 
 class Cart(models.Model):
     """Model giỏ hàng"""
-    
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -22,36 +26,36 @@ class Cart(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         verbose_name = 'Giỏ hàng'
         verbose_name_plural = 'Giỏ hàng'
-    
+
     def __str__(self):
         if self.user:
             return f"Giỏ hàng của {self.user.email}"
         return f"Giỏ hàng #{self.session_key}"
-    
+
     @property
     def total_items(self):
         """Tổng số sản phẩm trong giỏ"""
         return sum(item.quantity for item in self.items.all())
-    
+
     @property
     def subtotal(self):
         """Tổng tiền hàng"""
         return sum(item.total_price for item in self.items.all())
-    
+
     @property
     def total(self):
         """Tổng tiền thanh toán"""
         # Có thể thêm phí ship, giảm giá ở đây
         return self.subtotal
-    
+
     def clear(self):
         """Xóa tất cả items trong giỏ"""
         self.items.all().delete()
-    
+
     def merge_cart(self, session_cart):
         """Merge giỏ hàng từ session vào user cart"""
         for item in session_cart.items.all():
@@ -65,9 +69,13 @@ class Cart(models.Model):
         session_cart.delete()
 
 
+# ==========================================
+# 2. CART ITEM MODEL
+# ==========================================
+
 class CartItem(models.Model):
     """Model item trong giỏ hàng"""
-    
+
     cart = models.ForeignKey(
         Cart,
         on_delete=models.CASCADE,
@@ -83,25 +91,25 @@ class CartItem(models.Model):
     quantity = models.PositiveIntegerField(default=1, verbose_name='Số lượng')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         verbose_name = 'Sản phẩm trong giỏ'
         verbose_name_plural = 'Sản phẩm trong giỏ'
         unique_together = ['cart', 'product']
-    
+
     def __str__(self):
         return f"{self.product.name} x {self.quantity}"
-    
+
     @property
     def price(self):
         """Giá sản phẩm"""
         return self.product.current_price
-    
+
     @property
     def total_price(self):
         """Thành tiền"""
         return self.price * self.quantity
-    
+
     def save(self, *args, **kwargs):
         # Đảm bảo số lượng không vượt quá tồn kho
         if self.quantity > self.product.stock:

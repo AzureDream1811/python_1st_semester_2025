@@ -10,19 +10,21 @@ from apps.products.models import Product
 
 class Voucher(models.Model):
     """Voucher/Coupon model"""
-    
+
     DISCOUNT_TYPES = [
         ('percentage', 'Phần trăm'),
         ('fixed', 'Số tiền cố định'),
     ]
-    
+
     code = models.CharField(max_length=50, unique=True, verbose_name='Mã voucher')
     name = models.CharField(max_length=200, verbose_name='Tên voucher')
     description = models.TextField(blank=True, verbose_name='Mô tả')
     discount_type = models.CharField(max_length=20, choices=DISCOUNT_TYPES, verbose_name='Loại giảm giá')
     discount_value = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Giá trị giảm')
-    min_order_value = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name='Giá trị đơn tối thiểu')
-    max_discount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name='Giảm tối đa')
+    min_order_value = models.DecimalField(max_digits=12, decimal_places=2, default=0,
+                                          verbose_name='Giá trị đơn tối thiểu')
+    max_discount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True,
+                                       verbose_name='Giảm tối đa')
     usage_limit = models.IntegerField(default=0, verbose_name='Giới hạn sử dụng (0=không giới hạn)')
     used_count = models.IntegerField(default=0, verbose_name='Số lần đã dùng')
     usage_limit_per_user = models.IntegerField(default=1, verbose_name='Giới hạn/người dùng')
@@ -100,6 +102,6 @@ class FlashSale(models.Model):
 
     def is_available(self):
         now = timezone.now()
-        return (self.is_active and 
-                self.start_time <= now <= self.end_time and 
+        return (self.is_active and
+                self.start_time <= now <= self.end_time and
                 self.sold_count < self.quantity_limit)

@@ -4,8 +4,12 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
 from .models import Cart, CartItem
-from ..products.models import Product
+from apps.products.models import Product
 
+
+# ==========================================
+# 1. HELPER FUNCTIONS
+# ==========================================
 
 def get_or_create_cart(request):
     """Lấy hoặc tạo giỏ hàng cho user/session"""
@@ -20,22 +24,46 @@ def get_or_create_cart(request):
     return cart
 
 
-def merge_session_cart(request, old_session_key):
-    """Gộp giỏ hàng session vào user cart khi login"""
+def merge_session_cart_with_key(request, old_session_key):
+    """
+    Gộp giỏ hàng session vào user cart khi login.
+    Sử dụng old_session_key được lưu TRƯỚC khi login để tránh mất cart
+    do Django session rotation.
+
+    Flow:
+    1. Lưu session_key cũ trước khi gọi login()
+    2. Gọi login() - Django có thể rotate session
+    3. Gọi hàm này với old_session_key để merge cart
+    4. Xóa cart session cũ sau khi merge
+    """
     if not request.user.is_authenticated:
         return
 
-    session_key = old_session_key
-    if not session_key:
+    if not old_session_key:
         return
 
     try:
-        session_cart = Cart.objects.get(session_key=session_key, user__isnull=True)
+        # Tìm cart theo session key CŨ (trước khi login)
+        session_cart = Cart.objects.get(session_key=old_session_key, user__isnull=True)
+
+        # Lấy hoặc tạo cart cho user đã login
         user_cart, _ = Cart.objects.get_or_create(user=request.user)
+
+        # Merge items từ session cart vào user cart
+        # Hàm merge_cart sẽ:
+        # - Cộng dồn quantity nếu sản phẩm đã có trong user cart
+        # - Chuyển item sang user cart nếu sản phẩm chưa có
+        # - XÓA session cart sau khi merge
         user_cart.merge_cart(session_cart)
+
     except Cart.DoesNotExist:
+        # Không có cart session cũ, không cần làm gì
         pass
 
+
+# ==========================================
+# 2. MAIN VIEWS
+# ==========================================
 
 def cart_detail(request):
     """Xem giỏ hàng"""
@@ -48,6 +76,10 @@ def cart_detail(request):
     }
     return render(request, 'cart/cart.html', context)
 
+
+# ==========================================
+# 3. CART ACTIONS
+# ==========================================
 
 @require_POST
 def add_to_cart(request, product_id):

@@ -7,7 +7,7 @@ def categories_context(request):
         is_active=True,
         parent_id=True
     ).prefetch_related('children')
-    
+
     return {
         'nav_categories': categories
     }

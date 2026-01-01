@@ -9,7 +9,7 @@ from apps.products.models import Product
 
 class UserActivity(models.Model):
     """Track user activities for recommendations"""
-    
+
     ACTIVITY_TYPES = [
         ('view', 'Xem sản phẩm'),
         ('add_to_cart', 'Thêm vào giỏ'),
@@ -17,7 +17,7 @@ class UserActivity(models.Model):
         ('wishlist', 'Thêm wishlist'),
         ('search', 'Tìm kiếm'),
     ]
-    
+
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='Người dùng')
     session_id = models.CharField(max_length=100, blank=True, verbose_name='Session ID')
     activity_type = models.CharField(max_length=50, choices=ACTIVITY_TYPES, verbose_name='Loại hoạt động')

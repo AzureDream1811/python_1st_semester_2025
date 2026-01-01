@@ -31,6 +31,7 @@ class ProfileAdmin(admin.ModelAdmin):
         if obj.avatar:
             return format_html('<img src="{}" width="50" height="50" style="border-radius: 50%;" />', obj.avatar.url)
         return format_html('<span style="color: gray;">Chưa có avatar</span>')
+
     avatar_preview.short_description = 'Avatar'
 
 

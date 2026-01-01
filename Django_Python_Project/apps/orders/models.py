@@ -2,9 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from apps.products.models import Product
 
+
 class Order(models.Model):
     """Model đơn hàng"""
-    
+
     STATUS_CHOICES = [
         ('pending', 'Chờ xác nhận'),
         ('confirmed', 'Đã xác nhận'),
@@ -15,21 +16,23 @@ class Order(models.Model):
         ('cancelled', 'Đã hủy'),
         ('refunded', 'Đã hoàn tiền'),
     ]
-    
+
     PAYMENT_STATUS_CHOICES = [
         ('pending', 'Chờ thanh toán'),
         ('paid', 'Đã thanh toán'),
         ('failed', 'Thanh toán thất bại'),
         ('refunded', 'Đã hoàn tiền'),
     ]
-    
+
     PAYMENT_METHOD_CHOICES = [
         ('cod', 'Thanh toán khi nhận hàng (COD)'),
         ('bank_transfer', 'Chuyển khoản ngân hàng'),
         ('momo', 'Ví MoMo'),
+        ('zalopay', 'Ví ZaloPay'),
+        ('card', 'Thẻ Visa/Mastercard/JCB'),
         ('vnpay', 'VNPay'),
     ]
-    
+
     # Mã đơn hàng
     order_number = models.CharField(
         max_length=20,
@@ -37,7 +40,7 @@ class Order(models.Model):
         editable=False,
         verbose_name='Mã đơn hàng'
     )
-    
+
     # Người đặt
     user = models.ForeignKey(
         User,
@@ -47,7 +50,7 @@ class Order(models.Model):
         related_name='orders',
         verbose_name='Khách hàng'
     )
-    
+
     # Thông tin giao hàng
     full_name = models.CharField(max_length=100, verbose_name='Họ tên người nhận')
     email = models.EmailField(verbose_name='Email')
@@ -56,10 +59,10 @@ class Order(models.Model):
     ward = models.CharField(max_length=100, blank=True, verbose_name='Phường/Xã')
     district = models.CharField(max_length=100, verbose_name='Quận/Huyện')
     city = models.CharField(max_length=100, verbose_name='Tỉnh/Thành phố')
-    
+
     # Ghi chú
     note = models.TextField(blank=True, verbose_name='Ghi chú')
-    
+
     # Thanh toán
     payment_method = models.CharField(
         max_length=20,
@@ -73,7 +76,7 @@ class Order(models.Model):
         default='pending',
         verbose_name='Trạng thái thanh toán'
     )
-    
+
     # Tổng tiền
     subtotal = models.DecimalField(
         max_digits=12,
@@ -99,7 +102,7 @@ class Order(models.Model):
         default=0,
         verbose_name='Tổng thanh toán'
     )
-    
+
     # Trạng thái
     status = models.CharField(
         max_length=20,
@@ -107,16 +110,16 @@ class Order(models.Model):
         default='pending',
         verbose_name='Trạng thái'
     )
-    
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Ngày đặt')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Cập nhật')
-    
+
     class Meta:
         verbose_name = 'Đơn hàng'
         verbose_name_plural = 'Đơn hàng'
         ordering = ['-created_at']
-    
+
     def __str__(self):
         return f"Đơn hàng #{self.order_number} - {self.user.username}"
 
@@ -125,14 +128,15 @@ class Order(models.Model):
         self.subtotal = sum(item.total_price for item in self.items.all())
         self.total = self.subtotal + self.shipping_fee - self.discount
         self.save(update_fields=['subtotal', 'total'])
-    
+
     def can_cancel(self):
         """Kiểm tra có thể hủy đơn không"""
         return self.status in ['pending', 'confirmed']
 
+
 class OrderItem(models.Model):
     """Model chi tiết đơn hàng"""
-    
+
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
@@ -146,11 +150,11 @@ class OrderItem(models.Model):
         related_name='order_items',
         verbose_name='Sản phẩm'
     )
-    
+
     # Lưu thông tin sản phẩm tại thời điểm đặt
     product_name = models.CharField(max_length=255, verbose_name='Tên sản phẩm')
     product_image = models.CharField(max_length=255, blank=True, verbose_name='Hình ảnh')
-    
+
     price = models.DecimalField(
         max_digits=12,
         decimal_places=0,
@@ -161,10 +165,10 @@ class OrderItem(models.Model):
     class Meta:
         verbose_name = 'Chi tiết đơn hàng'
         verbose_name_plural = 'Chi tiết đơn hàng'
-    
+
     def __str__(self):
         return f"{self.product_name} x {self.quantity}"
-    
+
     @property
     def total_price(self):
         """Thành tiền"""
@@ -173,7 +177,7 @@ class OrderItem(models.Model):
 
 class OrderHistory(models.Model):
     """Model lịch sử đơn hàng"""
-    
+
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
@@ -182,11 +186,11 @@ class OrderHistory(models.Model):
     )
     status = models.CharField(max_length=20, verbose_name='Trạng thái')
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         verbose_name = 'Lịch sử đơn hàng'
         verbose_name_plural = 'Lịch sử đơn hàng'
         ordering = ['-created_at']
-    
+
     def __str__(self):
         return f"{self.order.order_number} - {self.status}"
