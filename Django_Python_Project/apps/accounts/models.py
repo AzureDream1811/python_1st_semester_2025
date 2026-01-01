@@ -3,6 +3,10 @@ from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 
 
+# ==========================================
+# 1. USER PROFILE MODEL
+# ==========================================
+
 class Profile(models.Model):
     """Custom User Model với thông tin bổ sung"""
 
@@ -38,6 +42,11 @@ class Profile(models.Model):
         ('female', 'Nữ'),
         ('other', 'Khác'),
     ], verbose_name='Giới tính')
+
+    # Social login fields
+    is_social_account = models.BooleanField(default=False, verbose_name='Tài khoản Social')
+    social_provider = models.CharField(max_length=20, blank=True, verbose_name='Nhà cung cấp Social')
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Ngày cập nhật')
 
@@ -54,6 +63,10 @@ class Profile(models.Model):
             return self.avatar.url
         return '/static/images/default-avatar.png'
 
+
+# ==========================================
+# 2. ADDRESS MODEL
+# ==========================================
 
 class Address(models.Model):
     """Model địa chỉ giao hàng"""
@@ -116,6 +129,10 @@ class Address(models.Model):
         super().save(*args, **kwargs)
 
 
+# ==========================================
+# 3. SAVED CARD MODEL
+# ==========================================
+
 class SavedCard(models.Model):
     """Model lưu thẻ thanh toán"""
 
@@ -172,3 +189,39 @@ class SavedCard(models.Model):
         if self.is_default:
             SavedCard.objects.filter(user=self.user, is_default=True).update(is_default=False)
         super().save(*args, **kwargs)
+
+
+# ==========================================
+# 4. SOCIAL ACCOUNT MODEL
+# ==========================================
+
+class SocialAccount(models.Model):
+    """Model lưu thông tin đăng nhập social (Google, Facebook)"""
+
+    PROVIDER_CHOICES = [
+        ('google', 'Google'),
+        ('facebook', 'Facebook'),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='social_accounts',
+        verbose_name='Người dùng'
+    )
+    provider = models.CharField(
+        max_length=20,
+        choices=PROVIDER_CHOICES,
+        verbose_name='Nhà cung cấp'
+    )
+    provider_email = models.EmailField(verbose_name='Email từ nhà cung cấp')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')
+
+    class Meta:
+        verbose_name = 'Tài khoản Social'
+        verbose_name_plural = 'Tài khoản Social'
+        unique_together = ['user', 'provider']
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.email} - {self.get_provider_display()}"

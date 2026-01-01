@@ -57,4 +57,9 @@ urlpatterns = [
     path('api/districts/<str:province_code>/', views.api_districts, name='api_districts'),
     path('api/wards/<str:district_code>/', views.api_wards, name='api_wards'),
     path('api/validate-card/', views.api_validate_card, name='api_validate_card'),
+
+    # Social login API endpoints
+    path('api/check-email/', views.check_email_api, name='api_check_email'),
+    path('api/social-register/', views.social_register_api, name='api_social_register'),
+    path('api/social-login/', views.social_login_api, name='api_social_login'),
 ]

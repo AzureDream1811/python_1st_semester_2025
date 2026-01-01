@@ -1,13 +1,46 @@
+import json
+import re
+from datetime import timedelta
+
 from django.conf import settings
-from django.contrib.auth.forms import PasswordResetForm
-from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
+from django.contrib.auth.forms import PasswordResetForm
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST, require_GET
 
+# Local Imports
 from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, ProfileUpdateForm
-from .models import Profile
+from .models import Profile, Address, SavedCard
+from .services.address_service import AddressService
+from .services.social_auth_service import SocialAuthService
+from apps.orders.models import Order
+from apps.payments.services.card_service import CardValidator
 
+# Try/Except imports to handle dependencies safely
+try:
+    from apps.promotions.models import UserVoucher
+except ImportError:
+    UserVoucher = None
+
+try:
+    from apps.products.models import Wishlist
+except ImportError:
+    Wishlist = None
+
+
+# ==========================================
+# 1. STANDARD AUTHENTICATION VIEWS
+# (Register, Login, Logout, Password Reset)
+# ==========================================
 
 def register(request):
     """Đăng ký tài khoản mới"""
@@ -17,7 +50,7 @@ def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            form.save()
             messages.success(request, 'Đăng ký thành công! Vui lòng đăng nhập.')
             return redirect('accounts:login')
     else:
@@ -37,13 +70,17 @@ def login_view(request):
             user = form.get_user()
 
             # LƯU SESSION KEY CŨ TRƯỚC KHI LOGIN
+            # Django sẽ rotate session sau login, nên cần lưu key cũ để merge cart
             old_session_key = request.session.session_key
 
             login(request, user)
 
             # Merge session cart vào user cart (sử dụng old_session_key)
-            from apps.cart.views import merge_session_cart_with_key
-            merge_session_cart_with_key(request, old_session_key)
+            try:
+                from apps.cart.views import merge_session_cart_with_key
+                merge_session_cart_with_key(request, old_session_key)
+            except ImportError:
+                pass  # Handle gracefully if cart app is missing
 
             # Remember me
             if not form.cleaned_data.get('remember_me'):
@@ -99,6 +136,63 @@ def password_reset_done(request):
     return render(request, 'accounts/password_reset_done.html')
 
 
+# ==========================================
+# 2. DASHBOARD & PROFILE VIEWS
+# ==========================================
+
+@login_required
+def account_dashboard(request):
+    """Dashboard tổng quan tài khoản"""
+    user = request.user
+
+    # Order statistics
+    total_orders = Order.objects.filter(user=user).count()
+    pending_orders = Order.objects.filter(user=user, status='pending').count()
+    completed_orders = Order.objects.filter(user=user, status='delivered').count()
+    recent_orders = Order.objects.filter(user=user).order_by('-created_at')[:5]
+
+    # Voucher statistics
+    voucher_count = 0
+    expiring_vouchers = []
+    if UserVoucher:
+        voucher_count = UserVoucher.objects.filter(
+            user=user, is_used=False
+        ).count()
+
+        # Vouchers expiring within 7 days
+        expiring_date = timezone.now() + timedelta(days=7)
+        expiring_vouchers = UserVoucher.objects.filter(
+            user=user,
+            is_used=False,
+            voucher__end_date__lte=expiring_date,
+            voucher__end_date__gte=timezone.now()
+        ).select_related('voucher')[:5]
+
+    # Wishlist count
+    wishlist_count = 0
+    if Wishlist:
+        wishlist_count = Wishlist.objects.filter(user=user).count()
+
+    # Address count
+    address_count = Address.objects.filter(user=user).count()
+
+    # Saved cards count
+    card_count = SavedCard.objects.filter(user=user).count()
+
+    context = {
+        'total_orders': total_orders,
+        'pending_orders': pending_orders,
+        'completed_orders': completed_orders,
+        'recent_orders': recent_orders,
+        'voucher_count': voucher_count,
+        'expiring_vouchers': expiring_vouchers,
+        'wishlist_count': wishlist_count,
+        'address_count': address_count,
+        'card_count': card_count,
+    }
+    return render(request, 'accounts/dashboard.html', context)
+
+
 @login_required
 def profile(request):
     """Xem và cập nhật hồ sơ"""
@@ -134,16 +228,9 @@ def profile(request):
     return render(request, 'accounts/profile.html', context)
 
 
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST, require_GET
-import json
-
-from .models import Address, SavedCard
-from .services.address_service import AddressService
-from apps.payments.services.card_service import CardValidator
-
-
-# ============== ADDRESS VIEWS ==============
+# ==========================================
+# 3. ADDRESS MANAGEMENT VIEWS
+# ==========================================
 
 @login_required
 def address_list(request):
@@ -174,7 +261,7 @@ def address_create(request):
         # Tạo địa chỉ mới
         is_default = data.get('is_default') == 'on'
 
-        address = Address.objects.create(
+        Address.objects.create(
             user=request.user,
             full_name=data['full_name'],
             phone=data['phone'],
@@ -274,7 +361,9 @@ def address_set_default(request, address_id):
     return redirect('accounts:address_list')
 
 
-# ============== ADDRESS API VIEWS ==============
+# ==========================================
+# 4. ADDRESS API VIEWS
+# ==========================================
 
 @require_GET
 def api_provinces(request):
@@ -297,7 +386,9 @@ def api_wards(request, district_code):
     return JsonResponse({'wards': wards})
 
 
-# ============== SAVED CARD VIEWS ==============
+# ==========================================
+# 5. SAVED CARD VIEWS
+# ==========================================
 
 @login_required
 def card_list(request):
@@ -402,8 +493,6 @@ def card_set_default(request, card_id):
     return redirect('accounts:card_list')
 
 
-# ============== CARD VALIDATION API ==============
-
 @require_POST
 def api_validate_card(request):
     """API xác thực thẻ real-time"""
@@ -424,80 +513,218 @@ def api_validate_card(request):
         return JsonResponse({'error': str(e)}, status=400)
 
 
-# ============== ACCOUNT DASHBOARD VIEW ==============
+# ==========================================
+# 6. SOCIAL LOGIN API VIEWS
+# ==========================================
 
-from datetime import timedelta
-from django.utils import timezone
-from apps.orders.models import Order
+@method_decorator(csrf_exempt, name='dispatch')
+class CheckEmailAPIView(View):
+    """API endpoint kiểm tra email đã tồn tại chưa"""
+
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            email = data.get('email', '').strip()
+
+            if not email:
+                return JsonResponse({
+                    'error': 'validation_error',
+                    'message': 'Email không được để trống'
+                }, status=400)
+
+            try:
+                validate_email(email)
+            except ValidationError:
+                return JsonResponse({
+                    'error': 'validation_error',
+                    'message': 'Định dạng email không hợp lệ'
+                }, status=400)
+
+            result = SocialAuthService.check_email_exists(email)
+
+            return JsonResponse({
+                'exists': result['exists'],
+                'has_social': result['has_social'],
+                'providers': result['providers']
+            })
+
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'error': 'invalid_json',
+                'message': 'Dữ liệu JSON không hợp lệ'
+            }, status=400)
+        except Exception:
+            return JsonResponse({
+                'error': 'server_error',
+                'message': 'Đã có lỗi xảy ra'
+            }, status=500)
 
 
-@login_required
-def account_dashboard(request):
-    """Dashboard tổng quan tài khoản"""
-    user = request.user
+@method_decorator(csrf_exempt, name='dispatch')
+class SocialRegisterAPIView(View):
+    """API endpoint đăng ký tài khoản qua social"""
 
-    # Order statistics
-    total_orders = Order.objects.filter(user=user).count()
-    pending_orders = Order.objects.filter(user=user, status='pending').count()
-    completed_orders = Order.objects.filter(user=user, status='delivered').count()
-    recent_orders = Order.objects.filter(user=user).order_by('-created_at')[:5]
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
 
-    # Loyalty statistics
-    loyalty_points = 0
-    loyalty_tier = None
-    try:
-        if hasattr(user, 'loyalty_account'):
-            loyalty_account = user.loyalty_account
-            loyalty_points = loyalty_account.points
-            loyalty_tier = loyalty_account.tier
-    except Exception:
-        pass
+            email = data.get('email', '').strip()
+            first_name = data.get('first_name', '').strip()
+            last_name = data.get('last_name', '').strip()
+            phone = data.get('phone', '').strip()
+            provider = data.get('provider', '').strip()
 
-    # Voucher statistics
-    voucher_count = 0
-    expiring_vouchers = []
-    try:
-        from apps.promotions.models import UserVoucher
-        voucher_count = UserVoucher.objects.filter(
-            user=user, is_used=False
-        ).count()
+            # Validate required fields
+            if not all([email, first_name, last_name, provider]):
+                return JsonResponse({
+                    'error': 'validation_error',
+                    'message': 'Vui lòng điền đầy đủ thông tin bắt buộc',
+                    'errors': {
+                        'email': 'Email không được để trống' if not email else None,
+                        'first_name': 'Tên không được để trống' if not first_name else None,
+                        'last_name': 'Họ không được để trống' if not last_name else None,
+                        'provider': 'Provider không được để trống' if not provider else None,
+                    }
+                }, status=400)
 
-        # Vouchers expiring within 7 days
-        expiring_date = timezone.now() + timedelta(days=7)
-        expiring_vouchers = UserVoucher.objects.filter(
-            user=user,
-            is_used=False,
-            voucher__end_date__lte=expiring_date,
-            voucher__end_date__gte=timezone.now()
-        ).select_related('voucher')[:5]
-    except Exception:
-        pass
+            # Validate email
+            try:
+                validate_email(email)
+            except ValidationError:
+                return JsonResponse({
+                    'error': 'validation_error',
+                    'message': 'Định dạng email không hợp lệ'
+                }, status=400)
 
-    # Wishlist count
-    wishlist_count = 0
-    try:
-        from apps.products.models import Wishlist
-        wishlist_count = Wishlist.objects.filter(user=user).count()
-    except Exception:
-        pass
+            # Validate phone number
+            if phone:
+                phone_pattern = r'^(0|\+84)[0-9]{9,10}$'
+                if not re.match(phone_pattern, phone):
+                    return JsonResponse({
+                        'error': 'validation_error',
+                        'message': 'Số điện thoại không đúng định dạng Việt Nam',
+                        'errors': {
+                            'phone': 'Số điện thoại phải có định dạng: 0xxxxxxxxx hoặc +84xxxxxxxxx'
+                        }
+                    }, status=400)
 
-    # Address count
-    address_count = Address.objects.filter(user=user).count()
+            # Create user
+            result = SocialAuthService.create_social_user(
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+                phone=phone,
+                provider=provider
+            )
 
-    # Saved cards count
-    card_count = SavedCard.objects.filter(user=user).count()
+            if not result['success']:
+                return JsonResponse({
+                    'error': 'registration_failed',
+                    'message': result['error']
+                }, status=400)
 
-    context = {
-        'total_orders': total_orders,
-        'pending_orders': pending_orders,
-        'completed_orders': completed_orders,
-        'recent_orders': recent_orders,
-        'loyalty_points': loyalty_points,
-        'loyalty_tier': loyalty_tier,
-        'voucher_count': voucher_count,
-        'expiring_vouchers': expiring_vouchers,
-        'wishlist_count': wishlist_count,
-        'address_count': address_count,
-        'card_count': card_count,
-    }
-    return render(request, 'accounts/dashboard.html', context)
+            # Auto login after registration
+            login_result = SocialAuthService.login_social_user(
+                request=request,
+                email=email,
+                provider=provider
+            )
+
+            if not login_result['success']:
+                return JsonResponse({
+                    'error': 'login_failed',
+                    'message': login_result['error']
+                }, status=400)
+
+            return JsonResponse({
+                'success': True,
+                'message': 'Đăng ký và đăng nhập thành công',
+                'redirect_url': login_result['redirect_url'],
+                'user': {
+                    'id': result['user'].id,
+                    'email': result['user'].email,
+                    'first_name': result['user'].first_name,
+                    'last_name': result['user'].last_name
+                }
+            })
+
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'error': 'invalid_json',
+                'message': 'Dữ liệu JSON không hợp lệ'
+            }, status=400)
+        except Exception:
+            return JsonResponse({
+                'error': 'server_error',
+                'message': 'Đã có lỗi xảy ra'
+            }, status=500)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class SocialLoginAPIView(View):
+    """API endpoint đăng nhập qua social"""
+
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+
+            email = data.get('email', '').strip()
+            provider = data.get('provider', '').strip()
+
+            # Validate required fields
+            if not email or not provider:
+                return JsonResponse({
+                    'error': 'validation_error',
+                    'message': 'Email và provider không được để trống'
+                }, status=400)
+
+            # Validate email format
+            try:
+                validate_email(email)
+            except ValidationError:
+                return JsonResponse({
+                    'error': 'validation_error',
+                    'message': 'Định dạng email không hợp lệ'
+                }, status=400)
+
+            # Login user
+            result = SocialAuthService.login_social_user(
+                request=request,
+                email=email,
+                provider=provider
+            )
+
+            if not result['success']:
+                return JsonResponse({
+                    'error': 'login_failed',
+                    'message': result['error']
+                }, status=400)
+
+            return JsonResponse({
+                'success': True,
+                'message': 'Đăng nhập thành công',
+                'redirect_url': result['redirect_url'],
+                'user': {
+                    'id': result['user'].id,
+                    'email': result['user'].email,
+                    'first_name': result['user'].first_name,
+                    'last_name': result['user'].last_name
+                }
+            })
+
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'error': 'invalid_json',
+                'message': 'Dữ liệu JSON không hợp lệ'
+            }, status=400)
+        except Exception:
+            return JsonResponse({
+                'error': 'server_error',
+                'message': 'Đã có lỗi xảy ra'
+            }, status=500)
+
+
+# Function-based views for URL routing
+check_email_api = CheckEmailAPIView.as_view()
+social_register_api = SocialRegisterAPIView.as_view()
+social_login_api = SocialLoginAPIView.as_view()
