@@ -234,7 +234,7 @@ class AddressForm(forms.ModelForm):
         fields = [
             'full_name',
             'address',
-            'city', 'city_code',
+            'province', 'province_code',
             'district', 'district_code',
             'ward', 'ward_code'
         ]

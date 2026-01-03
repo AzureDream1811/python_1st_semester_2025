@@ -4,12 +4,14 @@ Elasticsearch-based search with Vietnamese support
 """
 import re
 import unicodedata
+from django.db.models.aggregates import Avg
+from django.db.models.functions.comparison import Coalesce
 
 """
 Search Service for ElectroShop
 Search support with Vietnamese text normalization
 """
-from typing import List
+from typing import List, Optional, Dict, Any
 from django.db.models import Q
 from ...products.models import Product
 
@@ -71,9 +73,8 @@ class SearchService:
             self,
             query: str,
             filters: Optional[Dict[str, Any]] = None,
-            page: int = 1,
-            page_size: int = 20
-    ) -> Dict[str, Any]:
+            sort: str='relevance'
+    ) -> Any: #Trả về 1 các sản phẩm đã được lọc và sort rồi truyền vào paginator tránh bị lỗi Slicing cũng như paginator k xử lí dict
         """
         Search products with filters
         Property 29: All results must satisfy filter conditions
@@ -95,7 +96,7 @@ class SearchService:
 
         # Apply filters
         if 'category' in filters:
-            queryset = queryset.filter(category_id=filters['category'])
+            queryset = queryset.filter(category__slug=filters['category']) #lọc đúng giá trị slug form gửi về
 
         if 'min_price' in filters:
             queryset = queryset.filter(price__gte=filters['min_price'])
@@ -109,19 +110,25 @@ class SearchService:
         if 'min_rating' in filters:
             queryset = queryset.filter(average_rating__gte=filters['min_rating'])
 
-        # Pagination
-        total = queryset.count()
-        start = (page - 1) * page_size
-        end = start + page_size
-        products = queryset[start:end]
+        if sort == 'price_asc':
+            queryset = queryset.order_by('price')
+        elif sort == 'price_desc':
+            queryset = queryset.order_by('-price')
+        elif sort == 'newest':
+            queryset = queryset.order_by('-created_at')
+        elif sort == 'rating':
+            queryset = queryset.order_by().annotate(
+                # Coalesce đảm bảo trả về 0.0 thay vì None nếu không có review
+                avg_rating_db=Coalesce(
+                    Avg('reviews__rating', filter=Q(reviews__is_approved=True)),
+                    0.0
+                )
+            ).order_by('-avg_rating_db', '-id')
+        else:
+            # 'relevance' - Sắp xếp theo ID hoặc độ khớp (nếu dùng search engine)
+            queryset = queryset.order_by('-id')
 
-        return {
-            'products': list(products),
-            'total': total,
-            'page': page,
-            'page_size': page_size,
-            'total_pages': (total + page_size - 1) // page_size
-        }
+        return queryset.distinct()
 
     def correct_spelling(self, query: str) -> str:
         """

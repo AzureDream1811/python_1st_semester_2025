@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'apps.admin_dashboard',
     'apps.promotions',
     'apps.search',
+    'apps.payments'
 ]
 
 MIDDLEWARE = [

@@ -6,6 +6,7 @@ from django.db.models import Q
 from ..products.models import Product, Category, Brand
 from .services.search_service import SearchService
 
+
 def search_products(request):
     """Tìm kiếm sản phẩm"""
     query = request.GET.get('q', '').strip()
@@ -24,31 +25,24 @@ def search_products(request):
 
     # Sort
     sort = request.GET.get('sort', 'relevance')
+    # Khởi tạo instance trước, tránh lỗi str' object has no attribute 'normalize_vietnamese
+    service = SearchService()
+    #if query:
+    # Log search
+    # SearchService.log_search(query, request.user if request.user.is_authenticated else None)
 
-    if query:
-        # Log search
-        SearchService.log_search(query, request.user if request.user.is_authenticated else None)
-
-        # Search with Elasticsearch or fallback to DB
-        results = SearchService.search_products(query, filters, sort)
-    else:
-        results = Product.objects.filter(is_active=True)
-
-        # Apply filters
-        if filters.get('category'):
-            results = results.filter(category__slug=filters['category'])
-        if filters.get('brand'):
-            results = results.filter(brand__slug=filters['brand'])
-        if filters.get('min_price'):
-            results = results.filter(price__gte=filters['min_price'])
-        if filters.get('max_price'):
-            results = results.filter(price__lte=filters['max_price'])
-        if filters.get('in_stock') == 'true':
-            results = results.filter(stock__gt=0)
+    # Search with Elasticsearch or fallback to DB
+    #gọi search trong searchservice để làm nhiệm vụ lấy các sp theo các tiêu chí trong filter và sort nó
+    results = service.search_products(query=query, filters=filters, sort=sort)
 
     # Pagination
+    #Nhận kết quả từ search_service để tiến hành phân trang
     paginator = Paginator(results, 20)
-    page = request.GET.get('page', 1)
+    # Ép kiểu page sang int, mặc định là 1 nếu không có hoặc lỗi fix lỗi unsupported operand type(s) for -: 'str' and 'int'
+    try:
+        page = int(request.GET.get('page', 1))
+    except (ValueError, TypeError):
+        page = 1
     products = paginator.get_page(page)
 
     # Get filter options
