@@ -3,9 +3,11 @@ Promotion Service for ElectroShop
 Voucher validation, combo deals, flash sales
 """
 from decimal import Decimal
-from typing import Dict, Any, List, Optional
-from django.utils import timezone
+from typing import Dict, Any, List
+
 from django.db import transaction
+from django.db.models import F, QuerySet
+from django.utils import timezone
 
 from apps.promotions.models import Voucher, VoucherUsage, ComboDeal, FlashSale
 
@@ -72,7 +74,7 @@ class PromotionService:
         """
         if voucher.discount_type == 'percentage':
             discount = cart_total * voucher.discount_value / 100
-        else:  # fixed
+        else:
             discount = voucher.discount_value
 
         # Apply max discount cap
@@ -86,7 +88,12 @@ class PromotionService:
         return discount
 
     @staticmethod
-    def apply_voucher(code: str, cart_total: Decimal, user=None, order=None) -> Dict[str, Any]:
+    def apply_voucher(
+            code: str,
+            cart_total: Decimal,
+            user=None,
+            order=None
+    ) -> Dict[str, Any]:
         """
         Apply voucher and return discount
         Property 9: Must calculate correct discount amount
@@ -127,10 +134,8 @@ class PromotionService:
         now = timezone.now()
         applicable_combos = []
 
-        # Get product IDs in cart
         cart_product_ids = {item['product_id'] for item in cart_items}
 
-        # Get active combo deals
         combos = ComboDeal.objects.filter(
             is_active=True,
             valid_from__lte=now,
@@ -140,7 +145,6 @@ class PromotionService:
         for combo in combos:
             combo_product_ids = set(combo.products.values_list('id', flat=True))
 
-            # Check if all combo products are in cart
             if combo_product_ids.issubset(cart_product_ids):
                 applicable_combos.append({
                     'combo': combo,
@@ -155,9 +159,8 @@ class PromotionService:
     def create_voucher(config: Dict[str, Any]) -> Voucher:
         """
         Create new voucher with full configuration
-        Property 11: Voucher must have all fields from config
         """
-        voucher = Voucher.objects.create(
+        return Voucher.objects.create(
             code=config['code'].upper(),
             name=config['name'],
             description=config.get('description', ''),
@@ -171,7 +174,6 @@ class PromotionService:
             valid_until=config['valid_until'],
             is_active=config.get('is_active', True)
         )
-        return voucher
 
     @staticmethod
     def get_promotion_report(start_date, end_date) -> Dict[str, Any]:
@@ -206,3 +208,13 @@ class PromotionService:
             'total_discount': total_discount,
             'by_voucher': voucher_stats
         }
+
+    @staticmethod
+    def get_active_flash_sales() -> QuerySet[FlashSale]:
+        now = timezone.now()
+        return FlashSale.objects.filter(
+            is_active=True,
+            start_time__lte=now,
+            end_time__gte=now,
+            sold_count__lt=F('quantity_limit')
+        ).select_related('product')
