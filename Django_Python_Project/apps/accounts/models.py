@@ -3,10 +3,6 @@ from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 
 
-# ==========================================
-# 1. USER PROFILE MODEL
-# ==========================================
-
 class Profile(models.Model):
     """Custom User Model với thông tin bổ sung"""
 
@@ -63,10 +59,6 @@ class Profile(models.Model):
             return self.avatar.url
         return '/static/images/default-avatar.png'
 
-
-# ==========================================
-# 2. ADDRESS MODEL
-# ==========================================
 
 class Address(models.Model):
     """Model địa chỉ giao hàng"""
@@ -129,10 +121,6 @@ class Address(models.Model):
         super().save(*args, **kwargs)
 
 
-# ==========================================
-# 3. SAVED CARD MODEL
-# ==========================================
-
 class SavedCard(models.Model):
     """Model lưu thẻ thanh toán"""
 
@@ -190,10 +178,6 @@ class SavedCard(models.Model):
             SavedCard.objects.filter(user=self.user, is_default=True).update(is_default=False)
         super().save(*args, **kwargs)
 
-
-# ==========================================
-# 4. SOCIAL ACCOUNT MODEL
-# ==========================================
 
 class SocialAccount(models.Model):
     """Model lưu thông tin đăng nhập social (Google, Facebook)"""
