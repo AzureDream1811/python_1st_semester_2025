@@ -1,117 +1,151 @@
-from pathlib import Path
-import fasttext
+import pandas as pd
 
+from Django_Python_Project.ml_models.aivivn_fasttext.preprocess import PreprocessText
 from Django_Python_Project.ml_models.aivivn_fasttext.config import (
-    TRAIN_FILE,
-    TEST_FILE,
-    MODEL_DIR,
-    EPOCHS,
-    LR,
-    DIM,
-    WORD_NGRAMS,
+    DATASET_DIR,
+    FASTESTTEXT_DATA_DIR,
 )
 
-MODEL_PATH = MODEL_DIR / "fasttext_sentiment.bin"
 
-
-def train_fasttext(
-    input_path: Path,
-    epochs: int = EPOCHS,
-    lr: float = LR,
-    dim: int = DIM,
-    word_ngrams: int = WORD_NGRAMS,
-    loss: str = "softmax",
-    minn: int = 2,
-    maxn: int = 5,
-):
+class FastTextDatasetBuilder:
     """
-    Train a fastText supervised model.
-
-    Parameters
-    ----------
-    input_path : Path
-        The path to the training data file.
-    epochs : int, optional
-        The number of epochs to train the model. Defaults to EPOCHS.
-    lr : float, optional
-        The learning rate of the model. Defaults to LR.
-    dim : int, optional
-        The dimension of the model. Defaults to DIM.
-    word_ngrams : int, optional
-        The number of word n-grams to use. Defaults to WORD_NGRAMS.
-    loss : str, optional
-        The loss function to use. Defaults to "hs".
-    minn : int, optional
-        The minimum length of a word to include in the vocab. Defaults to 2.
-    maxn : int, optional
-        The maximum length of a word to include in the vocab. Defaults to 5.
-
-    Returns
-    -------
-    model : fasttext.FastText
-        The trained fastText model.
+    Read CSV, process text, build file .txt for FastText
     """
-    model = fasttext.train_supervised(
-        input=str(input_path),
-        lr=lr,
-        epoch=epochs,
-        wordNgrams=word_ngrams,
-        dim=dim,
-        loss=loss,
-        minn=minn,
-        maxn=maxn,
-    )
 
-    model.save_model(str(MODEL_PATH))
-    return model
+    def __init__(self, text_col: str = "comment", label_col: str = "label"):
+        self.text_col = text_col
+        self.label_col = label_col
+        self._preprocess = PreprocessText()
 
+    def _load_CSV(self, filename: str) -> pd.DataFrame:
+        """
+        Load a CSV file from DATASET_DIR and return the DataFrame.
 
-def evaluate(model, valid_path: Path):
-    """
-    Evaluate a trained fastText supervised model on a validation set.
+        Parameters
+        ----------
+        filename : str
+            The name of the CSV file to load.
 
-    Parameters
-    ----------
-    model : fasttext.FastText
-        The trained fastText model to evaluate.
-    valid_path : Path
-        The path to the validation data file.
+        Returns
+        -------
+        pd.DataFrame
+            The loaded DataFrame.
 
-    Returns
-    -------
-    N : int
-        The number of test examples.
-    p1 : float
-        The precision at 1.
-    r1 : float
-        The recall at 1.
-    """
-    N, p1, r1 = model.test(str(valid_path))
-    print("Evaluating model:")
-    print("-> N:", N)
-    print("-> P@1:", p1)
-    print("-> R@1:", r1)
-    return N, p1, r1
+        Raises
+        ------
+        FileNotFoundError
+            If the file is not found.
+        """
+        path = DATASET_DIR / filename
 
+        if not path.exists():
+            raise FileNotFoundError(f"File not found: {path}")
 
-def main():
-    print("TRAIN_FILE:", TRAIN_FILE)
-    print("TEST_FILE:", TEST_FILE)
+        df = pd.read_csv(path)
 
-    if not TRAIN_FILE.exists():
-        raise FileNotFoundError(f"Không tìm thấy train file: {TRAIN_FILE}")
-    if not TEST_FILE.exists():
-        raise FileNotFoundError(f"Không tìm thấy test file: {TEST_FILE}")
+        df = df[[self.text_col, self.label_col]].dropna()
+        return df
 
-    print("Bắt đầu train fastText...")
-    model = train_fasttext(TRAIN_FILE)
+    def _preprocess_df(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Preprocess a DataFrame by applying the forward method of the preprocess_text instance to the text column.
 
-    print("-> Train xong, đánh giá trên tập test...")
-    evaluate(model, TEST_FILE)
+        Parameters
+        ----------
+        df : pd.DataFrame
+            The DataFrame to preprocess
 
-    print("-> Đã lưu model tại:", MODEL_PATH)
-    model.save_model(str(MODEL_PATH))
+        Returns
+        -------
+        pd.DataFrame
+            The preprocessed DataFrame
+        """
+        df[self.text_col] = df[self.text_col].astype(str).map(self._preprocess.forward)
+
+        return df
+
+    @staticmethod
+    def _to_fasttext_line(label, text) -> str:
+        return f"__label__{label} {text}"
+
+    def _build_ft_lines(self, df: pd.DataFrame) -> pd.Series:
+        """
+        Build a pandas Series of lines in the format expected by fastText.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            The DataFrame containing the text and label columns
+
+        Returns
+        -------
+        pd.Series
+            A pandas Series of lines in the format expected by fastText
+        """
+        return pd.Series(
+            [
+                self._to_fasttext_line(label, text)
+                for label, text in zip(df[self.label_col], df[self.text_col])
+            ]
+        )
+
+    def build_train_val_test_txt(
+        self,
+        train_csv: str = "train_split.csv",  # SỬA DEFAULT
+        val_csv: str = "val.csv",
+        test_csv: str = "test.csv",
+        train_text_name: str = "train.txt",
+        val_text_name: str = "val.txt",
+        test_text_name: str = "test.txt",
+    ):
+        """
+        Build the FastText data from the given CSV files (train/val/test).
+
+        Parameters
+        ----------
+        train_csv : str, optional
+            The name of the train CSV file. Defaults to "train_split.csv".
+        val_csv : str, optional
+            The name of the validation CSV file. Defaults to "val.csv".
+        test_csv : str, optional
+            The name of the test CSV file. Defaults to "test.csv".
+        train_text_name : str, optional
+            The name of the train text file. Defaults to "train.txt".
+        val_text_name : str, optional
+            The name of the validation text file. Defaults to "val.txt".
+        test_text_name : str, optional
+            The name of the test text file. Defaults to "test.txt".
+
+        Returns
+        -------
+        None
+        """
+
+        train_df = self._load_CSV(train_csv)
+        val_df = self._load_CSV(val_csv)
+        test_df = self._load_CSV(test_csv)
+
+        train_df = self._preprocess_df(train_df)
+        val_df = self._preprocess_df(val_df)
+        test_df = self._preprocess_df(test_df)
+
+        train_lines = self._build_ft_lines(train_df)
+        val_lines = self._build_ft_lines(val_df)
+        test_lines = self._build_ft_lines(test_df)
+
+        train_lines.to_csv(FASTESTTEXT_DATA_DIR / train_text_name, index=False, header=False)
+        val_lines.to_csv(FASTESTTEXT_DATA_DIR / val_text_name, index=False, header=False)
+        test_lines.to_csv(FASTESTTEXT_DATA_DIR / test_text_name, index=False, header=False)
+
+        print(f"✓ Đã tạo {train_text_name} với {len(train_lines)} mẫu")
+        print(f"✓ Đã tạo {val_text_name} với {len(val_lines)} mẫu")
+        print(f"✓ Đã tạo {test_text_name} với {len(test_lines)} mẫu")
+        print("Done building FastText data (train/val/test)")
 
 
 if __name__ == "__main__":
-    main()
+    builder = FastTextDatasetBuilder(
+        text_col="comment",
+        label_col="label",
+    )
+    builder.build_train_val_test_txt()  # Dùng default values

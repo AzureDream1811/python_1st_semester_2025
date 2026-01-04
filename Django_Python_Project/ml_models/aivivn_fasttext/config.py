@@ -9,13 +9,14 @@ FASTESTTEXT_DATA_DIR = DATASET_DIR / "fasttext_format"
 FASTESTTEXT_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 TRAIN_FILE = FASTESTTEXT_DATA_DIR / "train.txt"
+VAL_FILE = FASTESTTEXT_DATA_DIR / "val.txt"  # THÊM DÒNG NÀY
 TEST_FILE = FASTESTTEXT_DATA_DIR / "test.txt"
 
 MODEL_DIR = BASE_DIR / "ml_models" / "aivivn_fasttext" / "models"
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 
 # TRAINING PARAMETERS
-EPOCHS = 20
+EPOCHS = 100
 LR = 0.1
 DIM = 100
 WORD_NGRAMS = 2
