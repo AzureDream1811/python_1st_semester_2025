@@ -151,7 +151,7 @@ def search(request):
         'query': query,
         'result_count': paginator.count,
     }
-    return render(request, 'products/search_results.html', context)
+    return render(request, 'search/search_results.html', context)
 
 
 # Error Handlers

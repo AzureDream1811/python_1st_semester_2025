@@ -38,9 +38,9 @@ class ProfileAdmin(admin.ModelAdmin):
 @admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
     """Quản lý địa chỉ giao hàng"""
-    list_display = ['full_name', 'user', 'city', 'district', 'ward', 'address', 'created_at']
-    list_filter = ['city', 'district', 'created_at']
-    search_fields = ['full_name', 'user__username', 'user__email', 'address', 'city', 'district', 'ward']
+    list_display = ['full_name', 'user', 'province', 'district', 'ward', 'address', 'created_at']
+    list_filter = ['province', 'district', 'created_at']
+    search_fields = ['full_name', 'user__username', 'user__email', 'address', 'province', 'district', 'ward']
     raw_id_fields = ['user']
     list_per_page = 25
 
@@ -52,6 +52,6 @@ class AddressAdmin(admin.ModelAdmin):
             'fields': ('full_name',)
         }),
         ('Địa chỉ', {
-            'fields': ('address', 'ward', 'ward_code', 'district', 'district_code', 'city', 'city_code')
+            'fields': ('address', 'ward', 'ward_code', 'district', 'district_code', 'province', 'province_code')
         }),
     )
