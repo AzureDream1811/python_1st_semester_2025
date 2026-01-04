@@ -74,9 +74,9 @@ class AnalyticsService:
             r_score = 5 if recency <= 30 else 4 if recency <= 60 else 3 if recency <= 90 else 2 if recency <= 180 else 1
             f_score = 5 if customer['order_count'] >= 10 else 4 if customer['order_count'] >= 5 else 3 if customer[
                                                                                                               'order_count'] >= 3 else 2 if \
-                customer['order_count'] >= 2 else 1
+            customer['order_count'] >= 2 else 1
             m_score = 5 if customer['total_spent'] >= 10000000 else 4 if customer['total_spent'] >= 5000000 else 3 if \
-                customer['total_spent'] >= 2000000 else 2 if customer['total_spent'] >= 500000 else 1
+            customer['total_spent'] >= 2000000 else 2 if customer['total_spent'] >= 500000 else 1
 
             # Segment
             rfm_score = r_score * 100 + f_score * 10 + m_score
