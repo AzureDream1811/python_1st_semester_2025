@@ -11,13 +11,6 @@ from apps.cart.views import get_or_create_cart
 from apps.cart.models import Cart
 
 
-def generate_order_number():
-    """Tạo mã đơn hàng unique"""
-    date_str = datetime.now().strftime('%Y%m%d')
-    unique_id = uuid.uuid4().hex[:6].upper()
-    return f"DH{date_str}{unique_id}"
-
-
 @login_required
 def checkout(request):
     """Trang thanh toán"""
@@ -71,7 +64,7 @@ def checkout(request):
 
             # Tạo Order
             order = Order.objects.create(
-                order_number=generate_order_number(),
+                order_number=Order.generate_order_number(),
                 user=request.user,
                 full_name=full_name,
                 email=email,

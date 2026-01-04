@@ -1,6 +1,59 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.contrib.admin import SimpleListFilter
+from django.utils import timezone
+from datetime import timedelta
 from .models import Order, OrderItem, OrderHistory
+
+
+class DateRangeFilter(SimpleListFilter):
+    """
+    Custom filter để lọc đơn hàng theo khoảng thời gian
+    """
+    title = 'Khoảng thời gian'
+    parameter_name = 'date_range'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('today', 'Hôm nay'),
+            ('yesterday', 'Hôm qua'),
+            ('last_7_days', '7 ngày qua'),
+            ('last_30_days', '30 ngày qua'),
+            ('this_month', 'Tháng này'),
+            ('last_month', 'Tháng trước'),
+        )
+
+    def queryset(self, request, queryset):
+        today = timezone.now().date()
+
+        if self.value() == 'today':
+            return queryset.filter(created_at__date=today)
+        elif self.value() == 'yesterday':
+            yesterday = today - timedelta(days=1)
+            return queryset.filter(created_at__date=yesterday)
+        elif self.value() == 'last_7_days':
+            start_date = today - timedelta(days=7)
+            return queryset.filter(created_at__date__gte=start_date)
+        elif self.value() == 'last_30_days':
+            start_date = today - timedelta(days=30)
+            return queryset.filter(created_at__date__gte=start_date)
+        elif self.value() == 'this_month':
+            return queryset.filter(
+                created_at__year=today.year,
+                created_at__month=today.month
+            )
+        elif self.value() == 'last_month':
+            if today.month == 1:
+                last_month = 12
+                year = today.year - 1
+            else:
+                last_month = today.month - 1
+                year = today.year
+            return queryset.filter(
+                created_at__year=year,
+                created_at__month=last_month
+            )
+        return queryset
 
 
 class OrderItemInline(admin.TabularInline):
@@ -53,7 +106,7 @@ class OrderAdmin(admin.ModelAdmin):
         'created_at'
     ]
 
-    list_filter = ['status', 'payment_status', 'payment_method', 'created_at', 'city']
+    list_filter = ['status', 'payment_status', 'payment_method', DateRangeFilter, 'created_at', 'city']
 
     search_fields = ['order_number', 'full_name', 'email', 'phone']
 
@@ -137,6 +190,73 @@ class OrderAdmin(admin.ModelAdmin):
         )
 
     status_display.short_description = 'Trạng thái'
+
+    # Bulk Actions cho quản lý đơn hàng hàng loạt
+    actions = [
+        'mark_confirmed', 'mark_processing', 'mark_shipping',
+        'mark_delivered', 'mark_completed', 'mark_cancelled'
+    ]
+
+    def mark_confirmed(self, request, queryset):
+        """Đánh dấu đơn hàng đã xác nhận"""
+        self._bulk_update_status(request, queryset, 'confirmed', 'Đã xác nhận')
+
+    mark_confirmed.short_description = '✅ Xác nhận đơn hàng'
+
+    def mark_processing(self, request, queryset):
+        """Đánh dấu đơn hàng đang xử lý"""
+        self._bulk_update_status(request, queryset, 'processing', 'Đang xử lý')
+
+    mark_processing.short_description = '⚙️ Đang xử lý'
+
+    def mark_shipping(self, request, queryset):
+        """Đánh dấu đơn hàng đang giao"""
+        self._bulk_update_status(request, queryset, 'shipping', 'Đang giao hàng')
+
+    mark_shipping.short_description = '🚚 Đang giao hàng'
+
+    def mark_delivered(self, request, queryset):
+        """Đánh dấu đơn hàng đã giao"""
+        self._bulk_update_status(request, queryset, 'delivered', 'Đã giao hàng')
+
+    mark_delivered.short_description = '📦 Đã giao hàng'
+
+    def mark_completed(self, request, queryset):
+        """Đánh dấu đơn hàng hoàn thành"""
+        self._bulk_update_status(request, queryset, 'completed', 'Hoàn thành')
+
+    mark_completed.short_description = '🎉 Hoàn thành'
+
+    def mark_cancelled(self, request, queryset):
+        """Hủy đơn hàng"""
+        self._bulk_update_status(request, queryset, 'cancelled', 'Đã hủy')
+
+    mark_cancelled.short_description = '❌ Hủy đơn hàng'
+
+    def _bulk_update_status(self, request, queryset, new_status, status_label):
+        """
+        Helper method để bulk update status và tạo history
+        """
+        from django.db import transaction
+
+        with transaction.atomic():
+            # Lưu lại các order cần update để tạo history
+            orders_to_update = list(queryset)
+
+            # Bulk update status
+            updated_count = queryset.update(status=new_status)
+
+            # Tạo history cho mỗi order
+            for order in orders_to_update:
+                OrderHistory.objects.create(
+                    order=order,
+                    status=new_status
+                )
+
+        self.message_user(
+            request,
+            f'✅ Đã cập nhật {updated_count} đơn hàng sang trạng thái "{status_label}"'
+        )
 
     def save_model(self, request, obj, form, change):
         """
