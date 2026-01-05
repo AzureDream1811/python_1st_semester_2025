@@ -50,7 +50,7 @@
                     </div>
                     <div class="profile-stat">
                         <span class="stat-value">0</span>
-                        <span class="stat-label">Điểm thưởng</span>
+                        <span class="stat-label">Voucher</span>
                     </div>
                 </div>
             </div>
@@ -74,10 +74,6 @@
                     <button class="profile-nav-item" data-tab="addresses">
                         <i class="bi bi-geo-alt"></i>
                         <span>Sổ địa chỉ</span>
-                    </button>
-                    <button class="profile-nav-item" data-tab="loyalty">
-                        <i class="bi bi-star"></i>
-                        <span>Điểm thưởng</span>
                     </button>
                     <div class="profile-nav-divider"></div>
                     <button class="profile-nav-item" data-tab="security">
@@ -155,15 +151,12 @@
                                         <label for="gender">Giới tính</label>
                                         <select disabled id="gender" name="gender">
                                             <option value="">Chọn giới tính</option>
-                                            <option if selected user.profile.gender==
-                                                    value="male">Nam
-                                            </option>
-                                            <option if selected user.profile.gender==
-                                                    value="female">Nữ
-                                            </option>
-                                            <option if selected user.profile.gender==
-                                                    value="other">Khác
-                                            </option>
+                                            <option if user.profile.gender== value="male" {%
+                                            'male' %}selected{% endif %}>Nam</option>
+                                            <option if user.profile.gender== value="female" {%
+                                            'female' %}selected{% endif %}>Nữ</option>
+                                            <option if user.profile.gender== value="other" {%
+                                            'other' %}selected{% endif %}>Khác</option>
                                         </select>
                                     </div>
                                 </div>
@@ -192,7 +185,7 @@
                                 <i class="bi bi-bag-x"></i>
                                 <h4>Chưa có đơn hàng nào</h4>
                                 <p>Bạn chưa thực hiện đơn hàng nào. Hãy bắt đầu mua sắm ngay!</p>
-                                <a class="profile-btn profile-btn-primary" href=""
+                                <a class="profile-btn profile-btn-primary" href="{% url 'products:product_list' %}"
                                    style="margin-top: 1rem;">
                                     <i class="bi bi-shop"></i> Mua sắm ngay
                                 </a>
@@ -216,42 +209,6 @@
                                     <i class="bi bi-plus-circle"></i>
                                     <span>Thêm địa chỉ mới</span>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab: Loyalty -->
-                <div class="profile-tab-content" id="tab-loyalty">
-                    <div class="loyalty-card">
-                        <div class="loyalty-header">
-                            <h3><i class="bi bi-star-fill"></i> ElectroShop Rewards</h3>
-                            <span class="loyalty-tier">Hạng Bronze</span>
-                        </div>
-                        <div class="loyalty-points">
-                            <span class="points-value">0</span>
-                            <span class="points-label">điểm thưởng</span>
-                        </div>
-                        <div class="loyalty-progress">
-                            <div class="loyalty-progress-bar">
-                                <div class="loyalty-progress-fill" style="width: 0%;"></div>
-                            </div>
-                            <div class="loyalty-progress-text">
-                                <span>0 điểm</span>
-                                <span>1,000 điểm để lên Silver</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="profile-card">
-                        <div class="profile-card-header">
-                            <h3><i class="bi bi-clock-history"></i> Lịch sử điểm thưởng</h3>
-                        </div>
-                        <div class="profile-card-body">
-                            <div class="empty-state">
-                                <i class="bi bi-gift"></i>
-                                <h4>Chưa có hoạt động nào</h4>
-                                <p>Mua sắm để tích lũy điểm thưởng và nhận nhiều ưu đãi hấp dẫn!</p>
                             </div>
                         </div>
                     </div>
