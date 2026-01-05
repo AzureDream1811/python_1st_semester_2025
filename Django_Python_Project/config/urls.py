@@ -25,11 +25,19 @@ urlpatterns = [
     path('orders/', include('apps.orders.urls', namespace='orders')),
     path('reviews/', include('apps.reviews.urls', namespace='reviews')),
     path('promotions/', include('apps.promotions.urls', namespace='promotions')),
-    # path('search/', include('apps.search.urls', namespace='search')),
-
+    path('payments/', include('apps.payments.urls', namespace='payments')),
+    path('search/', include('apps.search.urls', namespace='search')),
+    path('shipping/', include('apps.shipping.urls', namespace='shipping')),
+    path('analytics/', include('apps.analytics.urls', namespace='analytics')),
+    path('recommendations/', include('apps.recommendations.urls', namespace='recommendations')),
 ]
 
 # Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# Custom error handlers
+handler404 = 'apps.products.views.error_404'
+handler500 = 'apps.products.views.error_500'
+handler403 = 'apps.products.views.error_403'
