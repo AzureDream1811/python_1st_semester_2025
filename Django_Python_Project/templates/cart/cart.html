@@ -7,7 +7,8 @@
 <!-- Redesigned cart page with modern styling -->
 <nav aria-label="breadcrumb" class="mb-4">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'products:home' %}"><i class="bi bi-house me-1"></i>Trang chủ</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'products:home' %}"><i class="bi bi-house me-1"></i>Trang chủ</a>
+        </li>
         <li class="breadcrumb-item active">Giỏ hàng</li>
     </ol>
 </nav>
@@ -32,11 +33,14 @@
                     <div class="row align-items-center">
                         <!-- Product Image -->
                         <div class="col-md-2 col-3 mb-3 mb-md-0">
-                            <a href="{{ item.product.get_absolute_url }}" class="d-block">
+                            <a class="d-block" href="{{ item.product.get_absolute_url }}">
                                 {% if item.product.image %}
-                                <img src="{{ item.product.image.url }}" class="img-fluid rounded-3 shadow-sm" alt="{{ item.product.name }}" style="max-height: 100px; object-fit: contain; background: var(--gray-50); padding: 0.5rem;">
+                                <img alt="{{ item.product.name }}" class="img-fluid rounded-3 shadow-sm"
+                                     src="{{ item.product.image.url }}"
+                                     style="max-height: 100px; object-fit: contain; background: var(--gray-50); padding: 0.5rem;">
                                 {% else %}
-                                <div class="bg-light rounded-3 d-flex align-items-center justify-content-center" style="height: 100px;">
+                                <div class="bg-light rounded-3 d-flex align-items-center justify-content-center"
+                                     style="height: 100px;">
                                     <i class="bi bi-image text-muted display-6"></i>
                                 </div>
                                 {% endif %}
@@ -46,7 +50,7 @@
                         <!-- Product Info -->
                         <div class="col-md-4 col-9 mb-3 mb-md-0">
                             <h6 class="mb-1">
-                                <a href="{{ item.product.get_absolute_url }}" class="text-decoration-none text-dark">
+                                <a class="text-decoration-none text-dark" href="{{ item.product.get_absolute_url }}">
                                     {{ item.product.name }}
                                 </a>
                             </h6>
@@ -69,15 +73,21 @@
 
                         <!-- Quantity -->
                         <div class="col-md-2 col-4">
-                            <form action="{% url 'cart:update' item.pk %}" method="post" class="d-flex align-items-center justify-content-center">
+                            <form action="{% url 'cart:update' item.pk %}" class="d-flex align-items-center justify-content-center"
+                                  method="post">
                                 {% csrf_token %}
-                                <div class="d-flex align-items-center" style="border: 2px solid var(--gray-200); border-radius: 10px; overflow: hidden;">
-                                    <button type="button" class="btn btn-link text-dark px-3 py-2" onclick="updateQty(this, -1)" style="text-decoration: none;">
+                                <div class="d-flex align-items-center"
+                                     style="border: 2px solid var(--gray-200); border-radius: 10px; overflow: hidden;">
+                                    <button class="btn btn-link text-dark px-3 py-2" onclick="updateQty(this, -1)"
+                                            style="text-decoration: none;" type="button">
                                         <i class="bi bi-dash"></i>
                                     </button>
-                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}"
-                                           class="form-control border-0 text-center p-0" style="width: 40px; box-shadow: none;">
-                                    <button type="button" class="btn btn-link text-dark px-3 py-2" onclick="updateQty(this, 1)" style="text-decoration: none;">
+                                    <input class="form-control border-0 text-center p-0" max="{{ item.product.stock }}" min="1" name="quantity"
+                                           style="width: 40px; box-shadow: none;"
+                                           type="number"
+                                           value="{{ item.quantity }}">
+                                    <button class="btn btn-link text-dark px-3 py-2" onclick="updateQty(this, 1)"
+                                            style="text-decoration: none;" type="button">
                                         <i class="bi bi-plus"></i>
                                     </button>
                                 </div>
@@ -87,9 +97,10 @@
                         <!-- Subtotal & Remove -->
                         <div class="col-md-2 col-4 text-end">
                             <span class="fw-bold d-block mb-2" style="color: var(--danger); font-size: 1.125rem;">{{ item.total_price|currency }}</span>
-                            <form action="{% url 'cart:remove' item.pk %}" method="post" class="d-inline">
+                            <form action="{% url 'cart:remove' item.pk %}" class="d-inline" method="post">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle" title="Xóa" style="width: 36px; height: 36px;">
+                                <button class="btn btn-sm btn-outline-danger rounded-circle" style="width: 36px; height: 36px;" title="Xóa"
+                                        type="submit">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </form>
@@ -102,7 +113,7 @@
 
         <!-- Continue Shopping -->
         <div class="mt-4">
-            <a href="{% url 'products:product_list' %}" class="btn btn-outline-primary">
+            <a class="btn btn-outline-primary" href="{% url 'products:product_list' %}">
                 <i class="bi bi-arrow-left me-2"></i>Tiếp tục mua sắm
             </a>
         </div>
@@ -133,7 +144,7 @@
                         <span class="input-group-text bg-white border-end-0">
                             <i class="bi bi-ticket-perforated text-primary"></i>
                         </span>
-                        <input type="text" class="form-control border-start-0" placeholder="Nhập mã">
+                        <input class="form-control border-start-0" placeholder="Nhập mã" type="text">
                         <button class="btn btn-primary" type="button">Áp dụng</button>
                     </div>
                 </div>
@@ -146,11 +157,12 @@
                 </div>
 
                 {% if user.is_authenticated %}
-                <a href="{% url 'orders:checkout' %}" class="btn btn-primary w-100 btn-lg">
+                <a class="btn btn-primary w-100 btn-lg" href="{% url 'orders:checkout' %}">
                     <i class="bi bi-credit-card me-2"></i>Tiến hành thanh toán
                 </a>
                 {% else %}
-                <a href="{% url 'accounts:login' %}?next={% url 'orders:checkout' %}" class="btn btn-primary w-100 btn-lg">
+                <a class="btn btn-primary w-100 btn-lg"
+                   href="{% url 'accounts:login' %}?next={% url 'orders:checkout' %}">
                     <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập để thanh toán
                 </a>
                 {% endif %}
@@ -160,7 +172,8 @@
                     <div class="row text-center g-3">
                         <div class="col-4">
                             <div class="d-flex flex-column align-items-center">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center mb-2" style="width: 44px; height: 44px; background: var(--success-light);">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center mb-2"
+                                     style="width: 44px; height: 44px; background: var(--success-light);">
                                     <i class="bi bi-shield-check" style="color: var(--success);"></i>
                                 </div>
                                 <small class="text-muted">Bảo mật</small>
@@ -168,7 +181,8 @@
                         </div>
                         <div class="col-4">
                             <div class="d-flex flex-column align-items-center">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center mb-2" style="width: 44px; height: 44px; background: var(--primary-50);">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center mb-2"
+                                     style="width: 44px; height: 44px; background: var(--primary-50);">
                                     <i class="bi bi-truck" style="color: var(--primary);"></i>
                                 </div>
                                 <small class="text-muted">Giao nhanh</small>
@@ -176,7 +190,8 @@
                         </div>
                         <div class="col-4">
                             <div class="d-flex flex-column align-items-center">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center mb-2" style="width: 44px; height: 44px; background: var(--warning-light);">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center mb-2"
+                                     style="width: 44px; height: 44px; background: var(--warning-light);">
                                     <i class="bi bi-arrow-repeat" style="color: var(--warning);"></i>
                                 </div>
                                 <small class="text-muted">Đổi trả</small>
@@ -190,16 +205,16 @@
 </div>
 
 <script>
-function updateQty(btn, delta) {
-    const form = btn.closest('form');
-    const input = form.querySelector('input');
-    let val = parseInt(input.value) + delta;
-    const max = parseInt(input.max);
-    if (val >= 1 && val <= max) {
-        input.value = val;
-        form.submit();
+    function updateQty(btn, delta) {
+        const form = btn.closest('form');
+        const input = form.querySelector('input');
+        let val = parseInt(input.value) + delta;
+        const max = parseInt(input.max);
+        if (val >= 1 && val <= max) {
+            input.value = val;
+            form.submit();
+        }
     }
-}
 </script>
 
 {% else %}
@@ -208,13 +223,14 @@ function updateQty(btn, delta) {
     <div class="card-body py-5">
         <div class="text-center">
             <div class="mb-4">
-                <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 120px; height: 120px; background: var(--gray-100);">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle"
+                     style="width: 120px; height: 120px; background: var(--gray-100);">
                     <i class="bi bi-bag-x" style="font-size: 3rem; color: var(--gray-400);"></i>
                 </div>
             </div>
             <h4 class="mb-2">Giỏ hàng trống</h4>
             <p class="text-muted mb-4">Bạn chưa có sản phẩm nào trong giỏ hàng.</p>
-            <a href="{% url 'products:product_list' %}" class="btn btn-primary btn-lg">
+            <a class="btn btn-primary btn-lg" href="{% url 'products:product_list' %}">
                 <i class="bi bi-grid me-2"></i>Khám phá sản phẩm
             </a>
         </div>

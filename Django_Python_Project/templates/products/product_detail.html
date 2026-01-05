@@ -7,9 +7,11 @@
 <!-- Redesigned product detail page with modern styling -->
 <nav aria-label="breadcrumb" class="mb-4">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'products:home' %}"><i class="bi bi-house me-1"></i>Trang chủ</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'products:home' %}"><i class="bi bi-house me-1"></i>Trang chủ</a>
+        </li>
         {% if product.category %}
-        <li class="breadcrumb-item"><a href="{% url 'products:category' product.category.slug %}">{{ product.category.name }}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'products:category' product.category.slug %}">{{
+            product.category.name }}</a></li>
         {% endif %}
         <li class="breadcrumb-item active">{{ product.name|truncatewords:5 }}</li>
     </ol>
@@ -24,11 +26,14 @@
                 <span class="discount-badge" style="top: 16px; left: 16px; font-size: 0.875rem; padding: 0.5rem 1rem;">-{{ product.discount_percent }}%</span>
                 {% endif %}
                 {% if product.image %}
-                <div class="main-image" style="background: linear-gradient(180deg, var(--gray-50) 0%, var(--white) 100%); aspect-ratio: 1;">
-                    <img src="{{ product.image.url }}" class="p-4" alt="{{ product.name }}" style="max-width: 100%; max-height: 100%; object-fit: contain; transition: transform 0.5s ease;">
+                <div class="main-image"
+                     style="background: linear-gradient(180deg, var(--gray-50) 0%, var(--white) 100%); aspect-ratio: 1;">
+                    <img alt="{{ product.name }}" class="p-4" src="{{ product.image.url }}"
+                         style="max-width: 100%; max-height: 100%; object-fit: contain; transition: transform 0.5s ease;">
                 </div>
                 {% else %}
-                <div class="d-flex align-items-center justify-content-center" style="height: 400px; background: var(--gray-100);">
+                <div class="d-flex align-items-center justify-content-center"
+                     style="height: 400px; background: var(--gray-100);">
                     <i class="bi bi-image display-1 text-muted"></i>
                 </div>
                 {% endif %}
@@ -40,7 +45,9 @@
     <div class="col-lg-7">
         <!-- Category Badge -->
         {% if product.category %}
-        <a href="{% url 'products:category' product.category.slug %}" class="badge bg-primary-subtle text-primary mb-3 text-decoration-none" style="font-size: 0.75rem; padding: 0.5rem 0.875rem;">
+        <a class="badge bg-primary-subtle text-primary mb-3 text-decoration-none"
+           href="{% url 'products:category' product.category.slug %}"
+           style="font-size: 0.75rem; padding: 0.5rem 0.875rem;">
             {{ product.category.name }}
         </a>
         {% endif %}
@@ -66,22 +73,26 @@
         <!-- Sentiment Summary -->
         {% if product.review_count > 0 %}
         <div class="mb-4 d-flex gap-2">
-            <span class="badge d-inline-flex align-items-center gap-1" style="background: var(--success-light); color: var(--success); padding: 0.5rem 0.875rem;">
+            <span class="badge d-inline-flex align-items-center gap-1"
+                  style="background: var(--success-light); color: var(--success); padding: 0.5rem 0.875rem;">
                 <i class="bi bi-emoji-smile"></i> {{ product.positive_reviews }} tích cực
             </span>
-            <span class="badge d-inline-flex align-items-center gap-1" style="background: var(--danger-light); color: var(--danger); padding: 0.5rem 0.875rem;">
+            <span class="badge d-inline-flex align-items-center gap-1"
+                  style="background: var(--danger-light); color: var(--danger); padding: 0.5rem 0.875rem;">
                 <i class="bi bi-emoji-frown"></i> {{ product.negative_reviews }} tiêu cực
             </span>
         </div>
         {% endif %}
 
         <!-- Price -->
-        <div class="p-4 rounded-3 mb-4" style="background: linear-gradient(135deg, var(--primary-50) 0%, var(--white) 100%); border: 1px solid var(--gray-200);">
+        <div class="p-4 rounded-3 mb-4"
+             style="background: linear-gradient(135deg, var(--primary-50) 0%, var(--white) 100%); border: 1px solid var(--gray-200);">
             {% if product.sale_price and product.sale_price < product.price %}
             <div class="d-flex align-items-baseline gap-3 flex-wrap">
                 <span class="h2 mb-0 fw-bold" style="color: var(--danger);">{{ product.sale_price|currency }}</span>
                 <span class="text-muted text-decoration-line-through fs-5">{{ product.price|currency }}</span>
-                <span class="badge bg-danger" style="font-size: 0.875rem;">Tiết kiệm {{ product.discount_percent }}%</span>
+                <span class="badge bg-danger"
+                      style="font-size: 0.875rem;">Tiết kiệm {{ product.discount_percent }}%</span>
             </div>
             {% else %}
             <span class="h2 mb-0 fw-bold" style="color: var(--gray-800);">{{ product.price|currency }}</span>
@@ -97,26 +108,32 @@
         </div>
 
         <!-- Add to Cart Form -->
-        <form action="{% url 'cart:add' product.pk %}" method="post" class="mb-4">
+        <form action="{% url 'cart:add' product.pk %}" class="mb-4" method="post">
             {% csrf_token %}
             <div class="d-flex flex-wrap align-items-center gap-3">
                 <div>
                     <label class="form-label small text-muted mb-1">Số lượng</label>
-                    <div class="d-flex align-items-center" style="border: 2px solid var(--gray-200); border-radius: var(--radius-md); overflow: hidden;">
-                        <button type="button" class="btn btn-link text-dark px-3 py-2" onclick="changeQty(-1)" {% if not product.in_stock %}disabled{% endif %}>
+                    <div class="d-flex align-items-center"
+                         style="border: 2px solid var(--gray-200); border-radius: var(--radius-md); overflow: hidden;">
+                        <button %} %}disabled{% class="btn btn-link text-dark px-3 py-2" endif if not
+                                onclick="changeQty(-1)" product.in_stock type="button" {%>
                             <i class="bi bi-dash"></i>
                         </button>
-                        <input type="number" name="quantity" id="qty" value="1" min="1" max="{{ product.stock }}" class="form-control border-0 text-center" style="width: 60px; box-shadow: none;" {% if not product.in_stock %}disabled{% endif %}>
-                        <button type="button" class="btn btn-link text-dark px-3 py-2" onclick="changeQty(1)" {% if not product.in_stock %}disabled{% endif %}>
+                        <input %} %}disabled{% class="form-control border-0 text-center" endif id="qty" if
+                               max="{{ product.stock }}" min="1" name="quantity" not
+                               product.in_stock style="width: 60px; box-shadow: none;" type="number" value="1" {%>
+                        <button %} %}disabled{% class="btn btn-link text-dark px-3 py-2" endif if not
+                                onclick="changeQty(1)" product.in_stock type="button" {%>
                             <i class="bi bi-plus"></i>
                         </button>
                     </div>
                 </div>
                 <div class="flex-grow-1 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary btn-lg flex-grow-1" {% if not product.in_stock %}disabled{% endif %}>
+                    <button %} %}disabled{% class="btn btn-primary btn-lg flex-grow-1" endif if not
+                            product.in_stock type="submit" {%>
                         <i class="bi bi-bag-plus me-2"></i>Thêm vào giỏ
                     </button>
-                    <button type="button" class="btn btn-outline-danger btn-lg" title="Thêm vào yêu thích">
+                    <button class="btn btn-outline-danger btn-lg" title="Thêm vào yêu thích" type="button">
                         <i class="bi bi-heart"></i>
                     </button>
                 </div>
@@ -126,7 +143,8 @@
         <!-- Product Meta -->
         <div class="p-3 rounded-3" style="background: var(--gray-50);">
             {% if product.brand %}
-            <div class="d-flex justify-content-between py-2 border-bottom" style="border-color: var(--gray-200) !important;">
+            <div class="d-flex justify-content-between py-2 border-bottom"
+                 style="border-color: var(--gray-200) !important;">
                 <span class="text-muted">Thương hiệu</span>
                 <span class="fw-medium">{{ product.brand.name }}</span>
             </div>
@@ -191,12 +209,12 @@
                 {% if product.specifications %}
                 <table class="table mb-0">
                     <tbody>
-                        {% for key, value in product.specifications.items %}
-                        <tr>
-                            <th style="width: 30%; background: var(--gray-50);">{{ key }}</th>
-                            <td>{{ value }}</td>
-                        </tr>
-                        {% endfor %}
+                    {% for key, value in product.specifications.items %}
+                    <tr>
+                        <th style="width: 30%; background: var(--gray-50);">{{ key }}</th>
+                        <td>{{ value }}</td>
+                    </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
                 {% else %}
@@ -210,13 +228,16 @@
                     <div class="p-4 mb-3 rounded-3" style="background: var(--gray-50);">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div class="d-flex align-items-center gap-2">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: var(--primary); color: white; font-weight: 600;">
-                                    {{ review.user.first_name|slice:":1"|default:review.user.username|slice:":1"|upper }}
+                                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                                     style="width: 40px; height: 40px; background: var(--primary); color: white; font-weight: 600;">
+                                    {{ review.user.first_name|slice:":1"|default:review.user.username|slice:":1"|upper
+                                    }}
                                 </div>
                                 <div>
                                     <strong>{{ review.user.first_name|default:review.user.username }}</strong>
                                     {% if review.is_verified_purchase %}
-                                    <span class="badge bg-success-subtle text-success ms-2" style="font-size: 0.6875rem;">
+                                    <span class="badge bg-success-subtle text-success ms-2"
+                                          style="font-size: 0.6875rem;">
                                         <i class="bi bi-patch-check-fill me-1"></i>Đã mua hàng
                                     </span>
                                     {% endif %}
@@ -239,12 +260,12 @@
                 {% if user.is_authenticated %}
                 <hr class="my-4">
                 <h5 class="mb-3">Viết đánh giá của bạn</h5>
-                <form action="{% url 'reviews:add' product.slug %}" method="post" enctype="multipart/form-data">
+                <form action="{% url 'reviews:add' product.slug %}" enctype="multipart/form-data" method="post">
                     {% csrf_token %}
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label">Đánh giá sao</label>
-                            <select name="rating" class="form-select">
+                            <select class="form-select" name="rating">
                                 <option value="5">⭐⭐⭐⭐⭐ Xuất sắc</option>
                                 <option value="4">⭐⭐⭐⭐ Tốt</option>
                                 <option value="3">⭐⭐⭐ Bình thường</option>
@@ -254,10 +275,11 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label">Nội dung đánh giá</label>
-                            <textarea name="comment" class="form-control" rows="3" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..." required></textarea>
+                            <textarea class="form-control" name="comment" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."
+                                      required rows="3"></textarea>
                         </div>
                         <div class="col-12">
-                            <button type="submit" class="btn btn-primary">
+                            <button class="btn btn-primary" type="submit">
                                 <i class="bi bi-send me-2"></i>Gửi đánh giá
                             </button>
                         </div>
@@ -266,7 +288,7 @@
                 {% else %}
                 <div class="text-center py-4">
                     <p class="text-muted mb-3">Bạn cần đăng nhập để viết đánh giá</p>
-                    <a href="{% url 'accounts:login' %}" class="btn btn-primary">
+                    <a class="btn btn-primary" href="{% url 'accounts:login' %}">
                         <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập
                     </a>
                 </div>
@@ -283,7 +305,7 @@
         <h4 class="mb-0">
             <i class="bi bi-grid me-2 text-primary"></i>Sản phẩm liên quan
         </h4>
-        <a href="{% url 'products:category' product.category.slug %}" class="btn btn-outline-primary btn-sm">
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'products:category' product.category.slug %}">
             Xem thêm <i class="bi bi-arrow-right ms-1"></i>
         </a>
     </div>
@@ -298,13 +320,13 @@
 {% endif %}
 
 <script>
-function changeQty(delta) {
-    const input = document.getElementById('qty');
-    let val = parseInt(input.value) + delta;
-    const max = parseInt(input.max);
-    if (val >= 1 && val <= max) {
-        input.value = val;
+    function changeQty(delta) {
+        const input = document.getElementById('qty');
+        let val = parseInt(input.value) + delta;
+        const max = parseInt(input.max);
+        if (val >= 1 && val <= max) {
+            input.value = val;
+        }
     }
-}
 </script>
 {% endblock %}

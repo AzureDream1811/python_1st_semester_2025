@@ -43,13 +43,13 @@ def star_rating(rating):
     full_stars = int(rating)
     half_star = 1 if rating - full_stars >= 0.5 else 0
     empty_stars = 5 - full_stars - half_star
-    
+
     html = ''
     html += '<i class="bi bi-star-fill text-warning"></i>' * full_stars
     if half_star:
         html += '<i class="bi bi-star-half text-warning"></i>'
     html += '<i class="bi bi-star text-warning"></i>' * empty_stars
-    
+
     return mark_safe(html)
 
 

@@ -14,10 +14,14 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="h4 mb-0">{{ category.name }}</h2>
     <select class="form-select form-select-sm w-auto" onchange="location = this.value;">
-        <option value="?sort=-created_at" {% if current_sort == '-created_at' %}selected{% endif %}>Mới nhất</option>
-        <option value="?sort=price" {% if current_sort == 'price' %}selected{% endif %}>Giá thấp đến cao</option>
-        <option value="?sort=-price" {% if current_sort == '-price' %}selected{% endif %}>Giá cao đến thấp</option>
-        <option value="?sort=-sold" {% if current_sort == '-sold' %}selected{% endif %}>Bán chạy</option>
+        <option current_sort== if value="?sort=-created_at" {%
+        '-created_at' %}selected{% endif %}>Mới nhất</option>
+        <option current_sort== if value="?sort=price" {%
+        'price' %}selected{% endif %}>Giá thấp đến cao</option>
+        <option current_sort== if value="?sort=-price" {%
+        '-price' %}selected{% endif %}>Giá cao đến thấp</option>
+        <option current_sort== if value="?sort=-sold" {%
+        '-sold' %}selected{% endif %}>Bán chạy</option>
     </select>
 </div>
 
