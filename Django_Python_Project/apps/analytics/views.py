@@ -2,23 +2,17 @@
 Analytics Views for ElectroShop
 Dashboard, charts, search analytics, funnel analysis
 """
-from datetime import datetime, timedelta
-
-from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Sum, Avg, Q
-from django.http import JsonResponse
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.db.models import Count, Sum, Avg, Q
 from django.utils import timezone
-
+from datetime import datetime, timedelta
 from apps.orders.models import Order
 from apps.products.models import Product
 from apps.reviews.models import Review
 from .models import DailyStats, SearchLog, FunnelEvent
 
-
-# ==========================================
-# 1. MAIN DASHBOARD
-# ==========================================
 
 @login_required
 def analytics_dashboard(request):
@@ -74,10 +68,6 @@ def analytics_dashboard(request):
     return render(request, 'analytics/dashboard.html', context)
 
 
-# ==========================================
-# 2. API ENDPOINTS
-# ==========================================
-
 @login_required
 def revenue_chart_api(request):
     """API trả về dữ liệu biểu đồ doanh thu"""
@@ -102,10 +92,6 @@ def revenue_chart_api(request):
 
     return JsonResponse(data)
 
-
-# ==========================================
-# 3. DETAILED ANALYTICS REPORTS
-# ==========================================
 
 @login_required
 def search_analytics(request):

@@ -1,30 +1,26 @@
-from datetime import datetime, timedelta
-
-from django.contrib import messages
-from django.contrib.auth.models import User
-from django.db.models import Q
-from django.http import JsonResponse
-from django.shortcuts import redirect, get_object_or_404
-from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.http import JsonResponse
+from django.contrib.auth.models import User
+from django.shortcuts import redirect, get_object_or_404
+from django.urls import reverse_lazy
+from django.contrib import messages
+from django.db.models import Q
+from datetime import datetime, timedelta
 
-# Local Imports
 from .decorators import StaffRequiredMixin
+from .services.statistics import DashboardStatistics
 from .forms import (
     ProductForm, CategoryForm, BrandForm, OrderStatusForm,
     UserEditForm, VoucherForm, FlashSaleForm
 )
-from .services.statistics import DashboardStatistics
-from apps.orders.models import Order, OrderHistory
 from apps.products.models import Product, Category, Brand
-from apps.promotions.models import Voucher, FlashSale
+from apps.orders.models import Order, OrderHistory
 from apps.reviews.models import Review
+from apps.promotions.models import Voucher, FlashSale
 
 
-# ==========================================
-# 1. DASHBOARD & ANALYTICS
-# ==========================================
+# ==================== Dashboard ====================
 
 class DashboardView(StaffRequiredMixin, TemplateView):
     """Trang dashboard chính"""
@@ -38,60 +34,60 @@ class DashboardView(StaffRequiredMixin, TemplateView):
         return context
 
 
-class ChartDataView(StaffRequiredMixin, View):
-    """API endpoint cung cấp dữ liệu cho biểu đồ"""
+# ==================== Product Management ====================
 
-    def get(self, request):
-        chart_type = request.GET.get('type', 'revenue')
-        stats = DashboardStatistics()
+class ProductListView(StaffRequiredMixin, ListView):
+    """Danh sách sản phẩm"""
+    model = Product
+    template_name = 'admin_dashboard/products/list.html'
+    context_object_name = 'products'
+    paginate_by = 20
 
-        if chart_type == 'revenue':
-            return JsonResponse(stats.get_daily_revenue_chart_data())
-        elif chart_type == 'orders':
-            return JsonResponse(stats.get_order_status_chart_data())
-        elif chart_type == 'sentiment':
-            return JsonResponse(stats.get_sentiment_chart_data())
-        elif chart_type == 'category':
-            return JsonResponse(stats.get_category_revenue_chart_data())
-
-        return JsonResponse({'error': 'Invalid chart type'}, status=400)
-
-
-class RevenueReportPageView(StaffRequiredMixin, TemplateView):
-    """Trang báo cáo doanh thu"""
-    template_name = 'admin/revenue_report.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        today = datetime.now().date()
-        context['end_date'] = today.isoformat()
-        context['start_date'] = (today - timedelta(days=30)).isoformat()
-        return context
+    def get_queryset(self):
+        queryset = Product.objects.select_related('category', 'brand').order_by('-created_at')
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(name__icontains=search) | Q(sku__icontains=search)
+            )
+        return queryset
 
 
-class RevenueReportView(StaffRequiredMixin, View):
-    """API endpoint cho báo cáo doanh thu"""
+class ProductCreateView(StaffRequiredMixin, CreateView):
+    """Tạo sản phẩm mới"""
+    model = Product
+    form_class = ProductForm
+    template_name = 'admin_dashboard/products/form.html'
+    success_url = reverse_lazy('admin_dashboard:product_list')
 
-    def get(self, request):
-        start_date = request.GET.get('start_date')
-        end_date = request.GET.get('end_date')
-
-        stats = DashboardStatistics()
-
-        if start_date and end_date:
-            start = datetime.strptime(start_date, '%Y-%m-%d').date()
-            end = datetime.strptime(end_date, '%Y-%m-%d').date()
-        else:
-            end = datetime.now().date()
-            start = end - timedelta(days=30)
-
-        report = stats.get_revenue_report(start, end)
-        return JsonResponse(report)
+    def form_valid(self, form):
+        messages.success(self.request, 'Tạo sản phẩm thành công!')
+        return super().form_valid(form)
 
 
-# ==========================================
-# 2. ORDER MANAGEMENT
-# ==========================================
+class ProductUpdateView(StaffRequiredMixin, UpdateView):
+    """Cập nhật sản phẩm"""
+    model = Product
+    form_class = ProductForm
+    template_name = 'admin_dashboard/products/form.html'
+    success_url = reverse_lazy('admin_dashboard:product_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Cập nhật sản phẩm thành công!')
+        return super().form_valid(form)
+
+
+class ProductDeleteView(StaffRequiredMixin, DeleteView):
+    """Xóa sản phẩm"""
+    model = Product
+    success_url = reverse_lazy('admin_dashboard:product_list')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Xóa sản phẩm thành công!')
+        return super().delete(request, *args, **kwargs)
+
+
+# ==================== Order Management ====================
 
 class OrderListView(StaffRequiredMixin, ListView):
     """Danh sách đơn hàng"""
@@ -152,154 +148,7 @@ class OrderStatusUpdateView(StaffRequiredMixin, View):
         return redirect('admin_dashboard:order_detail', pk=pk)
 
 
-# ==========================================
-# 3. CATALOG MANAGEMENT (Products, Categories, Brands)
-# ==========================================
-
-# --- Products ---
-
-class ProductListView(StaffRequiredMixin, ListView):
-    """Danh sách sản phẩm"""
-    model = Product
-    template_name = 'admin_dashboard/products/list.html'
-    context_object_name = 'products'
-    paginate_by = 20
-
-    def get_queryset(self):
-        queryset = Product.objects.select_related('category', 'brand').order_by('-created_at')
-        search = self.request.GET.get('search')
-        if search:
-            queryset = queryset.filter(
-                Q(name__icontains=search) | Q(sku__icontains=search)
-            )
-        return queryset
-
-
-class ProductCreateView(StaffRequiredMixin, CreateView):
-    """Tạo sản phẩm mới"""
-    model = Product
-    form_class = ProductForm
-    template_name = 'admin_dashboard/products/form.html'
-    success_url = reverse_lazy('admin_dashboard:product_list')
-
-    def form_valid(self, form):
-        messages.success(self.request, 'Tạo sản phẩm thành công!')
-        return super().form_valid(form)
-
-
-class ProductUpdateView(StaffRequiredMixin, UpdateView):
-    """Cập nhật sản phẩm"""
-    model = Product
-    form_class = ProductForm
-    template_name = 'admin_dashboard/products/form.html'
-    success_url = reverse_lazy('admin_dashboard:product_list')
-
-    def form_valid(self, form):
-        messages.success(self.request, 'Cập nhật sản phẩm thành công!')
-        return super().form_valid(form)
-
-
-class ProductDeleteView(StaffRequiredMixin, DeleteView):
-    """Xóa sản phẩm"""
-    model = Product
-    success_url = reverse_lazy('admin_dashboard:product_list')
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, 'Xóa sản phẩm thành công!')
-        return super().delete(request, *args, **kwargs)
-
-
-# --- Categories ---
-
-class CategoryListView(StaffRequiredMixin, ListView):
-    """Danh sách danh mục"""
-    model = Category
-    template_name = 'admin_dashboard/categories/list.html'
-    context_object_name = 'categories'
-    paginate_by = 20
-
-
-class CategoryCreateView(StaffRequiredMixin, CreateView):
-    """Tạo danh mục mới"""
-    model = Category
-    form_class = CategoryForm
-    template_name = 'admin_dashboard/categories/form.html'
-    success_url = reverse_lazy('admin_dashboard:category_list')
-
-    def form_valid(self, form):
-        messages.success(self.request, 'Tạo danh mục thành công!')
-        return super().form_valid(form)
-
-
-class CategoryUpdateView(StaffRequiredMixin, UpdateView):
-    """Cập nhật danh mục"""
-    model = Category
-    form_class = CategoryForm
-    template_name = 'admin_dashboard/categories/form.html'
-    success_url = reverse_lazy('admin_dashboard:category_list')
-
-    def form_valid(self, form):
-        messages.success(self.request, 'Cập nhật danh mục thành công!')
-        return super().form_valid(form)
-
-
-class CategoryDeleteView(StaffRequiredMixin, DeleteView):
-    """Xóa danh mục"""
-    model = Category
-    success_url = reverse_lazy('admin_dashboard:category_list')
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, 'Xóa danh mục thành công!')
-        return super().delete(request, *args, **kwargs)
-
-
-# --- Brands ---
-
-class BrandListView(StaffRequiredMixin, ListView):
-    """Danh sách thương hiệu"""
-    model = Brand
-    template_name = 'admin_dashboard/brands/list.html'
-    context_object_name = 'brands'
-    paginate_by = 20
-
-
-class BrandCreateView(StaffRequiredMixin, CreateView):
-    """Tạo thương hiệu mới"""
-    model = Brand
-    form_class = BrandForm
-    template_name = 'admin_dashboard/brands/form.html'
-    success_url = reverse_lazy('admin_dashboard:brand_list')
-
-    def form_valid(self, form):
-        messages.success(self.request, 'Tạo thương hiệu thành công!')
-        return super().form_valid(form)
-
-
-class BrandUpdateView(StaffRequiredMixin, UpdateView):
-    """Cập nhật thương hiệu"""
-    model = Brand
-    form_class = BrandForm
-    template_name = 'admin_dashboard/brands/form.html'
-    success_url = reverse_lazy('admin_dashboard:brand_list')
-
-    def form_valid(self, form):
-        messages.success(self.request, 'Cập nhật thương hiệu thành công!')
-        return super().form_valid(form)
-
-
-class BrandDeleteView(StaffRequiredMixin, DeleteView):
-    """Xóa thương hiệu"""
-    model = Brand
-    success_url = reverse_lazy('admin_dashboard:brand_list')
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, 'Xóa thương hiệu thành công!')
-        return super().delete(request, *args, **kwargs)
-
-
-# ==========================================
-# 4. USER MANAGEMENT
-# ==========================================
+# ==================== User Management ====================
 
 class UserListView(StaffRequiredMixin, ListView):
     """Danh sách người dùng"""
@@ -345,9 +194,95 @@ class UserUpdateView(StaffRequiredMixin, UpdateView):
         return redirect('admin_dashboard:user_detail', pk=self.object.pk)
 
 
-# ==========================================
-# 5. REVIEW MANAGEMENT
-# ==========================================
+# ==================== Category Management ====================
+
+class CategoryListView(StaffRequiredMixin, ListView):
+    """Danh sách danh mục"""
+    model = Category
+    template_name = 'admin_dashboard/categories/list.html'
+    context_object_name = 'categories'
+    paginate_by = 20
+
+
+class CategoryCreateView(StaffRequiredMixin, CreateView):
+    """Tạo danh mục mới"""
+    model = Category
+    form_class = CategoryForm
+    template_name = 'admin_dashboard/categories/form.html'
+    success_url = reverse_lazy('admin_dashboard:category_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Tạo danh mục thành công!')
+        return super().form_valid(form)
+
+
+class CategoryUpdateView(StaffRequiredMixin, UpdateView):
+    """Cập nhật danh mục"""
+    model = Category
+    form_class = CategoryForm
+    template_name = 'admin_dashboard/categories/form.html'
+    success_url = reverse_lazy('admin_dashboard:category_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Cập nhật danh mục thành công!')
+        return super().form_valid(form)
+
+
+class CategoryDeleteView(StaffRequiredMixin, DeleteView):
+    """Xóa danh mục"""
+    model = Category
+    success_url = reverse_lazy('admin_dashboard:category_list')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Xóa danh mục thành công!')
+        return super().delete(request, *args, **kwargs)
+
+
+# ==================== Brand Management ====================
+
+class BrandListView(StaffRequiredMixin, ListView):
+    """Danh sách thương hiệu"""
+    model = Brand
+    template_name = 'admin_dashboard/brands/list.html'
+    context_object_name = 'brands'
+    paginate_by = 20
+
+
+class BrandCreateView(StaffRequiredMixin, CreateView):
+    """Tạo thương hiệu mới"""
+    model = Brand
+    form_class = BrandForm
+    template_name = 'admin_dashboard/brands/form.html'
+    success_url = reverse_lazy('admin_dashboard:brand_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Tạo thương hiệu thành công!')
+        return super().form_valid(form)
+
+
+class BrandUpdateView(StaffRequiredMixin, UpdateView):
+    """Cập nhật thương hiệu"""
+    model = Brand
+    form_class = BrandForm
+    template_name = 'admin_dashboard/brands/form.html'
+    success_url = reverse_lazy('admin_dashboard:brand_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Cập nhật thương hiệu thành công!')
+        return super().form_valid(form)
+
+
+class BrandDeleteView(StaffRequiredMixin, DeleteView):
+    """Xóa thương hiệu"""
+    model = Brand
+    success_url = reverse_lazy('admin_dashboard:brand_list')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Xóa thương hiệu thành công!')
+        return super().delete(request, *args, **kwargs)
+
+
+# ==================== Review Management ====================
 
 class ReviewListView(StaffRequiredMixin, ListView):
     """Danh sách đánh giá"""
@@ -386,9 +321,7 @@ class ReviewRejectView(StaffRequiredMixin, View):
         return redirect('admin_dashboard:review_list')
 
 
-# ==========================================
-# 6. PROMOTION MANAGEMENT (Vouchers, Flash Sales)
-# ==========================================
+# ==================== Voucher Management ====================
 
 class VoucherListView(StaffRequiredMixin, ListView):
     """Danh sách voucher"""
@@ -410,6 +343,8 @@ class VoucherCreateView(StaffRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+# ==================== Flash Sale Management ====================
+
 class FlashSaleListView(StaffRequiredMixin, ListView):
     """Danh sách flash sale"""
     model = FlashSale
@@ -428,3 +363,56 @@ class FlashSaleCreateView(StaffRequiredMixin, CreateView):
     def form_valid(self, form):
         messages.success(self.request, 'Tạo flash sale thành công!')
         return super().form_valid(form)
+
+
+# ==================== API Endpoints ====================
+
+class ChartDataView(StaffRequiredMixin, View):
+    """API endpoint cung cấp dữ liệu cho biểu đồ"""
+
+    def get(self, request):
+        chart_type = request.GET.get('type', 'revenue')
+        stats = DashboardStatistics()
+
+        if chart_type == 'revenue':
+            return JsonResponse(stats.get_daily_revenue_chart_data())
+        elif chart_type == 'orders':
+            return JsonResponse(stats.get_order_status_chart_data())
+        elif chart_type == 'sentiment':
+            return JsonResponse(stats.get_sentiment_chart_data())
+        elif chart_type == 'category':
+            return JsonResponse(stats.get_category_revenue_chart_data())
+
+        return JsonResponse({'error': 'Invalid chart type'}, status=400)
+
+
+class RevenueReportPageView(StaffRequiredMixin, TemplateView):
+    """Trang báo cáo doanh thu"""
+    template_name = 'admin/revenue_report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        today = datetime.now().date()
+        context['end_date'] = today.isoformat()
+        context['start_date'] = (today - timedelta(days=30)).isoformat()
+        return context
+
+
+class RevenueReportView(StaffRequiredMixin, View):
+    """API endpoint cho báo cáo doanh thu"""
+
+    def get(self, request):
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+
+        stats = DashboardStatistics()
+
+        if start_date and end_date:
+            start = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end = datetime.strptime(end_date, '%Y-%m-%d').date()
+        else:
+            end = datetime.now().date()
+            start = end - timedelta(days=30)
+
+        report = stats.get_revenue_report(start, end)
+        return JsonResponse(report)

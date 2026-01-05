@@ -116,21 +116,21 @@ class RecommendationService:
 
         return list(Product.objects.filter(pk__in=product_ids, is_active=True))
 
-    # @staticmethod
-    # def get_search_suggestions(limit=10):
-    #     """Get popular search terms"""
-    #     from apps.analytics.models import SearchLog
-    #
-    #     # Last 30 days
-    #     since = timezone.now() - timedelta(days=30)
-    #
-    #     popular = SearchLog.objects.filter(
-    #         created_at__gte=since
-    #     ).values('query').annotate(
-    #         count=Count('id')
-    #     ).order_by('-count')[:limit]
-    #
-    #     return [p['query'] for p in popular]
+    @staticmethod
+    def get_search_suggestions(limit=10):
+        """Get popular search terms"""
+        from apps.analytics.models import SearchLog
+
+        # Last 30 days
+        since = timezone.now() - timedelta(days=30)
+
+        popular = SearchLog.objects.filter(
+            created_at__gte=since
+        ).values('query').annotate(
+            count=Count('id')
+        ).order_by('-count')[:limit]
+
+        return [p['query'] for p in popular]
 
     @staticmethod
     def track_activity(user, product_id, activity_type):

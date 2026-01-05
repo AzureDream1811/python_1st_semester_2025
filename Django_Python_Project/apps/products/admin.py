@@ -1,15 +1,22 @@
+"""
+Admin Configuration cho Products App - ElectroShop
+"""
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import Category, Brand, Product, ProductImage, Wishlist, FlashSale
 
 
 class ProductImageInline(admin.TabularInline):
-    """Inline hiển thị hình ảnh sản phẩm"""
+    """
+    Inline hiển thị hình ảnh sản phẩm trong trang chi tiết Product
+    Cho phép thêm/xóa hình ảnh trực tiếp
+    """
     model = ProductImage
-    extra = 1
+    extra = 1  # Số form trống để thêm ảnh mới
     readonly_fields = ['image_preview']
 
     def image_preview(self, obj):
+        """Hiển thị preview ảnh dạng thumbnail"""
         if obj.image:
             return format_html('<img src="{}" width="80" height="80" style="object-fit: cover;" />', obj.image.url)
         return '-'
@@ -19,15 +26,30 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    """Quản lý danh mục sản phẩm"""
+    """
+    Quản lý danh mục sản phẩm trong Admin
+    Hỗ trợ tạo slug tự động từ tên danh mục
+    """
+    # Các cột hiển thị
     list_display = ['name', 'slug', 'is_active', 'product_count', 'image_preview', 'created_at']
+
+    # Bộ lọc
     list_filter = ['is_active', 'created_at']
+
+    # Các trường có thể tìm kiếm
     search_fields = ['name', 'description']
+
+    # Tự động tạo slug từ name
     prepopulated_fields = {'slug': ('name',)}
+
+    # Cho phép sửa trực tiếp trong danh sách
     list_editable = ['is_active']
+
+    # Số bản ghi mỗi trang
     list_per_page = 25
 
     def image_preview(self, obj):
+        """Hiển thị preview hình ảnh danh mục"""
         if obj.image:
             return format_html('<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 5px;" />',
                                obj.image.url)
@@ -38,15 +60,30 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
-    """Quản lý thương hiệu"""
+    """
+    Quản lý thương hiệu trong Admin
+    Hỗ trợ tạo slug tự động từ tên thương hiệu
+    """
+    # Các cột hiển thị
     list_display = ['name', 'slug', 'is_active', 'logo_preview']
+
+    # Bộ lọc
     list_filter = ['is_active']
+
+    # Các trường có thể tìm kiếm
     search_fields = ['name', 'description']
+
+    # Tự động tạo slug từ name
     prepopulated_fields = {'slug': ('name',)}
+
+    # Cho phép sửa trực tiếp trong danh sách
     list_editable = ['is_active']
+
+    # Số bản ghi mỗi trang
     list_per_page = 25
 
     def logo_preview(self, obj):
+        """Hiển thị preview logo thương hiệu"""
         if obj.logo:
             return format_html('<img src="{}" width="50" height="50" style="object-fit: contain;" />', obj.logo.url)
         return '-'
@@ -61,7 +98,8 @@ class ProductAdmin(admin.ModelAdmin):
         'name', 'sku', 'category', 'brand', 'price_display', 'sale_price_display',
         'stock', 'is_active', 'is_featured', 'sentiment_display', 'sold', 'created_at'
     ]
-    list_filter = ['is_active', 'is_featured', 'is_new', 'category', 'brand', 'created_at']
+    list_filter = ['is_active', 'is_featured', 'is_new', 'category', 'brand', 'created_at', 'sentiment_score']
+    ordering = ['-created_at']  # Default ordering, có thể sort theo sentiment
     search_fields = ['name', 'sku', 'description']
     prepopulated_fields = {'slug': ('name',)}
     list_editable = ['is_active', 'is_featured', 'stock']
@@ -124,9 +162,19 @@ class ProductAdmin(admin.ModelAdmin):
     sale_price_display.short_description = 'Giá KM'
 
     def sentiment_display(self, obj):
-        """Hiển thị sentiment với màu sắc"""
+        """
+        Hiển thị sentiment với màu sắc và warning indicator
+        Sản phẩm có sentiment < 0 hiển thị warning
+        """
         score = obj.sentiment_score
-        if score > 0.3:
+        warning = ''
+
+        # Xác định sản phẩm cần cảnh báo
+        if score < 0:
+            warning = '⚠️ '
+            color = 'red'
+            label = 'Tiêu cực'
+        elif score > 0.3:
             color = 'green'
             label = 'Tích cực'
         elif score < -0.3:
@@ -136,11 +184,12 @@ class ProductAdmin(admin.ModelAdmin):
             color = 'gray'
             label = 'Trung lập'
         return format_html(
-            '<span style="color: {};">{} ({:.2f})</span>',
-            color, label, score
+            '<span style="color: {};">{}{} ({:.2f})</span>',
+            color, warning, label, score
         )
 
     sentiment_display.short_description = 'Sentiment'
+    sentiment_display.admin_order_field = 'sentiment_score'  # Cho phép sort theo sentiment
 
     actions = ['make_featured', 'remove_featured', 'activate_products', 'deactivate_products']
 

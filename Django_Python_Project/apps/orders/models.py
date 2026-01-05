@@ -121,7 +121,16 @@ class Order(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Đơn hàng #{self.order_number} - {self.user.username}"
+        return f"Đơn hàng #{self.order_number} - {self.user.username if self.user else 'Guest'}"
+
+    @classmethod
+    def generate_order_number(cls):
+        """Tạo mã đơn hàng unique"""
+        import uuid
+        from datetime import datetime
+        date_str = datetime.now().strftime('%Y%m%d')
+        unique_id = uuid.uuid4().hex[:6].upper()
+        return f"DH{date_str}{unique_id}"
 
     def calculate_total(self):
         """Tính tổng tiền đơn hàng"""

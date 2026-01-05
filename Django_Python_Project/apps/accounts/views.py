@@ -1,5 +1,6 @@
 import json
 import re
+
 from datetime import timedelta
 
 from django.conf import settings
@@ -17,7 +18,6 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 
-# Local Imports
 from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, ProfileUpdateForm
 from .models import Profile, Address, SavedCard
 from .services.address_service import AddressService
@@ -25,22 +25,8 @@ from .services.social_auth_service import SocialAuthService
 from apps.orders.models import Order
 from apps.payments.services.card_service import CardValidator
 
-# Try/Except imports to handle dependencies safely
-try:
-    from apps.promotions.models import UserVoucher
-except ImportError:
-    UserVoucher = None
 
-try:
-    from apps.products.models import Wishlist
-except ImportError:
-    Wishlist = None
-
-
-# ==========================================
-# 1. STANDARD AUTHENTICATION VIEWS
-# (Register, Login, Logout, Password Reset)
-# ==========================================
+# ============== AUTH VIEWS ==============
 
 def register(request):
     """Đăng ký tài khoản mới"""
@@ -50,7 +36,7 @@ def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
             messages.success(request, 'Đăng ký thành công! Vui lòng đăng nhập.')
             return redirect('accounts:login')
     else:
@@ -69,18 +55,14 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
 
-            # LƯU SESSION KEY CŨ TRƯỚC KHI LOGIN
-            # Django sẽ rotate session sau login, nên cần lưu key cũ để merge cart
+            # Lưu session key cũ trước khi login
             old_session_key = request.session.session_key
 
             login(request, user)
 
-            # Merge session cart vào user cart (sử dụng old_session_key)
-            try:
-                from apps.cart.views import merge_session_cart_with_key
-                merge_session_cart_with_key(request, old_session_key)
-            except ImportError:
-                pass  # Handle gracefully if cart app is missing
+            # Merge session cart vào user cart
+            from apps.cart.views import merge_session_cart_with_key
+            merge_session_cart_with_key(request, old_session_key)
 
             # Remember me
             if not form.cleaned_data.get('remember_me'):
@@ -88,7 +70,6 @@ def login_view(request):
 
             messages.success(request, f'Chào mừng {user.first_name}!')
 
-            # Redirect to next or home
             next_url = request.GET.get('next', 'products:home')
             return redirect(next_url)
     else:
@@ -112,11 +93,6 @@ def forgot_password(request):
     if request.method == 'POST':
         form = PasswordResetForm(request.POST)
         if form.is_valid():
-            # form.save() sẽ:
-            # - tìm user theo email
-            # - tạo token reset
-            # - gửi email theo template_name
-            # Nếu email không tồn tại: không gửi, nhưng vẫn trả về như thành công (tránh lộ tài khoản).
             form.save(
                 request=request,
                 from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
@@ -136,67 +112,11 @@ def password_reset_done(request):
     return render(request, 'accounts/password_reset_done.html')
 
 
-# ==========================================
-# 2. DASHBOARD & PROFILE VIEWS
-# ==========================================
-
-@login_required
-def account_dashboard(request):
-    """Dashboard tổng quan tài khoản"""
-    user = request.user
-
-    # Order statistics
-    total_orders = Order.objects.filter(user=user).count()
-    pending_orders = Order.objects.filter(user=user, status='pending').count()
-    completed_orders = Order.objects.filter(user=user, status='delivered').count()
-    recent_orders = Order.objects.filter(user=user).order_by('-created_at')[:5]
-
-    # Voucher statistics
-    voucher_count = 0
-    expiring_vouchers = []
-    if UserVoucher:
-        voucher_count = UserVoucher.objects.filter(
-            user=user, is_used=False
-        ).count()
-
-        # Vouchers expiring within 7 days
-        expiring_date = timezone.now() + timedelta(days=7)
-        expiring_vouchers = UserVoucher.objects.filter(
-            user=user,
-            is_used=False,
-            voucher__end_date__lte=expiring_date,
-            voucher__end_date__gte=timezone.now()
-        ).select_related('voucher')[:5]
-
-    # Wishlist count
-    wishlist_count = 0
-    if Wishlist:
-        wishlist_count = Wishlist.objects.filter(user=user).count()
-
-    # Address count
-    address_count = Address.objects.filter(user=user).count()
-
-    # Saved cards count
-    card_count = SavedCard.objects.filter(user=user).count()
-
-    context = {
-        'total_orders': total_orders,
-        'pending_orders': pending_orders,
-        'completed_orders': completed_orders,
-        'recent_orders': recent_orders,
-        'voucher_count': voucher_count,
-        'expiring_vouchers': expiring_vouchers,
-        'wishlist_count': wishlist_count,
-        'address_count': address_count,
-        'card_count': card_count,
-    }
-    return render(request, 'accounts/dashboard.html', context)
-
+# ============== PROFILE VIEWS ==============
 
 @login_required
 def profile(request):
     """Xem và cập nhật hồ sơ"""
-    # Đảm bảo user có profile
     if not hasattr(request.user, 'profile'):
         Profile.objects.create(user=request.user, email=request.user.email)
 
@@ -217,7 +137,6 @@ def profile(request):
         user_form = UserUpdateForm(instance=request.user)
         profile_form = ProfileUpdateForm(instance=request.user.profile)
 
-    # Load order history
     orders = request.user.orders.all().order_by('-created_at')[:5]
 
     context = {
@@ -228,9 +147,57 @@ def profile(request):
     return render(request, 'accounts/profile.html', context)
 
 
-# ==========================================
-# 3. ADDRESS MANAGEMENT VIEWS
-# ==========================================
+@login_required
+def account_dashboard(request):
+    """Dashboard tổng quan tài khoản"""
+    user = request.user
+
+    total_orders = Order.objects.filter(user=user).count()
+    pending_orders = Order.objects.filter(user=user, status='pending').count()
+    completed_orders = Order.objects.filter(user=user, status='delivered').count()
+    recent_orders = Order.objects.filter(user=user).order_by('-created_at')[:5]
+
+    voucher_count = 0
+    expiring_vouchers = []
+    try:
+        from apps.promotions.models import UserVoucher
+        voucher_count = UserVoucher.objects.filter(user=user, is_used=False).count()
+
+        expiring_date = timezone.now() + timedelta(days=7)
+        expiring_vouchers = UserVoucher.objects.filter(
+            user=user,
+            is_used=False,
+            voucher__end_date__lte=expiring_date,
+            voucher__end_date__gte=timezone.now()
+        ).select_related('voucher')[:5]
+    except Exception:
+        pass
+
+    wishlist_count = 0
+    try:
+        from apps.products.models import Wishlist
+        wishlist_count = Wishlist.objects.filter(user=user).count()
+    except Exception:
+        pass
+
+    address_count = Address.objects.filter(user=user).count()
+    card_count = SavedCard.objects.filter(user=user).count()
+
+    context = {
+        'total_orders': total_orders,
+        'pending_orders': pending_orders,
+        'completed_orders': completed_orders,
+        'recent_orders': recent_orders,
+        'voucher_count': voucher_count,
+        'expiring_vouchers': expiring_vouchers,
+        'wishlist_count': wishlist_count,
+        'address_count': address_count,
+        'card_count': card_count,
+    }
+    return render(request, 'accounts/dashboard.html', context)
+
+
+# ============== ADDRESS VIEWS ==============
 
 @login_required
 def address_list(request):
@@ -250,15 +217,13 @@ def address_create(request):
     if request.method == 'POST':
         data = request.POST
 
-        # Validate required fields
         required_fields = ['full_name', 'phone', 'address', 'province', 'province_code',
                            'district', 'district_code']
         for field in required_fields:
             if not data.get(field):
-                messages.error(request, f'Vui lòng điền đầy đủ thông tin')
+                messages.error(request, 'Vui lòng điền đầy đủ thông tin')
                 return redirect('accounts:address_create')
 
-        # Tạo địa chỉ mới
         is_default = data.get('is_default') == 'on'
 
         Address.objects.create(
@@ -278,7 +243,6 @@ def address_create(request):
         messages.success(request, 'Thêm địa chỉ thành công!')
         return redirect('accounts:address_list')
 
-    # GET - hiển thị form
     provinces = AddressService.get_provinces()
 
     context = {
@@ -316,7 +280,6 @@ def address_edit(request, address_id):
         messages.success(request, 'Cập nhật địa chỉ thành công!')
         return redirect('accounts:address_list')
 
-    # GET - hiển thị form với dữ liệu hiện tại
     provinces = AddressService.get_provinces()
     districts = AddressService.get_districts(address.province_code) if address.province_code else []
     wards = AddressService.get_wards(address.district_code) if address.district_code else []
@@ -353,7 +316,7 @@ def address_set_default(request, address_id):
     try:
         address = Address.objects.get(id=address_id, user=request.user)
         address.is_default = True
-        address.save()  # save() sẽ tự động unset các địa chỉ khác
+        address.save()
         messages.success(request, 'Đã đặt làm địa chỉ mặc định!')
     except Address.DoesNotExist:
         messages.error(request, 'Địa chỉ không tồn tại')
@@ -361,9 +324,7 @@ def address_set_default(request, address_id):
     return redirect('accounts:address_list')
 
 
-# ==========================================
-# 4. ADDRESS API VIEWS
-# ==========================================
+# ============== ADDRESS API VIEWS ==============
 
 @require_GET
 def api_provinces(request):
@@ -386,9 +347,7 @@ def api_wards(request, district_code):
     return JsonResponse({'wards': wards})
 
 
-# ==========================================
-# 5. SAVED CARD VIEWS
-# ==========================================
+# ============== SAVED CARD VIEWS ==============
 
 @login_required
 def card_list(request):
@@ -414,7 +373,6 @@ def card_create(request):
         cvv = data.get('cvv', '')
         cardholder_name = data.get('cardholder_name', '').strip().upper()
 
-        # Validate thẻ
         validation = CardValidator.validate_card(
             card_number=card_number,
             expiry_month=expiry_month,
@@ -428,7 +386,6 @@ def card_create(request):
                 messages.error(request, error)
             return redirect('accounts:card_create')
 
-        # Kiểm tra thẻ đã tồn tại chưa
         last_four = CardValidator.get_last_four(card_number)
         existing = SavedCard.objects.filter(
             user=request.user,
@@ -440,7 +397,6 @@ def card_create(request):
             messages.error(request, 'Thẻ này đã được lưu trước đó')
             return redirect('accounts:card_create')
 
-        # Lưu thẻ
         is_default = data.get('is_default') == 'on'
 
         SavedCard.objects.create(
@@ -457,7 +413,6 @@ def card_create(request):
         messages.success(request, 'Thêm thẻ thành công!')
         return redirect('accounts:card_list')
 
-    # GET - hiển thị form
     context = {
         'active_tab': 'cards'
     }
@@ -485,13 +440,15 @@ def card_set_default(request, card_id):
     try:
         card = SavedCard.objects.get(id=card_id, user=request.user)
         card.is_default = True
-        card.save()  # save() sẽ tự động unset các thẻ khác
+        card.save()
         messages.success(request, 'Đã đặt làm thẻ mặc định!')
     except SavedCard.DoesNotExist:
         messages.error(request, 'Thẻ không tồn tại')
 
     return redirect('accounts:card_list')
 
+
+# ============== CARD VALIDATION API ==============
 
 @require_POST
 def api_validate_card(request):
@@ -500,10 +457,9 @@ def api_validate_card(request):
         data = json.loads(request.body)
         card_number = data.get('card_number', '')
 
-        # Chỉ detect card type
         card_type = CardValidator.detect_card_type(card_number)
-        is_valid_luhn = CardValidator.validate_luhn(card_number) if len(
-            card_number.replace(' ', '').replace('-', '')) >= 13 else None
+        clean_number = card_number.replace(' ', '').replace('-', '')
+        is_valid_luhn = CardValidator.validate_luhn(card_number) if len(clean_number) >= 13 else None
 
         return JsonResponse({
             'card_type': card_type,
@@ -513,9 +469,7 @@ def api_validate_card(request):
         return JsonResponse({'error': str(e)}, status=400)
 
 
-# ==========================================
-# 6. SOCIAL LOGIN API VIEWS
-# ==========================================
+# ============== SOCIAL LOGIN API ENDPOINTS ==============
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CheckEmailAPIView(View):
@@ -574,7 +528,6 @@ class SocialRegisterAPIView(View):
             phone = data.get('phone', '').strip()
             provider = data.get('provider', '').strip()
 
-            # Validate required fields
             if not all([email, first_name, last_name, provider]):
                 return JsonResponse({
                     'error': 'validation_error',
@@ -587,7 +540,6 @@ class SocialRegisterAPIView(View):
                     }
                 }, status=400)
 
-            # Validate email
             try:
                 validate_email(email)
             except ValidationError:
@@ -596,7 +548,6 @@ class SocialRegisterAPIView(View):
                     'message': 'Định dạng email không hợp lệ'
                 }, status=400)
 
-            # Validate phone number
             if phone:
                 phone_pattern = r'^(0|\+84)[0-9]{9,10}$'
                 if not re.match(phone_pattern, phone):
@@ -608,7 +559,6 @@ class SocialRegisterAPIView(View):
                         }
                     }, status=400)
 
-            # Create user
             result = SocialAuthService.create_social_user(
                 email=email,
                 first_name=first_name,
@@ -623,7 +573,6 @@ class SocialRegisterAPIView(View):
                     'message': result['error']
                 }, status=400)
 
-            # Auto login after registration
             login_result = SocialAuthService.login_social_user(
                 request=request,
                 email=email,
@@ -671,14 +620,12 @@ class SocialLoginAPIView(View):
             email = data.get('email', '').strip()
             provider = data.get('provider', '').strip()
 
-            # Validate required fields
             if not email or not provider:
                 return JsonResponse({
                     'error': 'validation_error',
                     'message': 'Email và provider không được để trống'
                 }, status=400)
 
-            # Validate email format
             try:
                 validate_email(email)
             except ValidationError:
@@ -687,7 +634,6 @@ class SocialLoginAPIView(View):
                     'message': 'Định dạng email không hợp lệ'
                 }, status=400)
 
-            # Login user
             result = SocialAuthService.login_social_user(
                 request=request,
                 email=email,

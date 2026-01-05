@@ -225,6 +225,7 @@ class CustomPasswordChangeForm(PasswordChangeForm):
 class AddressForm(forms.ModelForm):
     """
     Form địa chỉ giao hàng
+    
     Tích hợp API provinces.open-api.vn để chọn Tỉnh/Thành phố, Quận/Huyện, Phường/Xã
     JavaScript sẽ xử lý việc load data từ API
     """
@@ -233,6 +234,7 @@ class AddressForm(forms.ModelForm):
         model = Address
         fields = [
             'full_name',
+            'phone',
             'address',
             'province', 'province_code',
             'district', 'district_code',
@@ -244,16 +246,20 @@ class AddressForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Họ tên người nhận'
             }),
+            'phone': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Số điện thoại'
+            }),
             'address': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 2,
                 'placeholder': 'Địa chỉ cụ thể (Số nhà, tên đường...)'
             }),
 
-            # Select cho city, district, ward với API URL
-            'city': forms.Select(attrs={
+            # Select cho province, district, ward với API URL
+            'province': forms.Select(attrs={
                 'class': 'form-select',
-                'id': 'city-select',
+                'id': 'province-select',
                 'required': True,
                 'data-api-url': 'https://provinces.open-api.vn/api/p/'
             }),
@@ -261,7 +267,7 @@ class AddressForm(forms.ModelForm):
                 'class': 'form-select',
                 'id': 'district-select',
                 'required': True,
-                'disabled': True  # Disable cho đến khi chọn city
+                'disabled': True  # Disable cho đến khi chọn province
             }),
             'ward': forms.Select(attrs={
                 'class': 'form-select',
@@ -271,7 +277,7 @@ class AddressForm(forms.ModelForm):
             }),
 
             # Hidden inputs cho các code (JS sẽ điền vào)
-            'city_code': forms.HiddenInput(),
+            'province_code': forms.HiddenInput(),
             'district_code': forms.HiddenInput(),
             'ward_code': forms.HiddenInput(),
         }
@@ -283,12 +289,13 @@ class AddressForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Thêm option mặc định cho các dropdown (JS sẽ populate các options khác)
-        self.fields['city'].widget.choices = [('', '-- Chọn Tỉnh/Thành phố --')]
+        self.fields['province'].widget.choices = [('', '-- Chọn Tỉnh/Thành phố --')]
         self.fields['district'].widget.choices = [('', '-- Chọn Quận/Huyện --')]
         self.fields['ward'].widget.choices = [('', '-- Chọn Phường/Xã (không bắt buộc) --')]
 
         # Ward không bắt buộc
         self.fields['ward'].required = False
+        self.fields['ward_code'].required = False
 
     def clean_full_name(self):
         """Validate họ tên người nhận"""
@@ -313,14 +320,14 @@ class AddressForm(forms.ModelForm):
 
         return address.strip()
 
-    def clean_city(self):
+    def clean_province(self):
         """Validate tỉnh/thành phố"""
-        city = self.cleaned_data.get('city')
+        province = self.cleaned_data.get('province')
 
-        if not city:
+        if not province:
             raise forms.ValidationError('Vui lòng chọn Tỉnh/Thành phố')
 
-        return city.strip()
+        return province.strip()
 
     def clean_district(self):
         """Validate quận/huyện"""
@@ -338,11 +345,11 @@ class AddressForm(forms.ModelForm):
         """
         cleaned_data = super().clean()
 
-        city = cleaned_data.get('city')
+        province = cleaned_data.get('province')
         district = cleaned_data.get('district')
 
-        # Đảm bảo nếu chọn district thì phải có city
-        if district and not city:
+        # Đảm bảo nếu chọn district thì phải có province
+        if district and not province:
             raise forms.ValidationError('Vui lòng chọn Tỉnh/Thành phố trước khi chọn Quận/Huyện')
 
         return cleaned_data

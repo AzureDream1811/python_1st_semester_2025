@@ -18,4 +18,10 @@ urlpatterns = [
     path('wishlist/toggle/<int:product_id>/', views.toggle_wishlist, name='toggle_wishlist'),
     path('wishlist/remove/<int:product_id>/', views.remove_from_wishlist, name='remove_from_wishlist'),
     path('wishlist/ids/', views.get_wishlist_ids, name='wishlist_ids'),
+
+    # Sentiment-based Recommendations
+    path('recommended/', views.recommended_products, name='recommended'),
+    path('by-sentiment/', views.products_by_sentiment, name='by_sentiment'),
+    path('api/top-rated/', views.top_rated_by_sentiment, name='api_top_rated'),
+    path('api/sentiment-warning/<int:product_id>/', views.sentiment_warning, name='sentiment_warning'),
 ]

@@ -8,6 +8,8 @@ from .models import Product, Category, Brand
 
 def home(request):
     """Trang chủ - hiển thị sản phẩm nổi bật và mới"""
+    from django.utils import timezone
+
     featured_products = Product.objects.filter(
         is_active=True,
         is_featured=True
@@ -20,10 +22,37 @@ def home(request):
 
     categories = Category.objects.filter(is_active=True)[:6]
 
+    # AI Recommended Products - sản phẩm có sentiment tốt
+    recommended_products = Product.objects.filter(
+        is_active=True,
+        sentiment_score__gt=0.3
+    ).select_related('category', 'brand').order_by('-sentiment_score')[:4]
+
+    # Best sellers - sản phẩm bán chạy nhất
+    best_sellers = Product.objects.filter(
+        is_active=True
+    ).select_related('category', 'brand').order_by('-sold')[:8]
+
+    # Flash sale products - sản phẩm đang flash sale
+    flash_sale_products = []
+    try:
+        from apps.promotions.models import FlashSale
+        now = timezone.now()
+        flash_sale_products = FlashSale.objects.filter(
+            start_time__lte=now,
+            end_time__gte=now,
+            is_active=True
+        ).select_related('product', 'product__category', 'product__brand')[:4]
+    except Exception:
+        pass
+
     context = {
         'featured_products': featured_products,
         'new_products': new_products,
         'categories': categories,
+        'recommended_products': recommended_products,
+        'best_sellers': best_sellers,
+        'flash_sale_products': flash_sale_products,
     }
     return render(request, 'products/home.html', context)
 
@@ -127,31 +156,6 @@ def category_products(request, slug):
         'current_sort': sort,
     }
     return render(request, 'products/category_products.html', context)
-
-
-def search(request):
-    """Tìm kiếm sản phẩm"""
-    query = request.GET.get('q', '').strip()
-    products = Product.objects.filter(is_active=True)
-
-    if query:
-        products = products.filter(
-            Q(name__icontains=query) | Q(description__icontains=query)
-        ).select_related('category', 'brand')
-    else:
-        products = products.none()
-
-    # Pagination
-    paginator = Paginator(products, 12)
-    page = request.GET.get('page', 1)
-    products = paginator.get_page(page)
-
-    context = {
-        'products': products,
-        'query': query,
-        'result_count': paginator.count,
-    }
-    return render(request, 'search/search_results.html', context)
 
 
 # Error Handlers
@@ -258,3 +262,150 @@ def get_wishlist_ids(request):
         )
         return JsonResponse({'wishlist_ids': wishlist_ids})
     return JsonResponse({'wishlist_ids': []})
+
+
+# ============== SENTIMENT-BASED RECOMMENDATION VIEWS ==============
+
+def recommended_products(request):
+    """
+    Sản phẩm được gợi ý dựa trên sentiment analysis
+    Hiển thị sản phẩm có đánh giá tích cực nhất
+    """
+    from django.db.models import Count, F
+
+    # Lấy sản phẩm có sentiment tốt (score > 0.3) và có ít nhất 3 reviews
+    products = Product.objects.filter(
+        is_active=True,
+        sentiment_score__gt=0.3
+    ).annotate(
+        total_reviews=Count('reviews', filter=Q(reviews__is_approved=True))
+    ).filter(
+        total_reviews__gte=3
+    ).select_related('category', 'brand').order_by('-sentiment_score', '-total_reviews')
+
+    # Pagination
+    paginator = Paginator(products, 12)
+    page = request.GET.get('page', 1)
+    products = paginator.get_page(page)
+
+    context = {
+        'products': products,
+        'page_title': 'Sản phẩm được đánh giá tốt nhất',
+        'page_description': 'Những sản phẩm được khách hàng đánh giá tích cực nhất dựa trên phân tích AI',
+    }
+    return render(request, 'products/recommended_products.html', context)
+
+
+def top_rated_by_sentiment(request):
+    """
+    API trả về top sản phẩm theo sentiment cho trang chủ
+    """
+    products = Product.objects.filter(
+        is_active=True,
+        sentiment_score__gt=0.3
+    ).select_related('category', 'brand').order_by('-sentiment_score')[:8]
+
+    data = [{
+        'id': p.id,
+        'name': p.name,
+        'slug': p.slug,
+        'price': float(p.current_price),
+        'image': p.image.url if p.image else None,
+        'sentiment_score': p.sentiment_score,
+        'positive_reviews': p.positive_reviews,
+        'negative_reviews': p.negative_reviews,
+        'average_rating': p.average_rating,
+    } for p in products]
+
+    return JsonResponse({'products': data})
+
+
+def sentiment_warning(request, product_id):
+    """
+    API kiểm tra và trả về cảnh báo sentiment cho sản phẩm
+    """
+    try:
+        product = Product.objects.get(id=product_id, is_active=True)
+
+        warning = None
+        recommendation = None
+
+        if product.sentiment_score > 0.5 and product.positive_reviews >= 5:
+            recommendation = {
+                'type': 'positive',
+                'title': 'Rất đáng mua!',
+                'message': f'Sản phẩm này có {product.positive_reviews} đánh giá tích cực. Khách hàng rất hài lòng với sản phẩm.',
+                'icon': 'bi-hand-thumbs-up-fill'
+            }
+        elif product.sentiment_score > 0.2:
+            recommendation = {
+                'type': 'good',
+                'title': 'Nên mua',
+                'message': 'Sản phẩm được đánh giá khá tốt bởi người mua trước.',
+                'icon': 'bi-check-circle-fill'
+            }
+        elif product.sentiment_score < -0.3 and product.negative_reviews >= 3:
+            warning = {
+                'type': 'negative',
+                'title': 'Cân nhắc kỹ!',
+                'message': f'Sản phẩm có {product.negative_reviews} đánh giá tiêu cực. Hãy đọc kỹ các đánh giá trước khi mua.',
+                'icon': 'bi-exclamation-triangle-fill'
+            }
+        elif product.sentiment_score < -0.1:
+            warning = {
+                'type': 'caution',
+                'title': 'Lưu ý',
+                'message': 'Một số khách hàng không hài lòng với sản phẩm này.',
+                'icon': 'bi-info-circle-fill'
+            }
+
+        return JsonResponse({
+            'success': True,
+            'product_id': product_id,
+            'sentiment_score': product.sentiment_score,
+            'positive_reviews': product.positive_reviews,
+            'negative_reviews': product.negative_reviews,
+            'warning': warning,
+            'recommendation': recommendation
+        })
+    except Product.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Sản phẩm không tồn tại'}, status=404)
+
+
+def products_by_sentiment(request):
+    """
+    Lọc sản phẩm theo mức độ sentiment
+    """
+    sentiment_filter = request.GET.get('sentiment', 'all')
+    category_slug = request.GET.get('category')
+
+    products = Product.objects.filter(is_active=True).select_related('category', 'brand')
+
+    # Filter theo category
+    if category_slug:
+        products = products.filter(category__slug=category_slug)
+
+    # Filter theo sentiment
+    if sentiment_filter == 'positive':
+        products = products.filter(sentiment_score__gt=0.3).order_by('-sentiment_score')
+    elif sentiment_filter == 'negative':
+        products = products.filter(sentiment_score__lt=-0.3).order_by('sentiment_score')
+    elif sentiment_filter == 'neutral':
+        products = products.filter(sentiment_score__gte=-0.3, sentiment_score__lte=0.3)
+    else:
+        products = products.order_by('-sentiment_score')
+
+    # Pagination
+    paginator = Paginator(products, 12)
+    page = request.GET.get('page', 1)
+    products = paginator.get_page(page)
+
+    categories = Category.objects.filter(is_active=True)
+
+    context = {
+        'products': products,
+        'categories': categories,
+        'current_sentiment': sentiment_filter,
+        'current_category': category_slug,
+    }
+    return render(request, 'products/products_by_sentiment.html', context)
