@@ -1,15 +1,19 @@
 {% extends 'base.html' %}
 
+{% block extra_css %}
+    <link href="{% static 'css/errors.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block title %}403 — Không có quyền truy cập{% endblock %}
 
 {% block content %}
-    <div class="d-flex align-items-center justify-content-center" style="min-height:60vh">
-        <div class="text-center">
-            <i class="bi bi-shield-lock-fill text-primary" style="font-size:5rem;"></i>
-            <h1 class="display-4 mt-3">403 — Không có quyền truy cập</h1>
-            <p class="lead text-muted">Bạn không có quyền xem trang này hoặc hành động bị từ chối.</p>
+    <div class="error-page-wrapper">
+        <div class="error-card">
+            <i class="bi bi-shield-lock-fill error-icon"></i>
+            <h1 class="error-title">403 — Không có quyền truy cập</h1>
+            <p class="error-lead">Bạn không có quyền xem trang này hoặc hành động bị từ chối.</p>
 
-            <div class="mt-4">
+            <div class="error-actions">
                 <a href="{% url 'products:home' %}" class="btn btn-primary me-2">Quay về trang chủ</a>
                 <a href="javascript:history.back()" class="btn btn-outline-secondary">Quay lại</a>
             </div>
