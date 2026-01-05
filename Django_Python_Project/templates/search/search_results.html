@@ -21,16 +21,16 @@
                 <a class="btn btn-sm btn-link text-muted p-0" href="{% url 'search:search' %}?q={{ query }}">Xóa</a>
             </div>
 
-            <form method="get" id="filterForm"  action="{% url 'search:search' %}">
-                <input type="hidden" name="q" value="{{ query }}">
+            <form action="{% url 'search:search' %}" id="filterForm" method="get">
+                <input name="q" type="hidden" value="{{ query }}">
 
                 <!-- Category -->
                 <div class="filter-section">
                     <h6 class="filter-title">Danh mục</h6>
-                    <select name="category" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <select class="form-select form-select-sm" name="category" onchange="this.form.submit()">
                         <option value="">Tất cả danh mục</option>
                         {% for cat in categories %}
-                        <option value="{{ cat.slug }}" {% if filters.category == cat.slug %}selected{% endif %}>
+                        <option %} %}selected{% cat.slug endif filters.category== if value="{{ cat.slug }}" {%>
                             {{ cat.name }}
                         </option>
                         {% endfor %}
@@ -41,10 +41,10 @@
                 {% if brands %}
                 <div class="filter-section">
                     <h6 class="filter-title">Thương hiệu</h6>
-                    <select name="brand" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <select class="form-select form-select-sm" name="brand" onchange="this.form.submit()">
                         <option value="">Tất cả thương hiệu</option>
                         {% for brand in brands %}
-                        <option value="{{ brand.slug }}" {% if filters.brand == brand.slug %}selected{% endif %}>
+                        <option %} %}selected{% brand.slug endif filters.brand== if value="{{ brand.slug }}" {%>
                             {{ brand.name }}
                         </option>
                         {% endfor %}
@@ -56,22 +56,22 @@
                 <div class="filter-section">
                     <h6 class="filter-title">Khoảng giá</h6>
                     <div class="price-range mb-2">
-                        <input type="number" name="min_price" class="form-control form-control-sm"
-                               placeholder="Từ" value="{{ filters.min_price }}">
+                        <input class="form-control form-control-sm" name="min_price" placeholder="Từ"
+                               type="number" value="{{ filters.min_price }}">
                         <span class="text-muted">-</span>
-                        <input type="number" name="max_price" class="form-control form-control-sm"
-                               placeholder="Đến" value="{{ filters.max_price }}">
+                        <input class="form-control form-control-sm" name="max_price" placeholder="Đến"
+                               type="number" value="{{ filters.max_price }}">
                     </div>
                 </div>
 
                 <!-- In Stock -->
                 <div class="filter-section" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">
                     <div class="form-check">
-                     <input
-                             class="form-check-input"
-                             type="checkbox" name="in_stock" value="true"
-                             onchange="this.form.submit()" id="inStock"
-                             {% if filters.in_stock == 'true' %}checked{% endif %}>
+                        <input
+                                class="form-check-input"
+                                filters.in_stock== id="inStock" if
+                                name="in_stock" onchange="this.form.submit()"
+                                type="checkbox" value="true" {% 'true' %}checked{% endif %}>
 
                         <label class="form-check-label" for="inStock">
                             <i class="bi bi-check-circle text-success me-1"></i>Chỉ còn hàng
@@ -79,7 +79,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 mt-3">
+                <button class="btn btn-primary w-100 mt-3" type="submit">
                     <i class="bi bi-search me-1"></i>Áp dụng
                 </button>
             </form>
@@ -103,13 +103,18 @@
                     </div>
                     <div class="search-sort">
                         <label class="text-muted me-2">Sắp xếp:</label>
-                        <select name="sort" class="form-select form-select-sm" style="width: auto;"
-                                onchange="window.location.href='?q={{ query }}&sort=' + this.value">
-                            <option value="relevance" {% if sort == 'relevance' %}selected{% endif %}>Liên quan nhất</option>
-                            <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Giá thấp → cao</option>
-                            <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Giá cao → thấp</option>
-                            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Mới nhất</option>
-                            <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Đánh giá cao</option>
+                        <select class="form-select form-select-sm" name="sort" onchange="window.location.href='?q={{ query }}&sort=' + this.value"
+                                style="width: auto;">
+                            <option if sort== value="relevance" {%
+                            'relevance' %}selected{% endif %}>Liên quan nhất</option>
+                            <option if sort== value="price_asc" {%
+                            'price_asc' %}selected{% endif %}>Giá thấp → cao</option>
+                            <option if sort== value="price_desc" {%
+                            'price_desc' %}selected{% endif %}>Giá cao → thấp</option>
+                            <option if sort== value="newest" {%
+                            'newest' %}selected{% endif %}>Mới nhất</option>
+                            <option if sort== value="rating" {%
+                            'rating' %}selected{% endif %}>Đánh giá cao</option>
                         </select>
                     </div>
                 </div>
@@ -132,7 +137,8 @@
             <ul class="pagination justify-content-center">
                 {% if products.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?q={{ query }}&page={{ products.previous_page_number }}{% if sort %}&sort={{ sort }}{% endif %}">
+                    <a class="page-link"
+                       href="?q={{ query }}&page={{ products.previous_page_number }}{% if sort %}&sort={{ sort }}{% endif %}">
                         <i class="bi bi-chevron-left"></i>
                     </a>
                 </li>
@@ -141,14 +147,16 @@
                 {% for num in products.paginator.page_range %}
                 {% if num > products.number|add:'-3' and num < products.number|add:'3' %}
                 <li class="page-item {% if products.number == num %}active{% endif %}">
-                    <a class="page-link" href="?q={{ query }}&page={{ num }}{% if sort %}&sort={{ sort }}{% endif %}">{{ num }}</a>
+                    <a class="page-link" href="?q={{ query }}&page={{ num }}{% if sort %}&sort={{ sort }}{% endif %}">{{
+                        num }}</a>
                 </li>
                 {% endif %}
                 {% endfor %}
 
                 {% if products.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?q={{ query }}&page={{ products.next_page_number }}{% if sort %}&sort={{ sort }}{% endif %}">
+                    <a class="page-link"
+                       href="?q={{ query }}&page={{ products.next_page_number }}{% if sort %}&sort={{ sort }}{% endif %}">
                         <i class="bi bi-chevron-right"></i>
                     </a>
                 </li>
@@ -166,10 +174,10 @@
                     <h4>Không tìm thấy sản phẩm</h4>
                     <p>Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc</p>
                     <div class="d-flex gap-2 justify-content-center">
-                        <a href="{% url 'products:product_list' %}" class="btn btn-primary">
+                        <a class="btn btn-primary" href="{% url 'products:product_list' %}">
                             <i class="bi bi-grid me-1"></i>Xem tất cả sản phẩm
                         </a>
-                        <a href="{% url 'products:home' %}" class="btn btn-outline-secondary">
+                        <a class="btn btn-outline-secondary" href="{% url 'products:home' %}">
                             <i class="bi bi-house me-1"></i>Về trang chủ
                         </a>
                     </div>

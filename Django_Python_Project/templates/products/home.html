@@ -21,10 +21,10 @@
                 Khám phá hàng ngàn sản phẩm điện tử với giá tốt nhất. Bảo hành chính hãng, miễn phí giao hàng.
             </p>
             <div class="d-flex gap-3 justify-content-center justify-content-lg-start flex-wrap">
-                <a href="{% url 'products:product_list' %}" class="btn btn-light btn-lg px-4">
+                <a class="btn btn-light btn-lg px-4" href="{% url 'products:product_list' %}">
                     <i class="bi bi-grid me-2"></i>Khám phá ngay
                 </a>
-                <a href="{% url 'promotions:flash_sales' %}" class="btn btn-outline-light btn-lg px-4">
+                <a class="btn btn-outline-light btn-lg px-4" href="{% url 'promotions:flash_sales' %}">
                     <i class="bi bi-lightning-charge me-2"></i>Flash Sale
                 </a>
             </div>
@@ -87,23 +87,25 @@
             <h2 class="h4 mb-1 fw-bold">Danh mục sản phẩm</h2>
             <p class="text-muted mb-0 small">Khám phá theo danh mục yêu thích</p>
         </div>
-        <a href="{% url 'products:product_list' %}" class="btn btn-outline-primary btn-sm">
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'products:product_list' %}">
             Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
         </a>
     </div>
     <div class="row g-3">
         {% for category in categories %}
         <div class="col-6 col-md-4 col-lg-2">
-            <a href="{% url 'products:category' category.slug %}" class="text-decoration-none">
+            <a class="text-decoration-none" href="{% url 'products:category' category.slug %}">
                 <div class="card h-100 text-center category-card border-0">
                     <div class="card-body py-4">
                         {% if category.image %}
-                        <img src="{{ category.image.url }}" alt="{{ category.name }}" class="mb-3" style="height: 48px; object-fit: contain;">
+                        <img alt="{{ category.name }}" class="mb-3" src="{{ category.image.url }}"
+                             style="height: 48px; object-fit: contain;">
                         {% else %}
                         <i class="bi bi-box-seam display-5 text-primary mb-3 d-block"></i>
                         {% endif %}
                         <h6 class="card-title mb-1 small fw-semibold">{{ category.name }}</h6>
-                        <small class="text-muted" style="font-size: 0.6875rem;">{{ category.product_count }} sản phẩm</small>
+                        <small class="text-muted" style="font-size: 0.6875rem;">{{ category.product_count }} sản
+                            phẩm</small>
                     </div>
                 </div>
             </a>
@@ -117,7 +119,8 @@
 {% if flash_sale_products %}
 <section class="mb-5">
     <div class="flash-sale-banner">
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 position-relative" style="z-index: 1;">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 position-relative"
+             style="z-index: 1;">
             <div>
                 <h3 class="mb-1 d-flex align-items-center gap-2 fw-bold">
                     <i class="bi bi-lightning-charge-fill"></i>Flash Sale
@@ -140,7 +143,7 @@
                         <div class="label">Giây</div>
                     </div>
                 </div>
-                <a href="{% url 'promotions:flash_sales' %}" class="btn btn-light btn-sm">
+                <a class="btn btn-light btn-sm" href="{% url 'promotions:flash_sales' %}">
                     Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
@@ -150,9 +153,10 @@
             <div class="col-6 col-md-3">
                 <div class="card h-100 product-card">
                     <span class="discount-badge">-{{ item.discount_percent }}%</span>
-                    <a href="{{ item.product.get_absolute_url }}" class="d-block overflow-hidden">
+                    <a class="d-block overflow-hidden" href="{{ item.product.get_absolute_url }}">
                         {% if item.product.image %}
-                        <img src="{{ item.product.image.url }}" class="card-img-top product-image" alt="{{ item.product.name }}">
+                        <img alt="{{ item.product.name }}" class="card-img-top product-image"
+                             src="{{ item.product.image.url }}">
                         {% else %}
                         <div class="product-image bg-light d-flex align-items-center justify-content-center">
                             <i class="bi bi-image text-muted display-4"></i>
@@ -161,7 +165,8 @@
                     </a>
                     <div class="card-body">
                         <h6 class="product-name mb-2">
-                            <a href="{{ item.product.get_absolute_url }}" class="text-dark text-decoration-none">{{ item.product.name }}</a>
+                            <a class="text-dark text-decoration-none" href="{{ item.product.get_absolute_url }}">{{
+                                item.product.name }}</a>
                         </h6>
                         <div class="price-section mt-2">
                             <span class="current-price">{{ item.sale_price|currency }}</span>
@@ -171,7 +176,8 @@
                             <div class="progress" style="height: 5px; border-radius: 10px;">
                                 <div class="progress-bar bg-warning"></div>
                             </div>
-                            <small class="text-muted" style="font-size: 0.6875rem;">Đã bán {{ item.sold_count }}/{{ item.quantity_limit }}</small>
+                            <small class="text-muted" style="font-size: 0.6875rem;">Đã bán {{ item.sold_count }}/{{
+                                item.quantity_limit }}</small>
                         </div>
                     </div>
                 </div>
@@ -192,7 +198,7 @@
             </h2>
             <p class="text-muted mb-0 small">Được yêu thích nhất tuần này</p>
         </div>
-        <a href="{% url 'products:product_list' %}?featured=1" class="btn btn-outline-primary btn-sm">
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'products:product_list' %}?featured=1">
             Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
         </a>
     </div>
@@ -216,7 +222,7 @@
             </h2>
             <p class="text-muted mb-0 small">Mới nhất, chất lượng nhất</p>
         </div>
-        <a href="{% url 'products:product_list' %}?new=1" class="btn btn-outline-primary btn-sm">
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'products:product_list' %}?new=1">
             Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
         </a>
     </div>
@@ -240,7 +246,7 @@
             </h2>
             <p class="text-muted mb-0 small">Top sản phẩm được mua nhiều</p>
         </div>
-        <a href="{% url 'products:product_list' %}?sort=-sold" class="btn btn-outline-primary btn-sm">
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'products:product_list' %}?sort=-sold">
             Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
         </a>
     </div>
@@ -262,13 +268,16 @@
                 <i class="bi bi-envelope-heart me-1"></i>Đăng ký nhận tin
             </span>
             <h3 class="mb-2 text-white fw-bold">Nhận ưu đãi độc quyền!</h3>
-            <p class="mb-4 opacity-90 mx-auto" style="max-width: 460px; color: rgba(255,255,255,0.9);">Đăng ký ngay để nhận voucher giảm 10% cho đơn hàng đầu tiên</p>
+            <p class="mb-4 opacity-90 mx-auto" style="max-width: 460px; color: rgba(255,255,255,0.9);">Đăng ký ngay để
+                nhận voucher giảm 10% cho đơn hàng đầu tiên</p>
             <form class="row g-2 justify-content-center">
                 <div class="col-12 col-md-5">
-                    <input type="email" class="form-control form-control-lg border-0" placeholder="Nhập email của bạn" style="border-radius: 50px; padding: 0.875rem 1.5rem;">
+                    <input class="form-control form-control-lg border-0" placeholder="Nhập email của bạn" style="border-radius: 50px; padding: 0.875rem 1.5rem;"
+                           type="email">
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-light btn-lg fw-semibold" style="border-radius: 50px; padding: 0.875rem 1.75rem;">
+                    <button class="btn btn-light btn-lg fw-semibold" style="border-radius: 50px; padding: 0.875rem 1.75rem;"
+                            type="submit">
                         <i class="bi bi-send me-2"></i>Đăng ký
                     </button>
                 </div>
@@ -278,28 +287,28 @@
 </section>
 
 <script>
-// Countdown Timer
-function updateCountdown() {
-    const now = new Date();
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+    // Countdown Timer
+    function updateCountdown() {
+        const now = new Date();
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
 
-    const diff = endOfDay - now;
+        const diff = endOfDay - now;
 
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-    const hoursEl = document.getElementById('hours');
-    const minutesEl = document.getElementById('minutes');
-    const secondsEl = document.getElementById('seconds');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
 
-    if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
-    if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
-    if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
-}
+        if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+        if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+        if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
+    }
 
-updateCountdown();
-setInterval(updateCountdown, 1000);
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
 </script>
 {% endblock %}

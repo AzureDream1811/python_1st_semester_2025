@@ -17,17 +17,17 @@
         <div class="card search-filters">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="mb-0"><i class="bi bi-funnel me-2 text-primary"></i>Bộ lọc</h5>
-                <a href="{% url 'products:product_list' %}" class="btn btn-sm btn-link text-muted p-0">Xóa tất cả</a>
+                <a class="btn btn-sm btn-link text-muted p-0" href="{% url 'products:product_list' %}">Xóa tất cả</a>
             </div>
 
-            <form method="GET" action="">
+            <form action="" method="GET">
                 <!-- Categories -->
                 <div class="filter-section">
                     <h6 class="filter-title">Danh mục</h6>
                     {% for category in categories %}
                     <div class="form-check mb-2">
-                        <input class="form-check-input" type="radio" name="category" value="{{ category.slug }}"
-                               id="cat_{{ category.pk }}" {% if current_category == category.slug %}checked{% endif %}>
+                        <input %} %}checked{% category.slug class="form-check-input"
+                               current_category== endif id="cat_{{ category.pk }}" if name="category" type="radio" value="{{ category.slug }}" {%>
                         <label class="form-check-label d-flex justify-content-between" for="cat_{{ category.pk }}">
                             {{ category.name }}
                             <span class="badge bg-light text-muted">{{ category.product_count }}</span>
@@ -42,8 +42,8 @@
                     <h6 class="filter-title">Thương hiệu</h6>
                     {% for brand in brands %}
                     <div class="form-check mb-2">
-                        <input class="form-check-input" type="radio" name="brand" value="{{ brand.slug }}"
-                               id="brand_{{ brand.pk }}" {% if current_brand == brand.slug %}checked{% endif %}>
+                        <input %} %}checked{% brand.slug class="form-check-input"
+                               current_brand== endif id="brand_{{ brand.pk }}" if name="brand" type="radio" value="{{ brand.slug }}" {%>
                         <label class="form-check-label" for="brand_{{ brand.pk }}">{{ brand.name }}</label>
                     </div>
                     {% endfor %}
@@ -54,23 +54,31 @@
                 <div class="filter-section">
                     <h6 class="filter-title">Khoảng giá</h6>
                     <div class="price-range">
-                        <input type="number" name="min_price" class="form-control form-control-sm"
-                               placeholder="Từ" value="{{ request.GET.min_price }}">
+                        <input class="form-control form-control-sm" name="min_price" placeholder="Từ"
+                               type="number" value="{{ request.GET.min_price }}">
                         <span class="text-muted">-</span>
-                        <input type="number" name="max_price" class="form-control form-control-sm"
-                               placeholder="Đến" value="{{ request.GET.max_price }}">
+                        <input class="form-control form-control-sm" name="max_price" placeholder="Đến"
+                               type="number" value="{{ request.GET.max_price }}">
                     </div>
                     <div class="mt-2">
-                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="setPrice(0, 1000000)">Dưới 1 triệu</button>
+                        <button class="btn btn-outline-secondary btn-sm w-100" onclick="setPrice(0, 1000000)"
+                                type="button">Dưới 1 triệu
+                        </button>
                     </div>
                     <div class="mt-2">
-                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="setPrice(1000000, 5000000)">1 - 5 triệu</button>
+                        <button class="btn btn-outline-secondary btn-sm w-100" onclick="setPrice(1000000, 5000000)"
+                                type="button">1 - 5 triệu
+                        </button>
                     </div>
                     <div class="mt-2">
-                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="setPrice(5000000, 10000000)">5 - 10 triệu</button>
+                        <button class="btn btn-outline-secondary btn-sm w-100" onclick="setPrice(5000000, 10000000)"
+                                type="button">5 - 10 triệu
+                        </button>
                     </div>
                     <div class="mt-2">
-                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="setPrice(10000000, '')">Trên 10 triệu</button>
+                        <button class="btn btn-outline-secondary btn-sm w-100" onclick="setPrice(10000000, '')"
+                                type="button">Trên 10 triệu
+                        </button>
                     </div>
                 </div>
 
@@ -79,8 +87,8 @@
                     <h6 class="filter-title">Đánh giá</h6>
                     {% for i in "54321" %}
                     <div class="form-check mb-2">
-                        <input class="form-check-input" type="radio" name="rating" value="{{ i }}"
-                               id="rating_{{ i }}" {% if request.GET.rating == i %}checked{% endif %}>
+                        <input %} %}checked{% class="form-check-input" endif
+                               i id="rating_{{ i }}" if name="rating" request.GET.rating== type="radio" value="{{ i }}" {%>
                         <label class="form-check-label" for="rating_{{ i }}">
                             {% for j in i|ljust:5 %}
                             {% if forloop.counter <= i|add:0 %}
@@ -95,7 +103,7 @@
                     {% endfor %}
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 mt-3">
+                <button class="btn btn-primary w-100 mt-3" type="submit">
                     <i class="bi bi-search me-1"></i>Áp dụng bộ lọc
                 </button>
             </form>
@@ -116,13 +124,26 @@
                     </div>
                     <div class="search-sort">
                         <label class="text-muted me-2">Sắp xếp:</label>
-                        <select class="form-select form-select-sm" style="width: auto;" onchange="location = this.value;">
-                            <option value="?sort=-created_at{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == '-created_at' or not current_sort %}selected{% endif %}>Mới nhất</option>
-                            <option value="?sort=price{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == 'price' %}selected{% endif %}>Giá thấp → cao</option>
-                            <option value="?sort=-price{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == '-price' %}selected{% endif %}>Giá cao → thấp</option>
-                            <option value="?sort=-sold{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == '-sold' %}selected{% endif %}>Bán chạy nhất</option>
-                            <option value="?sort=-average_rating{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == '-average_rating' %}selected{% endif %}>Đánh giá cao</option>
-                            <option value="?sort=name{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == 'name' %}selected{% endif %}>Tên A-Z</option>
+                        <select class="form-select form-select-sm" onchange="location = this.value;"
+                                style="width: auto;">
+                            <option current_sort==
+                                    if value="?sort=-created_at{% if current_category %}&category={{ current_category }}{% endif %}" {%
+                            '-created_at' or not current_sort %}selected{% endif %}>Mới nhất</option>
+                            <option current_sort==
+                                    if value="?sort=price{% if current_category %}&category={{ current_category }}{% endif %}" {%
+                            'price' %}selected{% endif %}>Giá thấp → cao</option>
+                            <option current_sort==
+                                    if value="?sort=-price{% if current_category %}&category={{ current_category }}{% endif %}" {%
+                            '-price' %}selected{% endif %}>Giá cao → thấp</option>
+                            <option current_sort==
+                                    if value="?sort=-sold{% if current_category %}&category={{ current_category }}{% endif %}" {%
+                            '-sold' %}selected{% endif %}>Bán chạy nhất</option>
+                            <option current_sort==
+                                    if value="?sort=-average_rating{% if current_category %}&category={{ current_category }}{% endif %}" {%
+                            '-average_rating' %}selected{% endif %}>Đánh giá cao</option>
+                            <option current_sort==
+                                    if value="?sort=name{% if current_category %}&category={{ current_category }}{% endif %}" {%
+                            'name' %}selected{% endif %}>Tên A-Z</option>
                         </select>
                     </div>
                 </div>
@@ -151,7 +172,7 @@
                     <i class="bi bi-search"></i>
                     <h4>Không tìm thấy sản phẩm</h4>
                     <p>Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
-                    <a href="{% url 'products:product_list' %}" class="btn btn-primary">
+                    <a class="btn btn-primary" href="{% url 'products:product_list' %}">
                         <i class="bi bi-arrow-left me-1"></i>Xem tất cả sản phẩm
                     </a>
                 </div>
@@ -162,9 +183,9 @@
 </div>
 
 <script>
-function setPrice(min, max) {
-    document.querySelector('input[name="min_price"]').value = min || '';
-    document.querySelector('input[name="max_price"]').value = max || '';
-}
+    function setPrice(min, max) {
+        document.querySelector('input[name="min_price"]').value = min || '';
+        document.querySelector('input[name="max_price"]').value = max || '';
+    }
 </script>
 {% endblock %}
