@@ -1,10 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}403 — Không có quyền truy cập{% endblock %}
+
+{% block content %}
+    <div class="d-flex align-items-center justify-content-center" style="min-height:60vh">
+        <div class="text-center">
+            <i class="bi bi-shield-lock-fill text-primary" style="font-size:5rem;"></i>
+            <h1 class="display-4 mt-3">403 — Không có quyền truy cập</h1>
+            <p class="lead text-muted">Bạn không có quyền xem trang này hoặc hành động bị từ chối.</p>
+
+            <div class="mt-4">
+                <a href="{% url 'products:home' %}" class="btn btn-primary me-2">Quay về trang chủ</a>
+                <a href="javascript:history.back()" class="btn btn-outline-secondary">Quay lại</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
