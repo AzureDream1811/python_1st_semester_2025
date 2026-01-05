@@ -1,7 +1,10 @@
 import pandas as pd
 
 from Django_Python_Project.ml_models.aivivn_fasttext.preprocess import PreprocessText
-from Django_Python_Project.ml_models.aivivn_fasttext.config import DATASET_DIR, FASTESTTEXT_DATA_DIR
+from Django_Python_Project.ml_models.aivivn_fasttext.config import (
+    DATASET_DIR,
+    FASTESTTEXT_DATA_DIR,
+)
 
 
 class FastTextDatasetBuilder:
@@ -86,24 +89,30 @@ class FastTextDatasetBuilder:
             ]
         )
 
-    def build_train_test_txt(
+    def build_train_val_test_txt(
         self,
-        train_csv: str = "train.csv",
+        train_csv: str = "train_split.csv",  # SỬA DEFAULT
+        val_csv: str = "val.csv",
         test_csv: str = "test.csv",
         train_text_name: str = "train.txt",
+        val_text_name: str = "val.txt",
         test_text_name: str = "test.txt",
     ):
         """
-        Build the FastText data from the given CSV files.
+        Build the FastText data from the given CSV files (train/val/test).
 
         Parameters
         ----------
         train_csv : str, optional
-            The name of the train CSV file. Defaults to "train.csv".
+            The name of the train CSV file. Defaults to "train_split.csv".
+        val_csv : str, optional
+            The name of the validation CSV file. Defaults to "val.csv".
         test_csv : str, optional
             The name of the test CSV file. Defaults to "test.csv".
         train_text_name : str, optional
             The name of the train text file. Defaults to "train.txt".
+        val_text_name : str, optional
+            The name of the validation text file. Defaults to "val.txt".
         test_text_name : str, optional
             The name of the test text file. Defaults to "test.txt".
 
@@ -113,25 +122,30 @@ class FastTextDatasetBuilder:
         """
 
         train_df = self._load_CSV(train_csv)
+        val_df = self._load_CSV(val_csv)
         test_df = self._load_CSV(test_csv)
 
         train_df = self._preprocess_df(train_df)
+        val_df = self._preprocess_df(val_df)
         test_df = self._preprocess_df(test_df)
 
         train_lines = self._build_ft_lines(train_df)
+        val_lines = self._build_ft_lines(val_df)
         test_lines = self._build_ft_lines(test_df)
 
-        train_lines.to_csv(FASTESTTEXT_DATA_DIR / train_text_name, index=False, header= False)
-        test_lines.to_csv(FASTESTTEXT_DATA_DIR / test_text_name, index=False, header= False)
+        train_lines.to_csv(FASTESTTEXT_DATA_DIR / train_text_name, index=False, header=False)
+        val_lines.to_csv(FASTESTTEXT_DATA_DIR / val_text_name, index=False, header=False)
+        test_lines.to_csv(FASTESTTEXT_DATA_DIR / test_text_name, index=False, header=False)
 
-        print("Done building FastText data")
+        print(f"✓ Đã tạo {train_text_name} với {len(train_lines)} mẫu")
+        print(f"✓ Đã tạo {val_text_name} với {len(val_lines)} mẫu")
+        print(f"✓ Đã tạo {test_text_name} với {len(test_lines)} mẫu")
+        print("Done building FastText data (train/val/test)")
+
 
 if __name__ == "__main__":
     builder = FastTextDatasetBuilder(
-        text_col="comment",  # sửa theo cột thực của bạn
-        label_col="label",   # sửa theo cột thực của bạn
+        text_col="comment",
+        label_col="label",
     )
-    builder.build_train_test_txt(
-        train_csv="train.csv",   # nằm trong DATASET_DIR
-        test_csv="test.csv",
-    )
+    builder.build_train_val_test_txt()  # Dùng default values

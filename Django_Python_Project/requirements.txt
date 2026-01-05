@@ -49,7 +49,7 @@ django-elasticsearch-dsl>=8.0
 # MACHINE LEARNING & NLP
 # =============================================================================
 pandas>=2.1
-numpy>=1.26
+numpy>=1.26, <2.0
 fasttext-wheel
 emoji
 emot==3.1
