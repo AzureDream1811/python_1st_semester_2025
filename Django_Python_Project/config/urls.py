@@ -25,7 +25,7 @@ urlpatterns = [
     path('orders/', include('apps.orders.urls', namespace='orders')),
     path('reviews/', include('apps.reviews.urls', namespace='reviews')),
     path('promotions/', include('apps.promotions.urls', namespace='promotions')),
-    path('search/', include('apps.search.urls', namespace='search')),
+    # path('search/', include('apps.search.urls', namespace='search')),
 
 ]
 

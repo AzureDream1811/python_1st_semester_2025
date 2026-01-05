@@ -488,7 +488,7 @@
             </a>
 
             <!-- Search Bar -->
-            <form action="{% url 'search:search' %}" class="header-search d-none d-md-block" method="GET">
+            <form action="{% url 'products:search' %}" class="header-search d-none d-md-block" method="GET">
                 <input autocomplete="off" id="searchInput" name="q" placeholder="Tìm kiếm sản phẩm..."
                        type="search" value="{{ request.GET.q }}">
                 <i class="bi bi-search search-icon"></i>

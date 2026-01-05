@@ -2,7 +2,7 @@
 URL Configuration cho Search App - ElectroShop
 """
 from django.urls import path
-from . import views
+# from . import views
 
 app_name = 'search'
 

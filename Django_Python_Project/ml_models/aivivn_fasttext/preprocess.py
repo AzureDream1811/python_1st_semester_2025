@@ -3,15 +3,15 @@ import string
 import os
 import sys
 import django
+from django.conf import settings
+from underthesea import word_tokenize, text_normalize
+import emoji
+from  emot import emot
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, BASE_DIR)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Django_Python_Project.config.settings")
 django.setup()
-from django.conf import settings
-from underthesea import word_tokenize, text_normalize
-import emoji
-from  emot import emot
 
 class PreprocessText():
     """
@@ -59,7 +59,6 @@ class PreprocessText():
         "ok": "được",
         "oke": "được",
         "okê": "được",
-        "tks": "cảm ơn",
         "vs": "với",
         "m": "mình",
         "mk": "mình",
