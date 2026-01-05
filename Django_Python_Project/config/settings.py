@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'apps.reviews',
     'apps.admin_dashboard',
     'apps.promotions',
-    'apps.search',
+    # 'apps.search',
     'apps.payments'
 ]
 
