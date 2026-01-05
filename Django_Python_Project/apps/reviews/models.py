@@ -134,7 +134,7 @@ class Review(models.Model):
 
         self.sentiment = result['sentiment']
         self.sentiment_score = result['score']
-        self.processed_comment = result['processed_text']
+        # processed_text được sử dụng nội bộ, không lưu vào DB
 
     def get_images(self):
         """Lấy danh sách hình ảnh"""
