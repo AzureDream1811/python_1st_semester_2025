@@ -16,7 +16,7 @@ MODEL_DIR = BASE_DIR / "ml_models" / "aivivn_fasttext" / "models"
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 
 # TRAINING PARAMETERS
-EPOCHS = 100
+EPOCHS = 30
 LR = 0.1
 DIM = 100
 WORD_NGRAMS = 2
