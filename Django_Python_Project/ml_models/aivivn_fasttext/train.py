@@ -3,6 +3,7 @@ import fasttext
 
 from Django_Python_Project.ml_models.aivivn_fasttext.config import (
     TRAIN_FILE,
+    VAL_FILE,
     TEST_FILE,
     MODEL_DIR,
     EPOCHS,
@@ -40,7 +41,7 @@ def train_fasttext(
     word_ngrams : int, optional
         The number of word n-grams to use. Defaults to WORD_NGRAMS.
     loss : str, optional
-        The loss function to use. Defaults to "hs".
+        The loss function to use. Defaults to "softmax".
     minn : int, optional
         The minimum length of a word to include in the vocab. Defaults to 2.
     maxn : int, optional
@@ -51,6 +52,8 @@ def train_fasttext(
     model : fasttext.FastText
         The trained fastText model.
     """
+    print(f"Đang train với file: {input_path}")
+    
     model = fasttext.train_supervised(
         input=str(input_path),
         lr=lr,
@@ -62,11 +65,14 @@ def train_fasttext(
         maxn=maxn,
     )
 
+    print(f"Đang lưu model vào: {MODEL_PATH}")
     model.save_model(str(MODEL_PATH))
+    print("✓ Đã lưu model thành công!")
+    
     return model
 
 
-def evaluate(model, valid_path: Path):
+def evaluate(model, valid_path: Path, dataset_name: str = ""):
     """
     Evaluate a trained fastText supervised model on a validation set.
 
@@ -76,6 +82,8 @@ def evaluate(model, valid_path: Path):
         The trained fastText model to evaluate.
     valid_path : Path
         The path to the validation data file.
+    dataset_name : str, optional
+        Name of the dataset being evaluated (for display).
 
     Returns
     -------
@@ -87,30 +95,34 @@ def evaluate(model, valid_path: Path):
         The recall at 1.
     """
     N, p1, r1 = model.test(str(valid_path))
-    print("Evaluating model:")
-    print("-> N:", N)
-    print("-> P@1:", p1)
-    print("-> R@1:", r1)
+    f1 = 2 * p1 * r1 / (p1 + r1) if (p1 + r1) > 0 else 0
+    print(f"{dataset_name}: P@1={p1:.4f}, R@1={r1:.4f}, F1={f1:.4f}")
     return N, p1, r1
 
 
 def main():
-    print("TRAIN_FILE:", TRAIN_FILE)
-    print("TEST_FILE:", TEST_FILE)
+    print("Training fastText model...")
+    print(f"Train: {TRAIN_FILE.name}, Val: {VAL_FILE.name}, Test: {TEST_FILE.name}")
+    print(f"Epochs: {EPOCHS}, LR: {LR}, Dim: {DIM}, Word n-grams: {WORD_NGRAMS}\n")
 
+    # Kiểm tra files
     if not TRAIN_FILE.exists():
         raise FileNotFoundError(f"Không tìm thấy train file: {TRAIN_FILE}")
+    if not VAL_FILE.exists():
+        raise FileNotFoundError(f"Không tìm thấy validation file: {VAL_FILE}")
     if not TEST_FILE.exists():
         raise FileNotFoundError(f"Không tìm thấy test file: {TEST_FILE}")
 
-    print("Bắt đầu train fastText...")
+    # Train model
+    print("Training...\n")
     model = train_fasttext(TRAIN_FILE)
 
-    print("-> Train xong, đánh giá trên tập test...")
-    evaluate(model, TEST_FILE)
+    # Evaluate
+    print("\nResults:")
+    evaluate(model, VAL_FILE, "Validation")
+    evaluate(model, TEST_FILE, "Test")
 
-    print("-> Đã lưu model tại:", MODEL_PATH)
-    model.save_model(str(MODEL_PATH))
+    print(f"\nModel saved: {MODEL_PATH}")
 
 
 if __name__ == "__main__":
