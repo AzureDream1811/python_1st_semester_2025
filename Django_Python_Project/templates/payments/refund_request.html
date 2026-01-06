@@ -1,10 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
+{% load product_tags %}
+{% load widget_tweaks %}
 
-</body>
-</html>
+{% block title %}Yêu cầu hoàn tiền - ElectroShop{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/refund_request.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="refund-container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb shadow-sm">
+            <li class="breadcrumb-item"><a href="{% url 'products:home' %}"><i class="bi bi-house me-1"></i>Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'orders:list' %}">Đơn hàng</a></li>
+            <li class="breadcrumb-item active">Yêu cầu hoàn tiền</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card header-card mb-4 border-0">
+                <div class="card-body text-white py-4 px-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-circle shadow">
+                            <i class="bi bi-arrow-return-left"></i>
+                        </div>
+                        <div>
+                            <h2 class="mb-1 fw-bold">Yêu cầu hoàn tiền</h2>
+                            <p class="mb-0 text-white-50">Vui lòng cung cấp chính xác thông tin giao dịch và lý do</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card main-form-card shadow-sm border-0">
+                <div class="card-header bg-white py-3 border-bottom-0">
+                    <h5 class="mb-0 fw-bold d-flex align-items-center">
+                        <i class="bi bi-pencil-square text-primary me-2"></i>
+                        Chi tiết yêu cầu
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-uppercase text-muted">{{ form.payment.label }}</label>
+{#                            {% render_field form.payment class="form-select custom-input" %}#} xử lí
+                            {% if form.payment.errors %}
+                                <div class="invalid-feedback d-block">{{ form.payment.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-uppercase text-muted">{{ form.amount.label }}</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-2">₫</span>
+                                {% render_field form.amount class="form-control custom-input border-start-0" %}
+                            </div>
+                            {% if form.amount.errors %}
+                                <div class="invalid-feedback d-block">{{ form.amount.errors }}</div>
+                            {% endif %}
+                            <small class="text-muted mt-1 d-block"><i class="bi bi-info-circle me-1"></i>Vui lòng nhập số tiền hợp lệ</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-uppercase text-muted">{{ form.reason.label }}</label>
+                            {% render_field form.reason class="form-control custom-input" rows="4" %}
+                            {% if form.reason.errors %}
+                                <div class="invalid-feedback d-block">{{ form.reason.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="alert alert-custom d-flex align-items-start border-0 mb-4">
+                            <i class="bi bi-info-circle-fill text-primary me-3 mt-1 fs-5"></i>
+                            <div>
+                                <strong class="text-primary">Lưu ý quan trọng:</strong>
+                                <ul class="mb-0 mt-1 ps-3 small text-secondary">
+                                    <li>Yêu cầu sẽ được phản hồi trong vòng 3-5 ngày làm việc.</li>
+                                    <li>Số tiền sẽ được hoàn trả theo phương thức thanh toán ban đầu.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 justify-content-end pt-3 border-top">
+                            <a href="{% url 'orders:list' %}" class="btn btn-outline-custom">
+                                <i class="bi bi-x-lg me-1"></i>Hủy bỏ
+                            </a>
+                            <button type="submit" class="btn btn-primary-custom shadow">
+                                <i class="bi bi-send me-1"></i>Gửi yêu cầu ngay
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

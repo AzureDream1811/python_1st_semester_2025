@@ -1,10 +1,168 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
+{% load product_tags %}
 
-</body>
-</html>
+{% block title %}Lịch sử giao dịch - ElectroShop{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/transaction_history.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb shadow-sm p-3 bg-white rounded">
+        <li class="breadcrumb-item"><a href="{% url 'products:home' %}" class="text-decoration-none">Trang chủ</a></li>
+        <li class="breadcrumb-item active">Lịch sử giao dịch</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-lg-3 mb-4">
+        <div class="card shadow-sm border-0 filter-sidebar">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-funnel me-2 text-primary"></i>Bộ lọc</h5>
+                    <a class="btn btn-sm btn-link text-muted p-0 text-decoration-none" href="">Xóa</a>
+                </div>
+
+                <form method="get" id="filterForm">
+                    <div class="filter-section mb-4">
+                        <h6 class="filter-title fw-bold small text-uppercase text-muted mb-3">Phương thức</h6>
+                        <select class="form-select form-select-sm custom-select" name="payment_method" onchange="this.form.submit()">
+                            <option value="">Tất cả phương thức</option>
+                            {% for code, name in payment_methods %}
+                            <option value="{{ code }}" {% if current_payment_method == code %}selected{% endif %}>
+                                {{ name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="filter-section mb-4">
+                        <h6 class="filter-title fw-bold small text-uppercase text-muted mb-3">Trạng thái</h6>
+                        <select class="form-select form-select-sm custom-select" name="status" onchange="this.form.submit()">
+                            <option value="">Tất cả trạng thái</option>
+                            {% for code, name in status_choices %}
+                            <option value="{{ code }}" {% if current_status == code %}selected{% endif %}>
+                                {{ name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="filter-section mb-4">
+                        <h6 class="filter-title fw-bold small text-uppercase text-muted mb-3">Thời gian</h6>
+                        <div class="date-range-inputs">
+                            <input type="date" name="date_from" value="{{ date_from }}" class="form-control form-control-sm mb-2" placeholder="Từ ngày">
+                            <input type="date" name="date_to" value="{{ date_to }}" class="form-control form-control-sm" placeholder="Đến ngày">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary w-100 shadow-sm" type="submit">
+                        <i class="bi bi-search me-1"></i>Áp dụng
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-9">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body py-3 px-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0 fw-bold">Giao dịch của tôi</h5>
+                        <small class="text-muted">Tổng cộng {{ transactions.paginator.count }} giao dịch</small>
+                    </div>
+                    <i class="bi bi-clock-history fs-4 text-primary"></i>
+                </div>
+            </div>
+        </div>
+
+        {% if transactions %}
+        <div class="card border-0 shadow-sm overflow-hidden transaction-card">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr class="small text-uppercase fw-bold text-muted">
+                            <th class="ps-4 py-3">Mã giao dịch</th>
+                            <th class="py-3">Đơn hàng</th>
+                            <th class="py-3">Số tiền</th>
+                            <th class="py-3 text-center">Trạng thái</th>
+                            <th class="pe-4 py-3 text-end">Chi tiết</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for trans in transactions %}
+                        <tr class="transaction-row">
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark small">{{ trans.transaction_id }}</div>
+                                <div class="extra-small text-muted">{{ trans.created_at|date:"d/m/Y H:i" }}</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-primary border border-primary-subtle">#{{ trans.order.order_number }}</span>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ trans.amount|currency }}</div>
+                                <div class="extra-small text-muted">{{ trans.get_payment_method_display }}</div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge-status {{ trans.status }}">
+                                    {{ trans.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="pe-4 text-end">
+                                <a href="" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    Xem <i class="bi bi-chevron-right ms-1"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if transactions.has_other_pages %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if transactions.has_previous %}
+                <li class="page-item">
+                    <a class="page-link shadow-sm" href="?page={{ transactions.previous_page_number }}{% if current_payment_method %}&payment_method={{ current_payment_method }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for num in transactions.paginator.page_range %}
+                    {% if num > transactions.number|add:'-3' and num < transactions.number|add:'3' %}
+                    <li class="page-item {% if transactions.number == num %}active{% endif %}">
+                        <a class="page-link shadow-sm" href="?page={{ num }}{% if current_payment_method %}&payment_method={{ current_payment_method }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if transactions.has_next %}
+                <li class="page-item">
+                    <a class="page-link shadow-sm" href="?page={{ transactions.next_page_number }}{% if current_payment_method %}&payment_method={{ current_payment_method }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body py-5 text-center">
+                <i class="bi bi-credit-card-2-back display-1 text-light mb-4 d-block"></i>
+                <h4 class="fw-bold">Chưa có giao dịch nào</h4>
+                <p class="text-muted mb-4">Mọi giao dịch thanh toán của bạn sẽ xuất hiện tại đây.</p>
+                <a href="{% url 'products:product_list' %}" class="btn btn-primary px-4 shadow-sm">Mua sắm ngay</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

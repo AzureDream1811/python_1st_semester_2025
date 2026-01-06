@@ -153,7 +153,7 @@
             <div class="col-6 col-md-3">
                 <div class="card h-100 product-card">
                     <span class="discount-badge">-{{ item.discount_percent }}%</span>
-                    <a class="d-block overflow-hidden" href="{{ item.product.get_absolute_url }}">
+                    <a class="d-block overflow-hidden" >
                         {% if item.product.image %}
                         <img alt="{{ item.product.name }}" class="card-img-top product-image"
                              src="{{ item.product.image.url }}">

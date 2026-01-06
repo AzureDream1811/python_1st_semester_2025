@@ -1,0 +1,61 @@
+/* Sidebar Filter Styling */
+.filter-sidebar {
+    border-radius: 20px !important;
+}
+
+.filter-title {
+    letter-spacing: 0.5px;
+    font-size: 0.75rem;
+}
+
+.custom-select {
+    border: 1.5px solid #f1f5f9;
+    border-radius: 10px;
+    padding: 0.6rem;
+}
+
+/* Table Styling */
+.transaction-card {
+    border-radius: 20px !important;
+}
+
+.transaction-row {
+    transition: all 0.2s ease;
+}
+
+.transaction-row:hover {
+    background-color: #f8fafc;
+}
+
+/* Status Badges Custom */
+.badge-status {
+    padding: 0.5rem 0.8rem;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-status.success { background: #dcfce7; color: #15803d; }
+.badge-status.pending { background: #fef3c7; color: #b45309; }
+.badge-status.failed, .badge-status.cancelled { background: #fee2e2; color: #b91c1c; }
+.badge-status.processing { background: #e0f2fe; color: #0369a1; }
+
+/* Utilities */
+.extra-small {
+    font-size: 0.7rem;
+}
+
+/* Pagination Styling */
+.pagination .page-link {
+    border: none;
+    margin: 0 4px;
+    border-radius: 10px !important;
+    padding: 0.6rem 0.9rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.pagination .page-item.active .page-link {
+    background: #2563eb;
+    color: white;
+}
