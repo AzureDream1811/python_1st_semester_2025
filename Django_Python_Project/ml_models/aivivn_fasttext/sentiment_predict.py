@@ -49,7 +49,16 @@ class SentimentPredictor:
             }
         
         # Format kết quả
-        label = labels[0].replace("__label__", "")
+        raw_label = labels[0].replace("__label__", "")
+
+        label_map = {
+            "0": "negative",
+            "1": "positive",
+            "2": "neutral"
+        }
+
+        label = label_map.get(raw_label, "neutral")
+
         confidence = float(probs[0])
         
         return {
@@ -80,7 +89,7 @@ if __name__ == "__main__":
     predictor = SentimentPredictor()
     
     # Test với 1 câu
-    text = "Sản phẩm rất tốt, tôi rất hài lòng!"
+    text = "Tốt nhưng có thể cải thiện"
     result = predictor.predict(text)
     print(f"\nText: {text}")
     print(f"Label: {result['label']} (confidence: {result['confidence']:.4f})")
