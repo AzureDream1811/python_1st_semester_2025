@@ -52,7 +52,7 @@
                             <small class="text-danger">Còn lại: {{ flash_sale.remaining_quantity }}</small>
                         </div>
                         <div class="progress" style="height:8px;">
-                            <div class="progress-bar bg-danger" role="progressbar" style="width: {% widthratio flash_sale.sold_count flash_sale.quantity_limit 100 %}%;"></div>
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: {% widthratio flash_sale.sold_count flash_sale.quantity_limit 100 %|default:0}%;"></div>
                         </div>
                     </div>
 
