@@ -6,9 +6,8 @@
 {% block branding %}
 <h1 id="site-name">
     <a href="{% url 'admin:index' %}">
-        <svg fill="none" height="28" style="vertical-align: middle; margin-right: 8px;" viewBox="0 0 24 24" width="28">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#3b82f6" stroke="#3b82f6" stroke-linecap="round"
-                  stroke-linejoin="round" stroke-width="2"/>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 8px;">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#3b82f6" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         ElectroShop Admin
     </a>
@@ -17,53 +16,52 @@
 
 {% block extrastyle %}
 {{ block.super }}
-<link href="{% static 'admin/css/custom_admin.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'admin/css/custom_admin.css' %}">
 {% endblock %}
 
 {% block nav-global %}
 <nav class="admin-quick-nav">
     <div class="quick-nav-inner">
         <div class="nav-links">
-            <a class="nav-link {% if request.path == '/admin/' %}active{% endif %}" href="{% url 'admin:index' %}">
-                <svg fill="none" height="16" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16">
-                    <rect height="7" width="7" x="3" y="3"></rect>
-                    <rect height="7" width="7" x="14" y="3"></rect>
-                    <rect height="7" width="7" x="14" y="14"></rect>
-                    <rect height="7" width="7" x="3" y="14"></rect>
+            <a href="{% url 'admin:index' %}" class="nav-link {% if request.path == '/admin/' %}active{% endif %}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
                 </svg>
                 Dashboard
             </a>
-            <a class="nav-link" href="{% url 'admin_dashboard:revenue_report' %}">
-                <svg fill="none" height="16" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16">
-                    <line x1="12" x2="12" y1="1" y2="23"></line>
+            <a href="{% url 'admin_dashboard:revenue_report' %}" class="nav-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
                     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                 </svg>
                 Doanh thu
             </a>
-            <a class="nav-link" href="{% url 'admin:orders_order_changelist' %}">
-                <svg fill="none" height="16" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16">
+            <a href="{% url 'admin:orders_order_changelist' %}" class="nav-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                    <line x1="3" x2="21" y1="6" y2="6"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
                     <path d="M16 10a4 4 0 0 1-8 0"></path>
                 </svg>
                 Don hang
             </a>
-            <a class="nav-link" href="{% url 'admin:products_product_changelist' %}">
-                <svg fill="none" height="16" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16">
+            <a href="{% url 'admin:products_product_changelist' %}" class="nav-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                    <line x1="7" x2="7.01" y1="7" y2="7"></line>
+                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
                 </svg>
                 San pham
             </a>
-            <a class="nav-link" href="{% url 'admin:reviews_review_changelist' %}">
-                <svg fill="none" height="16" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16">
-                    <polygon
-                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            <a href="{% url 'admin:reviews_review_changelist' %}" class="nav-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                 </svg>
                 Danh gia
             </a>
-            <a class="nav-link" href="{% url 'admin:accounts_user_changelist' %}">
-                <svg fill="none" height="16" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16">
+            <a href="{% url 'admin:accounts_user_changelist' %}" class="nav-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="9" cy="7" r="4"></circle>
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -73,11 +71,11 @@
             </a>
         </div>
         <div class="nav-actions">
-            <a class="nav-link nav-link-external" href="/" target="_blank">
-                <svg fill="none" height="16" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16">
+            <a href="/" target="_blank" class="nav-link nav-link-external">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                     <polyline points="15 3 21 3 21 9"></polyline>
-                    <line x1="10" x2="21" y1="14" y2="3"></line>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
                 </svg>
                 Xem trang web
             </a>

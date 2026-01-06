@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load product_tags %}
 
 {% block title %}Tìm kiếm: {{ query }} - ElectroShop{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/search/search.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
 <nav aria-label="breadcrumb" class="mb-4">
@@ -11,7 +16,6 @@
     </ol>
 </nav>
 
-</div>
 <div class="row">
     <!-- Filters Sidebar -->
     <div class="col-lg-3 mb-4">
@@ -30,7 +34,7 @@
                     <select class="form-select form-select-sm" name="category" onchange="this.form.submit()">
                         <option value="">Tất cả danh mục</option>
                         {% for cat in categories %}
-                        <option %} %}selected{% cat.slug endif filters.category== if value="{{ cat.slug }}" {%>
+                        <option value="{{ cat.slug }}" {% if filters.category == cat.slug %}selected{% endif %}>
                             {{ cat.name }}
                         </option>
                         {% endfor %}
@@ -44,7 +48,7 @@
                     <select class="form-select form-select-sm" name="brand" onchange="this.form.submit()">
                         <option value="">Tất cả thương hiệu</option>
                         {% for brand in brands %}
-                        <option %} %}selected{% brand.slug endif filters.brand== if value="{{ brand.slug }}" {%>
+                        <option value="{{ brand.slug }}" {% if filters.brand == brand.slug %}selected{% endif %}>
                             {{ brand.name }}
                         </option>
                         {% endfor %}
@@ -69,9 +73,9 @@
                     <div class="form-check">
                         <input
                                 class="form-check-input"
-                                filters.in_stock== id="inStock" if
+                                id="inStock"
                                 name="in_stock" onchange="this.form.submit()"
-                                type="checkbox" value="true" {% 'true' %}checked{% endif %}>
+                                type="checkbox" value="true" {% if filters.in_stock == 'true' %}checked{% endif %}>
 
                         <label class="form-check-label" for="inStock">
                             <i class="bi bi-check-circle text-success me-1"></i>Chỉ còn hàng
@@ -105,16 +109,11 @@
                         <label class="text-muted me-2">Sắp xếp:</label>
                         <select class="form-select form-select-sm" name="sort" onchange="window.location.href='?q={{ query }}&sort=' + this.value"
                                 style="width: auto;">
-                            <option if sort== value="relevance" {%
-                            'relevance' %}selected{% endif %}>Liên quan nhất</option>
-                            <option if sort== value="price_asc" {%
-                            'price_asc' %}selected{% endif %}>Giá thấp → cao</option>
-                            <option if sort== value="price_desc" {%
-                            'price_desc' %}selected{% endif %}>Giá cao → thấp</option>
-                            <option if sort== value="newest" {%
-                            'newest' %}selected{% endif %}>Mới nhất</option>
-                            <option if sort== value="rating" {%
-                            'rating' %}selected{% endif %}>Đánh giá cao</option>
+                            <option value="relevance" {% if sort == 'relevance' %}selected{% endif %}>Liên quan nhất</option>
+                            <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Giá thấp → cao</option>
+                            <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Giá cao → thấp</option>
+                            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Mới nhất</option>
+                            <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Đánh giá cao</option>
                         </select>
                     </div>
                 </div>

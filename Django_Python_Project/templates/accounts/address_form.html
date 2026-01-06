@@ -41,8 +41,7 @@
                                 <select class="form-select" id="provinceSelect" name="province_code" required>
                                     <option value="">-- Chọn Tỉnh/Thành phố --</option>
                                     {% for p in provinces %}
-                                    <option %} %}selected{%
-                                            address address.province_code== and data-name="{{ p.name }}" endif if p.code value="{{ p.code }}" {%>
+                                    <option value="{{ p.code }}" data-name="{{ p.name }}" {% if address and address.province_code == p.code %}selected{% endif %}>
                                         {{ p.name }}
                                     </option>
                                     {% endfor %}
@@ -56,8 +55,7 @@
                                 <select class="form-select" id="districtSelect" name="district_code" required>
                                     <option value="">-- Chọn Quận/Huyện --</option>
                                     {% for d in districts %}
-                                    <option %} %}selected{%
-                                            address address.district_code== and d.code data-name="{{ d.name }}" endif if value="{{ d.code }}" {%>
+                                    <option value="{{ d.code }}" data-name="{{ d.name }}" {% if address and address.district_code == d.code %}selected{% endif %}>
                                         {{ d.name }}
                                     </option>
                                     {% endfor %}
@@ -71,8 +69,7 @@
                                 <select class="form-select" id="wardSelect" name="ward_code">
                                     <option value="">-- Chọn Phường/Xã --</option>
                                     {% for w in wards %}
-                                    <option %} %}selected{%
-                                            address address.ward_code== and data-name="{{ w.name }}" endif if value="{{ w.code }}" w.code {%>
+                                    <option value="{{ w.code }}" data-name="{{ w.name }}" {% if address and address.ward_code == w.code %}selected{% endif %}>
                                         {{ w.name }}
                                     </option>
                                     {% endfor %}
@@ -83,8 +80,7 @@
 
                             <div class="col-12">
                                 <div class="form-check">
-                                    <input %} %}checked{% address address.is_default
-                                           and class="form-check-input" endif id="isDefault" if name="is_default" type="checkbox" {%>
+                                    <input class="form-check-input" id="isDefault" name="is_default" type="checkbox" {% if address and address.is_default %}checked{% endif %}>
                                     <label class="form-check-label" for="isDefault">
                                         Đặt làm địa chỉ mặc định
                                     </label>

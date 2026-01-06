@@ -3,7 +3,7 @@
 
 {% block extrastyle %}
 {{ block.super }}
-<link href="{% static 'admin_dashboard/css/dashboard.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'admin_dashboard/css/dashboard.css' %}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
@@ -13,8 +13,8 @@
     <div class="dashboard-kpis">
         <div class="kpi-card revenue">
             <div class="kpi-icon">
-                <svg fill="none" height="28" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24" width="28">
-                    <line x1="12" x2="12" y1="1" y2="23"></line>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
                     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                 </svg>
             </div>
@@ -22,9 +22,9 @@
                 <h3>Doanh thu thang</h3>
                 <p class="kpi-value">
                     {% if dashboard_stats.revenue.total_revenue %}
-                    {{ dashboard_stats.revenue.total_revenue|floatformat:0 }}d
+                        {{ dashboard_stats.revenue.total_revenue|floatformat:0 }}d
                     {% else %}
-                    0d
+                        0d
                     {% endif %}
                 </p>
             </div>
@@ -32,9 +32,9 @@
 
         <div class="kpi-card orders">
             <div class="kpi-icon">
-                <svg fill="none" height="28" stroke="#3b82f6" stroke-width="2" viewBox="0 0 24 24" width="28">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
                     <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                    <line x1="3" x2="21" y1="6" y2="6"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
                     <path d="M16 10a4 4 0 0 1-8 0"></path>
                 </svg>
             </div>
@@ -46,7 +46,7 @@
 
         <div class="kpi-card customers">
             <div class="kpi-icon">
-                <svg fill="none" height="28" stroke="#f59e0b" stroke-width="2" viewBox="0 0 24 24" width="28">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="9" cy="7" r="4"></circle>
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -61,9 +61,9 @@
 
         <div class="kpi-card products">
             <div class="kpi-icon">
-                <svg fill="none" height="28" stroke="#8b5cf6" stroke-width="2" viewBox="0 0 24 24" width="28">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2">
                     <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                    <line x1="7" x2="7.01" y1="7" y2="7"></line>
+                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
                 </svg>
             </div>
             <div class="kpi-content">
@@ -116,36 +116,36 @@
             <h3>Don hang gan day</h3>
             <table class="dashboard-table">
                 <thead>
-                <tr>
-                    <th>Ma don</th>
-                    <th>Khach hang</th>
-                    <th>Tong tien</th>
-                    <th>Trang thai</th>
-                </tr>
+                    <tr>
+                        <th>Ma don</th>
+                        <th>Khach hang</th>
+                        <th>Tong tien</th>
+                        <th>Trang thai</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {% for order in dashboard_stats.recent_orders %}
-                <tr>
-                    <td><a href="{% url 'admin:orders_order_change' order.id %}">{{ order.order_number }}</a></td>
-                    <td>{{ order.full_name }}</td>
-                    <td><strong>{{ order.total|floatformat:0 }}d</strong></td>
-                    <td>
+                    {% for order in dashboard_stats.recent_orders %}
+                    <tr>
+                        <td><a href="{% url 'admin:orders_order_change' order.id %}">{{ order.order_number }}</a></td>
+                        <td>{{ order.full_name }}</td>
+                        <td><strong>{{ order.total|floatformat:0 }}d</strong></td>
+                        <td>
                             <span class="status-badge status-{{ order.status }}">
                                 {{ order.status }}
                             </span>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td class="empty-message" colspan="4">Chua co don hang nao</td>
-                </tr>
-                {% endfor %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="empty-message">Chua co don hang nao</td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
-            <a class="view-all-link" href="{% url 'admin:orders_order_changelist' %}">
+            <a href="{% url 'admin:orders_order_changelist' %}" class="view-all-link">
                 Xem tat ca don hang
-                <svg fill="none" height="16" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16">
-                    <line x1="5" x2="19" y1="12" y2="12"></line>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
                     <polyline points="12 5 19 12 12 19"></polyline>
                 </svg>
             </a>
@@ -155,28 +155,28 @@
             <h3>San pham ban chay</h3>
             <table class="dashboard-table">
                 <thead>
-                <tr>
-                    <th>San pham</th>
-                    <th>Da ban</th>
-                </tr>
+                    <tr>
+                        <th>San pham</th>
+                        <th>Da ban</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {% for product in dashboard_stats.top_products %}
-                <tr>
-                    <td>{{ product.name|truncatechars:35 }}</td>
-                    <td><strong>{{ product.sold }}</strong> san pham</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td class="empty-message" colspan="2">Chua co du lieu</td>
-                </tr>
-                {% endfor %}
+                    {% for product in dashboard_stats.top_products %}
+                    <tr>
+                        <td>{{ product.name|truncatechars:35 }}</td>
+                        <td><strong>{{ product.sold }}</strong> san pham</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="empty-message">Chua co du lieu</td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
-            <a class="view-all-link" href="{% url 'admin:products_product_changelist' %}">
+            <a href="{% url 'admin:products_product_changelist' %}" class="view-all-link">
                 Xem tat ca san pham
-                <svg fill="none" height="16" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16">
-                    <line x1="5" x2="19" y1="12" y2="12"></line>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
                     <polyline points="12 5 19 12 12 19"></polyline>
                 </svg>
             </a>

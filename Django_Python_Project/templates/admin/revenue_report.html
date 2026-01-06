@@ -3,7 +3,7 @@
 
 {% block extrastyle %}
 {{ block.super }}
-<link href="{% static 'admin_dashboard/css/dashboard.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'admin_dashboard/css/dashboard.css' %}">
 <style>
     .report-container {
         padding: 0;
@@ -40,7 +40,7 @@
         padding: 12px 16px;
         border-radius: 12px;
         border: 1px solid #e2e8f0;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
     .date-filter label {
@@ -98,7 +98,7 @@
         padding: 24px;
         border-radius: 16px;
         border: 1px solid #e2e8f0;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         position: relative;
         overflow: hidden;
     }
@@ -164,7 +164,7 @@
         border: 1px solid #e2e8f0;
         padding: 24px;
         margin-bottom: 24px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
     .report-table-container h3 {
@@ -238,12 +238,8 @@
     }
 
     @keyframes spin {
-        from {
-            transform: rotate(0deg);
-        }
-        to {
-            transform: rotate(360deg);
-        }
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
     }
 
     /* Progress bar for percentages */
@@ -291,22 +287,22 @@
 <div class="report-container">
     <div class="report-header">
         <h2>
-            <svg fill="none" height="28" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="28">
-                <line x1="18" x2="18" y1="20" y2="10"></line>
-                <line x1="12" x2="12" y1="20" y2="4"></line>
-                <line x1="6" x2="6" y1="20" y2="14"></line>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
             </svg>
             Bao Cao Doanh Thu
         </h2>
         <div class="date-filter">
             <label>Tu ngay:</label>
-            <input id="start_date" type="date" value="{{ start_date }}">
+            <input type="date" id="start_date" value="{{ start_date }}">
             <label>Den ngay:</label>
-            <input id="end_date" type="date" value="{{ end_date }}">
+            <input type="date" id="end_date" value="{{ end_date }}">
             <button onclick="loadReport()">
-                <svg fill="none" height="16" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" x2="16.65" y1="21" y2="16.65"></line>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
                 Xem bao cao
             </button>
@@ -318,15 +314,15 @@
             <h4>Tong doanh thu</h4>
             <div class="value" id="total-revenue">
                 <span class="loading-placeholder">
-                    <svg fill="none" height="24" stroke="#94a3b8" stroke-width="2" viewBox="0 0 24 24" width="24">
-                        <line x1="12" x2="12" y1="2" y2="6"></line>
-                        <line x1="12" x2="12" y1="18" y2="22"></line>
-                        <line x1="4.93" x2="7.76" y1="4.93" y2="7.76"></line>
-                        <line x1="16.24" x2="19.07" y1="16.24" y2="19.07"></line>
-                        <line x1="2" x2="6" y1="12" y2="12"></line>
-                        <line x1="18" x2="22" y1="12" y2="12"></line>
-                        <line x1="4.93" x2="7.76" y1="19.07" y2="16.24"></line>
-                        <line x1="16.24" x2="19.07" y1="7.76" y2="4.93"></line>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
+                        <line x1="12" y1="2" x2="12" y2="6"></line>
+                        <line x1="12" y1="18" x2="12" y2="22"></line>
+                        <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                        <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                        <line x1="2" y1="12" x2="6" y2="12"></line>
+                        <line x1="18" y1="12" x2="22" y2="12"></line>
+                        <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                        <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
                     </svg>
                 </span>
             </div>
@@ -346,16 +342,16 @@
         <h3>Doanh thu theo phuong thuc thanh toan</h3>
         <table class="report-table">
             <thead>
-            <tr>
-                <th>Phuong thuc</th>
-                <th>Doanh thu</th>
-                <th>Ty le</th>
-            </tr>
+                <tr>
+                    <th>Phuong thuc</th>
+                    <th>Doanh thu</th>
+                    <th>Ty le</th>
+                </tr>
             </thead>
             <tbody id="payment-method-table">
-            <tr>
-                <td class="loading-placeholder" colspan="3">Dang tai du lieu...</td>
-            </tr>
+                <tr>
+                    <td colspan="3" class="loading-placeholder">Dang tai du lieu...</td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -364,69 +360,69 @@
         <h3>San pham co doanh thu cao nhat</h3>
         <table class="report-table">
             <thead>
-            <tr>
-                <th>San pham</th>
-                <th>So luong</th>
-                <th>Doanh thu</th>
-            </tr>
+                <tr>
+                    <th>San pham</th>
+                    <th>So luong</th>
+                    <th>Doanh thu</th>
+                </tr>
             </thead>
             <tbody id="top-products-table">
-            <tr>
-                <td class="loading-placeholder" colspan="3">Dang tai du lieu...</td>
-            </tr>
+                <tr>
+                    <td colspan="3" class="loading-placeholder">Dang tai du lieu...</td>
+                </tr>
             </tbody>
         </table>
     </div>
 </div>
 
 <script>
-    const paymentMethodLabels = {
-        'cod': 'Thanh toan khi nhan hang',
-        'bank_transfer': 'Chuyen khoan ngan hang',
-        'momo': 'Vi MoMo',
-        'vnpay': 'VNPay'
-    };
+const paymentMethodLabels = {
+    'cod': 'Thanh toan khi nhan hang',
+    'bank_transfer': 'Chuyen khoan ngan hang',
+    'momo': 'Vi MoMo',
+    'vnpay': 'VNPay'
+};
 
-    function formatCurrency(value) {
-        return new Intl.NumberFormat('vi-VN').format(value) + 'd';
-    }
+function formatCurrency(value) {
+    return new Intl.NumberFormat('vi-VN').format(value) + 'd';
+}
 
-    async function loadReport() {
-        const startDate = document.getElementById('start_date').value;
-        const endDate = document.getElementById('end_date').value;
+async function loadReport() {
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
 
-        // Show loading state
-        document.getElementById('total-revenue').innerHTML = '<span class="loading-placeholder">Dang tai...</span>';
+    // Show loading state
+    document.getElementById('total-revenue').innerHTML = '<span class="loading-placeholder">Dang tai...</span>';
 
-        try {
-            const response = await fetch(`/admin/api/revenue-report/?start_date=${startDate}&end_date=${endDate}`);
-            const data = await response.json();
+    try {
+        const response = await fetch(`/admin/api/revenue-report/?start_date=${startDate}&end_date=${endDate}`);
+        const data = await response.json();
 
-            // Update summary
-            document.getElementById('total-revenue').textContent = formatCurrency(data.total_revenue);
-            document.getElementById('order-count').textContent = data.order_count + ' don';
+        // Update summary
+        document.getElementById('total-revenue').textContent = formatCurrency(data.total_revenue);
+        document.getElementById('order-count').textContent = data.order_count + ' don';
 
-            const changePercent = data.comparison.change_percent;
-            const comparisonEl = document.getElementById('comparison');
-            comparisonEl.textContent = (changePercent >= 0 ? '+' : '') + changePercent.toFixed(1) + '%';
+        const changePercent = data.comparison.change_percent;
+        const comparisonEl = document.getElementById('comparison');
+        comparisonEl.textContent = (changePercent >= 0 ? '+' : '') + changePercent.toFixed(1) + '%';
 
-            const changeEl = document.getElementById('revenue-change');
-            if (changePercent >= 0) {
-                changeEl.className = 'change positive';
-                changeEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg> Tang ' + changePercent.toFixed(1) + '%';
-            } else {
-                changeEl.className = 'change negative';
-                changeEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg> Giam ' + Math.abs(changePercent).toFixed(1) + '%';
-            }
+        const changeEl = document.getElementById('revenue-change');
+        if (changePercent >= 0) {
+            changeEl.className = 'change positive';
+            changeEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg> Tang ' + changePercent.toFixed(1) + '%';
+        } else {
+            changeEl.className = 'change negative';
+            changeEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg> Giam ' + Math.abs(changePercent).toFixed(1) + '%';
+        }
 
-            // Update payment method table
-            const paymentTable = document.getElementById('payment-method-table');
-            let paymentHtml = '';
-            const totalRevenue = data.total_revenue || 1;
+        // Update payment method table
+        const paymentTable = document.getElementById('payment-method-table');
+        let paymentHtml = '';
+        const totalRevenue = data.total_revenue || 1;
 
-            for (const [method, revenue] of Object.entries(data.by_payment_method)) {
-                const percent = ((revenue / totalRevenue) * 100).toFixed(1);
-                paymentHtml += `
+        for (const [method, revenue] of Object.entries(data.by_payment_method)) {
+            const percent = ((revenue / totalRevenue) * 100).toFixed(1);
+            paymentHtml += `
                 <tr>
                     <td><strong>${paymentMethodLabels[method] || method}</strong></td>
                     <td>${formatCurrency(revenue)}</td>
@@ -440,31 +436,31 @@
                     </td>
                 </tr>
             `;
-            }
-            paymentTable.innerHTML = paymentHtml || '<tr><td colspan="3" class="loading-placeholder">Khong co du lieu</td></tr>';
+        }
+        paymentTable.innerHTML = paymentHtml || '<tr><td colspan="3" class="loading-placeholder">Khong co du lieu</td></tr>';
 
-            // Update top products table
-            const productsTable = document.getElementById('top-products-table');
-            let productsHtml = '';
+        // Update top products table
+        const productsTable = document.getElementById('top-products-table');
+        let productsHtml = '';
 
-            for (const product of data.top_products) {
-                productsHtml += `
+        for (const product of data.top_products) {
+            productsHtml += `
                 <tr>
                     <td><strong>${product.product__name}</strong></td>
                     <td>${product.quantity} san pham</td>
                     <td><strong>${formatCurrency(product.revenue)}</strong></td>
                 </tr>
             `;
-            }
-            productsTable.innerHTML = productsHtml || '<tr><td colspan="3" class="loading-placeholder">Khong co du lieu</td></tr>';
-
-        } catch (error) {
-            console.error('Error loading report:', error);
-            document.getElementById('total-revenue').textContent = 'Loi tai du lieu';
         }
-    }
+        productsTable.innerHTML = productsHtml || '<tr><td colspan="3" class="loading-placeholder">Khong co du lieu</td></tr>';
 
-    // Load report on page load
-    document.addEventListener('DOMContentLoaded', loadReport);
+    } catch (error) {
+        console.error('Error loading report:', error);
+        document.getElementById('total-revenue').textContent = 'Loi tai du lieu';
+    }
+}
+
+// Load report on page load
+document.addEventListener('DOMContentLoaded', loadReport);
 </script>
 {% endblock %}

@@ -26,8 +26,7 @@
                     <h6 class="filter-title">Danh mục</h6>
                     {% for category in categories %}
                     <div class="form-check mb-2">
-                        <input %} %}checked{% category.slug class="form-check-input"
-                               current_category== endif id="cat_{{ category.pk }}" if name="category" type="radio" value="{{ category.slug }}" {%>
+                        <input class="form-check-input" id="cat_{{ category.pk }}" name="category" type="radio" value="{{ category.slug }}" {% if current_category == category.slug %}checked{% endif %}>
                         <label class="form-check-label d-flex justify-content-between" for="cat_{{ category.pk }}">
                             {{ category.name }}
                             <span class="badge bg-light text-muted">{{ category.product_count }}</span>
@@ -42,8 +41,7 @@
                     <h6 class="filter-title">Thương hiệu</h6>
                     {% for brand in brands %}
                     <div class="form-check mb-2">
-                        <input %} %}checked{% brand.slug class="form-check-input"
-                               current_brand== endif id="brand_{{ brand.pk }}" if name="brand" type="radio" value="{{ brand.slug }}" {%>
+                        <input class="form-check-input" id="brand_{{ brand.pk }}" name="brand" type="radio" value="{{ brand.slug }}" {% if current_brand == brand.slug %}checked{% endif %}>
                         <label class="form-check-label" for="brand_{{ brand.pk }}">{{ brand.name }}</label>
                     </div>
                     {% endfor %}
@@ -87,8 +85,7 @@
                     <h6 class="filter-title">Đánh giá</h6>
                     {% for i in "54321" %}
                     <div class="form-check mb-2">
-                        <input %} %}checked{% class="form-check-input" endif
-                               i id="rating_{{ i }}" if name="rating" request.GET.rating== type="radio" value="{{ i }}" {%>
+                        <input class="form-check-input" id="rating_{{ i }}" name="rating" type="radio" value="{{ i }}" {% if request.GET.rating == i %}checked{% endif %}>
                         <label class="form-check-label" for="rating_{{ i }}">
                             {% for j in i|ljust:5 %}
                             {% if forloop.counter <= i|add:0 %}

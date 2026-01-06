@@ -91,20 +91,77 @@ def forgot_password(request):
         return redirect('products:home')
 
     if request.method == 'POST':
-        form = PasswordResetForm(request.POST)
-        if form.is_valid():
-            form.save(
-                request=request,
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
-                email_template_name='accounts/password_reset_email.html',
-                subject_template_name='accounts/password_reset_subject.txt',
-            )
-            messages.success(request, 'Nếu email tồn tại trong hệ thống, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu.')
-            return redirect('accounts:password_reset_done')
-    else:
-        form = PasswordResetForm()
+        email = request.POST.get('email', '').strip().lower()
 
-    return render(request, 'accounts/forgot_password.html', {'form': form})
+        # Validate email format
+        try:
+            validate_email(email)
+        except ValidationError:
+            messages.error(request, 'Vui lòng nhập địa chỉ email hợp lệ.')
+            return render(request, 'accounts/forgot_password.html', {'email': email})
+
+        # Check if email exists in database
+        from django.contrib.auth.models import User
+        user = User.objects.filter(email__iexact=email).first()
+
+        if not user:
+            messages.error(request, 'Email này chưa được đăng ký trong hệ thống. Vui lòng kiểm tra lại hoặc đăng ký tài khoản mới.')
+            return render(request, 'accounts/forgot_password.html', {'email': email})
+
+        # Check if user is active
+        if not user.is_active:
+            messages.error(request, 'Tài khoản này đã bị vô hiệu hóa. Vui lòng liên hệ hỗ trợ.')
+            return render(request, 'accounts/forgot_password.html', {'email': email})
+
+        # Email exists - send password reset email
+        try:
+            from django.contrib.auth.tokens import default_token_generator
+            from django.utils.http import urlsafe_base64_encode
+            from django.utils.encoding import force_bytes
+            from django.core.mail import EmailMultiAlternatives
+            from django.template.loader import render_to_string
+
+            # Generate token and uid
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+            # Build reset URL
+            protocol = 'https' if request.is_secure() else 'http'
+            domain = request.get_host()
+            reset_url = f"{protocol}://{domain}/accounts/reset/{uid}/{token}/"
+
+            # Render email content
+            context = {
+                'user': user,
+                'email': email,
+                'domain': domain,
+                'site_name': 'ElectroShop',
+                'uid': uid,
+                'token': token,
+                'protocol': protocol,
+                'reset_url': reset_url,
+            }
+
+            subject = render_to_string('accounts/password_reset_subject.txt', context).strip()
+            html_content = render_to_string('accounts/password_reset_email.html', context)
+
+            # Send email
+            from_email = settings.DEFAULT_FROM_EMAIL
+            msg = EmailMultiAlternatives(subject, '', from_email, [email])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+
+            messages.success(request, f'Chúng tôi đã gửi link đặt lại mật khẩu đến {email}. Vui lòng kiểm tra hộp thư.')
+            return redirect('accounts:password_reset_done')
+
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error sending password reset email: {e}")
+            messages.error(request, 'Có lỗi xảy ra khi gửi email. Vui lòng thử lại sau.')
+            return render(request, 'accounts/forgot_password.html', {'email': email})
+
+    return render(request, 'accounts/forgot_password.html')
 
 
 def password_reset_done(request):

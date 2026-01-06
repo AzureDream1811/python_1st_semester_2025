@@ -1,7 +1,18 @@
 # apps/reviews/sentiment.py
-import fasttext
+try:
+    import fasttext
+    FASTTEXT_AVAILABLE = True
+except ImportError:
+    fasttext = None
+    FASTTEXT_AVAILABLE = False
+    print("[WARNING] fasttext is not installed. Sentiment analysis will be disabled.")
+
 from pathlib import Path
-from ml_models.aivivn_fasttext.preprocess import PreprocessText
+
+try:
+    from ml_models.aivivn_fasttext.preprocess import PreprocessText
+except ImportError:
+    PreprocessText = None
 
 # Xác định đường dẫn model từ vị trí hiện tại
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # Django_Python_Project/
@@ -32,18 +43,23 @@ class SentimentAnalyzer:
     def _load_model(self):
         """Load FastText model"""
         try:
+            if not FASTTEXT_AVAILABLE:
+                print("[WARNING] fasttext is not available, sentiment analysis disabled")
+                self._predictor = None
+                return
+
             if not MODEL_PATH.exists():
-                print(f"⚠️  Model không tồn tại: {MODEL_PATH}")
-                print("   Hãy chạy train.py để tạo model!")
+                print(f"[WARNING] Model does not exist: {MODEL_PATH}")
+                print("   Please run train.py to create the model!")
                 self._predictor = None
                 return
 
             self._predictor = fasttext.load_model(str(MODEL_PATH))
             self._preprocess = PreprocessText()
-            print(f"✓ Đã load sentiment model từ: {MODEL_PATH}")
+            print(f"[OK] Loaded sentiment model from: {MODEL_PATH}")
 
         except Exception as e:
-            print(f"⚠️  Lỗi khi load model: {e}")
+            print(f"[WARNING] Error loading model: {e}")
             self._predictor = None
 
     def analyze(self, text: str) -> dict:
@@ -93,5 +109,5 @@ class SentimentAnalyzer:
             return {"sentiment": sentiment, "score": confidence, "label": label}
 
         except Exception as e:
-            print(f"⚠️  Lỗi khi phân tích sentiment: {e}")
+            print(f"[WARNING] Error analyzing sentiment: {e}")
             return {"sentiment": "neutral", "score": 0.0, "label": "unknown"}

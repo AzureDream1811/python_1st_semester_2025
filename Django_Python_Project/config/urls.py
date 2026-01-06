@@ -18,6 +18,9 @@ urlpatterns = [
     # Custom Admin Dashboard Panel
     path('admin-dashboard/', include('apps.admin_dashboard.urls', namespace='admin_dashboard')),
 
+    # Django Allauth for Social Login (Google, Facebook)
+    path('accounts/social/', include('allauth.urls')),
+
     # Main app URLs
     path('', include('apps.products.urls', namespace='products')),
     path('accounts/', include('apps.accounts.urls', namespace='accounts')),
