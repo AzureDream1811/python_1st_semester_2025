@@ -1,10 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Refund Detail{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<h2>Refund Detail</h2>
+
+<ul>
+    <li>Refund ID: {{ refund.id }}</li>
+    <li>Transaction ID: {{ refund.transaction.id }}</li>
+    <li>Reason: {{ refund.reason }}</li>
+    <li>Status: {{ refund.status }}</li>
+</ul>
+{% endblock %}
