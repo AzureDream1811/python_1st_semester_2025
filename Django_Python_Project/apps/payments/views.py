@@ -262,58 +262,58 @@ from django.core.paginator import Paginator
 from datetime import datetime
 
 
-@login_required
+#@login_required
 def transaction_history(request):
-    """Hiển thị lịch sử giao dịch thanh toán của người dùng"""
-    transactions = PaymentTransaction.objects.filter(
-        order__user=request.user
-    ).select_related('order').order_by('-created_at')
-
-    # Filter theo payment method
-    payment_method = request.GET.get('payment_method')
-    if payment_method:
-        transactions = transactions.filter(payment_method=payment_method)
-
-    # Filter theo status
-    status = request.GET.get('status')
-    if status:
-        transactions = transactions.filter(status=status)
-
-    # Filter theo date range
-    date_from = request.GET.get('date_from')
-    date_to = request.GET.get('date_to')
-    if date_from:
-        try:
-            date_from_obj = datetime.strptime(date_from, '%Y-%m-%d')
-            transactions = transactions.filter(created_at__date__gte=date_from_obj)
-        except ValueError:
-            pass
-    if date_to:
-        try:
-            date_to_obj = datetime.strptime(date_to, '%Y-%m-%d')
-            transactions = transactions.filter(created_at__date__lte=date_to_obj)
-        except ValueError:
-            pass
-
-    # Pagination
-    paginator = Paginator(transactions, 20)
-    page = request.GET.get('page', 1)
-    transactions = paginator.get_page(page)
-
-    # Get payment methods for filter
-    payment_methods = PaymentTransaction.PAYMENT_METHODS
-    status_choices = PaymentTransaction.STATUS_CHOICES
-
-    context = {
-        'transactions': transactions,
-        'payment_methods': payment_methods,
-        'status_choices': status_choices,
-        'current_payment_method': payment_method,
-        'current_status': status,
-        'date_from': date_from,
-        'date_to': date_to,
-    }
-    return render(request, 'payments/transaction_history.html', context)
+    # """Hiển thị lịch sử giao dịch thanh toán của người dùng"""
+    # transactions = PaymentTransaction.objects.filter(
+    #     order__user=request.user
+    # ).select_related('order').order_by('-created_at')
+    #
+    # # Filter theo payment method
+    # payment_method = request.GET.get('payment_method')
+    # if payment_method:
+    #     transactions = transactions.filter(payment_method=payment_method)
+    #
+    # # Filter theo status
+    # status = request.GET.get('status')
+    # if status:
+    #     transactions = transactions.filter(status=status)
+    #
+    # # Filter theo date range
+    # date_from = request.GET.get('date_from')
+    # date_to = request.GET.get('date_to')
+    # if date_from:
+    #     try:
+    #         date_from_obj = datetime.strptime(date_from, '%Y-%m-%d')
+    #         transactions = transactions.filter(created_at__date__gte=date_from_obj)
+    #     except ValueError:
+    #         pass
+    # if date_to:
+    #     try:
+    #         date_to_obj = datetime.strptime(date_to, '%Y-%m-%d')
+    #         transactions = transactions.filter(created_at__date__lte=date_to_obj)
+    #     except ValueError:
+    #         pass
+    #
+    # # Pagination
+    # paginator = Paginator(transactions, 20)
+    # page = request.GET.get('page', 1)
+    # transactions = paginator.get_page(page)
+    #
+    # # Get payment methods for filter
+    # payment_methods = PaymentTransaction.PAYMENT_METHODS
+    # status_choices = PaymentTransaction.STATUS_CHOICES
+    #
+    # context = {
+    #     'transactions': transactions,
+    #     'payment_methods': payment_methods,
+    #     'status_choices': status_choices,
+    #     'current_payment_method': payment_method,
+    #     'current_status': status,
+    #     'date_from': date_from,
+    #     'date_to': date_to,
+    # }
+    return render(request, 'payments/transaction_history.html')
 
 
 @login_required

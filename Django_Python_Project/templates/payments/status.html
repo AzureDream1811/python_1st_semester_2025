@@ -1,10 +1,145 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
+{% load product_tags %}
 
-</body>
-</html>
+{% block title %}Trạng thái đơn hàng - ElectroShop{% endblock %}
+
+{% block extra_css %}
+    <link href="{% static 'css/payment_status.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <div class="status-container py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card status-header-card mb-4 border-0 shadow-lg overflow-hidden">
+                        <div class="card-body p-5 text-center text-white {% if transaction.status == 'success' %}bg-success-gradient{% elif transaction.status == 'failed' or transaction.status == 'cancelled' %}bg-danger-gradient{% else %}bg-warning-gradient{% endif %}">
+                            <div class="status-icon-circle mb-3 shadow">
+                                {% if transaction.status == 'success' %}
+                                    <i class="bi bi-check-lg bounce-in"></i>
+                                {% elif transaction.status == 'failed' or transaction.status == 'cancelled' %}
+                                    <i class="bi bi-x-lg shake"></i>
+                                {% else %}
+                                    <i class="bi bi-hourglass-split spin-slow"></i>
+                                {% endif %}
+                            </div>
+                            <h2 class="fw-bold mb-1">Thanh toán {{ transaction.get_status_display }}</h2>
+                            <p class="mb-0 opacity-75">Mã đơn hàng: <span
+                                    class="fw-bold">#{{ order.order_number }}</span> | Giao
+                                dịch: {{ transaction.transaction_id }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-7">
+                            <div class="card shadow-sm border-0 h-100">
+                                <div class="card-header bg-white py-3 border-bottom">
+                                    <h5 class="mb-0 fw-bold d-flex align-items-center">
+                                        <i class="bi bi-cart-check text-primary me-2"></i>Sản phẩm đã đặt
+                                    </h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table align-middle mb-0">
+                                            <thead class="table-light">
+                                            <tr class="small text-uppercase fw-bold text-muted">
+                                                <th class="ps-4 py-3" style="width: 100px;">Ảnh</th>
+                                                <th class="py-3">Tên</th>
+                                                <th class="text-center py-3">Số lượng</th>
+                                                <th class="text-end pe-4 py-3">Thành tiền</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for item in order.items.all %}
+                                                <tr class="product-row">
+                                                    <td class="ps-4 py-3">
+                                                        <div class="product-img-wrapper">
+                                                            <img src="{{ item.product.image.url }}"
+                                                                 class="img-main rounded-3 shadow-sm"
+                                                                 alt="{{ item.product_name }}">
+                                                        </div>
+                                                    </td>
+
+                                                    <td class="py-3">
+                                                        <div class="product-info">
+                                                            <div class="fw-bold small text-dark mb-1">{{ item.product_name }}</div>
+                                                            <div class="text-muted extra-small">{{ item.price|currency }}</div>
+                                                        </div>
+                                                    </td>
+
+                                                    <td class="text-center py-3">
+                                                        <span class="badge bg-light text-dark border fw-bold">x{{ item.quantity }}</span>
+                                                    </td>
+
+                                                    <td class="text-end pe-4 py-3">
+                                                        <span class="fw-bold text-primary">{{ item.total_price|currency }}</span>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5">
+                            <div class="card shadow-sm border-0 mb-4">
+                                <div class="card-body p-4">
+                                    <h6 class="text-muted small text-uppercase fw-bold mb-3 d-flex align-items-center">
+                                        <i class="bi bi-geo-alt me-2"></i>Địa chỉ nhận hàng
+                                    </h6>
+                                    <div class="delivery-info">
+                                        <p class="mb-1 fw-bold text-dark">{{ order.full_name }}</p>
+                                        <p class="mb-1 small text-muted"><i
+                                                class="bi bi-telephone me-2"></i>{{ order.phone }}</p>
+                                        <p class="mb-0 small text-muted"><i
+                                                class="bi bi-map me-2"></i>{{ order.address }}, {{ order.ward }}, {{ order.district }}, {{ order.city }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card shadow-sm border-0 mb-4">
+                                <div class="card-body p-4">
+                                    <h6 class="text-muted small text-uppercase fw-bold mb-3">Tóm tắt đơn hàng</h6>
+                                    <div class="d-flex justify-content-between mb-2 small">
+                                        <span class="text-muted">Tiền hàng:</span>
+                                        <span class="fw-semibold">{{ order.subtotal|currency }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2 small">
+                                        <span class="text-muted">Phí vận chuyển:</span>
+                                        <span class="fw-semibold text-success">+ {{ order.shipping_fee|currency }}</span>
+                                    </div>
+                                    {% if order.discount > 0 %}
+                                        <div class="d-flex justify-content-between mb-2 small">
+                                            <span class="text-muted">Giảm giá:</span>
+                                            <span class="text-danger fw-semibold">- {{ order.discount|currency }}</span>
+                                        </div>
+                                    {% endif %}
+                                    <hr class="my-3 border-dashed">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold text-dark">Tổng cộng:</span>
+                                        <span class="fs-4 fw-bold text-primary">{{ order.total|currency }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-3">
+                                <a href="{% url 'products:home' %}" class="btn btn-primary-custom py-3 shadow-sm">
+                                    <i class="bi bi-house-door-fill me-2"></i>Quay lại trang chủ
+                                </a>
+                                {% if transaction.status == 'success' %}
+                                    <a href="{% url 'payments:refund_request' %}" class="btn btn-outline-custom">
+                                        <i class="bi bi-arrow-return-left me-2"></i>Gửi yêu cầu hoàn tiền
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
