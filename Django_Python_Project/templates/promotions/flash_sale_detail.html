@@ -1,10 +1,154 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load product_tags %}
 
-</body>
-</html>
+{% block title %}{{ flash_sale.product.name }} - Flash Sale{% endblock %}
+
+{% block extra_css %}
+    <link href="{% static 'css/promotions.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card">
+                {% if flash_sale.product.image %}
+                <img class="card-img-top p-4" style="object-fit:contain; max-height:420px;" src="{{ flash_sale.product.image.url }}" alt="{{ flash_sale.product.name }}">
+                {% else %}
+                <div class="p-5 d-flex align-items-center justify-content-center bg-light">
+                    <i class="bi bi-image display-2 text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h3 class="fw-bold">{{ flash_sale.product.name }}</h3>
+                    <p class="text-muted mb-2">SKU: {{ flash_sale.product.sku }}</p>
+                    <div class="mb-3">
+                        <span class="h4 text-danger me-2">{{ flash_sale.sale_price|currency }}</span>
+                        <span class="text-muted text-decoration-line-through">{{ flash_sale.product.price|currency }}</span>
+                        <span class="badge bg-warning text-dark ms-2">-{{ flash_sale.discount_percentage }}%</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-muted">Thời gian còn lại:</small>
+                        <div class="d-flex align-items-center mt-1">
+                            <div class="countdown-item me-3">
+                                <span class="countdown-value h4" id="detail_hours">00</span>
+                                <div class="small text-muted">Giờ</div>
+                            </div>
+                            <div class="countdown-item me-3">
+                                <span class="countdown-value h4" id="detail_minutes">00</span>
+                                <div class="small text-muted">Phút</div>
+                            </div>
+                            <div class="countdown-item">
+                                <span class="countdown-value h4" id="detail_seconds">00</span>
+                                <div class="small text-muted">Giây</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-muted">Đã bán: {{ flash_sale.sold_count }}</small>
+                            <small class="text-danger">Còn lại: {{ flash_sale.remaining_quantity }}</small>
+                        </div>
+                        <div class="progress" style="height:8px;">
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: {% widthratio flash_sale.sold_count flash_sale.quantity_limit 100 %}%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        {% if flash_sale.is_available %}
+                        <form method="post" action="{% url 'cart:add' flash_sale.product.pk %}" class="d-flex gap-2">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" min="1" max="{{ flash_sale.remaining_quantity }}" value="1" class="form-control w-auto">
+                            <button class="btn btn-danger" type="submit"><i class="bi bi-lightning-charge-fill me-1"></i>Mua ngay</button>
+                        </form>
+                        {% else %}
+                        <div>
+                            {% if not flash_sale.is_active or now > flash_sale.end_time %}
+                            <button class="btn btn-secondary" disabled><i class="bi bi-x-circle me-1"></i>Đã kết thúc</button>
+                            {% elif flash_sale.sold_count >= flash_sale.quantity_limit %}
+                            <button class="btn btn-secondary" disabled><i class="bi bi-x-circle me-1"></i>Hết hàng</button>
+                            {% else %}
+                            <button class="btn btn-secondary" disabled>Không khả dụng</button>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <h6>Mô tả sản phẩm</h6>
+                        <div class="text-muted">{{ flash_sale.product.short_description|default:flash_sale.product.description|linebreaksbr }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="mb-3">Thông tin Flash Sale</h5>
+                    <ul class="list-unstyled">
+                        <li><strong>Bắt đầu:</strong> {{ flash_sale.start_time|date:"d/m/Y H:i" }}</li>
+                        <li><strong>Kết thúc:</strong> {{ flash_sale.end_time|date:"d/m/Y H:i" }}</li>
+                        <li><strong>Tổng lượng:</strong> {{ flash_sale.quantity_limit }}</li>
+                        <li><strong>Đã bán:</strong> {{ flash_sale.sold_count }}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="mb-3">Sản phẩm liên quan</h5>
+                    {% comment %} Simple related products: show product's category top 3 {% endcomment %}
+                    <div class="row g-3">
+                        {% for item in flash_sale.product.category.products.all|slice:":3" %}
+                        <div class="col-4">
+                            <a href="{{ item.get_absolute_url }}" class="text-decoration-none text-dark">
+                                {% if item.image %}
+                                <img src="{{ item.image.url }}" class="img-fluid rounded" style="height:60px;object-fit:contain;" alt="{{ item.name }}">
+                                {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center" style="height:60px;"><i class="bi bi-image text-muted"></i></div>
+                                {% endif %}
+                                <div class="small mt-1">{{ item.name|truncatechars:30 }}</div>
+                            </a>
+                        </div>
+                        {% empty %}
+                        <div class="col-12 text-muted">Không có sản phẩm liên quan</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        const end = new Date("{{ flash_sale.end_time|date:'c' }}");
+
+        function update() {
+            const now = new Date();
+            const diff = end - now;
+            if (diff <= 0) {
+                document.getElementById('detail_hours').textContent = '00';
+                document.getElementById('detail_minutes').textContent = '00';
+                document.getElementById('detail_seconds').textContent = '00';
+                return;
+            }
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('detail_hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('detail_minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('detail_seconds').textContent = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(update, 1000);
+        update();
+    })();
+</script>
+{% endblock %}

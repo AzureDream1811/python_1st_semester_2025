@@ -1,0 +1,58 @@
+/* Flash sale specific styles */
+
+.flash-sale-banner {
+    background: linear-gradient(90deg, rgba(255,245,238,1) 0%, rgba(255,250,240,1) 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.discount-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(135deg,#ef4444 0%,#fb923c 100%);
+    color: white;
+    padding: 0.35rem 0.6rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    z-index: 3;
+}
+
+.countdown-timer,
+.countdown-item {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.countdown-item .countdown-value,
+.countdown-value.h4 {
+    display: inline-block;
+    min-width: 56px;
+    text-align: center;
+    background: #fff;
+    border-radius: 8px;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid rgba(0,0,0,0.06);
+}
+
+.countdown-mini {
+    font-weight: 600;
+}
+
+.card.product-card { 
+    position: relative;
+    overflow: visible;
+}
+
+.product-image {
+    height: 220px;
+    object-fit: contain;
+    background: #fff;
+}
+
+@media (max-width: 768px) {
+    .product-image { height: 160px; }
+    .countdown-item .countdown-value { min-width: 46px; }
+}
