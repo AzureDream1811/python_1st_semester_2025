@@ -34,6 +34,7 @@ def add_review(request, product_slug):
         messages.warning(request, 'Bạn đã đánh giá sản phẩm này rồi.')
         return redirect('products:detail', slug=product_slug)
 
+    # Validate input
     rating = int(request.POST.get('rating', 5))
     comment = request.POST.get('comment', '').strip()
 
@@ -57,22 +58,31 @@ def add_review(request, product_slug):
     if purchased_items.exists():
         review.order_item = purchased_items.first()
 
-    # Phân tích sentiment
-    analyzer = SentimentAnalyzer()
-    result = analyzer.analyze(comment)
-    review.sentiment = result['sentiment']
-    review.sentiment_score = result['score']
+    # ✅ PHÂN TÍCH SENTIMENT
+    try:
+        analyzer = SentimentAnalyzer()
+        result = analyzer.analyze(comment)
+        review.sentiment = result['sentiment']
+        review.sentiment_score = result['score']
+    except Exception as e:
+        # Nếu sentiment analysis lỗi, vẫn cho phép tạo review
+        print(f"⚠️  Lỗi sentiment analysis: {e}")
+        review.sentiment = 'neutral'
+        review.sentiment_score = 0.0
 
-    # Handle images
-    for i, field in enumerate(['image1', 'image2', 'image3'], 1):
+    # ✅ SỬA: Handle images đúng cách
+    for i in range(1, 4):  # 1, 2, 3
         image = request.FILES.get(f'image{i}')
         if image:
-            setattr(review, field, image)
+            setattr(review, f'image{i}', image)
 
     review.save()
 
     # Update product sentiment stats
-    product.update_sentiment_stats()
+    try:
+        product.update_sentiment_stats()
+    except Exception as e:
+        print(f"⚠️  Lỗi update sentiment stats: {e}")
 
     messages.success(request, 'Cảm ơn bạn đã đánh giá sản phẩm!')
     return redirect('products:detail', slug=product_slug)
