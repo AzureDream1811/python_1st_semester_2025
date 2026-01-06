@@ -146,6 +146,13 @@
   color: var(--danger);
 }
 
+/* Style cho nút sửa/xóa review */
+  .btn-link.text-primary:hover,
+  .btn-link.text-danger:hover {
+    text-decoration: none;
+    opacity: 0.8;
+  }
+
 /* Price Box */
 .price-box {
   background: linear-gradient(135deg, var(--primary-50) 0%, var(--white) 100%);
