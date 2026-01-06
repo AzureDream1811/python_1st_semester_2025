@@ -1,10 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Bank Transfer{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<h2>Bank Transfer Payment</h2>
+<p>Amount: <strong>{{ amount }}</strong></p>
+
+<p>Please transfer to the following bank account:</p>
+<ul>
+    <li>Bank: {{ bank_name }}</li>
+    <li>Account Number: {{ account_number }}</li>
+    <li>Account Name: {{ account_name }}</li>
+</ul>
+
+<a href="{% url 'payment_status' %}" class="btn btn-primary">I have transferred</a>
+{% endblock %}
