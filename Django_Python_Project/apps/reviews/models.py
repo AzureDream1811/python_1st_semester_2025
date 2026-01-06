@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from apps.products.models import Product
 from apps.orders.models import OrderItem
+from typing import Tuple, Dict
 
 
 class Review(models.Model):
@@ -61,8 +62,8 @@ class Review(models.Model):
     )
     sentiment_score = models.FloatField(
         default=0,
-        validators=[MinValueValidator(-1), MaxValueValidator(1)],
-        verbose_name='Điểm sentiment'
+        validators=[MinValueValidator(0), MaxValueValidator(1)],
+        verbose_name='Độ tin cậy dự đoán'
     )
 
     # Hình ảnh đánh giá
@@ -106,27 +107,26 @@ class Review(models.Model):
         verbose_name = 'Đánh giá'
         verbose_name_plural = 'Đánh giá'
         ordering = ['-created_at']
-        unique_together = ['product', 'user', 'order_item']
+        unique_together = ['product', 'user']
 
     def __str__(self):
         return f"{self.user.email} - {self.product.name} ({self.rating} sao)"
 
     def save(self, *args, **kwargs):
-        # Kiểm tra verified purchase
+        """Kiểm tra verified purchase trước khi save"""
         if self.order_item:
             self.is_verified_purchase = True
 
-        # Xử lý sentiment nếu có comment
-        if self.comment and not self.sentiment:
-            self.analyze_sentiment()
-
         super().save(*args, **kwargs)
 
-        # Cập nhật sentiment cho sản phẩm
+        # Cập nhật sentiment stats cho product
         self.product.update_sentiment_stats()
 
     def analyze_sentiment(self):
-        """Phân tích sentiment cho review"""
+        """
+        Phân tích sentiment cho review
+        Method này để gọi thủ công nếu cần
+        """
         from .sentiment import SentimentAnalyzer
 
         analyzer = SentimentAnalyzer()
@@ -134,7 +134,6 @@ class Review(models.Model):
 
         self.sentiment = result['sentiment']
         self.sentiment_score = result['score']
-        # processed_text được sử dụng nội bộ, không lưu vào DB
 
     def get_images(self):
         """Lấy danh sách hình ảnh"""
@@ -153,6 +152,16 @@ class Review(models.Model):
             'neutral': 'secondary',
         }
         return colors.get(self.sentiment, 'secondary')
+    
+    @property
+    def sentiment_icon(self):
+        """Icon hiển thị sentiment"""
+        icons = {
+            'positive': '😊',
+            'negative': '😞',
+            'neutral': '😐',
+        }
+        return icons.get(self.sentiment, '😐')
 
 
 class ReviewHelpful(models.Model):
@@ -181,14 +190,25 @@ class ReviewHelpful(models.Model):
         return f"{self.user.email} - Review #{self.review.pk}"
 
     def save(self, *args, **kwargs):
+        """
+        Cập nhật số lượt hữu ích sau khi lưu review hữu ích
+        """
         super().save(*args, **kwargs)
         # Cập nhật số lượt hữu ích
-        self.review.helpful_count = self.review.helpful_votes.count()
+        self.review.helpful_count = self.review.helpful_votes.count()  # type: ignore
         self.review.save(update_fields=['helpful_count'])
 
-    def delete(self, *args, **kwargs):
+    def delete(self, *args, **kwargs) -> Tuple[int, Dict[str, int]]:
+        """
+        ✅ SỬA: Override delete() với đúng return type
+        """
         review = self.review
-        super().delete(*args, **kwargs)
+        # Gọi delete của parent và lưu kết quả
+        result = super().delete(*args, **kwargs)
+        
         # Cập nhật số lượt hữu ích
-        review.helpful_count = review.helpful_votes.count()
+        review.helpful_count = review.helpful_votes.count()  # type: ignore
         review.save(update_fields=['helpful_count'])
+        
+        # Return kết quả từ parent delete
+        return result
