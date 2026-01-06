@@ -1,5 +1,4 @@
 {% extends 'admin_dashboard/base.html' %}
-{% load product_tags %}
 
 {% block title %}Quản lý đơn hàng{% endblock %}
 
@@ -55,7 +54,7 @@
                     <td><strong>{{ order.order_number }}</strong></td>
                     <td>{{ order.full_name }}</td>
                     <td>{{ order.phone }}</td>
-                    <td>{{ order.total|currency }}</td>
+                    <td>{{ order.total|floatformat:0 }}đ</td>
                     <td>
                             <span class="badge bg-{% if order.payment_status == 'paid' %}success{% elif order.payment_status == 'failed' %}danger{% else %}warning{% endif %}">
                                 {{ order.get_payment_status_display }}

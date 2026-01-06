@@ -1,6 +1,5 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
-{% load product_tags %}
 
 {% block extrastyle %}
 {{ block.super }}
@@ -23,9 +22,9 @@
                 <h3>Doanh thu thang</h3>
                 <p class="kpi-value">
                     {% if dashboard_stats.revenue.total_revenue %}
-                    {{ dashboard_stats.revenue.total_revenue|currency }}
+                    {{ dashboard_stats.revenue.total_revenue|floatformat:0 }}d
                     {% else %}
-                    0 ₫
+                    0d
                     {% endif %}
                 </p>
             </div>
@@ -129,7 +128,7 @@
                 <tr>
                     <td><a href="{% url 'admin:orders_order_change' order.id %}">{{ order.order_number }}</a></td>
                     <td>{{ order.full_name }}</td>
-                    <td><strong>{{ order.total|currency }}</strong></td>
+                    <td><strong>{{ order.total|floatformat:0 }}d</strong></td>
                     <td>
                             <span class="status-badge status-{{ order.status }}">
                                 {{ order.status }}
@@ -190,6 +189,5 @@
     {% include "admin/app_list.html" %}
 </div>
 
-<!-- Updated script path to new admin-charts.js file -->
-<script src="{% static 'admin_dashboard/js/admin-charts.js' %}"></script>
+<script src="{% static 'admin_dashboard/js/charts.js' %}"></script>
 {% endblock %}

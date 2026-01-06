@@ -151,12 +151,9 @@
                                         <label for="gender">Giới tính</label>
                                         <select disabled id="gender" name="gender">
                                             <option value="">Chọn giới tính</option>
-                                            <option if user.profile.gender== value="male" {%
-                                            'male' %}selected{% endif %}>Nam</option>
-                                            <option if user.profile.gender== value="female" {%
-                                            'female' %}selected{% endif %}>Nữ</option>
-                                            <option if user.profile.gender== value="other" {%
-                                            'other' %}selected{% endif %}>Khác</option>
+                                            <option value="male" {% if user.profile.gender == 'male' %}selected{% endif %}>Nam</option>
+                                            <option value="female" {% if user.profile.gender == 'female' %}selected{% endif %}>Nữ</option>
+                                            <option value="other" {% if user.profile.gender == 'other' %}selected{% endif %}>Khác</option>
                                         </select>
                                     </div>
                                 </div>

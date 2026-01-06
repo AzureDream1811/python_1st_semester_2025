@@ -1,10 +1,115 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}Địa chỉ của tôi - ElectroShop{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                             style="width: 50px; height: 50px;">
+                            <i class="bi bi-person-fill fs-4"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="mb-0">{{ user.get_full_name|default:user.username }}</h6>
+                            <small class="text-muted">{{ user.email }}</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{% url 'accounts:profile' %}">
+                            <i class="bi bi-person me-2"></i>Thông tin cá nhân
+                        </a>
+                        <a class="nav-link active" href="{% url 'accounts:address_list' %}">
+                            <i class="bi bi-geo-alt me-2"></i>Địa chỉ giao hàng
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:card_list' %}">
+                            <i class="bi bi-credit-card me-2"></i>Thẻ thanh toán
+                        </a>
+                        <a class="nav-link" href="{% url 'orders:list' %}">
+                            <i class="bi bi-bag me-2"></i>Đơn hàng của tôi
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-geo-alt me-2 text-primary"></i>Địa chỉ giao hàng
+                    </h5>
+                    <a class="btn btn-primary btn-sm" href="{% url 'accounts:address_create' %}">
+                        <i class="bi bi-plus-lg me-1"></i>Thêm địa chỉ
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if addresses %}
+                    <div class="row g-3">
+                        {% for address in addresses %}
+                        <div class="col-md-6">
+                            <div class="card h-100 {% if address.is_default %}border-primary{% endif %}">
+                                <div class="card-body">
+                                    {% if address.is_default %}
+                                    <span class="badge bg-primary mb-2">Mặc định</span>
+                                    {% endif %}
+                                    <h6 class="card-title">{{ address.full_name }}</h6>
+                                    <p class="card-text text-muted small mb-1">
+                                        <i class="bi bi-telephone me-1"></i>{{ address.phone }}
+                                    </p>
+                                    <p class="card-text small">
+                                        {{ address.address }}<br>
+                                        {% if address.ward %}{{ address.ward }}, {% endif %}
+                                        {{ address.district }}, {{ address.province }}
+                                    </p>
+                                </div>
+                                <div class="card-footer bg-white border-top-0">
+                                    <div class="btn-group btn-group-sm">
+                                        <a class="btn btn-outline-primary"
+                                           href="{% url 'accounts:address_edit' address.id %}">
+                                            <i class="bi bi-pencil"></i> Sửa
+                                        </a>
+                                        {% if not address.is_default %}
+                                        <form action="{% url 'accounts:address_set_default' address.id %}" class="d-inline"
+                                              method="post">
+                                            {% csrf_token %}
+                                            <button class="btn btn-outline-success" type="submit">
+                                                <i class="bi bi-star"></i> Mặc định
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                        <form action="{% url 'accounts:address_delete' address.id %}" class="d-inline"
+                                              method="post"
+                                              onsubmit="return confirm('Bạn có chắc muốn xóa địa chỉ này?')">
+                                            {% csrf_token %}
+                                            <button class="btn btn-outline-danger" type="submit">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-geo-alt text-muted" style="font-size: 4rem;"></i>
+                        <p class="text-muted mt-3">Bạn chưa có địa chỉ nào</p>
+                        <a class="btn btn-primary" href="{% url 'accounts:address_create' %}">
+                            <i class="bi bi-plus-lg me-1"></i>Thêm địa chỉ mới
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

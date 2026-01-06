@@ -1,5 +1,4 @@
 {% extends 'admin_dashboard/base.html' %}
-{% load product_tags %}
 
 {% block title %}Quản lý sản phẩm{% endblock %}
 
@@ -61,11 +60,11 @@
                     <td>{{ product.category.name|default:"-" }}</td>
                     <td>
                         {% if product.sale_price %}
-                        <del class="text-muted">{{ product.price|currency }}</del>
+                        <del class="text-muted">{{ product.price|floatformat:0 }}đ</del>
                         <br>
-                        <span class="text-danger">{{ product.sale_price|currency }}</span>
+                        <span class="text-danger">{{ product.sale_price|floatformat:0 }}đ</span>
                         {% else %}
-                        {{ product.price|currency }}
+                        {{ product.price|floatformat:0 }}đ
                         {% endif %}
                     </td>
                     <td>

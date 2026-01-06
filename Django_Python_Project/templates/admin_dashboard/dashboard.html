@@ -1,6 +1,5 @@
 {% extends 'admin_dashboard/base.html' %}
 {% load static %}
-{% load product_tags %}
 
 {% block title %}Dashboard{% endblock %}
 
@@ -15,7 +14,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-subtitle mb-2">Doanh thu tháng</h6>
-                        <h3 class="card-title mb-0">{{ stats.monthly_revenue|default:0|currency }}</h3>
+                        <h3 class="card-title mb-0">{{ stats.monthly_revenue|default:0|floatformat:0 }}đ</h3>
                     </div>
                     <div class="align-self-center">
                         <i class="bi bi-currency-dollar fs-1 opacity-50"></i>
@@ -118,7 +117,7 @@
                 <tr>
                     <td><a href="{% url 'admin_dashboard:order_detail' order.pk %}">{{ order.order_number }}</a></td>
                     <td>{{ order.full_name }}</td>
-                    <td>{{ order.total|currency }}</td>
+                    <td>{{ order.total|floatformat:0 }}đ</td>
                     <td>
                             <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'cancelled' %}danger{% elif order.status == 'pending' %}warning{% else %}info{% endif %}">
                                 {{ order.get_status_display }}

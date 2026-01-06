@@ -126,24 +126,12 @@
                         <label class="text-muted me-2">Sắp xếp:</label>
                         <select class="form-select form-select-sm" onchange="location = this.value;"
                                 style="width: auto;">
-                            <option current_sort==
-                                    if value="?sort=-created_at{% if current_category %}&category={{ current_category }}{% endif %}" {%
-                            '-created_at' or not current_sort %}selected{% endif %}>Mới nhất</option>
-                            <option current_sort==
-                                    if value="?sort=price{% if current_category %}&category={{ current_category }}{% endif %}" {%
-                            'price' %}selected{% endif %}>Giá thấp → cao</option>
-                            <option current_sort==
-                                    if value="?sort=-price{% if current_category %}&category={{ current_category }}{% endif %}" {%
-                            '-price' %}selected{% endif %}>Giá cao → thấp</option>
-                            <option current_sort==
-                                    if value="?sort=-sold{% if current_category %}&category={{ current_category }}{% endif %}" {%
-                            '-sold' %}selected{% endif %}>Bán chạy nhất</option>
-                            <option current_sort==
-                                    if value="?sort=-average_rating{% if current_category %}&category={{ current_category }}{% endif %}" {%
-                            '-average_rating' %}selected{% endif %}>Đánh giá cao</option>
-                            <option current_sort==
-                                    if value="?sort=name{% if current_category %}&category={{ current_category }}{% endif %}" {%
-                            'name' %}selected{% endif %}>Tên A-Z</option>
+                            <option value="?sort=-created_at{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == '-created_at' or not current_sort %}selected{% endif %}>Mới nhất</option>
+                            <option value="?sort=price{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == 'price' %}selected{% endif %}>Giá thấp → cao</option>
+                            <option value="?sort=-price{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == '-price' %}selected{% endif %}>Giá cao → thấp</option>
+                            <option value="?sort=-sold{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == '-sold' %}selected{% endif %}>Bán chạy nhất</option>
+                            <option value="?sort=-average_rating{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == '-average_rating' %}selected{% endif %}>Đánh giá cao</option>
+                            <option value="?sort=name{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == 'name' %}selected{% endif %}>Tên A-Z</option>
                         </select>
                     </div>
                 </div>

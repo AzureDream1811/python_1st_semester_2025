@@ -1,5 +1,4 @@
 {% extends 'admin_dashboard/base.html' %}
-{% load product_tags %}
 
 {% block title %}Quản lý Voucher{% endblock %}
 
@@ -35,7 +34,7 @@
                     {% if voucher.discount_type == 'percentage' %}
                     {{ voucher.discount_value }}%
                     {% else %}
-                    {{ voucher.discount_value|currency }}
+                    {{ voucher.discount_value|floatformat:0 }}đ
                     {% endif %}
                 </td>
                 <td>{{ voucher.used_count }}/{{ voucher.usage_limit|default:"∞" }}</td>

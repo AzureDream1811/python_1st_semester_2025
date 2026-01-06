@@ -1,10 +1,194 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}{% if is_edit %}Sửa{% else %}Thêm{% endif %} địa chỉ - ElectroShop{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-geo-alt me-2 text-primary"></i>
+                        {% if is_edit %}Sửa địa chỉ{% else %}Thêm địa chỉ mới{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="addressForm" method="post">
+                        {% csrf_token %}
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Họ tên người nhận <span class="text-danger">*</span></label>
+                                <input class="form-control" name="full_name" required
+                                       type="text" value="{% if address %}{{ address.full_name }}{% endif %}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                                <input class="form-control" name="phone" required
+                                       type="tel" value="{% if address %}{{ address.phone }}{% endif %}">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Địa chỉ chi tiết <span class="text-danger">*</span></label>
+                                <input class="form-control" name="address" placeholder="Số nhà, tên đường"
+                                       required
+                                       type="text" value="{% if address %}{{ address.address }}{% endif %}">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                                <select class="form-select" id="provinceSelect" name="province_code" required>
+                                    <option value="">-- Chọn Tỉnh/Thành phố --</option>
+                                    {% for p in provinces %}
+                                    <option %} %}selected{%
+                                            address address.province_code== and data-name="{{ p.name }}" endif if p.code value="{{ p.code }}" {%>
+                                        {{ p.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <input id="provinceName" name="province" type="hidden"
+                                       value="{% if address %}{{ address.province }}{% endif %}">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Quận/Huyện <span class="text-danger">*</span></label>
+                                <select class="form-select" id="districtSelect" name="district_code" required>
+                                    <option value="">-- Chọn Quận/Huyện --</option>
+                                    {% for d in districts %}
+                                    <option %} %}selected{%
+                                            address address.district_code== and d.code data-name="{{ d.name }}" endif if value="{{ d.code }}" {%>
+                                        {{ d.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <input id="districtName" name="district" type="hidden"
+                                       value="{% if address %}{{ address.district }}{% endif %}">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Phường/Xã</label>
+                                <select class="form-select" id="wardSelect" name="ward_code">
+                                    <option value="">-- Chọn Phường/Xã --</option>
+                                    {% for w in wards %}
+                                    <option %} %}selected{%
+                                            address address.ward_code== and data-name="{{ w.name }}" endif if value="{{ w.code }}" w.code {%>
+                                        {{ w.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <input id="wardName" name="ward" type="hidden"
+                                       value="{% if address %}{{ address.ward }}{% endif %}">
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input %} %}checked{% address address.is_default
+                                           and class="form-check-input" endif id="isDefault" if name="is_default" type="checkbox" {%>
+                                    <label class="form-check-label" for="isDefault">
+                                        Đặt làm địa chỉ mặc định
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 d-flex gap-2">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-check-lg me-1"></i>
+                                {% if is_edit %}Cập nhật{% else %}Thêm địa chỉ{% endif %}
+                            </button>
+                            <a class="btn btn-outline-secondary" href="{% url 'accounts:address_list' %}">
+                                Hủy
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const provinceSelect = document.getElementById('provinceSelect');
+        const districtSelect = document.getElementById('districtSelect');
+        const wardSelect = document.getElementById('wardSelect');
+
+        const provinceName = document.getElementById('provinceName');
+        const districtName = document.getElementById('districtName');
+        const wardName = document.getElementById('wardName');
+
+        // Update hidden name fields when selection changes
+        function updateHiddenName(select, hiddenInput) {
+            const selected = select.options[select.selectedIndex];
+            hiddenInput.value = selected ? selected.dataset.name || '' : '';
+        }
+
+        // Fetch districts when province changes
+        provinceSelect.addEventListener('change', async function () {
+            const code = this.value;
+            updateHiddenName(this, provinceName);
+
+            // Reset district and ward
+            districtSelect.innerHTML = '<option value="">-- Chọn Quận/Huyện --</option>';
+            wardSelect.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>';
+            districtName.value = '';
+            wardName.value = '';
+
+            if (!code) return;
+
+            try {
+                const response = await fetch(`/accounts/api/districts/${code}/`);
+                const data = await response.json();
+
+                data.districts.forEach(d => {
+                    const option = document.createElement('option');
+                    option.value = d.code;
+                    option.textContent = d.name;
+                    option.dataset.name = d.name;
+                    districtSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching districts:', error);
+            }
+        });
+
+        // Fetch wards when district changes
+        districtSelect.addEventListener('change', async function () {
+            const code = this.value;
+            updateHiddenName(this, districtName);
+
+            // Reset ward
+            wardSelect.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>';
+            wardName.value = '';
+
+            if (!code) return;
+
+            try {
+                const response = await fetch(`/accounts/api/wards/${code}/`);
+                const data = await response.json();
+
+                data.wards.forEach(w => {
+                    const option = document.createElement('option');
+                    option.value = w.code;
+                    option.textContent = w.name;
+                    option.dataset.name = w.name;
+                    wardSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching wards:', error);
+            }
+        });
+
+        // Update ward name when selection changes
+        wardSelect.addEventListener('change', function () {
+            updateHiddenName(this, wardName);
+        });
+
+        // Initialize hidden names if editing
+        updateHiddenName(provinceSelect, provinceName);
+        updateHiddenName(districtSelect, districtName);
+        updateHiddenName(wardSelect, wardName);
+    });
+</script>
+{% endblock %}

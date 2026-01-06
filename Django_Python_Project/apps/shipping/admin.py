@@ -20,7 +20,7 @@ class CarrierConfigAdmin(admin.ModelAdmin):
     Cấu hình API key, webhook cho các đơn vị: GHN, GHTK, VNPost, J&T...
     """
     # Các cột hiển thị
-    list_display = ['carrier', 'name', 'is_active', 'is_default', 'created_at']
+    list_display = ['carrier', 'name', 'is_active', 'is_default']
 
     # Bộ lọc
     list_filter = ['is_active', 'is_default', 'carrier']

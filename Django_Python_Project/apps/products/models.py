@@ -279,7 +279,7 @@ class FlashSale(models.Model):
     """Model cho sản phẩm Flash Sale"""
 
     name = models.CharField(max_length=200, verbose_name='Tên Flash Sale')
-    products = models.ManyToManyField(Product, related_name='flash_sales', verbose_name='Sản phẩm')
+    products = models.ManyToManyField(Product, related_name='products_flash_sales', verbose_name='Sản phẩm')
     discount_percent = models.PositiveIntegerField(verbose_name='Phần trăm giảm giá')
     start_time = models.DateTimeField(verbose_name='Thời gian bắt đầu')
     end_time = models.DateTimeField(verbose_name='Thời gian kết thúc')

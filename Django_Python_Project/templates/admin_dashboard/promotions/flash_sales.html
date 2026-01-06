@@ -1,5 +1,4 @@
 {% extends 'admin_dashboard/base.html' %}
-{% load product_tags %}
 
 {% block title %}Quản lý Flash Sale{% endblock %}
 
@@ -28,7 +27,7 @@
             {% for fs in flash_sales %}
             <tr>
                 <td>{{ fs.product.name|truncatechars:40 }}</td>
-                <td>{{ fs.sale_price|currency }}</td>
+                <td>{{ fs.sale_price|floatformat:0 }}đ</td>
                 <td>{{ fs.quantity_limit }}</td>
                 <td>{{ fs.sold_count }}</td>
                 <td>{{ fs.start_time|date:"d/m H:i" }} - {{ fs.end_time|date:"d/m H:i" }}</td>

@@ -488,7 +488,7 @@
             </a>
 
             <!-- Search Bar -->
-            <form action="{% url 'products:search' %}" class="header-search d-none d-md-block" method="GET">
+            <form action="{% url 'search:search' %}" class="header-search d-none d-md-block" method="GET">
                 <input autocomplete="off" id="searchInput" name="q" placeholder="Tìm kiếm sản phẩm..."
                        type="search" value="{{ request.GET.q }}">
                 <i class="bi bi-search search-icon"></i>
@@ -568,7 +568,7 @@
         </div>
 
         <!-- Mobile Search -->
-        <form action="" class="header-search d-md-none pb-3" method="GET">
+        <form action="{% url 'search:search' %}" class="header-search d-md-none pb-3" method="GET">
             <input autocomplete="off" name="q" placeholder="Tìm kiếm..." type="search" value="{{ request.GET.q }}">
             <i class="bi bi-search search-icon"></i>
             <button type="submit">

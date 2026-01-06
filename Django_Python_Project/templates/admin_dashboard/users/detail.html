@@ -1,5 +1,4 @@
 {% extends 'admin_dashboard/base.html' %}
-{% load product_tags %}
 
 {% block title %}Chi tiết người dùng{% endblock %}
 
@@ -70,7 +69,7 @@
                     <tr>
                         <td><a href="{% url 'admin_dashboard:order_detail' order.pk %}">{{ order.order_number }}</a>
                         </td>
-                        <td>{{ order.total|currency }}</td>
+                        <td>{{ order.total|floatformat:0 }}đ</td>
                         <td>
                                 <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'cancelled' %}danger{% else %}info{% endif %}">
                                     {{ order.get_status_display }}
