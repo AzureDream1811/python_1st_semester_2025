@@ -12,12 +12,9 @@
             <div class="col-md-10">
                 <select class="form-select" name="sentiment">
                     <option value="">-- Tất cả sentiment --</option>
-                    <option if request.GET.sentiment== value="positive" {%
-                    'positive' %}selected{% endif %}>Tích cực</option>
-                    <option if request.GET.sentiment== value="neutral" {%
-                    'neutral' %}selected{% endif %}>Trung lập</option>
-                    <option if request.GET.sentiment== value="negative" {%
-                    'negative' %}selected{% endif %}>Tiêu cực</option>
+                    <option value="positive" {% if request.GET.sentiment == 'positive' %}selected{% endif %}>Tích cực</option>
+                    <option value="neutral" {% if request.GET.sentiment == 'neutral' %}selected{% endif %}>Trung lập</option>
+                    <option value="negative" {% if request.GET.sentiment == 'negative' %}selected{% endif %}>Tiêu cực</option>
                 </select>
             </div>
             <div class="col-md-2">
@@ -54,9 +51,9 @@
                     {% endfor %}
                 </td>
                 <td>
-                        <span class="badge bg-{{ review.sentiment_color }}">
-                            {{ review.get_sentiment_display|default:"-" }}
-                        </span>
+                    <span class="badge bg-{{ review.sentiment_color }}">
+                        {{ review.get_sentiment_display|default:"-" }}
+                    </span>
                 </td>
                 <td>
                     {% if review.is_approved %}
