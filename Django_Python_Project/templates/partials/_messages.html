@@ -1,19 +1,246 @@
 {% if messages %}
-<div class="messages-container">
+<style>
+    .bento-messages {
+        position: fixed;
+        top: 6rem;
+        right: 1.5rem;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        max-width: 420px;
+        width: 100%;
+    }
+
+    .bento-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        background: var(--es-white, #FFFFFF);
+        border-radius: 1rem;
+        border: 1px solid var(--es-gray-200, #E5E7EB);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+        animation: slideInRight 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+                   fadeOut 0.3s ease-out 4.7s forwards;
+        position: relative;
+        overflow: hidden;
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(100px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes fadeOut {
+        to {
+            opacity: 0;
+            transform: translateX(100px);
+        }
+    }
+
+    .bento-alert::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: currentColor;
+        animation: progressBar 5s linear forwards;
+    }
+
+    @keyframes progressBar {
+        from { transform: scaleX(1); transform-origin: left; }
+        to { transform: scaleX(0); transform-origin: left; }
+    }
+
+    .bento-alert__icon {
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.375rem;
+    }
+
+    .bento-alert__content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        padding-top: 0.25rem;
+    }
+
+    .bento-alert__title {
+        font-weight: 700;
+        font-size: 0.9375rem;
+        margin: 0;
+    }
+
+    .bento-alert__message {
+        font-size: 0.875rem;
+        line-height: 1.5;
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .bento-alert__close {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: transparent;
+        color: currentColor;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0.5;
+    }
+
+    .bento-alert__close:hover {
+        opacity: 1;
+        background: rgba(0, 0, 0, 0.05);
+        transform: scale(1.1);
+    }
+
+    .bento-alert__close:active {
+        transform: scale(0.95);
+    }
+
+    /* Success */
+    .bento-alert--success {
+        color: #15803D;
+        border-left: 4px solid #22C55E;
+    }
+
+    .bento-alert--success .bento-alert__icon {
+        background: #F0FDF4;
+        color: #22C55E;
+    }
+
+    .bento-alert--success::before {
+        background: #22C55E;
+    }
+
+    /* Error/Danger */
+    .bento-alert--error,
+    .bento-alert--danger {
+        color: #991B1B;
+        border-left: 4px solid #DC2626;
+    }
+
+    .bento-alert--error .bento-alert__icon,
+    .bento-alert--danger .bento-alert__icon {
+        background: #FEF2F2;
+        color: #DC2626;
+    }
+
+    .bento-alert--error::before,
+    .bento-alert--danger::before {
+        background: #DC2626;
+    }
+
+    /* Warning */
+    .bento-alert--warning {
+        color: #92400E;
+        border-left: 4px solid #F59E0B;
+    }
+
+    .bento-alert--warning .bento-alert__icon {
+        background: #FFFBEB;
+        color: #F59E0B;
+    }
+
+    .bento-alert--warning::before {
+        background: #F59E0B;
+    }
+
+    /* Info */
+    .bento-alert--info {
+        color: #1E40AF;
+        border-left: 4px solid #3B82F6;
+    }
+
+    .bento-alert--info .bento-alert__icon {
+        background: #EFF6FF;
+        color: #3B82F6;
+    }
+
+    .bento-alert--info::before {
+        background: #3B82F6;
+    }
+
+    @media (max-width: 576px) {
+        .bento-messages {
+            top: 5rem;
+            right: 1rem;
+            left: 1rem;
+            max-width: 100%;
+        }
+
+        .bento-alert {
+            padding: 1rem;
+        }
+
+        .bento-alert__icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.25rem;
+        }
+    }
+</style>
+
+<div class="bento-messages" id="bentoMessages">
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-        {% if message.tags == 'success' %}
-        <i class="bi bi-check-circle-fill me-2"></i>
-        {% elif message.tags == 'error' or message.tags == 'danger' %}
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        {% elif message.tags == 'warning' %}
-        <i class="bi bi-exclamation-circle-fill me-2"></i>
-        {% else %}
-        <i class="bi bi-info-circle-fill me-2"></i>
-        {% endif %}
-        {{ message }}
-        <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+    <div class="bento-alert bento-alert--{{ message.tags }}" role="alert" data-alert-id="{{ forloop.counter }}">
+        <div class="bento-alert__icon">
+            {% if message.tags == 'success' %}
+            <i class="bi bi-check-circle-fill"></i>
+            {% elif message.tags == 'error' or message.tags == 'danger' %}
+            <i class="bi bi-x-circle-fill"></i>
+            {% elif message.tags == 'warning' %}
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            {% else %}
+            <i class="bi bi-info-circle-fill"></i>
+            {% endif %}
+        </div>
+        <div class="bento-alert__content">
+            <p class="bento-alert__title">
+                {% if message.tags == 'success' %}Thành công!
+                {% elif message.tags == 'error' or message.tags == 'danger' %}Lỗi!
+                {% elif message.tags == 'warning' %}Cảnh báo!
+                {% else %}Thông báo
+                {% endif %}
+            </p>
+            <p class="bento-alert__message">{{ message }}</p>
+        </div>
+        <button class="bento-alert__close" aria-label="Đóng" onclick="this.closest('.bento-alert').remove()">
+            <i class="bi bi-x-lg"></i>
+        </button>
     </div>
     {% endfor %}
 </div>
+
+<script>
+(function() {
+    // Auto remove alerts after 5 seconds
+    document.querySelectorAll('.bento-alert').forEach(function(alert) {
+        setTimeout(function() {
+            alert.remove();
+        }, 5000);
+    });
+})();
+</script>
 {% endif %}

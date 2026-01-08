@@ -4,122 +4,132 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h2 class="mb-4"><i class="bi bi-speedometer2"></i> Dashboard</h2>
+<h2 class="mb-4"><i aria-hidden="true" class="bi bi-speedometer2"></i> Dashboard</h2>
 
-<!-- KPI Cards -->
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="card-subtitle mb-2">Doanh thu tháng</h6>
-                        <h3 class="card-title mb-0">{{ stats.monthly_revenue|default:0|floatformat:0 }}đ</h3>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="bi bi-currency-dollar fs-1 opacity-50"></i>
-                    </div>
-                </div>
-            </div>
+<!-- KPI Cards - Bento Grid -->
+<section aria-label="Thống kê tổng quan" class="dashboard-kpis">
+    <!-- Revenue Card -->
+    <article aria-labelledby="kpi-revenue-title" class="kpi-card revenue">
+        <div aria-hidden="true" class="kpi-icon">
+            <i class="bi bi-currency-dollar"></i>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="card-subtitle mb-2">Tổng đơn hàng</h6>
-                        <h3 class="card-title mb-0">{{ stats.total_orders|default:0 }}</h3>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="bi bi-cart-check fs-1 opacity-50"></i>
-                    </div>
-                </div>
-            </div>
+        <div class="kpi-content">
+            <h3 id="kpi-revenue-title">Doanh thu tháng</h3>
+            <p class="kpi-value">{{ stats.monthly_revenue|default:0|floatformat:0 }}đ</p>
+            {% if stats.revenue_change %}
+            <span class="kpi-change {% if stats.revenue_change >= 0 %}positive{% else %}negative{% endif %}">
+                <i aria-hidden="true"
+                   class="bi bi-{% if stats.revenue_change >= 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                {{ stats.revenue_change|floatformat:1 }}%
+            </span>
+            {% endif %}
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-info text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="card-subtitle mb-2">Khách hàng</h6>
-                        <h3 class="card-title mb-0">{{ stats.total_customers|default:0 }}</h3>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="bi bi-people fs-1 opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-warning text-dark">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="card-subtitle mb-2">Sản phẩm</h6>
-                        <h3 class="card-title mb-0">{{ stats.total_products|default:0 }}</h3>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="bi bi-box-seam fs-1 opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    </article>
 
-<!-- Charts Row -->
-<div class="row mb-4">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-graph-up"></i> Doanh thu 30 ngày qua</h5>
-            </div>
-            <div class="card-body">
-                <canvas height="100" id="revenueChart"></canvas>
-            </div>
+    <!-- Orders Card -->
+    <article aria-labelledby="kpi-orders-title" class="kpi-card orders">
+        <div aria-hidden="true" class="kpi-icon">
+            <i class="bi bi-cart-check"></i>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Trạng thái đơn hàng</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="orderStatusChart"></canvas>
-            </div>
+        <div class="kpi-content">
+            <h3 id="kpi-orders-title">Tổng đơn hàng</h3>
+            <p class="kpi-value">{{ stats.total_orders|default:0 }}</p>
+            {% if stats.orders_change %}
+            <span class="kpi-change {% if stats.orders_change >= 0 %}positive{% else %}negative{% endif %}">
+                <i aria-hidden="true"
+                   class="bi bi-{% if stats.orders_change >= 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                {{ stats.orders_change|floatformat:1 }}%
+            </span>
+            {% endif %}
         </div>
-    </div>
-</div>
+    </article>
 
-<!-- Recent Orders -->
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Đơn hàng gần đây</h5>
-        <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_dashboard:order_list' %}">Xem tất cả</a>
-    </div>
-    <div class="card-body">
+    <!-- Customers Card -->
+    <article aria-labelledby="kpi-customers-title" class="kpi-card customers">
+        <div aria-hidden="true" class="kpi-icon">
+            <i class="bi bi-people"></i>
+        </div>
+        <div class="kpi-content">
+            <h3 id="kpi-customers-title">Khách hàng</h3>
+            <p class="kpi-value">{{ stats.total_customers|default:0 }}</p>
+            {% if stats.customers_change %}
+            <span class="kpi-change {% if stats.customers_change >= 0 %}positive{% else %}negative{% endif %}">
+                <i aria-hidden="true"
+                   class="bi bi-{% if stats.customers_change >= 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                {{ stats.customers_change|floatformat:1 }}%
+            </span>
+            {% endif %}
+        </div>
+    </article>
+
+    <!-- Products Card -->
+    <article aria-labelledby="kpi-products-title" class="kpi-card products">
+        <div aria-hidden="true" class="kpi-icon">
+            <i class="bi bi-box-seam"></i>
+        </div>
+        <div class="kpi-content">
+            <h3 id="kpi-products-title">Sản phẩm</h3>
+            <p class="kpi-value">{{ stats.total_products|default:0 }}</p>
+            {% if stats.products_change %}
+            <span class="kpi-change {% if stats.products_change >= 0 %}positive{% else %}negative{% endif %}">
+                <i aria-hidden="true"
+                   class="bi bi-{% if stats.products_change >= 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                {{ stats.products_change|floatformat:1 }}%
+            </span>
+            {% endif %}
+        </div>
+    </article>
+</section>
+
+<!-- Charts Row - Bento Grid -->
+<section aria-label="Biểu đồ thống kê" class="dashboard-charts">
+    <!-- Revenue Chart -->
+    <article class="chart-card">
+        <h3><i aria-hidden="true" class="bi bi-graph-up"></i> Doanh thu 30 ngày qua</h3>
+        <div class="chart-container">
+            <canvas aria-label="Biểu đồ doanh thu 30 ngày qua" id="revenueChart" role="img"></canvas>
+        </div>
+    </article>
+
+    <!-- Order Status Chart -->
+    <article class="chart-card">
+        <h3><i aria-hidden="true" class="bi bi-pie-chart"></i> Trạng thái đơn hàng</h3>
+        <div class="chart-container">
+            <canvas aria-label="Biểu đồ trạng thái đơn hàng" id="orderStatusChart" role="img"></canvas>
+        </div>
+    </article>
+</section>
+
+<!-- Recent Orders - Data Table -->
+<section aria-label="Bảng dữ liệu" class="dashboard-tables">
+    <article class="table-card" style="grid-column: span 2;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3><i aria-hidden="true" class="bi bi-clock-history"></i> Đơn hàng gần đây</h3>
+            <a class="view-all-link" href="{% url 'admin_dashboard:order_list' %}">
+                Xem tất cả <i aria-hidden="true" class="bi bi-arrow-right"></i>
+            </a>
+        </div>
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table aria-label="Danh sách đơn hàng gần đây" class="dashboard-table">
                 <thead>
                 <tr>
-                    <th>Mã đơn</th>
-                    <th>Khách hàng</th>
-                    <th>Tổng tiền</th>
-                    <th>Trạng thái</th>
-                    <th>Ngày đặt</th>
+                    <th scope="col">Mã đơn</th>
+                    <th scope="col">Khách hàng</th>
+                    <th scope="col">Tổng tiền</th>
+                    <th scope="col">Trạng thái</th>
+                    <th scope="col">Ngày đặt</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for order in recent_orders %}
                 <tr>
-                    <td><a href="{% url 'admin_dashboard:order_detail' order.pk %}">{{ order.order_number }}</a></td>
+                    <td>
+                        <a href="{% url 'admin_dashboard:order_detail' order.pk %}">{{ order.order_number }}</a>
+                    </td>
                     <td>{{ order.full_name }}</td>
                     <td>{{ order.total|floatformat:0 }}đ</td>
                     <td>
-                            <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'cancelled' %}danger{% elif order.status == 'pending' %}warning{% else %}info{% endif %}">
+                            <span class="status-badge status-{{ order.status }}">
                                 {{ order.get_status_display }}
                             </span>
                     </td>
@@ -127,14 +137,14 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td class="text-center text-muted" colspan="5">Chưa có đơn hàng nào</td>
+                    <td class="empty-message" colspan="5">Chưa có đơn hàng nào</td>
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
-    </div>
-</div>
+    </article>
+</section>
 {% endblock %}
 
 {% block extra_js %}

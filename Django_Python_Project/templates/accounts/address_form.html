@@ -1,190 +1,587 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}{% if is_edit %}Sửa{% else %}Thêm{% endif %} địa chỉ - ElectroShop{% endblock %}
+{% block title %}{% if address %}Sửa địa chỉ{% else %}Thêm địa chỉ{% endif %} - ElectroShop{% endblock %}
 
-{% block content %}
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0">
-                        <i class="bi bi-geo-alt me-2 text-primary"></i>
-                        {% if is_edit %}Sửa địa chỉ{% else %}Thêm địa chỉ mới{% endif %}
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <form id="addressForm" method="post">
-                        {% csrf_token %}
+{% block extra_css %}
+<style>
+    :root {
+        --ink: #0f172a;
+        --muted: #475569;
+        --border: #e5e7eb;
+        --surface: #ffffff;
+        --surface-muted: #f8fafc;
+        --accent: #2563eb;
+        --error: #dc2626;
+    }
 
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Họ tên người nhận <span class="text-danger">*</span></label>
-                                <input class="form-control" name="full_name" required
-                                       type="text" value="{% if address %}{{ address.full_name }}{% endif %}">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
-                                <input class="form-control" name="phone" required
-                                       type="tel" value="{% if address %}{{ address.phone }}{% endif %}">
-                            </div>
+    body {
+        background: linear-gradient(135deg, #f6f7fb 0%, #eef2f7 50%, #f8fafc 100%);
+    }
 
-                            <div class="col-12">
-                                <label class="form-label">Địa chỉ chi tiết <span class="text-danger">*</span></label>
-                                <input class="form-control" name="address" placeholder="Số nhà, tên đường"
-                                       required
-                                       type="text" value="{% if address %}{{ address.address }}{% endif %}">
-                            </div>
+    .form-shell {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1.5rem 1.25rem 2.5rem;
+    }
 
-                            <div class="col-md-4">
-                                <label class="form-label">Tỉnh/Thành phố <span class="text-danger">*</span></label>
-                                <select class="form-select" id="provinceSelect" name="province_code" required>
-                                    <option value="">-- Chọn Tỉnh/Thành phố --</option>
-                                    {% for p in provinces %}
-                                    <option value="{{ p.code }}" data-name="{{ p.name }}" {% if address and address.province_code == p.code %}selected{% endif %}>
-                                        {{ p.name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                                <input id="provinceName" name="province" type="hidden"
-                                       value="{% if address %}{{ address.province }}{% endif %}">
-                            </div>
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        color: var(--muted);
+        font-size: 0.875rem;
+    }
 
-                            <div class="col-md-4">
-                                <label class="form-label">Quận/Huyện <span class="text-danger">*</span></label>
-                                <select class="form-select" id="districtSelect" name="district_code" required>
-                                    <option value="">-- Chọn Quận/Huyện --</option>
-                                    {% for d in districts %}
-                                    <option value="{{ d.code }}" data-name="{{ d.name }}" {% if address and address.district_code == d.code %}selected{% endif %}>
-                                        {{ d.name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                                <input id="districtName" name="district" type="hidden"
-                                       value="{% if address %}{{ address.district }}{% endif %}">
-                            </div>
+    .breadcrumb a {
+        color: var(--accent);
+        text-decoration: none;
+    }
 
-                            <div class="col-md-4">
-                                <label class="form-label">Phường/Xã</label>
-                                <select class="form-select" id="wardSelect" name="ward_code">
-                                    <option value="">-- Chọn Phường/Xã --</option>
-                                    {% for w in wards %}
-                                    <option value="{{ w.code }}" data-name="{{ w.name }}" {% if address and address.ward_code == w.code %}selected{% endif %}>
-                                        {{ w.name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                                <input id="wardName" name="ward" type="hidden"
-                                       value="{% if address %}{{ address.ward }}{% endif %}">
-                            </div>
+    .form-header {
+        margin-bottom: 1.5rem;
+    }
 
-                            <div class="col-12">
-                                <div class="form-check">
-                                    <input class="form-check-input" id="isDefault" name="is_default" type="checkbox" {% if address and address.is_default %}checked{% endif %}>
-                                    <label class="form-check-label" for="isDefault">
-                                        Đặt làm địa chỉ mặc định
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
+    .form-header h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--ink);
+        margin: 0 0 0.5rem;
+    }
 
-                        <div class="mt-4 d-flex gap-2">
-                            <button class="btn btn-primary" type="submit">
-                                <i class="bi bi-check-lg me-1"></i>
-                                {% if is_edit %}Cập nhật{% else %}Thêm địa chỉ{% endif %}
-                            </button>
-                            <a class="btn btn-outline-secondary" href="{% url 'accounts:address_list' %}">
-                                Hủy
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    .form-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 2rem;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const provinceSelect = document.getElementById('provinceSelect');
-        const districtSelect = document.getElementById('districtSelect');
-        const wardSelect = document.getElementById('wardSelect');
+    .form-grid {
+        display: grid;
+        gap: 1.25rem;
+    }
 
-        const provinceName = document.getElementById('provinceName');
-        const districtName = document.getElementById('districtName');
-        const wardName = document.getElementById('wardName');
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+    }
 
-        // Update hidden name fields when selection changes
-        function updateHiddenName(select, hiddenInput) {
-            const selected = select.options[select.selectedIndex];
-            hiddenInput.value = selected ? selected.dataset.name || '' : '';
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    label {
+        font-weight: 600;
+        color: var(--ink);
+        font-size: 0.9375rem;
+    }
+
+    input,
+    select,
+    textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--surface-muted);
+        color: var(--ink);
+        font-size: 0.9375rem;
+        transition: all 0.2s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: var(--surface);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    input.error,
+    select.error {
+        border-color: var(--error);
+    }
+
+    input:disabled,
+    select:disabled {
+        background: #e2e8f0;
+        color: #94a3b8;
+        cursor: not-allowed;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .error-message {
+        color: var(--error);
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .loading-indicator {
+        display: none;
+        color: var(--muted);
+        font-size: 0.875rem;
+        font-style: italic;
+    }
+
+    .loading-indicator.active {
+        display: block;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: var(--surface-muted);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .btn {
+        flex: 1;
+        padding: 0.875rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: var(--accent);
+        color: white;
+        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-secondary {
+        background: var(--surface-muted);
+        color: var(--ink);
+        border: 1px solid var(--border);
+    }
+
+    @media (max-width: 640px) {
+        .form-row {
+            grid-template-columns: 1fr;
         }
 
-        // Fetch districts when province changes
-        provinceSelect.addEventListener('change', async function () {
-            const code = this.value;
-            updateHiddenName(this, provinceName);
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
 
-            // Reset district and ward
-            districtSelect.innerHTML = '<option value="">-- Chọn Quận/Huyện --</option>';
-            wardSelect.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>';
-            districtName.value = '';
-            wardName.value = '';
+{% block content %}
+<div class="form-shell">
+    <nav class="breadcrumb">
+        <a href="{% url 'accounts:profile' %}">
+            <i class="bi bi-person-circle"></i> Tài khoản
+        </a>
+        <i class="bi bi-chevron-right"></i>
+        <a href="{% url 'accounts:address_list' %}">Sổ địa chỉ</a>
+        <i class="bi bi-chevron-right"></i>
+        <span>{% if address %}Sửa địa chỉ{% else %}Thêm mới{% endif %}</span>
+    </nav>
 
-            if (!code) return;
+    <div class="form-header">
+        <h1>
+            <i class="bi bi-geo-alt"></i>
+            {% if address %}Sửa địa chỉ{% else %}Thêm địa chỉ mới{% endif %}
+        </h1>
+        <p>Quản lý địa chỉ giao hàng của bạn</p>
+    </div>
 
-            try {
-                const response = await fetch(`/accounts/api/districts/${code}/`);
-                const data = await response.json();
+    <div class="form-card">
+        <form class="form-grid" id="addressForm" method="post">
+            {% csrf_token %}
 
-                data.districts.forEach(d => {
-                    const option = document.createElement('option');
-                    option.value = d.code;
-                    option.textContent = d.name;
-                    option.dataset.name = d.name;
-                    districtSelect.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Error fetching districts:', error);
-            }
-        });
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="full_name">Họ và tên <span style="color: #dc2626;">*</span></label>
+                    <input id="full_name"
+                           name="full_name"
+                           required
+                           type="text"
+                           value="{{ address.full_name|default:'' }}">
+                    <span class="error-message" id="error_full_name"></span>
+                </div>
 
-        // Fetch wards when district changes
-        districtSelect.addEventListener('change', async function () {
-            const code = this.value;
-            updateHiddenName(this, districtName);
+                <div class="form-group">
+                    <label for="phone">Số điện thoại <span style="color: #dc2626;">*</span></label>
+                    <input id="phone"
+                           name="phone"
+                           placeholder="0912345678"
+                           required
+                           type="tel"
+                           value="{{ address.phone|default:'' }}">
+                    <span class="error-message" id="error_phone"></span>
+                </div>
+            </div>
 
-            // Reset ward
-            wardSelect.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>';
-            wardName.value = '';
+            <div class="form-group">
+                <label for="address">Địa chỉ cụ thể <span style="color: #dc2626;">*</span></label>
+                <textarea id="address"
+                          name="address"
+                          placeholder="Số nhà, tên đường..."
+                          required>{{ address.address|default:'' }}</textarea>
+                <span class="error-message" id="error_address"></span>
+            </div>
 
-            if (!code) return;
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="province">Tỉnh/Thành phố <span style="color: #dc2626;">*</span></label>
+                    <select id="province" name="province" required>
+                        <option value="">Chọn Tỉnh/Thành phố</option>
+                    </select>
+                    <input id="province_code" name="province_code" type="hidden"
+                           value="{{ address.province_code|default:'' }}">
+                    <span class="loading-indicator" id="loading_province">
+                        <i class="bi bi-arrow-clockwise"></i> Đang tải...
+                    </span>
+                    <span class="error-message" id="error_province"></span>
+                </div>
 
-            try {
-                const response = await fetch(`/accounts/api/wards/${code}/`);
-                const data = await response.json();
+                <div class="form-group">
+                    <label for="district">Quận/Huyện <span style="color: #dc2626;">*</span></label>
+                    <select disabled id="district" name="district" required>
+                        <option value="">Chọn Quận/Huyện</option>
+                    </select>
+                    <input id="district_code" name="district_code" type="hidden"
+                           value="{{ address.district_code|default:'' }}">
+                    <span class="loading-indicator" id="loading_district">
+                        <i class="bi bi-arrow-clockwise"></i> Đang tải...
+                    </span>
+                    <span class="error-message" id="error_district"></span>
+                </div>
+            </div>
 
-                data.wards.forEach(w => {
-                    const option = document.createElement('option');
-                    option.value = w.code;
-                    option.textContent = w.name;
-                    option.dataset.name = w.name;
-                    wardSelect.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Error fetching wards:', error);
-            }
-        });
+            <div class="form-group">
+                <label for="ward">Phường/Xã <span style="color: #dc2626;">*</span></label>
+                <select disabled id="ward" name="ward" required>
+                    <option value="">Chọn Phường/Xã</option>
+                </select>
+                <input id="ward_code" name="ward_code" type="hidden" value="{{ address.ward_code|default:'' }}">
+                <span class="loading-indicator" id="loading_ward">
+                    <i class="bi bi-arrow-clockwise"></i> Đang tải...
+                </span>
+                <span class="error-message" id="error_ward"></span>
+            </div>
 
-        // Update ward name when selection changes
-        wardSelect.addEventListener('change', function () {
-            updateHiddenName(this, wardName);
-        });
+            <div class="checkbox-group">
+                <input %}
+                       %}checked{%
+                       address.is_default
+                       endif id="is_default" if name="is_default" type="checkbox" {%>
+                <label for="is_default" style="margin: 0;">Đặt làm địa chỉ mặc định</label>
+            </div>
 
-        // Initialize hidden names if editing
-        updateHiddenName(provinceSelect, provinceName);
-        updateHiddenName(districtSelect, districtName);
-        updateHiddenName(wardSelect, wardName);
+            <div class="form-actions">
+                <a class="btn btn-secondary" href="{% url 'accounts:address_list' %}">
+                    <i class="bi bi-x-lg"></i>
+                    <span>Hủy</span>
+                </a>
+                <button class="btn btn-primary" id="submitBtn" type="submit">
+                    <i class="bi bi-check-lg"></i>
+                    <span>{% if address %}Cập nhật{% else %}Thêm địa chỉ{% endif %}</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Validation
+    const Validator = {
+        phone: (value) => /^(0|\+84)(3|5|7|8|9)[0-9]{8}$/.test(value.replace(/\s/g, '')),
+        required: (value) => value && value.trim().length > 0,
+        minLength: (value, min) => value.length >= min
+    };
+
+    function showError(fieldId, message) {
+        const errorElement = document.getElementById(`error_${fieldId}`);
+        const inputElement = document.getElementById(fieldId);
+        if (errorElement && inputElement) {
+            errorElement.innerHTML = `<i class="bi bi-exclamation-circle"></i> ${message}`;
+            inputElement.classList.add('error');
+        }
+    }
+
+    function clearError(fieldId) {
+        const errorElement = document.getElementById(`error_${fieldId}`);
+        const inputElement = document.getElementById(fieldId);
+        if (errorElement && inputElement) {
+            errorElement.innerHTML = '';
+            inputElement.classList.remove('error');
+        }
+    }
+
+    function showLoading(fieldId) {
+        const loadingElement = document.getElementById(`loading_${fieldId}`);
+        if (loadingElement) loadingElement.classList.add('active');
+    }
+
+    function hideLoading(fieldId) {
+        const loadingElement = document.getElementById(`loading_${fieldId}`);
+        if (loadingElement) loadingElement.classList.remove('active');
+    }
+
+    // Load provinces
+    async function loadProvinces() {
+        showLoading('province');
+        try {
+            const response = await fetch('/accounts/api/provinces/');
+            if (!response.ok) throw new Error('Cannot load');
+
+            const provinces = await response.json();
+            const select = document.getElementById('province');
+            select.innerHTML = '<option value="">Chọn Tỉnh/Thành phố</option>';
+
+            provinces.forEach(p => {
+                const option = new Option(p.name, p.name);
+                option.dataset.code = p.code;
+                select.appendChild(option);
+
+                {%
+                    if address %
+                }
+                if (p.code === '{{ address.province_code }}') {
+                    option.selected = true;
+                    loadDistricts(p.code);
+                }
+                {%
+                    endif %
+                }
+            });
+            hideLoading('province');
+        } catch (error) {
+            hideLoading('province');
+            showError('province', 'Không thể tải danh sách');
+            console.error(error);
+        }
+    }
+
+    // Load districts
+    async function loadDistricts(provinceCode) {
+        showLoading('district');
+        try {
+            const response = await fetch(`/accounts/api/districts/${provinceCode}/`);
+            if (!response.ok) throw new Error('Cannot load');
+
+            const districts = await response.json();
+            const select = document.getElementById('district');
+            select.innerHTML = '<option value="">Chọn Quận/Huyện</option>';
+            select.disabled = false;
+
+            districts.forEach(d => {
+                const option = new Option(d.name, d.name);
+                option.dataset.code = d.code;
+                select.appendChild(option);
+
+                {%
+                    if address %
+                }
+                if (d.code === '{{ address.district_code }}') {
+                    option.selected = true;
+                    loadWards(d.code);
+                }
+                {%
+                    endif %
+                }
+            });
+            hideLoading('district');
+            clearError('district');
+        } catch (error) {
+            hideLoading('district');
+            showError('district', 'Không thể tải danh sách');
+            console.error(error);
+        }
+    }
+
+    // Load wards
+    async function loadWards(districtCode) {
+        showLoading('ward');
+        try {
+            const response = await fetch(`/accounts/api/wards/${districtCode}/`);
+            if (!response.ok) throw new Error('Cannot load');
+
+            const wards = await response.json();
+            const select = document.getElementById('ward');
+            select.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+            select.disabled = false;
+
+            wards.forEach(w => {
+                const option = new Option(w.name, w.name);
+                option.dataset.code = w.code;
+                select.appendChild(option);
+
+                {%
+                    if address %
+                }
+                if (w.code === '{{ address.ward_code }}') {
+                    option.selected = true;
+                }
+                {%
+                    endif %
+                }
+            });
+            hideLoading('ward');
+            clearError('ward');
+        } catch (error) {
+            hideLoading('ward');
+            showError('ward', 'Không thể tải danh sách');
+            console.error(error);
+        }
+    }
+
+    // Events
+    document.getElementById('province').addEventListener('change', function () {
+        const option = this.options[this.selectedIndex];
+        const code = option.dataset.code;
+        if (code) {
+            document.getElementById('province_code').value = code;
+            document.getElementById('district').disabled = false;
+            document.getElementById('ward').disabled = true;
+            document.getElementById('ward').innerHTML = '<option value="">Chọn Phường/Xã</option>';
+            clearError('province');
+            loadDistricts(code);
+        }
     });
+
+    document.getElementById('district').addEventListener('change', function () {
+        const option = this.options[this.selectedIndex];
+        const code = option.dataset.code;
+        if (code) {
+            document.getElementById('district_code').value = code;
+            document.getElementById('ward').disabled = false;
+            clearError('district');
+            loadWards(code);
+        }
+    });
+
+    document.getElementById('ward').addEventListener('change', function () {
+        const option = this.options[this.selectedIndex];
+        const code = option.dataset.code;
+        if (code) {
+            document.getElementById('ward_code').value = code;
+            clearError('ward');
+        }
+    });
+
+    // Form validation
+    document.getElementById('addressForm').addEventListener('submit', function (e) {
+        let isValid = true;
+
+        ['full_name', 'phone', 'address', 'province', 'district', 'ward'].forEach(clearError);
+
+        const fullName = document.getElementById('full_name').value;
+        if (!Validator.required(fullName)) {
+            showError('full_name', 'Vui lòng nhập họ và tên');
+            isValid = false;
+        } else if (!Validator.minLength(fullName, 3)) {
+            showError('full_name', 'Họ và tên phải có ít nhất 3 ký tự');
+            isValid = false;
+        }
+
+        const phone = document.getElementById('phone').value;
+        if (!Validator.required(phone)) {
+            showError('phone', 'Vui lòng nhập số điện thoại');
+            isValid = false;
+        } else if (!Validator.phone(phone)) {
+            showError('phone', 'Số điện thoại không hợp lệ (VD: 0912345678)');
+            isValid = false;
+        }
+
+        const address = document.getElementById('address').value;
+        if (!Validator.required(address)) {
+            showError('address', 'Vui lòng nhập địa chỉ cụ thể');
+            isValid = false;
+        } else if (!Validator.minLength(address, 10)) {
+            showError('address', 'Địa chỉ phải có ít nhất 10 ký tự');
+            isValid = false;
+        }
+
+        if (!Validator.required(document.getElementById('province').value)) {
+            showError('province', 'Vui lòng chọn Tỉnh/Thành phố');
+            isValid = false;
+        }
+
+        if (!Validator.required(document.getElementById('district').value)) {
+            showError('district', 'Vui lòng chọn Quận/Huyện');
+            isValid = false;
+        }
+
+        if (!Validator.required(document.getElementById('ward').value)) {
+            showError('ward', 'Vui lòng chọn Phường/Xã');
+            isValid = false;
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            const firstError = document.querySelector('.error');
+            if (firstError) firstError.scrollIntoView({behavior: 'smooth', block: 'center'});
+        } else {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> <span>Đang xử lý...</span>';
+        }
+    });
+
+    // Real-time phone validation
+    document.getElementById('phone').addEventListener('blur', function () {
+        if (Validator.required(this.value) && !Validator.phone(this.value)) {
+            showError('phone', 'Số điện thoại không hợp lệ (VD: 0912345678)');
+        }
+    });
+
+    document.getElementById('phone').addEventListener('input', function () {
+        if (Validator.phone(this.value)) clearError('phone');
+    });
+
+    // Init
+    document.addEventListener('DOMContentLoaded', loadProvinces);
 </script>
 {% endblock %}

@@ -96,3 +96,5 @@ data/
 __pycache__
 /test/
 /Django_Python_Project/.env
+/.shared/
+/.github/

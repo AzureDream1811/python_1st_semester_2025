@@ -115,20 +115,65 @@ def product_detail(request, slug):
     # Tăng view count
     Product.objects.filter(pk=product.pk).update(views=product.views + 1)
 
+    # Load reviews với user info
+    reviews = product.reviews.filter(
+        is_approved=True
+    ).select_related('user').order_by('-created_at')[:5]
+
+    # Check if user can review
+    can_review = False
+    user_review = None
+    has_purchased = False
+
+    if request.user.is_authenticated:
+        # Import ở đây để tránh circular import
+        from apps.reviews.models import Review
+        from apps.orders.models import OrderItem
+
+        # Check if user already reviewed
+        user_review = Review.objects.filter(
+            product=product,
+            user=request.user
+        ).first()
+
+        # Check if user purchased this product
+        has_purchased = OrderItem.objects.filter(
+            order__user=request.user,
+            order__status='completed',
+            product=product
+        ).exists()
+
+        can_review = has_purchased and not user_review
+
     # Load related products
     related_products = Product.objects.filter(
         category=product.category,
         is_active=True
-    ).exclude(pk=product.pk).select_related('category', 'brand')[:4]
+    ).exclude(pk=product.pk).select_related('category', 'brand')[:8]
 
-    # Load reviews
-    reviews = product.reviews.filter(is_approved=True).select_related('user')[:10]
+    # Load product images
+    product_images = product.images.all().order_by('order', 'id')
+
+    # Check if in wishlist
+    in_wishlist = False
+    if request.user.is_authenticated:
+        from .models import Wishlist
+        in_wishlist = Wishlist.objects.filter(
+            user=request.user,
+            product=product
+        ).exists()
 
     context = {
         'product': product,
         'related_products': related_products,
         'reviews': reviews,
+        'product_images': product_images,
+        'in_wishlist': in_wishlist,
+        'can_review': can_review,
+        'user_review': user_review,
+        'has_purchased': has_purchased,
     }
+
     return render(request, 'products/product_detail.html', context)
 
 

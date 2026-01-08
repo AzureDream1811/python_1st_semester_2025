@@ -1,89 +1,366 @@
 {% load product_tags %}
 
-<!-- Enhanced Product Card - Modern E-commerce Design -->
-<div class="product-card card h-100 border">
+<style>
+    .bento-product-card {
+        position: relative;
+        background: var(--es-white, #FFFFFF);
+        border: 1px solid var(--es-gray-200, #E5E7EB);
+        border-radius: 1.25rem;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .bento-product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+        border-color: var(--es-primary, #3B82F6);
+    }
+
+    .bento-product-card__image-wrapper {
+        position: relative;
+        aspect-ratio: 1;
+        background: var(--es-gray-50, #F9FAFB);
+        overflow: hidden;
+    }
+
+    .bento-product-card__image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .bento-product-card:hover .bento-product-card__image {
+        transform: scale(1.08);
+    }
+
+    .bento-product-card__badge {
+        position: absolute;
+        top: 0.75rem;
+        left: 0.75rem;
+        padding: 0.375rem 0.75rem;
+        background: var(--es-danger, #DC2626);
+        color: var(--es-white, #FFFFFF);
+        font-size: 0.75rem;
+        font-weight: 800;
+        border-radius: 0.5rem;
+        z-index: 2;
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+        animation: badge-bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes badge-bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-3px); }
+    }
+
+    .bento-product-card__new-badge {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        padding: 0.375rem 0.75rem;
+        background: var(--es-success, #22C55E);
+        color: var(--es-white, #FFFFFF);
+        font-size: 0.625rem;
+        font-weight: 800;
+        border-radius: 0.5rem;
+        z-index: 2;
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+    }
+
+    .bento-product-card__overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1;
+    }
+
+    .bento-product-card:hover .bento-product-card__overlay {
+        opacity: 1;
+    }
+
+    .bento-product-card__quick-view {
+        padding: 0.75rem 1.5rem;
+        background: var(--es-white, #FFFFFF);
+        color: var(--es-gray-900, #111827);
+        border: none;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        transform: scale(0.9);
+    }
+
+    .bento-product-card:hover .bento-product-card__quick-view {
+        transform: scale(1);
+    }
+
+    .bento-product-card__quick-view:hover {
+        transform: scale(1.05);
+        background: var(--es-primary, #3B82F6);
+        color: var(--es-white, #FFFFFF);
+    }
+
+    .bento-product-card__body {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        flex: 1;
+    }
+
+    .bento-product-card__category {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--es-gray-500, #6B7280);
+        margin: 0;
+    }
+
+    .bento-product-card__title {
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.4;
+        color: var(--es-gray-900, #111827);
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-decoration: none;
+        transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .bento-product-card__title:hover {
+        color: var(--es-primary, #3B82F6);
+    }
+
+    .bento-product-card__rating {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .bento-product-card__stars {
+        display: flex;
+        gap: 0.125rem;
+        color: #F59E0B;
+        font-size: 0.875rem;
+    }
+
+    .bento-product-card__reviews {
+        font-size: 0.8125rem;
+        color: var(--es-gray-500, #6B7280);
+    }
+
+    .bento-product-card__pricing {
+        display: flex;
+        align-items: baseline;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-top: auto;
+    }
+
+    .bento-product-card__price {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--es-primary, #3B82F6);
+    }
+
+    .bento-product-card__price-old {
+        font-size: 1rem;
+        color: var(--es-gray-400, #9CA3AF);
+        text-decoration: line-through;
+    }
+
+    .bento-product-card__discount {
+        padding: 0.25rem 0.5rem;
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--es-danger, #DC2626);
+        font-size: 0.75rem;
+        font-weight: 700;
+        border-radius: 0.375rem;
+    }
+
+    .bento-product-card__stock {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        width: fit-content;
+    }
+
+    .bento-product-card__stock--in {
+        background: rgba(34, 197, 94, 0.1);
+        color: var(--es-success, #22C55E);
+    }
+
+    .bento-product-card__stock--out {
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--es-danger, #DC2626);
+    }
+
+    .bento-product-card__footer {
+        padding: 0 1.25rem 1.25rem;
+    }
+
+    .bento-product-card__btn {
+        width: 100%;
+        padding: 0.875rem 1.5rem;
+        background: var(--es-primary, #3B82F6);
+        color: var(--es-white, #FFFFFF);
+        border: none;
+        border-radius: 0.75rem;
+        font-weight: 700;
+        font-size: 0.9375rem;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .bento-product-card__btn:hover:not(:disabled) {
+        background: var(--es-primary-dark, #2563EB);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .bento-product-card__btn:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    .bento-product-card__btn:disabled {
+        background: var(--es-gray-300, #D1D5DB);
+        color: var(--es-gray-500, #6B7280);
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    .bento-product-card__placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: var(--es-gray-300, #D1D5DB);
+    }
+</style>
+
+<div class="bento-product-card">
+    <!-- Badges -->
     {% if product.discount_percent > 0 %}
-    <span class="discount-badge">-{{ product.discount_percent }}%</span>
+    <span class="bento-product-card__badge">-{{ product.discount_percent }}%</span>
     {% endif %}
 
     {% if product.is_new %}
-    <span class="position-absolute badge bg-success"
-          style="top: 0.75rem; right: 0.75rem; z-index: 10; font-size: 0.625rem; padding: 0.25rem 0.5rem;">NEW</span>
+    <span class="bento-product-card__new-badge">NEW</span>
     {% endif %}
 
-    <a class="d-block overflow-hidden position-relative product-image-wrapper" href="{{ product.get_absolute_url }}">
-        {% if product.image %}
-        <img alt="{{ product.name }}" class="card-img-top product-image" loading="lazy" src="{{ product.image.url }}">
-        {% else %}
-        <div class="product-image bg-light d-flex align-items-center justify-content-center">
-            <i class="bi bi-image text-muted" style="font-size: 2.5rem;"></i>
-        </div>
-        {% endif %}
+    <!-- Image -->
+    <div class="bento-product-card__image-wrapper">
+        <a href="{{ product.get_absolute_url }}">
+            {% if product.image %}
+            <img src="{{ product.image.url }}"
+                 alt="{{ product.name }}"
+                 class="bento-product-card__image"
+                 loading="lazy">
+            {% else %}
+            <div class="bento-product-card__image bento-product-card__placeholder">
+                <i class="bi bi-image"></i>
+            </div>
+            {% endif %}
 
-        <!-- Quick Actions Overlay -->
-        <div class="product-overlay position-absolute top-0 start-0 end-0 bottom-0 d-flex align-items-center justify-content-center"
-             style="background: rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s;">
-            <span class="btn btn-sm btn-light rounded-pill px-3">
-                <i class="bi bi-eye me-1"></i>Xem nhanh
-            </span>
-        </div>
-    </a>
+            <!-- Quick View Overlay -->
+            <div class="bento-product-card__overlay">
+                <button class="bento-product-card__quick-view" type="button">
+                    <i class="bi bi-eye"></i>
+                    <span>Xem nhanh</span>
+                </button>
+            </div>
+        </a>
+    </div>
 
-    <div class="card-body d-flex flex-column p-3">
+    <!-- Body -->
+    <div class="bento-product-card__body">
         {% if product.category %}
-        <p class="text-muted mb-1" style="font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em;">{{
-            product.category.name }}</p>
+        <p class="bento-product-card__category">{{ product.category.name }}</p>
         {% endif %}
 
-        <h6 class="card-title product-name mb-2">
-            <a class="text-dark text-decoration-none" href="{{ product.get_absolute_url }}">
-                {{ product.name }}
-            </a>
-        </h6>
+        <a href="{{ product.get_absolute_url }}" class="bento-product-card__title">
+            {{ product.name }}
+        </a>
 
-        <div class="mt-auto">
-            <!-- Rating -->
-            <div class="d-flex align-items-center mb-2">
-                <div class="rating-stars">
-                    {{ product.average_rating|star_rating }}
-                </div>
-                <span class="text-muted ms-1" style="font-size: 0.6875rem;">({{ product.review_count }})</span>
+        <!-- Rating -->
+        <div class="bento-product-card__rating">
+            <div class="bento-product-card__stars">
+                {{ product.average_rating|star_rating }}
             </div>
+            <span class="bento-product-card__reviews">({{ product.review_count }})</span>
+        </div>
 
-            <!-- Price -->
-            <div class="price-section">
-                {% if product.sale_price and product.sale_price < product.price %}
-                <span class="current-price">{{ product.sale_price|currency }}</span>
-                <span class="original-price">{{ product.price|currency }}</span>
-                {% else %}
-                <span class="current-price" style="color: var(--gray-800);">{{ product.price|currency }}</span>
-                {% endif %}
-            </div>
+        <!-- Price -->
+        <div class="bento-product-card__pricing">
+            {% if product.sale_price and product.sale_price < product.price %}
+            <span class="bento-product-card__price">{{ product.sale_price|currency }}</span>
+            <span class="bento-product-card__price-old">{{ product.price|currency }}</span>
+            {% else %}
+            <span class="bento-product-card__price">{{ product.price|currency }}</span>
+            {% endif %}
+        </div>
 
-            <!-- Stock Status -->
-            <div class="mt-2">
-                {{ product|stock_status }}
-            </div>
+        <!-- Stock Status -->
+        <div>
+            {% if product.in_stock %}
+            <span class="bento-product-card__stock bento-product-card__stock--in">
+                <i class="bi bi-check-circle-fill"></i>
+                Còn hàng
+            </span>
+            {% else %}
+            <span class="bento-product-card__stock bento-product-card__stock--out">
+                <i class="bi bi-x-circle-fill"></i>
+                Hết hàng
+            </span>
+            {% endif %}
         </div>
     </div>
 
-    <div class="card-footer bg-white border-0 pt-0 pb-3 px-3">
-        <form action="{% url 'cart:add' product.pk %}" class="d-grid" method="post">
+    <!-- Footer -->
+    <div class="bento-product-card__footer">
+        <form action="{% url 'cart:add' product.pk %}" method="post">
             {% csrf_token %}
-            <input name="quantity" type="hidden" value="1">
-            <button %} %}disabled{% class="btn btn-primary btn-sm" endif if not product.in_stock type="submit" {%>
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit"
+                    class="bento-product-card__btn"
+                    {% if not product.in_stock %}disabled{% endif %}>
                 {% if product.in_stock %}
-                <i class="bi bi-bag-plus me-1"></i>Thêm vào giỏ
+                <i class="bi bi-bag-plus"></i>
+                <span>Thêm vào giỏ</span>
                 {% else %}
-                <i class="bi bi-x-circle me-1"></i>Hết hàng
+                <i class="bi bi-x-circle"></i>
+                <span>Hết hàng</span>
                 {% endif %}
             </button>
         </form>
     </div>
 </div>
-
-<style>
-    .product-card:hover .product-overlay {
-        opacity: 1 !important;
-    }
-</style>

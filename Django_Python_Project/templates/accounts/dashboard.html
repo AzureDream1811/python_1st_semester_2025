@@ -1,238 +1,379 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load humanize %}
 
-{% block title %}Dashboard | ElectroShop{% endblock %}
+{% block title %}Dashboard - ElectroShop{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --ink: #0f172a;
+        --muted: #475569;
+        --subtle: #cbd5e1;
+        --accent: #111827;
+        --accent-2: #2563eb;
+        --surface: #ffffff;
+        --surface-muted: #f8fafc;
+        --border: #e5e7eb;
+        --success: #16a34a;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f6f7fb 0%, #eef2f7 50%, #f8fafc 100%);
+    }
+
+    .dashboard-shell {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1.5rem 1.25rem 2.5rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--ink);
+        margin: 0 0 0.5rem;
+    }
+
+    .dashboard-header p {
+        color: var(--muted);
+        margin: 0;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-icon.primary {
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--accent-2);
+    }
+
+    .stat-icon.success {
+        background: rgba(22, 163, 74, 0.1);
+        color: var(--success);
+    }
+
+    .stat-icon.warning {
+        background: rgba(234, 179, 8, 0.1);
+        color: #ca8a04;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--ink);
+        margin: 0;
+    }
+
+    .stat-label {
+        color: var(--muted);
+        font-size: 0.9375rem;
+        margin: 0.25rem 0 0;
+    }
+
+    .content-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.25rem;
+    }
+
+    .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+
+    .panel-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 0.75rem;
+        color: var(--accent-2);
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s ease;
+    }
+
+    .btn-ghost:hover {
+        background: rgba(37, 99, 235, 0.08);
+    }
+
+    .order-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: var(--surface-muted);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .order-item:hover {
+        border-color: var(--accent-2);
+        transform: translateX(4px);
+    }
+
+    .order-info h4 {
+        margin: 0 0 0.25rem;
+        font-size: 1rem;
+        color: var(--ink);
+    }
+
+    .order-info p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: var(--muted);
+    }
+
+    .order-status {
+        padding: 0.4rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-delivered {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--muted);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: var(--subtle);
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .voucher-item {
+        padding: 1rem;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(147, 197, 253, 0.05));
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+    }
+
+    .voucher-code {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        color: var(--accent-2);
+        font-size: 1.125rem;
+    }
+
+    .voucher-expiry {
+        font-size: 0.875rem;
+        color: var(--muted);
+        margin-top: 0.25rem;
+    }
+
+    @media (max-width: 1024px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <!-- Header -->
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <div>
-            <h1 class="h3 mb-1">
-                <i class="bi bi-speedometer2 text-primary me-2"></i>
-                Dashboard
-            </h1>
-            <p class="text-muted mb-0">Xin chào, {{ user.first_name|default:user.username }}!</p>
+<div class="dashboard-shell">
+    <div class="dashboard-header">
+        <h1>Dashboard</h1>
+        <p>Xin chào, {{ user.get_full_name|default:user.username }}! Chào mừng trở lại.</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon primary">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <h2 class="stat-value">{{ total_orders }}</h2>
+            <p class="stat-label">Tổng đơn hàng</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon warning">
+                <i class="bi bi-clock"></i>
+            </div>
+            <h2 class="stat-value">{{ pending_orders }}</h2>
+            <p class="stat-label">Đang xử lý</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon success">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <h2 class="stat-value">{{ completed_orders }}</h2>
+            <p class="stat-label">Hoàn thành</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon primary">
+                <i class="bi bi-ticket-perforated"></i>
+            </div>
+            <h2 class="stat-value">{{ voucher_count }}</h2>
+            <p class="stat-label">Voucher khả dụng</p>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Sidebar Navigation -->
-        <div class="col-lg-3 mb-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        <a class="list-group-item list-group-item-action active" href="{% url 'accounts:dashboard' %}">
-                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
-                        </a>
-                        <a class="list-group-item list-group-item-action" href="{% url 'accounts:profile' %}">
-                            <i class="bi bi-person me-2"></i>Thông tin cá nhân
-                        </a>
-                        <a class="list-group-item list-group-item-action" href="{% url 'orders:list' %}">
-                            <i class="bi bi-box-seam me-2"></i>Đơn hàng
-                        </a>
-                        <a class="list-group-item list-group-item-action" href="{% url 'accounts:address_list' %}">
-                            <i class="bi bi-geo-alt me-2"></i>Địa chỉ
-                        </a>
-                        <a class="list-group-item list-group-item-action" href="{% url 'accounts:card_list' %}">
-                            <i class="bi bi-credit-card me-2"></i>Thẻ thanh toán
-                        </a>
-                        <a class="list-group-item list-group-item-action" href="{% url 'products:wishlist' %}">
-                            <i class="bi bi-heart me-2"></i>Yêu thích
-                        </a>
-                        <a class="list-group-item list-group-item-action" href="{% url 'promotions:my_vouchers' %}">
-                            <i class="bi bi-ticket-perforated me-2"></i>Voucher
-                        </a>
-                        <a class="list-group-item list-group-item-action"
-                           href="{% url 'payments:transaction_history' %}">
-                            <i class="bi bi-receipt me-2"></i>Lịch sử giao dịch
-                        </a>
-                        <a class="list-group-item list-group-item-action" href="{% url 'notifications:list' %}">
-                            <i class="bi bi-bell me-2"></i>Thông báo
-                        </a>
-                    </div>
-                </div>
+    <!-- Content Grid -->
+    <div class="content-grid">
+        <!-- Recent Orders -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3 class="panel-title">
+                    <i class="bi bi-clock-history"></i>
+                    Đơn hàng gần đây
+                </h3>
+                <a class="btn-ghost" href="{% url 'orders:list' %}">
+                    Xem tất cả <i class="bi bi-arrow-right"></i>
+                </a>
             </div>
-        </div>
 
-        <!-- Main Content -->
-        <div class="col-lg-9">
-            <!-- Expiring Vouchers Alert -->
-            {% if expiring_vouchers %}
-            <div class="alert alert-warning d-flex align-items-start mb-4">
-                <i class="bi bi-exclamation-triangle-fill me-2 mt-1"></i>
-                <div>
-                    <strong>Voucher sắp hết hạn!</strong>
-                    <p class="mb-2">Bạn có {{ expiring_vouchers|length }} voucher sắp hết hạn trong 7 ngày tới:</p>
-                    <ul class="mb-0 ps-3">
-                        {% for uv in expiring_vouchers %}
-                        <li>{{ uv.voucher.code }} - Giảm {{ uv.voucher.discount_value|intcomma }}{% if
-                            uv.voucher.discount_type == 'percent' %}%{% else %}₫{% endif %} (HSD: {{
-                            uv.voucher.end_date|date:"d/m/Y" }})
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    <a class="btn btn-warning btn-sm mt-2" href="{% url 'promotions:my_vouchers' %}">
-                        <i class="bi bi-ticket-perforated me-1"></i>Xem voucher
-                    </a>
-                </div>
+            {% if recent_orders %}
+            <div class="order-list">
+                {% for order in recent_orders %}
+                <a class="order-item" href="{% url 'orders:detail' order.order_number %}">
+                    <div class="order-info">
+                        <h4>Đơn hàng #{{ order.order_number }}</h4>
+                        <p>{{ order.created_at|date:"d/m/Y H:i" }} • {{ order.items.count }} sản phẩm</p>
+                    </div>
+                    <span class="order-status status-{{ order.status }}">
+                        {{ order.get_status_display }}
+                    </span>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>Chưa có đơn hàng nào</p>
             </div>
             {% endif %}
+        </div>
 
-            <!-- Summary Cards -->
-            <div class="row g-4 mb-4">
-                <!-- Orders Card -->
-                <div class="col-md-6 col-lg-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0">
-                                    <div class="bg-primary bg-opacity-10 rounded-3 p-3">
-                                        <i class="bi bi-box-seam text-primary" style="font-size: 1.5rem;"></i>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h3 class="mb-0">{{ total_orders }}</h3>
-                                    <small class="text-muted">Đơn hàng</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-transparent border-0 pt-0">
-                            <small class="text-warning">{{ pending_orders }} đang xử lý</small>
-                        </div>
-                    </div>
+        <!-- Sidebar -->
+        <div>
+            <!-- Vouchers -->
+            <div class="panel" style="margin-bottom: 1.25rem;">
+                <div class="panel-header">
+                    <h3 class="panel-title">
+                        <i class="bi bi-ticket-perforated"></i>
+                        Voucher
+                    </h3>
                 </div>
 
-                <!-- Vouchers Card -->
-                <div class="col-md-6 col-lg-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0">
-                                    <div class="bg-success bg-opacity-10 rounded-3 p-3">
-                                        <i class="bi bi-ticket-perforated text-success" style="font-size: 1.5rem;"></i>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h3 class="mb-0">{{ voucher_count }}</h3>
-                                    <small class="text-muted">Voucher</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-transparent border-0 pt-0">
-                            <a class="small text-decoration-none" href="{% url 'promotions:my_vouchers' %}">Xem tất cả
-                                →</a>
-                        </div>
+                {% if expiring_vouchers %}
+                {% for voucher in expiring_vouchers %}
+                <div class="voucher-item">
+                    <div class="voucher-code">{{ voucher.voucher.code }}</div>
+                    <div class="voucher-expiry">
+                        Hết hạn: {{ voucher.voucher.end_date|date:"d/m/Y" }}
                     </div>
                 </div>
-
-                <!-- Wishlist Card -->
-                <div class="col-md-6 col-lg-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0">
-                                    <div class="bg-danger bg-opacity-10 rounded-3 p-3">
-                                        <i class="bi bi-heart-fill text-danger" style="font-size: 1.5rem;"></i>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h3 class="mb-0">{{ wishlist_count }}</h3>
-                                    <small class="text-muted">Yêu thích</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-transparent border-0 pt-0">
-                            <a class="small text-decoration-none" href="{% url 'products:wishlist' %}">Xem tất cả →</a>
-                        </div>
-                    </div>
+                {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-ticket"></i>
+                    <p>Không có voucher</p>
                 </div>
+                {% endif %}
             </div>
 
-            <!-- Recent Orders -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
-                    <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Đơn hàng gần đây</h5>
-                    <a class="btn btn-outline-primary btn-sm" href="{% url 'orders:list' %}">Xem tất cả</a>
-                </div>
-                <div class="card-body p-0">
-                    {% if recent_orders %}
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                            <tr>
-                                <th>Mã đơn</th>
-                                <th>Ngày đặt</th>
-                                <th>Tổng tiền</th>
-                                <th>Trạng thái</th>
-                                <th></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for order in recent_orders %}
-                            <tr>
-                                <td><code>#{{ order.order_number }}</code></td>
-                                <td>{{ order.created_at|date:"d/m/Y" }}</td>
-                                <td class="fw-semibold">{{ order.total|intcomma }}₫</td>
-                                <td>
-                                    {% if order.status == 'pending' %}
-                                    <span class="badge bg-warning text-dark">Chờ xác nhận</span>
-                                    {% elif order.status == 'confirmed' %}
-                                    <span class="badge bg-info">Đã xác nhận</span>
-                                    {% elif order.status == 'shipping' %}
-                                    <span class="badge bg-primary">Đang giao</span>
-                                    {% elif order.status == 'delivered' %}
-                                    <span class="badge bg-success">Đã giao</span>
-                                    {% elif order.status == 'cancelled' %}
-                                    <span class="badge bg-danger">Đã hủy</span>
-                                    {% else %}
-                                    <span class="badge bg-secondary">{{ order.get_status_display }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a class="btn btn-outline-primary btn-sm"
-                                       href="{% url 'orders:detail' order_number=order.order_number %}">
-                                        Chi tiết
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="text-center py-4">
-                        <i class="bi bi-box text-muted" style="font-size: 3rem; opacity: 0.3;"></i>
-                        <p class="text-muted mt-2 mb-0">Chưa có đơn hàng nào</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Quick Links -->
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <h6 class="card-title"><i class="bi bi-geo-alt me-2"></i>Địa chỉ giao hàng</h6>
-                            <p class="text-muted small mb-3">{{ address_count }} địa chỉ đã lưu</p>
-                            <a class="btn btn-outline-primary btn-sm" href="{% url 'accounts:address_list' %}">
-                                Quản lý địa chỉ
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <h6 class="card-title"><i class="bi bi-credit-card me-2"></i>Thẻ thanh toán</h6>
-                            <p class="text-muted small mb-3">{{ card_count }} thẻ đã lưu</p>
-                            <a class="btn btn-outline-primary btn-sm" href="{% url 'accounts:card_list' %}">
-                                Quản lý thẻ
-                            </a>
-                        </div>
-                    </div>
+            <!-- Quick Actions -->
+            <div class="panel">
+                <h3 class="panel-title" style="margin-bottom: 1rem;">
+                    <i class="bi bi-lightning"></i>
+                    Thao tác nhanh
+                </h3>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <a class="btn-ghost" href="{% url 'accounts:profile' %}" style="justify-content: flex-start;">
+                        <i class="bi bi-person"></i> Thông tin cá nhân
+                    </a>
+                    <a class="btn-ghost" href="{% url 'accounts:address_list' %}" style="justify-content: flex-start;">
+                        <i class="bi bi-geo-alt"></i> Sổ địa chỉ
+                    </a>
+                    <a class="btn-ghost" href="{% url 'orders:list' %}" style="justify-content: flex-start;">
+                        <i class="bi bi-box-seam"></i> Đơn hàng
+                    </a>
                 </div>
             </div>
         </div>

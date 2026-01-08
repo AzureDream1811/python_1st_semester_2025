@@ -4,361 +4,708 @@
 {% block title %}Tài khoản của tôi - ElectroShop{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/accounts/auth-common.css' %}" rel="stylesheet">
-<link href="{% static 'css/accounts/profile.css' %}" rel="stylesheet">
+<style>
+    :root {
+        --ink: #0f172a;
+        --muted: #475569;
+        --subtle: #cbd5e1;
+        --accent: #111827;
+        --accent-2: #2563eb;
+        --surface: #ffffff;
+        --surface-muted: #f8fafc;
+        --border: #e5e7eb;
+        --success: #16a34a;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f6f7fb 0%, #eef2f7 50%, #f8fafc 100%);
+    }
+
+    .account-shell {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem 1.25rem 2.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .account-hero {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+        background: radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.08), transparent 35%), #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 1.25rem;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+        align-items: center;
+    }
+
+    .avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 22px;
+        background: var(--accent);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        font-size: 1.6rem;
+        letter-spacing: -0.02em;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .hero-content {
+        display: grid;
+        gap: 0.35rem;
+    }
+
+    .hero-content h1 {
+        margin: 0;
+        font-size: 1.85rem;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+    }
+
+    .hero-content p {
+        margin: 0;
+        color: var(--muted);
+    }
+
+    .hero-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.4rem;
+    }
+
+    .chip {
+        background: var(--surface-muted);
+        color: var(--ink);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 0.45rem 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .profile-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 1.25rem;
+    }
+
+    .profile-nav-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 0.35rem;
+        position: sticky;
+        top: 96px;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+        display: grid;
+        gap: 0.35rem;
+        height: fit-content;
+    }
+
+    .profile-nav {
+        display: grid;
+        gap: 0.25rem;
+    }
+
+    .profile-nav-item {
+        width: 100%;
+        background: none;
+        border: none;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.7rem 0.85rem;
+        border-radius: 12px;
+        font-weight: 600;
+        color: var(--ink);
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+        text-decoration: none;
+    }
+
+    .profile-nav-item:hover {
+        background: var(--surface-muted);
+        transform: translateX(2px);
+    }
+
+    .profile-nav-item.active {
+        background: var(--accent);
+        color: #fff;
+        box-shadow: 0 12px 26px rgba(17, 24, 39, 0.25);
+    }
+
+    .profile-nav-item.logout {
+        color: #b91c1c;
+    }
+
+    .profile-main {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .alert-inline {
+        border-radius: 14px;
+        padding: 0.85rem 1rem;
+        background: #ecfeff;
+        color: #0f172a;
+        border: 1px solid #bae6fd;
+        display: grid;
+        gap: 0.35rem;
+    }
+
+    .alert-inline.success {
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+        color: #166534;
+    }
+
+    .alert-inline.error {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #991b1b;
+    }
+
+    .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 1rem;
+        display: grid;
+        gap: 0.75rem;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    .profile-tab-content {
+        display: none;
+    }
+
+    .profile-tab-content.active {
+        display: grid;
+    }
+
+    .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+
+    .panel-header h3 {
+        margin: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.05rem;
+        color: var(--ink);
+    }
+
+    .form-grid {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0.75rem;
+    }
+
+    label {
+        font-weight: 600;
+        color: var(--ink);
+        display: block;
+        margin-bottom: 0.35rem;
+    }
+
+    input,
+    select,
+    textarea {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 0.65rem 0.75rem;
+        background: var(--surface-muted);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: var(--accent-2);
+        background: #fff;
+        outline: none;
+    }
+
+    input[disabled],
+    select[disabled] {
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+
+    .form-error {
+        color: #dc2626;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        border-radius: 12px;
+        padding: 0.65rem 0.95rem;
+        border: 1px solid transparent;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .btn-primary {
+        background: var(--accent);
+        color: #fff;
+        box-shadow: 0 12px 22px rgba(17, 24, 39, 0.2);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px rgba(17, 24, 39, 0.3);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: var(--surface-muted);
+        color: var(--ink);
+        border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+        background: var(--surface);
+        border-color: var(--ink);
+    }
+
+    .btn-ghost {
+        color: var(--accent-2);
+        background: transparent;
+        border-color: transparent;
+    }
+
+    .btn-ghost:hover {
+        background: rgba(37, 99, 235, 0.08);
+    }
+
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    .empty-state {
+        text-align: center;
+        color: var(--muted);
+        display: grid;
+        gap: 0.4rem;
+        padding: 1rem;
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        color: var(--subtle);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .order-list {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: var(--surface-muted);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .order-item:hover {
+        border-color: var(--accent-2);
+        transform: translateX(4px);
+    }
+
+    .order-info h4 {
+        margin: 0 0 0.35rem;
+        color: var(--ink);
+        font-size: 1rem;
+    }
+
+    .order-info p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.875rem;
+    }
+
+    .order-status {
+        padding: 0.4rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-paid {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    /* Avatar Preview in Form */
+    .avatar-preview {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--surface-muted);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+    }
+
+    .avatar-preview-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 16px;
+        background: var(--accent);
+        color: white;
+        display: grid;
+        place-items: center;
+        font-size: 2rem;
+        font-weight: 700;
+        overflow: hidden;
+    }
+
+    .avatar-preview-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    @media (max-width: 1060px) {
+        .profile-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-nav-card {
+            position: relative;
+            top: auto;
+        }
+
+        .account-hero {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+
+        .avatar {
+            margin: 0 auto;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .panel-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="profile-page">
-    <!-- Profile Header -->
-    <div class="profile-header">
-        <div class="container">
-            <div class="profile-header-content">
-                <div class="profile-avatar-wrapper">
-                    <div class="profile-avatar">
-                        {% if user.first_name %}
-                        {{ user.first_name|slice:":1"|upper }}
-                        {% else %}
-                        {{ user.username|slice:":1"|upper }}
+<div class="account-shell">
+    <section aria-label="Hồ sơ cá nhân" class="account-hero">
+        <div aria-hidden="true" class="avatar">
+            {% if user.profile.avatar %}
+            <img alt="{{ user.username }}" src="{{ user.profile.avatar.url }}">
+            {% else %}
+            {% if user.first_name %}{{ user.first_name|slice:":1"|upper }}{% else %}{{ user.username|slice:":1"|upper
+            }}{% endif %}
+            {% endif %}
+        </div>
+        <div class="hero-content">
+            <h1>{{ user.get_full_name|default:user.username }}</h1>
+            <p><i class="bi bi-envelope"></i> {{ user.email }} · Thành viên từ {{ user.date_joined|date:"d/m/Y" }}</p>
+            <div class="hero-chips" role="list">
+                <span class="chip" role="listitem">Mức bảo mật: chuẩn</span>
+                <span class="chip" role="listitem">Thông báo: bật email</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="profile-layout">
+        <aside aria-label="Điều hướng hồ sơ" class="profile-nav-card">
+            <nav class="profile-nav">
+                <button class="profile-nav-item active" data-tab="info">
+                    <i class="bi bi-person"></i> Thông tin cá nhân
+                </button>
+                <button class="profile-nav-item" data-tab="orders">
+                    <i class="bi bi-box-seam"></i> Đơn hàng của tôi
+                </button>
+                <button class="profile-nav-item" data-tab="addresses">
+                    <i class="bi bi-geo-alt"></i> Sổ địa chỉ
+                </button>
+                <button class="profile-nav-item" data-tab="cards">
+                    <i class="bi bi-credit-card"></i> Thẻ thanh toán
+                </button>
+                <a class="profile-nav-item logout" href="{% url 'accounts:logout' %}">
+                    <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                </a>
+            </nav>
+        </aside>
+
+        <main class="profile-main">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert-inline {{ message.tags }}">
+                <strong>{{ message }}</strong>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <!-- Tab: Thông tin cá nhân -->
+            <section aria-label="Thông tin cá nhân" class="panel profile-tab-content active" id="tab-info">
+                <div class="panel-header">
+                    <h3><i class="bi bi-person-circle"></i> Thông tin cá nhân</h3>
+                </div>
+                <form class="form-grid" enctype="multipart/form-data" method="post">
+                    {% csrf_token %}
+
+                    <!-- Avatar Preview -->
+                    <div class="avatar-preview">
+                        <div class="avatar-preview-img" id="avatarPreview">
+                            {% if user.profile.avatar %}
+                            <img alt="Avatar" src="{{ user.profile.avatar.url }}">
+                            {% else %}
+                            {% if user.first_name %}{{ user.first_name|slice:":1"|upper }}{% else %}{{
+                            user.username|slice:":1"|upper }}{% endif %}
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h4 style="margin: 0 0 0.5rem; color: var(--ink);">Ảnh đại diện</h4>
+                            <label class="btn btn-secondary" for="{{ profile_form.avatar.id_for_label }}"
+                                   style="cursor: pointer; margin: 0;">
+                                <i class="bi bi-upload"></i> Chọn ảnh
+                            </label>
+                            {{ profile_form.avatar }}
+                            {% if profile_form.avatar.errors %}
+                            <div class="form-error">{{ profile_form.avatar.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div>
+                            <label for="{{ user_form.first_name.id_for_label }}">Tên</label>
+                            {{ user_form.first_name }}
+                            {% if user_form.first_name.errors %}
+                            <div class="form-error">{{ user_form.first_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ user_form.last_name.id_for_label }}">Họ</label>
+                            {{ user_form.last_name }}
+                            {% if user_form.last_name.errors %}
+                            <div class="form-error">{{ user_form.last_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="{{ user_form.email.id_for_label }}">Email</label>
+                        {{ user_form.email }}
+                        {% if user_form.email.errors %}
+                        <div class="form-error">{{ user_form.email.errors.0 }}</div>
                         {% endif %}
                     </div>
-                    <button class="profile-avatar-edit" title="Thay đổi ảnh đại diện">
-                        <i class="bi bi-camera"></i>
-                    </button>
-                </div>
 
-                <div class="profile-user-info">
-                    <h1>{{ user.get_full_name|default:user.username }}</h1>
-                    <p class="email">
-                        <i class="bi bi-envelope"></i>
-                        {{ user.email }}
-                    </p>
-                    <p class="member-since">
-                        <i class="bi bi-calendar3"></i>
-                        Thành viên từ {{ user.date_joined|date:"d/m/Y" }}
-                    </p>
-                </div>
+                    <div>
+                        <label for="{{ profile_form.phone.id_for_label }}">Số điện thoại</label>
+                        {{ profile_form.phone }}
+                        {% if profile_form.phone.errors %}
+                        <div class="form-error">{{ profile_form.phone.errors.0 }}</div>
+                        {% endif %}
+                    </div>
 
-                <div class="profile-stats">
-                    <div class="profile-stat">
-                        <span class="stat-value">0</span>
-                        <span class="stat-label">Đơn hàng</span>
+                    <div class="form-row">
+                        <div>
+                            <label for="id_birthday">Ngày sinh</label>
+                            <input id="id_birthday"
+                                   name="birthday"
+                                   type="date"
+                                   value="{{ user.profile.birthday|date:'Y-m-d'|default:'' }}">
+                            {% if profile_form.birthday.errors %}
+                            <div class="form-error">{{ profile_form.birthday.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ profile_form.gender.id_for_label }}">Giới tính</label>
+                            {{ profile_form.gender }}
+                            {% if profile_form.gender.errors %}
+                            <div class="form-error">{{ profile_form.gender.errors.0 }}</div>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="profile-stat">
-                        <span class="stat-value">0</span>
-                        <span class="stat-label">Yêu thích</span>
-                    </div>
-                    <div class="profile-stat">
-                        <span class="stat-value">0</span>
-                        <span class="stat-label">Voucher</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Profile Content -->
-    <div class="profile-content">
-        <div class="profile-grid">
-            <!-- Sidebar Navigation -->
-            <div class="profile-sidebar">
-                <nav class="profile-nav">
-                    <button class="profile-nav-item active" data-tab="info">
-                        <i class="bi bi-person"></i>
-                        <span>Thông tin cá nhân</span>
-                    </button>
-                    <button class="profile-nav-item" data-tab="orders">
-                        <i class="bi bi-box-seam"></i>
-                        <span>Đơn hàng của tôi</span>
-                    </button>
-                    <button class="profile-nav-item" data-tab="addresses">
-                        <i class="bi bi-geo-alt"></i>
-                        <span>Sổ địa chỉ</span>
-                    </button>
-                    <div class="profile-nav-divider"></div>
-                    <button class="profile-nav-item" data-tab="security">
-                        <i class="bi bi-shield-lock"></i>
-                        <span>Bảo mật</span>
-                    </button>
-                    <button class="profile-nav-item" data-tab="notifications">
-                        <i class="bi bi-bell"></i>
-                        <span>Thông báo</span>
-                    </button>
-                    <div class="profile-nav-divider"></div>
-                    <a class="profile-nav-item logout" href="{% url 'accounts:logout' %}">
-                        <i class="bi bi-box-arrow-right"></i>
-                        <span>Đăng xuất</span>
+                    <div class="form-actions">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-check-lg"></i> Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Tab: Đơn hàng -->
+            <section aria-label="Đơn hàng của tôi" class="panel profile-tab-content" id="tab-orders">
+                <div class="panel-header">
+                    <h3><i class="bi bi-box-seam"></i> Đơn hàng gần đây</h3>
+                    <a class="btn btn-ghost" href="{% url 'orders:list' %}">
+                        Xem tất cả <i class="bi bi-arrow-up-right"></i>
                     </a>
-                </nav>
-            </div>
-
-            <!-- Main Content Area -->
-            <div class="profile-main">
-                {% if messages %}
-                {% for message in messages %}
-                <div class="profile-alert {{ message.tags }}">
-                    <i class="bi bi-{% if 'success' in message.tags %}check-circle{% elif 'error' in message.tags %}exclamation-circle{% else %}info-circle{% endif %}"></i>
-                    {{ message }}
                 </div>
-                {% endfor %}
+
+                {% if orders %}
+                <div class="order-list">
+                    {% for order in orders %}
+                    <a class="order-item" href="{% url 'orders:detail' order.order_number %}">
+                        <div class="order-info">
+                            <h4>Đơn hàng #{{ order.order_number }}</h4>
+                            <p>{{ order.created_at|date:"d/m/Y H:i" }} • {{ order.items.count }} sản phẩm</p>
+                        </div>
+                        <span class="order-status status-{{ order.payment_status }}">
+                            {{ order.get_payment_status_display }}
+                        </span>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-bag-x"></i>
+                    <div>Chưa có đơn hàng nào</div>
+                    <a class="btn btn-primary" href="{% url 'products:product_list' %}"
+                       style="margin-top: 1rem; width: fit-content; margin-left: auto; margin-right: auto;">
+                        <i class="bi bi-shop"></i> Mua sắm ngay
+                    </a>
+                </div>
                 {% endif %}
+            </section>
 
-                <!-- Tab: Personal Info -->
-                <div class="profile-tab-content active" id="tab-info">
-                    <div class="profile-card">
-                        <div class="profile-card-header">
-                            <h3><i class="bi bi-person-circle"></i> Thông tin cá nhân</h3>
-                            <button class="profile-btn profile-btn-sm profile-btn-secondary" id="editInfoBtn">
-                                <i class="bi bi-pencil"></i> Chỉnh sửa
-                            </button>
-                        </div>
-                        <div class="profile-card-body">
-                            <form class="profile-form" id="profileForm" method="post">
-                                {% csrf_token %}
-                                <div class="profile-form-row">
-                                    <div class="profile-form-group">
-                                        <label for="last_name">Họ</label>
-                                        <input disabled id="last_name" name="last_name"
-                                               type="text" value="{{ user.last_name }}">
-                                    </div>
-                                    <div class="profile-form-group">
-                                        <label for="first_name">Tên</label>
-                                        <input disabled id="first_name" name="first_name"
-                                               type="text" value="{{ user.first_name }}">
-                                    </div>
-                                </div>
-
-                                <div class="profile-form-group">
-                                    <label for="email">Email</label>
-                                    <input disabled id="email" name="email"
-                                           type="email" value="{{ user.email }}">
-                                </div>
-
-                                <div class="profile-form-group">
-                                    <label for="phone">Số điện thoại</label>
-                                    <input disabled id="phone" name="phone"
-                                           placeholder="Chưa cập nhật"
-                                           type="tel" value="{{ user.profile.phone|default:'' }}">
-                                </div>
-
-                                <div class="profile-form-row">
-                                    <div class="profile-form-group">
-                                        <label for="birthday">Ngày sinh</label>
-                                        <input disabled id="birthday" name="birthday"
-                                               type="date" value="{{ user.profile.birthday|date:'Y-m-d'|default:'' }}">
-                                    </div>
-                                    <div class="profile-form-group">
-                                        <label for="gender">Giới tính</label>
-                                        <select disabled id="gender" name="gender">
-                                            <option value="">Chọn giới tính</option>
-                                            <option value="male" {% if user.profile.gender == 'male' %}selected{% endif %}>Nam</option>
-                                            <option value="female" {% if user.profile.gender == 'female' %}selected{% endif %}>Nữ</option>
-                                            <option value="other" {% if user.profile.gender == 'other' %}selected{% endif %}>Khác</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="profile-form-actions" id="formActions" style="display: none;">
-                                    <button class="profile-btn profile-btn-secondary" id="cancelEditBtn" type="button">
-                                        Hủy
-                                    </button>
-                                    <button class="profile-btn profile-btn-primary" type="submit">
-                                        <i class="bi bi-check-lg"></i> Lưu thay đổi
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+            <!-- Tab: Địa chỉ -->
+            <section aria-label="Sổ địa chỉ" class="panel profile-tab-content" id="tab-addresses">
+                <div class="panel-header">
+                    <h3><i class="bi bi-geo-alt"></i> Sổ địa chỉ</h3>
+                    <a class="btn btn-primary" href="{% url 'accounts:address_create' %}">
+                        <i class="bi bi-plus-lg"></i> Thêm địa chỉ
+                    </a>
                 </div>
-
-                <!-- Tab: Orders -->
-                <div class="profile-tab-content" id="tab-orders">
-                    <div class="profile-card">
-                        <div class="profile-card-header">
-                            <h3><i class="bi bi-box-seam"></i> Đơn hàng của tôi</h3>
-                        </div>
-                        <div class="profile-card-body">
-                            <div class="empty-state">
-                                <i class="bi bi-bag-x"></i>
-                                <h4>Chưa có đơn hàng nào</h4>
-                                <p>Bạn chưa thực hiện đơn hàng nào. Hãy bắt đầu mua sắm ngay!</p>
-                                <a class="profile-btn profile-btn-primary" href="{% url 'products:product_list' %}"
-                                   style="margin-top: 1rem;">
-                                    <i class="bi bi-shop"></i> Mua sắm ngay
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                <div class="empty-state">
+                    <i class="bi bi-geo-alt"></i>
+                    <p>Quản lý địa chỉ giao hàng của bạn</p>
+                    <a class="btn btn-secondary" href="{% url 'accounts:address_list' %}"
+                       style="margin-top: 0.5rem; width: fit-content; margin-left: auto; margin-right: auto;">
+                        Xem danh sách địa chỉ
+                    </a>
                 </div>
+            </section>
 
-                <!-- Tab: Addresses -->
-                <div class="profile-tab-content" id="tab-addresses">
-                    <div class="profile-card">
-                        <div class="profile-card-header">
-                            <h3><i class="bi bi-geo-alt"></i> Sổ địa chỉ</h3>
-                            <button class="profile-btn profile-btn-sm profile-btn-primary">
-                                <i class="bi bi-plus-lg"></i> Thêm địa chỉ
-                            </button>
-                        </div>
-                        <div class="profile-card-body">
-                            <div class="address-list">
-                                <div class="add-address-card">
-                                    <i class="bi bi-plus-circle"></i>
-                                    <span>Thêm địa chỉ mới</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Tab: Thẻ thanh toán -->
+            <section aria-label="Thẻ thanh toán" class="panel profile-tab-content" id="tab-cards">
+                <div class="panel-header">
+                    <h3><i class="bi bi-credit-card"></i> Thẻ thanh toán</h3>
+                    <a class="btn btn-primary" href="{% url 'accounts:card_create' %}">
+                        <i class="bi bi-plus-lg"></i> Thêm thẻ
+                    </a>
                 </div>
-
-                <!-- Tab: Security -->
-                <div class="profile-tab-content" id="tab-security">
-                    <div class="profile-card">
-                        <div class="profile-card-header">
-                            <h3><i class="bi bi-shield-lock"></i> Bảo mật tài khoản</h3>
-                        </div>
-                        <div class="profile-card-body">
-                            <div class="security-item">
-                                <div class="security-icon">
-                                    <i class="bi bi-key"></i>
-                                </div>
-                                <div class="security-info">
-                                    <h4>Mật khẩu</h4>
-                                    <p>Thay đổi mật khẩu để bảo vệ tài khoản của bạn</p>
-                                </div>
-                                <a class="profile-btn profile-btn-secondary profile-btn-sm"
-                                   href="{% url 'accounts:forgot_password' %}">
-                                    Đổi mật khẩu
-                                </a>
-                            </div>
-
-                            <div class="security-item">
-                                <div class="security-icon warning">
-                                    <i class="bi bi-phone"></i>
-                                </div>
-                                <div class="security-info">
-                                    <h4>Xác thực 2 lớp</h4>
-                                    <p>Thêm một lớp bảo mật cho tài khoản của bạn</p>
-                                </div>
-                                <button class="profile-btn profile-btn-secondary profile-btn-sm">
-                                    Thiết lập
-                                </button>
-                            </div>
-
-                            <div class="security-item">
-                                <div class="security-icon">
-                                    <i class="bi bi-laptop"></i>
-                                </div>
-                                <div class="security-info">
-                                    <h4>Thiết bị đăng nhập</h4>
-                                    <p>Quản lý các thiết bị đã đăng nhập vào tài khoản</p>
-                                </div>
-                                <button class="profile-btn profile-btn-secondary profile-btn-sm">
-                                    Xem chi tiết
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="empty-state">
+                    <i class="bi bi-credit-card"></i>
+                    <p>Quản lý thẻ thanh toán của bạn</p>
+                    <a class="btn btn-secondary" href="{% url 'accounts:card_list' %}"
+                       style="margin-top: 0.5rem; width: fit-content; margin-left: auto; margin-right: auto;">
+                        Xem danh sách thẻ
+                    </a>
                 </div>
-
-                <!-- Tab: Notifications -->
-                <div class="profile-tab-content" id="tab-notifications">
-                    <div class="profile-card">
-                        <div class="profile-card-header">
-                            <h3><i class="bi bi-bell"></i> Cài đặt thông báo</h3>
-                        </div>
-                        <div class="profile-card-body">
-                            <div class="profile-form">
-                                <div class="security-item">
-                                    <div class="security-icon">
-                                        <i class="bi bi-envelope"></i>
-                                    </div>
-                                    <div class="security-info">
-                                        <h4>Thông báo qua Email</h4>
-                                        <p>Nhận thông báo về đơn hàng, khuyến mãi qua email</p>
-                                    </div>
-                                    <div class="form-check form-switch">
-                                        <input checked class="form-check-input" id="emailNotify" type="checkbox">
-                                    </div>
-                                </div>
-
-                                <div class="security-item">
-                                    <div class="security-icon">
-                                        <i class="bi bi-phone-vibrate"></i>
-                                    </div>
-                                    <div class="security-info">
-                                        <h4>Thông báo qua SMS</h4>
-                                        <p>Nhận thông báo về đơn hàng qua tin nhắn SMS</p>
-                                    </div>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" id="smsNotify" type="checkbox">
-                                    </div>
-                                </div>
-
-                                <div class="security-item">
-                                    <div class="security-icon">
-                                        <i class="bi bi-percent"></i>
-                                    </div>
-                                    <div class="security-info">
-                                        <h4>Khuyến mãi & Ưu đãi</h4>
-                                        <p>Nhận thông tin về chương trình khuyến mãi mới nhất</p>
-                                    </div>
-                                    <div class="form-check form-switch">
-                                        <input checked class="form-check-input" id="promoNotify" type="checkbox">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+            </section>
+        </main>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
     // Tab Navigation
     document.querySelectorAll('.profile-nav-item[data-tab]').forEach(btn => {
         btn.addEventListener('click', function () {
             const tabId = this.dataset.tab;
 
-            // Update active nav item
-            document.querySelectorAll('.profile-nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
+            document.querySelectorAll('.profile-nav-item[data-tab]').forEach(item => item.classList.remove('active'));
             this.classList.add('active');
 
-            // Show corresponding tab content
-            document.querySelectorAll('.profile-tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
+            document.querySelectorAll('.profile-tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
         });
     });
 
-    // Edit Profile Form Toggle
-    const editBtn = document.getElementById('editInfoBtn');
-    const cancelBtn = document.getElementById('cancelEditBtn');
-    const formActions = document.getElementById('formActions');
-    const formInputs = document.querySelectorAll('#profileForm input, #profileForm select');
+    // Avatar Preview
+    const avatarInput = document.querySelector('input[name="avatar"]');
+    if (avatarInput) {
+        avatarInput.style.display = 'none'; // Hide default file input
 
-    if (editBtn) {
-        editBtn.addEventListener('click', function () {
-            formInputs.forEach(input => {
-                input.disabled = false;
-            });
-            formActions.style.display = 'flex';
-            this.style.display = 'none';
-        });
-    }
-
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', function () {
-            formInputs.forEach(input => {
-                input.disabled = true;
-            });
-            formActions.style.display = 'none';
-            editBtn.style.display = 'inline-flex';
+        avatarInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const avatarPreview = document.getElementById('avatarPreview');
+                    avatarPreview.innerHTML = '<img src="' + event.target.result + '" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">';
+                };
+                reader.readAsDataURL(file);
+            }
         });
     }
 </script>

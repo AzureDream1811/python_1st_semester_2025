@@ -4,17 +4,20 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-
 from .models import Review, ReviewHelpful
+from .forms import ReviewForm
 from .sentiment import SentimentAnalyzer
 from apps.products.models import Product
 from apps.orders.models import OrderItem
 
 
 @login_required
-@require_POST
 def add_review(request, product_slug):
-    """Thêm đánh giá sản phẩm"""
+    """
+    Trang thêm đánh giá sản phẩm
+    GET: Hiển thị form
+    POST: Xử lý submit và redirect về product detail #reviews
+    """
     product = get_object_or_404(Product, slug=product_slug, is_active=True)
 
     # Kiểm tra user đã mua sản phẩm chưa
@@ -24,6 +27,10 @@ def add_review(request, product_slug):
         product=product
     )
 
+    if not purchased_items.exists():
+        messages.error(request, 'Bạn cần mua sản phẩm này trước khi đánh giá.')
+        return redirect('products:detail', slug=product_slug)
+
     # Kiểm tra đã review chưa
     existing_review = Review.objects.filter(
         user=request.user,
@@ -32,112 +39,101 @@ def add_review(request, product_slug):
 
     if existing_review:
         messages.warning(request, 'Bạn đã đánh giá sản phẩm này rồi.')
-        return redirect('products:detail', slug=product_slug)
+        return redirect('products:detail', slug=product_slug) + '#reviews'
 
-    # Validate input
-    rating = int(request.POST.get('rating', 5))
-    comment = request.POST.get('comment', '').strip()
+    # Xử lý POST
+    if request.method == 'POST':
+        form = ReviewForm(request.POST, request.FILES)
 
-    if not comment:
-        messages.error(request, 'Vui lòng nhập nội dung đánh giá.')
-        return redirect('products:detail', slug=product_slug)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.product = product
+            review.user = request.user
+            review.is_verified_purchase = True
+            review.order_item = purchased_items.first()
 
-    if rating < 1 or rating > 5:
-        rating = 5
+            # Phân tích sentiment
+            try:
+                analyzer = SentimentAnalyzer()
+                result = analyzer.analyze(review.comment)
+                review.sentiment = result['sentiment']
+                review.sentiment_score = result['score']
+            except Exception as e:
+                print(f"⚠️ Lỗi sentiment analysis: {e}")
+                review.sentiment = 'neutral'
+                review.sentiment_score = 0.0
 
-    # Tạo review
-    review = Review(
-        product=product,
-        user=request.user,
-        rating=rating,
-        comment=comment,
-        is_verified_purchase=purchased_items.exists()
-    )
+            review.save()
 
-    # Link với order item nếu có
-    if purchased_items.exists():
-        review.order_item = purchased_items.first()
+            # Update product sentiment stats
+            try:
+                product.update_sentiment_stats()
+            except Exception as e:
+                print(f"⚠️ Lỗi update sentiment stats: {e}")
 
-    # Phân tích sentiment
-    try:
-        analyzer = SentimentAnalyzer()
-        result = analyzer.analyze(comment)
-        review.sentiment = result['sentiment']
-        review.sentiment_score = result['score']
-    except Exception as e:
-        print(f"⚠️  Lỗi sentiment analysis: {e}")
-        review.sentiment = 'neutral'
-        review.sentiment_score = 0.0
+            messages.success(request, 'Cảm ơn bạn đã đánh giá sản phẩm!')
+            return redirect('products:detail', slug=product_slug) + '#reviews'
+        else:
+            messages.error(request, 'Vui lòng kiểm tra lại thông tin.')
+    else:
+        form = ReviewForm()
 
-    # Handle images
-    for i in range(1, 4):
-        image = request.FILES.get(f'image{i}')
-        if image:
-            setattr(review, f'image{i}', image)
+    context = {
+        'product': product,
+        'form': form,
+    }
 
-    review.save()
-
-    # Update product sentiment stats
-    try:
-        product.update_sentiment_stats()
-    except Exception as e:
-        print(f"⚠️  Lỗi update sentiment stats: {e}")
-
-    messages.success(request, 'Cảm ơn bạn đã đánh giá sản phẩm!')
-    return redirect('products:detail', slug=product_slug)
+    return render(request, 'reviews/add_review.html', context)
 
 
 @login_required
-@require_POST
 def edit_review(request, review_id):
     """Sửa đánh giá của chính mình"""
     review = get_object_or_404(Review, pk=review_id)
-    
+
     # Kiểm tra quyền
     if review.user != request.user:
         messages.error(request, 'Bạn không có quyền sửa đánh giá này.')
         return redirect('products:detail', slug=review.product.slug)
-    
-    # Validate input
-    rating = int(request.POST.get('rating', review.rating))
-    comment = request.POST.get('comment', '').strip()
-    
-    if not comment:
-        messages.error(request, 'Vui lòng nhập nội dung đánh giá.')
-        return redirect('products:detail', slug=review.product.slug)
-    
-    if rating < 1 or rating > 5:
-        rating = 5
-    
-    # Cập nhật review
-    review.rating = rating
-    review.comment = comment
-    
-    # Phân tích lại sentiment
-    try:
-        analyzer = SentimentAnalyzer()
-        result = analyzer.analyze(comment)
-        review.sentiment = result['sentiment']
-        review.sentiment_score = result['score']
-    except Exception as e:
-        print(f"⚠️  Lỗi sentiment analysis: {e}")
-    
-    # Handle images nếu có upload mới
-    for i in range(1, 4):
-        image = request.FILES.get(f'image{i}')
-        if image:
-            setattr(review, f'image{i}', image)
-    
-    review.save()
-    
-    # Update product sentiment stats
-    try:
-        review.product.update_sentiment_stats()
-    except Exception as e:
-        print(f"⚠️  Lỗi update sentiment stats: {e}")
-    
-    messages.success(request, 'Đã cập nhật đánh giá của bạn.')
-    return redirect('products:detail', slug=review.product.slug)
+
+    if request.method == 'POST':
+        form = ReviewForm(request.POST, request.FILES, instance=review)
+
+        if form.is_valid():
+            review = form.save(commit=False)
+
+            # Phân tích lại sentiment
+            try:
+                analyzer = SentimentAnalyzer()
+                result = analyzer.analyze(review.comment)
+                review.sentiment = result['sentiment']
+                review.sentiment_score = result['score']
+            except Exception as e:
+                print(f"⚠️ Lỗi sentiment analysis: {e}")
+
+            review.save()
+
+            # Update product sentiment stats
+            try:
+                review.product.update_sentiment_stats()
+            except Exception as e:
+                print(f"⚠️ Lỗi update sentiment stats: {e}")
+
+            messages.success(request, 'Đã cập nhật đánh giá của bạn.')
+            return redirect('products:detail', slug=review.product.slug) + '#reviews'
+        else:
+            messages.error(request, 'Vui lòng kiểm tra lại thông tin.')
+    else:
+        form = ReviewForm(instance=review)
+
+    context = {
+        'product': review.product,
+        'form': form,
+        'review': review,
+        'is_edit': True,
+    }
+
+    return render(request, 'reviews/add_review.html', context)
 
 
 @login_required
@@ -145,30 +141,30 @@ def edit_review(request, review_id):
 def delete_review(request, review_id):
     """Xóa đánh giá của chính mình"""
     review = get_object_or_404(Review, pk=review_id)
-    
+
     # Kiểm tra quyền
     if review.user != request.user:
         messages.error(request, 'Bạn không có quyền xóa đánh giá này.')
         return redirect('products:detail', slug=review.product.slug)
-    
+
     product_slug = review.product.slug
     product = review.product
-    
+
     # Xóa review
     review.delete()
-    
+
     # Cập nhật lại sentiment stats cho product
     try:
         product.update_sentiment_stats()
     except Exception as e:
-        print(f"⚠️  Lỗi update sentiment stats: {e}")
-    
+        print(f"⚠️ Lỗi update sentiment stats: {e}")
+
     messages.success(request, 'Đã xóa đánh giá của bạn.')
-    return redirect('products:detail', slug=product_slug)
+    return redirect('products:detail', slug=product_slug) + '#reviews'
 
 
 def product_reviews(request, product_slug):
-    """Danh sách đánh giá của sản phẩm"""
+    """Danh sách tất cả đánh giá của sản phẩm"""
     product = get_object_or_404(Product, slug=product_slug, is_active=True)
 
     reviews = Review.objects.filter(
@@ -197,6 +193,7 @@ def product_reviews(request, product_slug):
         'reviews': reviews,
         'current_sort': sort,
     }
+
     return render(request, 'reviews/product_reviews.html', context)
 
 
@@ -226,4 +223,4 @@ def mark_helpful(request, review_id):
             'helpful_count': review.helpful_count,
         })
 
-    return redirect('products:detail', slug=review.product.slug)
+    return redirect('products:detail', slug=review.product.slug) + '#reviews'

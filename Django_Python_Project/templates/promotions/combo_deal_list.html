@@ -1,67 +1,746 @@
 {% extends 'base.html' %}
-{% load product_tags %}
+{% load static %}
 
 {% block title %}Combo Deals - ElectroShop{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Page layout */
+    .combo-page {
+        display: flex;
+        flex-direction: column;
+        gap: var(--es-space-4);
+        padding: var(--es-space-1) 0 var(--es-space-4);
+    }
+
+    /* Hero */
+    .combo-hero {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(120deg, var(--es-primary) 0%, var(--es-primary-dark) 40%, #0f172a 100%);
+        color: var(--es-white);
+        border-radius: var(--es-radius-bento-lg);
+        padding: var(--es-space-5);
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: var(--es-space-4);
+        box-shadow: var(--es-shadow-xl);
+    }
+
+    .combo-hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.12), transparent 35%),
+        radial-gradient(circle at 80% 10%, rgba(96, 165, 250, 0.22), transparent 30%),
+        radial-gradient(circle at 60% 80%, rgba(15, 23, 42, 0.2), transparent 40%);
+        pointer-events: none;
+    }
+
+    .combo-hero__copy {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: var(--es-space-2);
+    }
+
+    .combo-hero__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: var(--es-radius-full);
+        background: rgba(255, 255, 255, 0.12);
+        font-size: var(--es-text-sm);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .combo-hero__title {
+        font-size: clamp(2rem, 2.6vw, 2.8rem);
+        font-weight: var(--es-font-bold);
+        line-height: 1.15;
+    }
+
+    .combo-hero__lead {
+        font-size: 1.05rem;
+        max-width: 640px;
+        opacity: 0.92;
+    }
+
+    .combo-hero__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--es-space-2);
+    }
+
+    .combo-hero__stats {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--es-space-2);
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--es-radius-bento);
+        padding: var(--es-space-2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: var(--es-shadow-sm);
+        transition: transform var(--es-transition-normal), box-shadow var(--es-transition-normal);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--es-shadow-md);
+    }
+
+    .stat-label {
+        font-size: var(--es-text-sm);
+        opacity: 0.85;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: var(--es-font-bold);
+        line-height: 1.1;
+    }
+
+    .stat-hint {
+        display: block;
+        margin-top: 6px;
+        font-size: var(--es-text-sm);
+        opacity: 0.8;
+    }
+
+    /* Section header */
+    .combo-section {
+        display: flex;
+        flex-direction: column;
+        gap: var(--es-space-2);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: var(--es-space-2);
+    }
+
+    .section-eyebrow {
+        font-size: var(--es-text-sm);
+        color: var(--es-text-muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .section-title {
+        font-size: 1.6rem;
+        font-weight: var(--es-font-bold);
+        margin: 4px 0;
+    }
+
+    .section-subtitle {
+        color: var(--es-text-secondary);
+        max-width: 720px;
+    }
+
+    .section-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .section-pill {
+        padding: 8px 12px;
+        border-radius: var(--es-radius-full);
+        border: 1px solid var(--es-border-light);
+        background: var(--es-bg-white);
+        color: var(--es-text-secondary);
+        font-size: var(--es-text-sm);
+    }
+
+    /* Bento grid */
+    .combo-bento-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: var(--es-space-3);
+    }
+
+    .combo-card {
+        position: relative;
+        background: var(--es-white);
+        border: 1px solid var(--es-border-light);
+        border-radius: var(--es-radius-bento-lg);
+        padding: var(--es-space-3);
+        box-shadow: var(--es-shadow-card);
+        display: flex;
+        flex-direction: column;
+        gap: var(--es-space-2);
+        overflow: hidden;
+        transition: transform var(--es-transition-normal), box-shadow var(--es-transition-normal), border-color var(--es-transition-normal);
+    }
+
+    .combo-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 20% 0%, rgba(59, 130, 246, 0.08), transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(249, 115, 22, 0.08), transparent 38%);
+        pointer-events: none;
+    }
+
+    .combo-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--es-shadow-card-hover);
+        border-color: var(--es-primary-200);
+    }
+
+    .combo-card:focus-within {
+        border-color: var(--es-primary);
+        box-shadow: var(--es-focus-ring);
+    }
+
+    .combo-card__accent {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 48px;
+        height: 48px;
+        border-radius: var(--es-radius-lg);
+        background: linear-gradient(135deg, var(--es-cta), var(--es-primary));
+        opacity: 0.1;
+        filter: blur(6px);
+        pointer-events: none;
+    }
+
+    .combo-card__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--es-space-2);
+        position: relative;
+        z-index: 1;
+    }
+
+    .combo-card__eyebrow {
+        font-size: var(--es-text-sm);
+        color: var(--es-text-secondary);
+    }
+
+    .combo-card__title {
+        font-size: 1.2rem;
+        font-weight: var(--es-font-semibold);
+        margin: 2px 0;
+        color: var(--es-text-primary);
+    }
+
+    .combo-card__desc {
+        color: var(--es-text-secondary);
+        position: relative;
+        z-index: 1;
+    }
+
+    .combo-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: var(--es-radius-full);
+        background: var(--es-primary-50);
+        color: var(--es-primary-dark);
+        font-weight: var(--es-font-semibold);
+        font-size: var(--es-text-sm);
+        border: 1px solid var(--es-border-light);
+    }
+
+    .combo-chip--cta {
+        background: var(--es-cta-50);
+        color: var(--es-cta-dark);
+        border-color: rgba(249, 115, 22, 0.3);
+    }
+
+    .combo-card__pricing {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: var(--es-space-2);
+        align-items: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .price-block {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .price-label {
+        font-size: var(--es-text-sm);
+        color: var(--es-text-secondary);
+        letter-spacing: 0.02em;
+    }
+
+    .price-values {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+    }
+
+    .price-final {
+        font-size: 1.6rem;
+        font-weight: var(--es-font-bold);
+        color: var(--es-primary-dark);
+    }
+
+    .price-original {
+        color: var(--es-text-muted);
+        text-decoration: line-through;
+    }
+
+    .price-saving {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        background: var(--es-primary-50);
+        border-radius: var(--es-radius-full);
+        color: var(--es-primary-dark);
+        font-size: var(--es-text-sm);
+        width: fit-content;
+    }
+
+    .time-block {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+    .meta-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: var(--es-radius-full);
+        background: var(--es-bg-secondary);
+        color: var(--es-text-secondary);
+        font-size: var(--es-text-sm);
+    }
+
+    .meta-chip--brand {
+        background: var(--es-primary-50);
+        color: var(--es-primary-dark);
+    }
+
+    .time-progress {
+        position: relative;
+        width: 100%;
+        height: 10px;
+        border-radius: var(--es-radius-full);
+        background: var(--es-primary-100);
+        overflow: hidden;
+    }
+
+    .time-progress__bar {
+        position: absolute;
+        inset: 0;
+        width: var(--progress, 100%);
+        background: linear-gradient(90deg, var(--es-cta), var(--es-primary));
+        transition: width var(--es-transition-normal);
+    }
+
+    .time-remaining {
+        font-size: var(--es-text-sm);
+        color: var(--es-text-secondary);
+    }
+
+    .combo-card__products {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .combo-product {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: var(--es-space-1);
+        padding: 10px;
+        border: 1px dashed var(--es-border-light);
+        border-radius: var(--es-radius-md);
+        background: var(--es-bg-white);
+        align-items: center;
+    }
+
+    .combo-product__media {
+        width: 72px;
+        height: 72px;
+        border-radius: var(--es-radius-md);
+        overflow: hidden;
+        background: var(--es-bg-secondary);
+    }
+
+    .combo-product__media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .combo-product__name {
+        font-weight: var(--es-font-semibold);
+        color: var(--es-text-primary);
+        margin-bottom: 4px;
+    }
+
+    .combo-product__meta {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .combo-link {
+        color: var(--es-primary);
+        text-decoration: none;
+        font-weight: var(--es-font-medium);
+    }
+
+    .combo-link:hover {
+        text-decoration: underline;
+    }
+
+    .combo-link:focus-visible {
+        outline: none;
+        box-shadow: var(--es-focus-ring);
+        border-radius: var(--es-radius-sm);
+    }
+
+    .combo-product__price {
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .price-old {
+        color: var(--es-text-muted);
+        text-decoration: line-through;
+        font-size: var(--es-text-sm);
+    }
+
+    .combo-card__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--es-space-2);
+        position: relative;
+        z-index: 1;
+    }
+
+    .combo-empty {
+        padding: var(--es-space-4);
+        border: 1px dashed var(--es-border-dark);
+        border-radius: var(--es-radius-bento);
+        background: var(--es-bg-secondary);
+        text-align: center;
+        display: grid;
+        gap: var(--es-space-2);
+    }
+
+    .combo-empty__icon {
+        width: 64px;
+        height: 64px;
+        border-radius: var(--es-radius-full);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--es-primary-100);
+        color: var(--es-primary);
+        margin: 0 auto;
+        font-size: 1.6rem;
+    }
+
+    .combo-empty__actions {
+        display: flex;
+        gap: var(--es-space-2);
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 992px) {
+        .combo-hero {
+            grid-template-columns: 1fr;
+        }
+
+        .combo-hero__stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .combo-card__pricing {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .combo-page {
+            padding-top: 0;
+        }
+
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .combo-product {
+            grid-template-columns: 1fr;
+            text-align: left;
+        }
+
+        .combo-product__price {
+            text-align: left;
+        }
+
+        .combo-hero__stats {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .combo-card,
+        .stat-card,
+        .time-progress__bar {
+            transition: none;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="text-center mb-5">
-        <h1><i class="bi bi-box-seam me-2 text-primary"></i>Combo Deals</h1>
-        <p class="lead text-muted">Mua combo tiết kiệm hơn!</p>
-    </div>
-
-    {% if combo_deals %}
-    <div class="row">
-        {% for combo in combo_deals %}
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">{{ combo.name }}</h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted">{{ combo.description }}</p>
-
-                    <h6>Sản phẩm trong combo:</h6>
-                    <ul class="list-unstyled">
-                        {% for product in combo.products.all %}
-                        <li class="d-flex align-items-center mb-2">
-                            <img alt="{{ product.name }}" class="me-2" src="{{ product.image.url }}"
-                                 style="width: 50px; height: 50px; object-fit: cover;">
-                            <div>
-                                <span>{{ product.name }}</span>
-                                <br>
-                                <small class="text-muted">{{ product.price|currency }}</small>
-                            </div>
-                        </li>
-                        {% endfor %}
-                    </ul>
-
-                    <hr>
-
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="text-muted text-decoration-line-through">{{ combo.original_price|currency }}</span>
-                            <br>
-                            <span class="text-danger fs-4 fw-bold">{{ combo.combo_price|currency }}</span>
-                        </div>
-                        <span class="badge bg-danger fs-6">Tiết kiệm {{ combo.discount_value }}{% if combo.discount_type == 'percentage' %}%{% else %}đ{% endif %}</span>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <a class="btn btn-primary w-100" href="#">
-                        <i class="bi bi-cart-plus me-2"></i>Thêm combo vào giỏ
-                    </a>
-                </div>
+<div aria-labelledby="combo-hero-title" class="combo-page">
+    <section class="combo-hero">
+        <div class="combo-hero__copy">
+            <p class="combo-hero__eyebrow">
+                <i aria-hidden="true" class="bi bi-sliders"></i>
+                Swiss grid • Bento UI • A11y
+            </p>
+            <h1 class="combo-hero__title" id="combo-hero-title">
+                Combo Deals cho đồ điện gia dụng
+            </h1>
+            <p class="combo-hero__lead">
+                Gộp sản phẩm theo nhu cầu, trình bày dạng Bento, micro-interactions nhẹ, tương phản rõ ràng và thân
+                thiện với trình đọc màn hình.
+            </p>
+            <div class="combo-hero__actions">
+                <a class="btn btn-light btn-lg" href="{% url 'products:product_list' %}">
+                    <i aria-hidden="true" class="bi bi-grid"></i> Khám phá sản phẩm
+                </a>
+                <a class="btn btn-outline-light btn-lg" href="{% url 'cart:detail' %}">
+                    <i aria-hidden="true" class="bi bi-bag-check"></i> Mở giỏ hàng
+                </a>
             </div>
         </div>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div class="text-center py-5">
-        <i class="bi bi-box-seam display-1 text-muted mb-3"></i>
-        <h4>Không có combo deal nào</h4>
-        <p class="text-muted">Hãy quay lại sau để xem các combo hấp dẫn!</p>
-    </div>
-    {% endif %}
+        <div aria-label="Tổng quan combo đang mở" class="combo-hero__stats" role="list">
+            <div class="stat-card" role="listitem">
+                <span class="stat-label">Combo đang mở</span>
+                <div class="stat-value">{{ combo_summary.active_count|default:0 }}</div>
+                <span class="stat-hint">Áp dụng tự động khi đủ sản phẩm</span>
+            </div>
+            <div class="stat-card" role="listitem">
+                <span class="stat-label">Sản phẩm trong combo</span>
+                <div class="stat-value">{{ combo_summary.product_count|default:0 }}</div>
+                <span class="stat-hint">Đủ bộ phụ kiện, thiết bị kèm</span>
+            </div>
+            <div class="stat-card" role="listitem">
+                <span class="stat-label">Tiết kiệm trung bình</span>
+                <div class="stat-value">{{ combo_summary.avg_discount_percent|default:0 }}%</div>
+                {% if combo_summary.next_expiry %}
+                <span class="stat-hint">Hết hạn sớm: {{ combo_summary.next_expiry|date:"d/m H:i" }}</span>
+                {% else %}
+                <span class="stat-hint">Luôn cập nhật ưu đãi mới</span>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <section aria-labelledby="combo-list-title" class="combo-section">
+        <div class="section-header">
+            <div>
+                <div class="section-eyebrow">Combo đề xuất</div>
+                <h2 class="section-title" id="combo-list-title">Bento grid cho ưu đãi combo</h2>
+                <p class="section-subtitle">Chọn combo phù hợp, xem nhanh giá gốc - giá combo - mức tiết kiệm, danh sách
+                    sản phẩm và thời gian hiệu lực.</p>
+            </div>
+            <div aria-hidden="true" class="section-actions">
+                <span class="section-pill">Swiss layout</span>
+                <span class="section-pill">Micro-interactions</span>
+                <span class="section-pill">High contrast</span>
+            </div>
+        </div>
+
+        {% if combo_cards %}
+        <div aria-label="Danh sách combo đang khuyến mãi" class="combo-bento-grid" role="list">
+            {% for item in combo_cards %}
+            {% with combo=item.combo %}
+            <article aria-labelledby="combo-title-{{ combo.id }}" class="combo-card" role="listitem">
+                <div aria-hidden="true" class="combo-card__accent"></div>
+                <div class="combo-card__header">
+                    <div>
+                        <div class="combo-card__eyebrow">Combo #{{ forloop.counter }}</div>
+                        <h3 class="combo-card__title" id="combo-title-{{ combo.id }}">{{ combo.name }}</h3>
+                    </div>
+                    <div aria-label="Tiết kiệm {{ item.discount_percent }}%" class="combo-chip combo-chip--cta">
+                        <i aria-hidden="true" class="bi bi-lightning-charge-fill"></i>
+                        <span>-{{ item.discount_percent }}%</span>
+                    </div>
+                </div>
+
+                <p class="combo-card__desc">
+                    {{ combo.description|default:"Combo trọn bộ thiết bị điện tử, tối ưu giá mua sắm." }}
+                </p>
+
+                <div aria-label="Giá combo {{ combo.name }}" class="combo-card__pricing">
+                    <div class="price-block">
+                        <span class="price-label">Giá combo</span>
+                        <div class="price-values">
+                            <span class="price-final">{{ item.final_price|floatformat:0 }}đ</span>
+                            <span class="price-original">{{ item.current_total|floatformat:0 }}đ</span>
+                        </div>
+                        <span class="price-saving">
+                            <i aria-hidden="true" class="bi bi-cash-coin"></i>
+                            Tiết kiệm {{ item.discount_amount|floatformat:0 }}đ • {{ item.discount_percent }}%
+                        </span>
+                    </div>
+                    <div class="time-block">
+                        <span class="meta-chip">
+                            <i aria-hidden="true" class="bi bi-clock-history"></i>
+                            Hiệu lực đến {{ combo.valid_until|date:"d/m/Y H:i" }}
+                        </span>
+                        <div class="time-progress" data-end="{{ combo.valid_until|date:'c' }}"
+                             data-start="{{ combo.valid_from|date:'c' }}">
+                            <span class="time-progress__bar"></span>
+                        </div>
+                        <span aria-live="polite" class="time-remaining" data-end="{{ combo.valid_until|date:'c' }}">
+                            Đang cập nhật thời gian còn lại...
+                        </span>
+                    </div>
+                </div>
+
+                <div aria-label="Sản phẩm trong combo {{ combo.name }}" class="combo-card__products" role="list">
+                    {% for product in item.products %}
+                    <div class="combo-product" role="listitem">
+                        <div aria-hidden="true" class="combo-product__media">
+                            <img alt="{{ product.name }}" src="{{ product.image.url }}">
+                        </div>
+                        <div>
+                            <div class="combo-product__name">
+                                <a class="combo-link" href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+                            </div>
+                            <div class="combo-product__meta">
+                                {% if product.brand %}
+                                <span class="meta-chip meta-chip--brand">{{ product.brand.name }}</span>
+                                {% endif %}
+                                <span class="meta-chip">Tồn kho: {{ product.stock }}</span>
+                            </div>
+                        </div>
+                        <div class="combo-product__price">
+                            <span class="price-current">{{ product.current_price|floatformat:0 }}đ</span>
+                            {% if product.sale_price and product.sale_price < product.price %}
+                            <span class="price-old">{{ product.price|floatformat:0 }}đ</span>
+                            {% endif %}
+                            <a class="combo-link combo-link--cta" href="{{ product.get_absolute_url }}">Xem sản phẩm</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="combo-card__actions">
+                    <a aria-label="Mở giỏ hàng để áp dụng combo {{ combo.name }}" class="btn btn-primary"
+                       href="{% url 'cart:detail' %}">
+                        <i aria-hidden="true" class="bi bi-bag-check"></i>
+                        Mở giỏ hàng
+                    </a>
+                    <a aria-label="Xem thêm sản phẩm cho combo {{ combo.name }}" class="btn btn-outline-primary"
+                       href="{% url 'products:product_list' %}?combo={{ combo.id }}">
+                        <i aria-hidden="true" class="bi bi-grid-3x3-gap"></i>
+                        Thêm sản phẩm liên quan
+                    </a>
+                </div>
+            </article>
+            {% endwith %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="combo-empty" role="status">
+            <div class="combo-empty__icon">
+                <i aria-hidden="true" class="bi bi-ui-radios"></i>
+            </div>
+            <div>
+                <h3>Hiện chưa có combo đang mở</h3>
+                <p class="mb-0">Quay lại sau hoặc khám phá Flash Sale để nhận ưu đãi nhanh.</p>
+            </div>
+            <div class="combo-empty__actions">
+                <a class="btn btn-primary" href="{% url 'promotions:flash_sales' %}">
+                    <i aria-hidden="true" class="bi bi-lightning-charge-fill"></i> Xem Flash Sale
+                </a>
+                <a class="btn btn-outline-primary" href="{% url 'products:product_list' %}">
+                    <i aria-hidden="true" class="bi bi-grid"></i> Khám phá sản phẩm
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </section>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const blocks = document.querySelectorAll('.time-progress');
+
+        blocks.forEach(block => {
+            const start = new Date(block.dataset.start);
+            const end = new Date(block.dataset.end);
+            const bar = block.querySelector('.time-progress__bar');
+            const label = block.parentElement.querySelector('.time-remaining');
+
+            if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+                if (label) {
+                    label.textContent = 'Luôn mở';
+                }
+                return;
+            }
+
+            const update = () => {
+                const now = new Date();
+                const total = end - start;
+                const elapsed = Math.min(Math.max(now - start, 0), Math.max(total, 0));
+                const percent = total > 0 ? (elapsed / total) * 100 : 100;
+                if (bar) {
+                    bar.style.setProperty('--progress', `${percent}%`);
+                }
+                if (label) {
+                    const remaining = end - now;
+                    if (remaining <= 0) {
+                        label.textContent = 'Đã hết hạn';
+                        return;
+                    }
+                    const hours = Math.floor(remaining / 36e5);
+                    const minutes = Math.floor((remaining % 36e5) / 6e4);
+                    label.textContent = hours > 0 ? `Còn ${hours}h ${minutes}m` : `Còn ${minutes} phút`;
+                }
+            };
+
+            update();
+            if (!prefersReduced) {
+                setInterval(update, 60000);
+            }
+        });
+    })();
+</script>
 {% endblock %}

@@ -1,115 +1,296 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Địa chỉ của tôi - ElectroShop{% endblock %}
+{% block title %}Sổ địa chỉ - ElectroShop{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --ink: #0f172a;
+        --muted: #475569;
+        --border: #e5e7eb;
+        --surface: #ffffff;
+        --surface-muted: #f8fafc;
+        --accent: #2563eb;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f6f7fb 0%, #eef2f7 50%, #f8fafc 100%);
+    }
+
+    .addresses-shell {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem 1.25rem 2.5rem;
+    }
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        color: var(--muted);
+        font-size: 0.875rem;
+    }
+
+    .breadcrumb a {
+        color: var(--accent);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .breadcrumb a:hover {
+        color: var(--ink);
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .page-header h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--ink);
+        margin: 0;
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.3);
+        color: white;
+    }
+
+    .addresses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .address-card {
+        background: var(--surface);
+        border: 2px solid var(--border);
+        border-radius: 18px;
+        padding: 1.5rem;
+        position: relative;
+        transition: all 0.2s ease;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    }
+
+    .address-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-4px);
+        box-shadow: 0 16px 32px rgba(15, 23, 42, 0.1);
+    }
+
+    .address-card.default {
+        border-color: var(--accent);
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.02), transparent);
+    }
+
+    .default-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.35rem 0.75rem;
+        background: var(--accent);
+        color: white;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .address-name {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0 0 0.5rem;
+    }
+
+    .address-phone {
+        color: var(--muted);
+        font-size: 0.9375rem;
+        margin: 0 0 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .address-details {
+        color: var(--muted);
+        line-height: 1.6;
+        margin: 0 0 1.25rem;
+    }
+
+    .address-actions {
+        display: flex;
+        gap: 0.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 0.65rem;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--surface-muted);
+        color: var(--ink);
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+    }
+
+    .btn-action:hover {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+    }
+
+    .btn-action.danger:hover {
+        background: #dc2626;
+        border-color: #dc2626;
+    }
+
+    .empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--surface);
+        border: 2px dashed var(--border);
+        border-radius: 18px;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--border);
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .empty-state h3 {
+        color: var(--ink);
+        margin: 0 0 0.5rem;
+    }
+
+    .empty-state p {
+        color: var(--muted);
+        margin: 0 0 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .addresses-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .btn-primary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-lg-3 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
-                             style="width: 50px; height: 50px;">
-                            <i class="bi bi-person-fill fs-4"></i>
-                        </div>
-                        <div class="ms-3">
-                            <h6 class="mb-0">{{ user.get_full_name|default:user.username }}</h6>
-                            <small class="text-muted">{{ user.email }}</small>
-                        </div>
-                    </div>
-                    <hr>
-                    <nav class="nav flex-column">
-                        <a class="nav-link" href="{% url 'accounts:profile' %}">
-                            <i class="bi bi-person me-2"></i>Thông tin cá nhân
-                        </a>
-                        <a class="nav-link active" href="{% url 'accounts:address_list' %}">
-                            <i class="bi bi-geo-alt me-2"></i>Địa chỉ giao hàng
-                        </a>
-                        <a class="nav-link" href="{% url 'accounts:card_list' %}">
-                            <i class="bi bi-credit-card me-2"></i>Thẻ thanh toán
-                        </a>
-                        <a class="nav-link" href="{% url 'orders:list' %}">
-                            <i class="bi bi-bag me-2"></i>Đơn hàng của tôi
-                        </a>
-                    </nav>
-                </div>
-            </div>
-        </div>
+<div class="addresses-shell">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="{% url 'accounts:profile' %}">
+            <i class="bi bi-person-circle"></i> Tài khoản
+        </a>
+        <i class="bi bi-chevron-right"></i>
+        <span>Sổ địa chỉ</span>
+    </nav>
 
-        <!-- Main Content -->
-        <div class="col-lg-9">
-            <div class="card">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <h5 class="mb-0">
-                        <i class="bi bi-geo-alt me-2 text-primary"></i>Địa chỉ giao hàng
-                    </h5>
-                    <a class="btn btn-primary btn-sm" href="{% url 'accounts:address_create' %}">
-                        <i class="bi bi-plus-lg me-1"></i>Thêm địa chỉ
-                    </a>
-                </div>
-                <div class="card-body">
-                    {% if addresses %}
-                    <div class="row g-3">
-                        {% for address in addresses %}
-                        <div class="col-md-6">
-                            <div class="card h-100 {% if address.is_default %}border-primary{% endif %}">
-                                <div class="card-body">
-                                    {% if address.is_default %}
-                                    <span class="badge bg-primary mb-2">Mặc định</span>
-                                    {% endif %}
-                                    <h6 class="card-title">{{ address.full_name }}</h6>
-                                    <p class="card-text text-muted small mb-1">
-                                        <i class="bi bi-telephone me-1"></i>{{ address.phone }}
-                                    </p>
-                                    <p class="card-text small">
-                                        {{ address.address }}<br>
-                                        {% if address.ward %}{{ address.ward }}, {% endif %}
-                                        {{ address.district }}, {{ address.province }}
-                                    </p>
-                                </div>
-                                <div class="card-footer bg-white border-top-0">
-                                    <div class="btn-group btn-group-sm">
-                                        <a class="btn btn-outline-primary"
-                                           href="{% url 'accounts:address_edit' address.id %}">
-                                            <i class="bi bi-pencil"></i> Sửa
-                                        </a>
-                                        {% if not address.is_default %}
-                                        <form action="{% url 'accounts:address_set_default' address.id %}" class="d-inline"
-                                              method="post">
-                                            {% csrf_token %}
-                                            <button class="btn btn-outline-success" type="submit">
-                                                <i class="bi bi-star"></i> Mặc định
-                                            </button>
-                                        </form>
-                                        {% endif %}
-                                        <form action="{% url 'accounts:address_delete' address.id %}" class="d-inline"
-                                              method="post"
-                                              onsubmit="return confirm('Bạn có chắc muốn xóa địa chỉ này?')">
-                                            {% csrf_token %}
-                                            <button class="btn btn-outline-danger" type="submit">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="text-center py-5">
-                        <i class="bi bi-geo-alt text-muted" style="font-size: 4rem;"></i>
-                        <p class="text-muted mt-3">Bạn chưa có địa chỉ nào</p>
-                        <a class="btn btn-primary" href="{% url 'accounts:address_create' %}">
-                            <i class="bi bi-plus-lg me-1"></i>Thêm địa chỉ mới
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
+    <div class="page-header">
+        <h1><i class="bi bi-geo-alt"></i> Sổ địa chỉ</h1>
+        <a class="btn-primary" href="{% url 'accounts:address_create' %}">
+            <i class="bi bi-plus-lg"></i>
+            <span>Thêm địa chỉ mới</span>
+        </a>
+    </div>
+
+    <div class="addresses-grid">
+        {% if addresses %}
+        {% for address in addresses %}
+        <div class="address-card {% if address.is_default %}default{% endif %}">
+            {% if address.is_default %}
+            <span class="default-badge">Mặc định</span>
+            {% endif %}
+
+            <h3 class="address-name">{{ address.full_name }}</h3>
+            <p class="address-phone">
+                <i class="bi bi-telephone"></i> {{ address.phone }}
+            </p>
+            <p class="address-details">
+                {{ address.address }}<br>
+                {% if address.ward %}{{ address.ward }}, {% endif %}{{ address.district }}<br>
+                {{ address.province }}
+            </p>
+
+            <div class="address-actions">
+                {% if not address.is_default %}
+                <form action="{% url 'accounts:address_set_default' address.id %}" method="post" style="flex: 1;">
+                    {% csrf_token %}
+                    <button class="btn-action" style="width: 100%;" type="submit">
+                        <i class="bi bi-star"></i> Mặc định
+                    </button>
+                </form>
+                {% endif %}
+                <a class="btn-action" href="{% url 'accounts:address_edit' address.id %}">
+                    <i class="bi bi-pencil"></i> Sửa
+                </a>
+                <form action="{% url 'accounts:address_delete' address.id %}" method="post"
+                      onsubmit="return confirm('Bạn chắc chắn muốn xóa địa chỉ này?');" style="flex: 1;">
+                    {% csrf_token %}
+                    <button class="btn-action danger" style="width: 100%;" type="submit">
+                        <i class="bi bi-trash"></i> Xóa
+                    </button>
+                </form>
             </div>
         </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-geo-alt"></i>
+            <h3>Chưa có địa chỉ nào</h3>
+            <p>Thêm địa chỉ giao hàng để đặt hàng nhanh hơn</p>
+            <a class="btn-primary" href="{% url 'accounts:address_create' %}">
+                <i class="bi bi-plus-lg"></i>
+                <span>Thêm địa chỉ đầu tiên</span>
+            </a>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

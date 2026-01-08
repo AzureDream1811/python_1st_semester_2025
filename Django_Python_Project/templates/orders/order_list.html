@@ -1,45 +1,439 @@
-{% extends "base.html" %}
-{% load static %}
+{% extends 'base.html' %}
 {% load product_tags %}
-{% block content %}
-<link href="{% static 'css/orders/orderlist.css' %}" rel="stylesheet">
 
-<div class="orderlist-container">
-    <h1>Đơn hàng của bạn</h1>
+{% block title %}Đơn hàng của bạn - ElectroShop{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================== ORDER LIST - SWISS + BENTO ==================== */
+
+    .order-list-container {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+    }
+
+    /* Hero */
+    .order-list-hero {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 50%, #6D28D9 100%);
+        border-radius: 2rem;
+        padding: 2.5rem;
+        color: white;
+        box-shadow: 0 16px 48px rgba(139, 92, 246, 0.2);
+        margin-bottom: 2rem;
+    }
+
+    .order-list-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 24px 24px;
+        opacity: 0.3;
+    }
+
+    .order-list-hero__content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .order-list-hero__title {
+        font-size: clamp(2rem, 4vw, 2.5rem);
+        font-weight: 800;
+        margin: 0 0 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .order-list-hero__subtitle {
+        font-size: 1.0625rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    /* Orders Grid */
+    .orders-grid {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .order-card {
+        background: white;
+        border: 1px solid #E5E7EB;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .order-card:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        transform: translateY(-4px);
+    }
+
+    .order-card__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #E5E7EB;
+    }
+
+    .order-card__info {
+        flex: 1;
+    }
+
+    .order-card__number {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .order-card__date {
+        font-size: 0.875rem;
+        color: #6B7280;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .order-card__status {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.5rem;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .status-badge::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .status-badge.status-pending {
+        background: rgba(251, 191, 36, 0.1);
+        color: #D97706;
+    }
+
+    .status-badge.status-pending::before {
+        background: #D97706;
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    .status-badge.status-paid {
+        background: rgba(34, 197, 94, 0.1);
+        color: #059669;
+    }
+
+    .status-badge.status-paid::before {
+        background: #059669;
+    }
+
+    .status-badge.status-cancelled {
+        background: rgba(239, 68, 68, 0.1);
+        color: #DC2626;
+    }
+
+    .status-badge.status-cancelled::before {
+        background: #DC2626;
+    }
+
+    .status-badge.status-processing {
+        background: rgba(59, 130, 246, 0.1);
+        color: #2563EB;
+    }
+
+    .status-badge.status-processing::before {
+        background: #2563EB;
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.5;
+        }
+    }
+
+    .order-card__body {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .order-card__meta {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    .meta-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .meta-item__label {
+        font-size: 0.8125rem;
+        color: #6B7280;
+        font-weight: 500;
+    }
+
+    .meta-item__value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .meta-item__value--price {
+        font-size: 1.5rem;
+        color: #3B82F6;
+    }
+
+    .order-card__footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid #E5E7EB;
+    }
+
+    .payment-method {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: #F9FAFB;
+        border-radius: 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+    }
+
+    .btn-view-detail {
+        padding: 0.75rem 1.5rem;
+        background: #3B82F6;
+        color: white;
+        border: none;
+        border-radius: 0.75rem;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-view-detail:hover {
+        background: #2563EB;
+        transform: translateX(4px);
+        color: white;
+    }
+
+    /* Empty State */
+    .empty-state {
+        background: white;
+        border: 2px dashed #E5E7EB;
+        border-radius: 2rem;
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+
+    .empty-state__icon {
+        font-size: 4rem;
+        color: #D1D5DB;
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state__title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 0.75rem;
+    }
+
+    .empty-state__description {
+        font-size: 1rem;
+        color: #6B7280;
+        margin: 0 0 2rem;
+    }
+
+    .btn-shop-now {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+        color: white;
+        border: none;
+        border-radius: 1rem;
+        font-size: 1rem;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-shop-now:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 32px rgba(139, 92, 246, 0.4);
+        color: white;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .order-list-container {
+            padding: 1.5rem 1rem;
+        }
+
+        .order-list-hero {
+            padding: 2rem 1.5rem;
+        }
+
+        .order-card {
+            padding: 1.5rem;
+        }
+
+        .order-card__header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .order-card__status {
+            align-items: flex-start;
+        }
+
+        .order-card__meta {
+            grid-template-columns: 1fr;
+        }
+
+        .order-card__footer {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn-view-detail {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="order-list-container">
+    <!-- Hero -->
+    <section class="order-list-hero">
+        <div class="order-list-hero__content">
+            <h1 class="order-list-hero__title">
+                <i class="bi bi-box-seam"></i>
+                Đơn hàng của bạn
+            </h1>
+            <p class="order-list-hero__subtitle">
+                Theo dõi và quản lý tất cả đơn hàng của bạn
+            </p>
+        </div>
+    </section>
 
     {% if orders %}
-    <table class="orders-table">
-        <thead>
-        <tr>
-            <th>Mã đơn</th>
-            <th>Ngày đặt</th>
-            <th>Số sản phẩm</th>
-            <th>Tổng tiền</th>
-            <th>Trạng thái thanh toán</th>
-            <th>Thao tác</th>
-        </tr>
-        </thead>
-        <tbody>
+    <div class="orders-grid">
         {% for order in orders %}
-        <tr>
-            <td>{{ order.order_number }}</td>
-            <td>{{ order.created_at|date:"d/m/Y" }}</td>
-            <td>{{ order.orderitem_set.count }} sản phẩm</td>
-            <td>{{ order.total|currency }}</td>
-            <td><span
-                    class="status-badge status-{{ order.payment_status }}">{{ order.get_payment_status_display }}</span>
-            </td>
-            <td>
-                <a class="btn-view" href="{% url 'orders:detail' order.order_number %}">Xem chi tiết</a>
-            </td>
-        </tr>
+        <div class="order-card">
+            <div class="order-card__header">
+                <div class="order-card__info">
+                    <h3 class="order-card__number">
+                        <i class="bi bi-receipt"></i>
+                        #{{ order.order_number }}
+                    </h3>
+                    <p class="order-card__date">
+                        <i class="bi bi-calendar3"></i>
+                        {{ order.created_at|date:"d/m/Y H:i" }}
+                    </p>
+                </div>
+                <div class="order-card__status">
+                    <span class="status-badge status-{{ order.payment_status }}">
+                        {{ order.get_payment_status_display }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="order-card__body">
+                <div class="order-card__meta">
+                    <div class="meta-item">
+                        <span class="meta-item__label">Số sản phẩm</span>
+                        <span class="meta-item__value">{{ order.items.count }} sản phẩm</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-item__label">Phương thức</span>
+                        <span class="meta-item__value">{{ order.get_payment_method_display }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-item__label">Tổng tiền</span>
+                        <span class="meta-item__value meta-item__value--price">{{ order.total|currency }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-card__footer">
+                <div class="payment-method">
+                    {% if order.payment_method == 'cod' %}
+                    <i class="bi bi-cash-coin"></i>
+                    {% elif order.payment_method == 'bank_transfer' %}
+                    <i class="bi bi-bank"></i>
+                    {% elif order.payment_method == 'momo' %}
+                    <i class="bi bi-phone"></i>
+                    {% elif order.payment_method == 'zalopay' %}
+                    <i class="bi bi-wallet"></i>
+                    {% endif %}
+                    {{ order.get_payment_method_display }}
+                </div>
+                <a href="{% url 'orders:detail' order.order_number %}" class="btn-view-detail">
+                    <span>Xem chi tiết</span>
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
         {% endfor %}
-        </tbody>
-    </table>
+    </div>
     {% else %}
     <div class="empty-state">
-        <p>Bạn chưa có đơn hàng nào.</p>
-        <a class="btn-primary" href="{% url 'products:product_list' %}">Mua sắm ngay</a>
+        <div class="empty-state__icon">
+            <i class="bi bi-box-seam"></i>
+        </div>
+        <h2 class="empty-state__title">Chưa có đơn hàng nào</h2>
+        <p class="empty-state__description">
+            Bạn chưa có đơn hàng nào. Hãy bắt đầu mua sắm ngay!
+        </p>
+        <a href="{% url 'products:product_list' %}" class="btn-shop-now">
+            <i class="bi bi-cart-plus"></i>
+            <span>Mua sắm ngay</span>
+        </a>
     </div>
     {% endif %}
 </div>

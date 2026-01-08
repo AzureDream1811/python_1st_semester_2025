@@ -1,6 +1,6 @@
 """
 Analytics Models for ElectroShop
-User tracking, funnel events, search logs
+Tính năng nâng cao đang làm
 """
 from django.db import models
 from django.contrib.auth.models import User
@@ -8,7 +8,7 @@ from apps.products.models import Product
 
 
 class FunnelEvent(models.Model):
-    """Track conversion funnel events"""
+    """Theo dõi các sự kiện kênh chuyển đổi"""
 
     FUNNEL_STEPS = [
         ('view_product', 'Xem sản phẩm'),
@@ -35,7 +35,7 @@ class FunnelEvent(models.Model):
 
 
 class SearchLog(models.Model):
-    """Track search queries"""
+    """Theo dõi truy vấn tìm kiếm"""
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
     query = models.CharField(max_length=200, verbose_name='Từ khóa')
     results_count = models.IntegerField(default=0, verbose_name='Số kết quả')
@@ -49,7 +49,7 @@ class SearchLog(models.Model):
 
 
 class DailyStats(models.Model):
-    """Pre-aggregated daily statistics"""
+    """Số liệu thống kê hàng ngày được tổng hợp trước"""
     date = models.DateField(unique=True)
     total_revenue = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     total_orders = models.IntegerField(default=0)

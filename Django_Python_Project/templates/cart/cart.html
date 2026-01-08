@@ -3,238 +3,604 @@
 
 {% block title %}Giỏ hàng - ElectroShop{% endblock %}
 
+{% block extra_css %}
+<style>
+    .cart-shell {
+        display: flex;
+        flex-direction: column;
+        gap: var(--es-space-3);
+        padding: var(--es-space-1) 0 var(--es-space-4);
+    }
+
+    .cart-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: var(--es-radius-bento-lg);
+        background: linear-gradient(135deg, var(--es-primary) 0%, var(--es-primary-dark) 45%, #0f172a 100%);
+        color: var(--es-white);
+        padding: var(--es-space-4);
+        display: grid;
+        grid-template-columns: 1.3fr 1fr;
+        gap: var(--es-space-3);
+        box-shadow: var(--es-shadow-xl);
+    }
+
+    .cart-hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.16), transparent 35%),
+        radial-gradient(circle at 80% 0%, rgba(96, 165, 250, 0.3), transparent 30%),
+        radial-gradient(circle at 60% 90%, rgba(15, 23, 42, 0.2), transparent 45%);
+        pointer-events: none;
+    }
+
+    .cart-hero__content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: var(--es-space-2);
+    }
+
+    .cart-breadcrumb {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: var(--es-radius-full);
+        background: rgba(255, 255, 255, 0.12);
+        font-size: var(--es-text-sm);
+    }
+
+    .cart-breadcrumb a {
+        color: var(--es-white);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        opacity: 0.9;
+    }
+
+    .cart-breadcrumb a:hover {
+        opacity: 1;
+    }
+
+    .cart-hero__title {
+        font-size: clamp(2rem, 2.4vw, 2.7rem);
+        font-weight: var(--es-font-bold);
+        line-height: 1.1;
+    }
+
+    .cart-hero__lead {
+        max-width: 620px;
+        font-size: 1.05rem;
+        opacity: 0.92;
+    }
+
+    .cart-hero__stats {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--es-space-2);
+    }
+
+    .hero-stat {
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: var(--es-radius-bento);
+        padding: var(--es-space-2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: var(--es-shadow-sm);
+        transition: transform var(--es-transition-normal), box-shadow var(--es-transition-normal);
+    }
+
+    .hero-stat:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--es-shadow-md);
+    }
+
+    .hero-stat__label {
+        font-size: var(--es-text-sm);
+        opacity: 0.9;
+    }
+
+    .hero-stat__value {
+        font-size: 1.5rem;
+        font-weight: var(--es-font-bold);
+    }
+
+    .hero-stat__hint {
+        display: block;
+        margin-top: 6px;
+        font-size: var(--es-text-sm);
+        opacity: 0.85;
+    }
+
+    .cart-layout {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: var(--es-space-3);
+    }
+
+    .cart-card,
+    .cart-summary {
+        background: var(--es-white);
+        border: 1px solid var(--es-border-light);
+        border-radius: var(--es-radius-bento-lg);
+        box-shadow: var(--es-shadow-card);
+        overflow: hidden;
+    }
+
+    .cart-card__header,
+    .cart-summary__header {
+        padding: var(--es-space-2) var(--es-space-3);
+        border-bottom: 1px solid var(--es-border-light);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--es-space-2);
+    }
+
+    .cart-card__body {
+        padding: var(--es-space-3);
+    }
+
+    .cart-items {
+        display: flex;
+        flex-direction: column;
+        gap: var(--es-space-2);
+    }
+
+    .cart-item {
+        position: relative;
+        display: grid;
+        grid-template-columns: auto 1fr auto auto;
+        gap: var(--es-space-2);
+        align-items: center;
+        padding: var(--es-space-2);
+        border: 1px solid var(--es-border-light);
+        border-radius: var(--es-radius-bento);
+        background: var(--es-bg-white);
+        transition: border-color var(--es-transition-normal), box-shadow var(--es-transition-normal);
+    }
+
+    .cart-item:hover {
+        border-color: var(--es-primary-200);
+        box-shadow: var(--es-shadow-card-hover);
+    }
+
+    .cart-item__media {
+        width: 96px;
+        height: 96px;
+        border-radius: var(--es-radius-md);
+        overflow: hidden;
+        background: var(--es-bg-secondary);
+        flex-shrink: 0;
+    }
+
+    .cart-item__media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .cart-item__placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--es-text-muted);
+        font-size: 1.6rem;
+    }
+
+    .cart-item__info {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .cart-item__name a {
+        color: var(--es-text-primary);
+        font-weight: var(--es-font-semibold);
+        text-decoration: none;
+    }
+
+    .cart-item__name a:hover {
+        color: var(--es-primary);
+    }
+
+    .cart-item__meta {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        color: var(--es-text-muted);
+        font-size: var(--es-text-sm);
+    }
+
+    .cart-item__price,
+    .cart-item__quantity,
+    .cart-item__subtotal {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+        min-width: 110px;
+    }
+
+    .price-label,
+    .quantity-label,
+    .subtotal-label {
+        font-size: var(--es-text-xs);
+        color: var(--es-text-muted);
+    }
+
+    .price-value {
+        font-weight: var(--es-font-semibold);
+    }
+
+    .subtotal-value {
+        font-size: 1.05rem;
+        font-weight: var(--es-font-bold);
+        color: var(--es-primary-dark);
+    }
+
+    .quantity-input {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid var(--es-border-light);
+        border-radius: var(--es-radius-md);
+        overflow: hidden;
+    }
+
+    .qty-btn {
+        width: var(--es-touch-target);
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--es-bg-secondary);
+        border: none;
+        cursor: pointer;
+        transition: background var(--es-transition-fast);
+    }
+
+    .qty-btn:hover {
+        background: var(--es-gray-200);
+    }
+
+    .quantity-input input {
+        width: 54px;
+        height: 40px;
+        text-align: center;
+        border: none;
+        font-weight: var(--es-font-semibold);
+        background: var(--es-white);
+    }
+
+    .remove-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--es-bg-white);
+        border: 1px solid var(--es-border-light);
+        border-radius: var(--es-radius-full);
+        color: var(--es-text-muted);
+        cursor: pointer;
+        transition: background var(--es-transition-normal), border-color var(--es-transition-normal), color var(--es-transition-normal);
+    }
+
+    .remove-btn:hover {
+        background: var(--es-danger-50);
+        border-color: var(--es-danger);
+        color: var(--es-danger);
+    }
+
+    .cart-summary {
+        position: sticky;
+        top: var(--es-space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--es-space-2);
+    }
+
+    .cart-summary__body {
+        padding: var(--es-space-3);
+        display: flex;
+        flex-direction: column;
+        gap: var(--es-space-2);
+    }
+
+    .summary-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: var(--es-text-primary);
+    }
+
+    .summary-row--discount {
+        color: var(--es-danger);
+    }
+
+    .summary-total {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: var(--es-font-bold);
+        font-size: 1.1rem;
+    }
+
+    .summary-divider {
+        margin: 4px 0;
+        border-color: var(--es-border-light);
+    }
+
+    .cart-summary__checkout {
+        width: 100%;
+    }
+
+    .cart-empty {
+        padding: var(--es-space-4);
+        border: 1px dashed var(--es-border-dark);
+        border-radius: var(--es-radius-bento);
+        background: var(--es-bg-secondary);
+        text-align: center;
+        display: grid;
+        gap: var(--es-space-2);
+    }
+
+    .cart-empty__icon {
+        width: 72px;
+        height: 72px;
+        border-radius: var(--es-radius-full);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--es-primary-100);
+        color: var(--es-primary);
+        margin: 0 auto;
+        font-size: 1.6rem;
+    }
+
+    @media (max-width: 1024px) {
+        .cart-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .cart-hero {
+            grid-template-columns: 1fr;
+        }
+
+        .cart-hero__stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .cart-hero__stats {
+            grid-template-columns: 1fr;
+        }
+
+        .cart-item {
+            grid-template-columns: 1fr;
+            align-items: flex-start;
+        }
+
+        .cart-item__price,
+        .cart-item__quantity,
+        .cart-item__subtotal {
+            align-items: flex-start;
+        }
+
+        .remove-btn {
+            position: static;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .hero-stat,
+        .cart-item,
+        .remove-btn {
+            transition: none;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<!-- Redesigned cart page with modern styling -->
-<nav aria-label="breadcrumb" class="mb-4">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'products:home' %}"><i class="bi bi-house me-1"></i>Trang chủ</a>
-        </li>
-        <li class="breadcrumb-item active">Giỏ hàng</li>
-    </ol>
-</nav>
+<div class="cart-shell">
+    <section aria-labelledby="cart-title" class="cart-hero">
+        <div class="cart-hero__content">
+            <div aria-label="Breadcrumb" class="cart-breadcrumb">
+                <a href="{% url 'products:home' %}"><i aria-hidden="true" class="bi bi-house"></i> Trang chủ</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">Giỏ hàng</span>
+            </div>
+            <p class="cart-hero__lead">Kiểm tra sản phẩm, số lượng, giá và tiếp tục thanh toán.</p>
+        </div>
+        <div aria-label="Tổng quan giỏ" class="cart-hero__stats" role="list">
+            <div class="hero-stat" role="listitem">
+                <span class="hero-stat__label">Số sản phẩm</span>
+                <div class="hero-stat__value">{{ cart.total_items }}</div>
+                <span class="hero-stat__hint">Đã chọn trong giỏ</span>
+            </div>
+            <div class="hero-stat" role="listitem">
+                <span class="hero-stat__label">Tạm tính</span>
+                <div class="hero-stat__value">{{ cart.subtotal|currency }}</div>
+                <span class="hero-stat__hint">Chưa áp dụng giảm</span>
+            </div>
+            <div class="hero-stat" role="listitem">
+                <span class="hero-stat__label">Thanh toán</span>
+                <div class="hero-stat__value">{{ cart.total|currency }}</div>
+                <span class="hero-stat__hint">Miễn phí vận chuyển</span>
+            </div>
+        </div>
+    </section>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="h4 mb-0">
-        <i class="bi bi-bag me-2 text-primary"></i>Giỏ hàng của bạn
-    </h2>
     {% if items %}
-    <span class="badge bg-primary px-3 py-2">{{ cart.total_items }} sản phẩm</span>
-    {% endif %}
-</div>
-
-{% if items %}
-<div class="row">
-    <!-- Cart Items -->
-    <div class="col-lg-8 mb-4">
-        <div class="card">
-            <div class="card-body p-0">
-                {% for item in items %}
-                <div class="cart-item p-4 {% if not forloop.last %}border-bottom{% endif %}">
-                    <div class="row align-items-center">
-                        <!-- Product Image -->
-                        <div class="col-md-2 col-3 mb-3 mb-md-0">
-                            <a class="d-block" href="{{ item.product.get_absolute_url }}">
-                                {% if item.product.image %}
-                                <img alt="{{ item.product.name }}" class="img-fluid rounded-3 shadow-sm"
-                                     src="{{ item.product.image.url }}"
-                                     style="max-height: 100px; object-fit: contain; background: var(--gray-50); padding: 0.5rem;">
-                                {% else %}
-                                <div class="bg-light rounded-3 d-flex align-items-center justify-content-center"
-                                     style="height: 100px;">
-                                    <i class="bi bi-image text-muted display-6"></i>
-                                </div>
-                                {% endif %}
-                            </a>
-                        </div>
-
-                        <!-- Product Info -->
-                        <div class="col-md-4 col-9 mb-3 mb-md-0">
-                            <h6 class="mb-1">
-                                <a class="text-decoration-none text-dark" href="{{ item.product.get_absolute_url }}">
-                                    {{ item.product.name }}
-                                </a>
-                            </h6>
-                            <small class="text-muted d-block mb-2">{{ item.product.category.name }}</small>
-                            {% if item.product.in_stock %}
-                            <span class="badge bg-success-subtle text-success">
-                                <i class="bi bi-check-circle me-1"></i>Còn hàng
-                            </span>
+    <div class="cart-layout">
+        <div class="cart-card">
+            <div class="cart-card__header">
+                <div class="d-flex align-items-center gap-2">
+                    <i aria-hidden="true" class="bi bi-bag"></i>
+                    <span>Danh sách sản phẩm</span>
+                </div>
+                <span class="text-muted">{{ items|length }} sản phẩm</span>
+            </div>
+            <div class="cart-card__body">
+                <div aria-label="Sản phẩm trong giỏ" class="cart-items" role="list">
+                    {% for item in items %}
+                    <article aria-label="{{ item.product.name }}" class="cart-item" role="listitem">
+                        <a class="cart-item__media" href="{{ item.product.get_absolute_url }}">
+                            {% if item.product.image %}
+                            <img alt="{{ item.product.name }}" src="{{ item.product.image.url }}">
                             {% else %}
-                            <span class="badge bg-danger-subtle text-danger">
-                                <i class="bi bi-x-circle me-1"></i>Hết hàng
-                            </span>
+                            <div class="cart-item__placeholder"><i class="bi bi-image"></i></div>
                             {% endif %}
+                        </a>
+
+                        <div class="cart-item__info">
+                            <h3 class="cart-item__name">
+                                <a href="{{ item.product.get_absolute_url }}">{{ item.product.name }}</a>
+                            </h3>
+                            <div class="cart-item__meta">
+                                {% if item.product.brand %}<span>{{ item.product.brand.name }}</span>{% endif %}
+                                {% if item.product.category %}<span>{{ item.product.category.name }}</span>{% endif %}
+                                {% if item.product.in_stock %}
+                                <span class="text-success"><i aria-hidden="true" class="bi bi-check-circle-fill"></i> Còn hàng</span>
+                                {% else %}
+                                <span class="text-danger"><i aria-hidden="true" class="bi bi-x-circle-fill"></i> Hết hàng</span>
+                                {% endif %}
+                            </div>
                         </div>
 
-                        <!-- Price -->
-                        <div class="col-md-2 col-4 text-center">
-                            <span class="fw-bold" style="color: var(--primary);">{{ item.price|currency }}</span>
+                        <div class="cart-item__price">
+                            <span class="price-label">Đơn giá</span>
+                            <span class="price-value">{{ item.price|currency }}</span>
                         </div>
 
-                        <!-- Quantity -->
-                        <div class="col-md-2 col-4">
-                            <form action="{% url 'cart:update' item.pk %}" class="d-flex align-items-center justify-content-center"
-                                  method="post">
+                        <div class="cart-item__quantity">
+                            <span class="quantity-label">Số lượng</span>
+                            <form action="{% url 'cart:update' item.pk %}" class="quantity-form" method="post">
                                 {% csrf_token %}
-                                <div class="d-flex align-items-center"
-                                     style="border: 2px solid var(--gray-200); border-radius: 10px; overflow: hidden;">
-                                    <button class="btn btn-link text-dark px-3 py-2" onclick="updateQty(this, -1)"
-                                            style="text-decoration: none;" type="button">
-                                        <i class="bi bi-dash"></i>
+                                <div class="quantity-input">
+                                    <button aria-label="Giảm" class="qty-btn" onclick="updateQty(this, -1)"
+                                            type="button">
+                                        <i aria-hidden="true" class="bi bi-dash"></i>
                                     </button>
-                                    <input class="form-control border-0 text-center p-0" max="{{ item.product.stock }}" min="1" name="quantity"
-                                           style="width: 40px; box-shadow: none;"
-                                           type="number"
+                                    <input max="{{ item.product.stock }}" min="1" name="quantity" type="number"
                                            value="{{ item.quantity }}">
-                                    <button class="btn btn-link text-dark px-3 py-2" onclick="updateQty(this, 1)"
-                                            style="text-decoration: none;" type="button">
-                                        <i class="bi bi-plus"></i>
+                                    <button aria-label="Tăng" class="qty-btn" onclick="updateQty(this, 1)"
+                                            type="button">
+                                        <i aria-hidden="true" class="bi bi-plus"></i>
                                     </button>
                                 </div>
                             </form>
                         </div>
 
-                        <!-- Subtotal & Remove -->
-                        <div class="col-md-2 col-4 text-end">
-                            <span class="fw-bold d-block mb-2" style="color: var(--danger); font-size: 1.125rem;">{{ item.total_price|currency }}</span>
-                            <form action="{% url 'cart:remove' item.pk %}" class="d-inline" method="post">
-                                {% csrf_token %}
-                                <button class="btn btn-sm btn-outline-danger rounded-circle" style="width: 36px; height: 36px;" title="Xóa"
-                                        type="submit">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
+                        <div class="cart-item__subtotal">
+                            <span class="subtotal-label">Thành tiền</span>
+                            <span class="subtotal-value">{{ item.total_price|currency }}</span>
                         </div>
-                    </div>
+
+                        <form action="{% url 'cart:remove' item.pk %}" method="post">
+                            {% csrf_token %}
+                            <button class="remove-btn" onclick="return confirm('Bạn chắc chắn muốn xóa sản phẩm này?')" title="Xóa sản phẩm"
+                                    type="submit">
+                                <i aria-hidden="true" class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </article>
+                    {% endfor %}
                 </div>
-                {% endfor %}
+
+                <div class="d-flex gap-2 mt-3">
+                    <a class="btn btn-outline-primary" href="{% url 'products:product_list' %}">
+                        <i aria-hidden="true" class="bi bi-arrow-left"></i> Tiếp tục mua sắm
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- Continue Shopping -->
-        <div class="mt-4">
-            <a class="btn btn-outline-primary" href="{% url 'products:product_list' %}">
-                <i class="bi bi-arrow-left me-2"></i>Tiếp tục mua sắm
-            </a>
-        </div>
-    </div>
-
-    <!-- Order Summary -->
-    <div class="col-lg-4">
-        <div class="card cart-summary" style="border: 2px solid var(--gray-200);">
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0 d-flex align-items-center">
-                    <i class="bi bi-receipt me-2 text-primary"></i>Tóm tắt đơn hàng
-                </h5>
+        <aside aria-label="Tóm tắt đơn hàng" class="cart-summary">
+            <div class="cart-summary__header">
+                <div class="d-flex align-items-center gap-2">
+                    <i aria-hidden="true" class="bi bi-receipt"></i>
+                    <span>Tạm tính đơn hàng</span>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="d-flex justify-content-between mb-3">
-                    <span class="text-muted">Tạm tính ({{ cart.total_items }} sản phẩm)</span>
-                    <span class="fw-semibold">{{ cart.subtotal|currency }}</span>
+            <div class="cart-summary__body">
+                <div class="summary-row">
+                    <span>Tạm tính ({{ cart.total_items }} sản phẩm)</span>
+                    <span>{{ cart.subtotal|currency }}</span>
                 </div>
-                <div class="d-flex justify-content-between mb-3">
-                    <span class="text-muted">Phí vận chuyển</span>
-                    <span class="fw-semibold" style="color: var(--success);">Miễn phí</span>
+                <div class="summary-row">
+                    <span>Phí vận chuyển</span>
+                    <span class="text-success">Miễn phí</span>
                 </div>
-
-                <!-- Voucher Input -->
-                <div class="mb-4">
-                    <label class="form-label small text-muted mb-2">Mã giảm giá</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0">
-                            <i class="bi bi-ticket-perforated text-primary"></i>
-                        </span>
-                        <input class="form-control border-start-0" placeholder="Nhập mã" type="text">
-                        <button class="btn btn-primary" type="button">Áp dụng</button>
-                    </div>
+                {% if cart.discount > 0 %}
+                <div class="summary-row summary-row--discount">
+                    <span>Giảm giá</span>
+                    <span>-{{ cart.discount|currency }}</span>
                 </div>
-
-                <hr>
-
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="h6 mb-0">Tổng cộng</span>
-                    <span class="h4 mb-0 fw-bold" style="color: var(--danger);">{{ cart.total|currency }}</span>
+                {% endif %}
+                <hr class="summary-divider">
+                <div class="summary-total">
+                    <span>Tổng thanh toán</span>
+                    <span>{{ cart.total|currency }}</span>
                 </div>
 
                 {% if user.is_authenticated %}
-                <a class="btn btn-primary w-100 btn-lg" href="{% url 'orders:checkout' %}">
-                    <i class="bi bi-credit-card me-2"></i>Tiến hành thanh toán
+                <a class="btn btn-primary btn-lg cart-summary__checkout" href="{% url 'orders:checkout' %}">
+                    <i aria-hidden="true" class="bi bi-credit-card"></i> Tiến hành thanh toán
                 </a>
                 {% else %}
-                <a class="btn btn-primary w-100 btn-lg"
+                <a class="btn btn-primary btn-lg cart-summary__checkout"
                    href="{% url 'accounts:login' %}?next={% url 'orders:checkout' %}">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập để thanh toán
+                    <i aria-hidden="true" class="bi bi-box-arrow-in-right"></i> Đăng nhập để thanh toán
                 </a>
                 {% endif %}
-
-                <!-- Trust Badges -->
-                <div class="mt-4 pt-4 border-top">
-                    <div class="row text-center g-3">
-                        <div class="col-4">
-                            <div class="d-flex flex-column align-items-center">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center mb-2"
-                                     style="width: 44px; height: 44px; background: var(--success-light);">
-                                    <i class="bi bi-shield-check" style="color: var(--success);"></i>
-                                </div>
-                                <small class="text-muted">Bảo mật</small>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="d-flex flex-column align-items-center">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center mb-2"
-                                     style="width: 44px; height: 44px; background: var(--primary-50);">
-                                    <i class="bi bi-truck" style="color: var(--primary);"></i>
-                                </div>
-                                <small class="text-muted">Giao nhanh</small>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="d-flex flex-column align-items-center">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center mb-2"
-                                     style="width: 44px; height: 44px; background: var(--warning-light);">
-                                    <i class="bi bi-arrow-repeat" style="color: var(--warning);"></i>
-                                </div>
-                                <small class="text-muted">Đổi trả</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
-        </div>
+        </aside>
     </div>
-</div>
-
-<script>
-    function updateQty(btn, delta) {
-        const form = btn.closest('form');
-        const input = form.querySelector('input');
-        let val = parseInt(input.value) + delta;
-        const max = parseInt(input.max);
-        if (val >= 1 && val <= max) {
-            input.value = val;
-            form.submit();
-        }
-    }
-</script>
-
-{% else %}
-<!-- Empty Cart -->
-<div class="card">
-    <div class="card-body py-5">
-        <div class="text-center">
-            <div class="mb-4">
-                <div class="d-inline-flex align-items-center justify-content-center rounded-circle"
-                     style="width: 120px; height: 120px; background: var(--gray-100);">
-                    <i class="bi bi-bag-x" style="font-size: 3rem; color: var(--gray-400);"></i>
-                </div>
-            </div>
-            <h4 class="mb-2">Giỏ hàng trống</h4>
-            <p class="text-muted mb-4">Bạn chưa có sản phẩm nào trong giỏ hàng.</p>
-            <a class="btn btn-primary btn-lg" href="{% url 'products:product_list' %}">
-                <i class="bi bi-grid me-2"></i>Khám phá sản phẩm
+    {% else %}
+    <div class="cart-empty" role="status">
+        <div class="cart-empty__icon"><i aria-hidden="true" class="bi bi-bag-x"></i></div>
+        <div>
+            <h3>Giỏ hàng trống</h3>
+            <p class="mb-0">Thêm sản phẩm yêu thích và quay lại thanh toán sau.</p>
+        </div>
+        <div class="d-flex gap-2 justify-content-center flex-wrap">
+            <a class="btn btn-primary" href="{% url 'products:product_list' %}">
+                <i aria-hidden="true" class="bi bi-grid"></i> Khám phá sản phẩm
+            </a>
+            <a class="btn btn-outline-primary" href="{% url 'promotions:flash_sales' %}">
+                <i aria-hidden="true" class="bi bi-lightning-charge-fill"></i> Xem Flash Sale
             </a>
         </div>
     </div>
+    {% endif %}
 </div>
-{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateQty(button, delta) {
+        const input = button.closest('.quantity-input').querySelector('input[name="quantity"]');
+        const form = button.closest('form');
+        const max = parseInt(input.getAttribute('max')) || 999;
+        let val = parseInt(input.value) || 1;
+        val = Math.min(Math.max(val + delta, 1), max);
+        input.value = val;
+        form.submit();
+    }
+</script>
 {% endblock %}
