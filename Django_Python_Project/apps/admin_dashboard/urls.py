@@ -50,6 +50,13 @@ urlpatterns = [
     # Promotions - Flash Sales
     path('flash-sales/', views.FlashSaleListView.as_view(), name='flash_sale_list'),
     path('flash-sales/create/', views.FlashSaleCreateView.as_view(), name='flash_sale_create'),
+    path('flash-sales/batch/', views.FlashSaleBatchCreateView.as_view(), name='flash_sale_batch'),
+
+    # Notifications
+    path('notifications/', views.NotificationListView.as_view(), name='notification_list'),
+    path('notifications/create/', views.NotificationCreateView.as_view(), name='notification_create'),
+    path('notifications/<int:pk>/delete/', views.NotificationDeleteView.as_view(), name='notification_delete'),
+    path('notifications/bulk-action/', views.NotificationBulkActionView.as_view(), name='notification_bulk_action'),
 
     # API Endpoints
     path('api/chart-data/', views.ChartDataView.as_view(), name='chart_data'),

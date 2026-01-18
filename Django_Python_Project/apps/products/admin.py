@@ -28,6 +28,7 @@ class ProductImageInline(admin.TabularInline):
 class CategoryAdmin(admin.ModelAdmin):
     """
     Quản lý danh mục sản phẩm trong Admin
+    
     Hỗ trợ tạo slug tự động từ tên danh mục
     """
     # Các cột hiển thị
@@ -62,6 +63,7 @@ class CategoryAdmin(admin.ModelAdmin):
 class BrandAdmin(admin.ModelAdmin):
     """
     Quản lý thương hiệu trong Admin
+    
     Hỗ trợ tạo slug tự động từ tên thương hiệu
     """
     # Các cột hiển thị

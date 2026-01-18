@@ -1,5 +1,11 @@
 """
 Admin Configuration cho Promotions App - ElectroShop
+
+Quản lý các models khuyến mãi:
+- Voucher: Mã giảm giá
+- VoucherUsage: Lịch sử sử dụng voucher
+- ComboDeal: Combo khuyến mãi
+- FlashSale: Flash Sale theo sản phẩm
 """
 from django.contrib import admin
 from django.utils.html import format_html
@@ -10,6 +16,7 @@ from apps.promotions.models import Voucher, VoucherUsage, ComboDeal, FlashSale
 class VoucherAdmin(admin.ModelAdmin):
     """
     Quản lý mã giảm giá trong Admin
+    
     Hỗ trợ tạo voucher với giảm giá theo % hoặc số tiền cố định
     """
     # Các cột hiển thị
@@ -49,6 +56,7 @@ class VoucherAdmin(admin.ModelAdmin):
 class VoucherUsageAdmin(admin.ModelAdmin):
     """
     Quản lý lịch sử sử dụng voucher trong Admin
+    
     Theo dõi ai đã sử dụng voucher nào, cho đơn hàng nào
     """
     # Các cột hiển thị
@@ -77,6 +85,7 @@ class VoucherUsageAdmin(admin.ModelAdmin):
 class ComboDealAdmin(admin.ModelAdmin):
     """
     Quản lý combo khuyến mãi trong Admin
+    
     Tạo combo nhiều sản phẩm với giá ưu đãi
     """
     # Các cột hiển thị
@@ -116,6 +125,7 @@ class ComboDealAdmin(admin.ModelAdmin):
 class FlashSaleAdmin(admin.ModelAdmin):
     """
     Quản lý Flash Sale trong Admin
+    
     Tạo chương trình giảm giá theo thời gian cho từng sản phẩm
     """
     # Các cột hiển thị

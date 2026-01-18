@@ -1,24 +1,42 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, F, Avg
 from django.http import JsonResponse
 
 from .models import Product, Category, Brand
+
+
+def _get_flash_sale_product_ids():
+    """Lấy danh sách ID sản phẩm đang trong Flash Sale"""
+    from django.utils import timezone
+    try:
+        from apps.promotions.models import FlashSale
+        now = timezone.now()
+        return list(FlashSale.objects.filter(
+            start_time__lte=now,
+            end_time__gte=now,
+            is_active=True
+        ).values_list('product_id', flat=True))
+    except Exception:
+        return []
 
 
 def home(request):
     """Trang chủ - hiển thị sản phẩm nổi bật và mới"""
     from django.utils import timezone
 
+    # Lấy ID sản phẩm flash sale để loại trừ khỏi các phần khác
+    flash_sale_ids = _get_flash_sale_product_ids()
+
     featured_products = Product.objects.filter(
         is_active=True,
         is_featured=True
-    ).select_related('category', 'brand')[:8]
+    ).exclude(id__in=flash_sale_ids).select_related('category', 'brand')[:8]
 
     new_products = Product.objects.filter(
         is_active=True,
         is_new=True
-    ).select_related('category', 'brand')[:8]
+    ).exclude(id__in=flash_sale_ids).select_related('category', 'brand')[:8]
 
     categories = Category.objects.filter(is_active=True)[:6]
 
@@ -26,12 +44,12 @@ def home(request):
     recommended_products = Product.objects.filter(
         is_active=True,
         sentiment_score__gt=0.3
-    ).select_related('category', 'brand').order_by('-sentiment_score')[:4]
+    ).exclude(id__in=flash_sale_ids).select_related('category', 'brand').order_by('-sentiment_score')[:4]
 
     # Best sellers - sản phẩm bán chạy nhất
     best_sellers = Product.objects.filter(
         is_active=True
-    ).select_related('category', 'brand').order_by('-sold')[:8]
+    ).exclude(id__in=flash_sale_ids).select_related('category', 'brand').order_by('-sold')[:8]
 
     # Flash sale products - sản phẩm đang flash sale
     flash_sale_products = []
@@ -59,17 +77,22 @@ def home(request):
 
 def product_list(request):
     """Danh sách sản phẩm với filter và pagination"""
-    products = Product.objects.filter(is_active=True).select_related('category', 'brand')
+    # Loại bỏ sản phẩm flash sale khỏi danh sách thường
+    flash_sale_ids = _get_flash_sale_product_ids()
+    products = Product.objects.filter(is_active=True).exclude(id__in=flash_sale_ids).select_related('category',
+                                                                                                    'brand').annotate(
+        avg_rating=Avg('reviews__rating', filter=Q(reviews__is_approved=True))
+    )
 
-    # Filter theo category
-    category_slug = request.GET.get('category')
-    if category_slug:
-        products = products.filter(category__slug=category_slug)
+    # Filter theo multiple categories
+    category_slugs = request.GET.getlist('category')
+    if category_slugs:
+        products = products.filter(category__slug__in=category_slugs)
 
-    # Filter theo brand
-    brand_slug = request.GET.get('brand')
-    if brand_slug:
-        products = products.filter(brand__slug=brand_slug)
+    # Filter theo multiple brands
+    brand_slugs = request.GET.getlist('brand')
+    if brand_slugs:
+        products = products.filter(brand__slug__in=brand_slugs)
 
     # Filter theo price range
     min_price = request.GET.get('min_price')
@@ -79,9 +102,21 @@ def product_list(request):
     if max_price:
         products = products.filter(price__lte=max_price)
 
+    # Filter theo rating (số sao đánh giá trở lên)
+    rating = request.GET.get('rating')
+    if rating:
+        try:
+            rating_value = int(rating)
+            if 1 <= rating_value <= 5:
+                products = products.filter(avg_rating__gte=rating_value)
+        except (ValueError, TypeError):
+            pass
+
     # Sort
     sort = request.GET.get('sort', '-created_at')
-    if sort in ['price', '-price', 'name', '-name', '-created_at', '-sold']:
+    if sort == '-average_rating':
+        products = products.order_by(F('avg_rating').desc(nulls_last=True))
+    elif sort in ['price', '-price', 'name', '-name', '-created_at', '-sold']:
         products = products.order_by(sort)
 
     # Pagination
@@ -93,12 +128,20 @@ def product_list(request):
     categories = Category.objects.filter(is_active=True)
     brands = Brand.objects.filter(is_active=True)
 
+    # Count discounted products (products with sale_price < price)
+    discounted_count = Product.objects.filter(
+        is_active=True,
+        sale_price__isnull=False,
+        sale_price__lt=F('price')
+    ).count()
+
     context = {
         'products': products,
         'categories': categories,
         'brands': brands,
-        'current_category': category_slug,
-        'current_brand': brand_slug,
+        'discounted_count': discounted_count,
+        'selected_categories': category_slugs,
+        'selected_brands': brand_slugs,
         'current_sort': sort,
     }
     return render(request, 'products/product_list.html', context)
@@ -115,75 +158,63 @@ def product_detail(request, slug):
     # Tăng view count
     Product.objects.filter(pk=product.pk).update(views=product.views + 1)
 
-    # Load reviews với user info
-    reviews = product.reviews.filter(
-        is_approved=True
-    ).select_related('user').order_by('-created_at')[:5]
-
-    # Check if user can review
-    can_review = False
-    user_review = None
-    has_purchased = False
-
-    if request.user.is_authenticated:
-        # Import ở đây để tránh circular import
-        from apps.reviews.models import Review
-        from apps.orders.models import OrderItem
-
-        # Check if user already reviewed
-        user_review = Review.objects.filter(
-            product=product,
-            user=request.user
-        ).first()
-
-        # Check if user purchased this product
-        has_purchased = OrderItem.objects.filter(
-            order__user=request.user,
-            order__status='completed',
-            product=product
-        ).exists()
-
-        can_review = has_purchased and not user_review
-
     # Load related products
     related_products = Product.objects.filter(
         category=product.category,
         is_active=True
-    ).exclude(pk=product.pk).select_related('category', 'brand')[:8]
+    ).exclude(pk=product.pk).select_related('category', 'brand')[:4]
 
-    # Load product images
-    product_images = product.images.all().order_by('order', 'id')
+    # Load reviews
+    reviews = product.reviews.filter(is_approved=True).select_related('user')[:10]
 
-    # Check if in wishlist
-    in_wishlist = False
+    # Check if product is in user's wishlist
+    is_in_wishlist = False
+    can_review = False
+    has_reviewed = False
+
     if request.user.is_authenticated:
-        from .models import Wishlist
-        in_wishlist = Wishlist.objects.filter(
+        is_in_wishlist = Wishlist.objects.filter(
             user=request.user,
             product=product
         ).exists()
+
+        # Kiểm tra đã đánh giá chưa
+        from apps.reviews.models import Review
+        has_reviewed = Review.objects.filter(
+            user=request.user,
+            product=product
+        ).exists()
+
+        # Kiểm tra có thể đánh giá: đơn hàng hoàn thành + đã thanh toán
+        if not has_reviewed:
+            from apps.orders.models import OrderItem
+            can_review = OrderItem.objects.filter(
+                order__user=request.user,
+                order__status='completed',
+                order__payment_status='paid',
+                product=product
+            ).exists()
 
     context = {
         'product': product,
         'related_products': related_products,
         'reviews': reviews,
-        'product_images': product_images,
-        'in_wishlist': in_wishlist,
+        'is_in_wishlist': is_in_wishlist,
         'can_review': can_review,
-        'user_review': user_review,
-        'has_purchased': has_purchased,
+        'has_reviewed': has_reviewed,
     }
-
     return render(request, 'products/product_detail.html', context)
 
 
 def category_products(request, slug):
     """Sản phẩm theo danh mục"""
     category = get_object_or_404(Category, slug=slug, is_active=True)
+    # Loại bỏ sản phẩm flash sale
+    flash_sale_ids = _get_flash_sale_product_ids()
     products = Product.objects.filter(
         category=category,
         is_active=True
-    ).select_related('category', 'brand')
+    ).exclude(id__in=flash_sale_ids).select_related('category', 'brand')
 
     # Sort
     sort = request.GET.get('sort', '-created_at')
@@ -201,6 +232,10 @@ def category_products(request, slug):
         'current_sort': sort,
     }
     return render(request, 'products/category_products.html', context)
+
+
+# Search đã chuyển sang search app (apps/search/views.py)
+# Sử dụng search:search thay vì products:search
 
 
 # Error Handlers
@@ -242,10 +277,16 @@ def wishlist_view(request):
     return render(request, 'products/wishlist.html', context)
 
 
-@login_required
 @require_POST
 def toggle_wishlist(request, product_id):
     """Toggle sản phẩm trong wishlist (thêm/xóa)"""
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'require_login': True,
+            'message': 'Vui lòng đăng nhập để sử dụng tính năng yêu thích'
+        }, status=401)
+
     try:
         product = get_object_or_404(Product, id=product_id, is_active=True)
         wishlist_item, created = Wishlist.objects.get_or_create(
@@ -254,7 +295,6 @@ def toggle_wishlist(request, product_id):
         )
 
         if not created:
-            # Đã tồn tại -> xóa
             wishlist_item.delete()
             return JsonResponse({
                 'success': True,
@@ -262,7 +302,6 @@ def toggle_wishlist(request, product_id):
                 'message': f'Đã xóa "{product.name}" khỏi danh sách yêu thích'
             })
         else:
-            # Mới tạo -> thêm
             return JsonResponse({
                 'success': True,
                 'action': 'added',
@@ -454,3 +493,23 @@ def products_by_sentiment(request):
         'current_category': category_slug,
     }
     return render(request, 'products/products_by_sentiment.html', context)
+
+
+def shopping_guide(request):
+    """Hướng dẫn mua hàng"""
+    return render(request, 'pages/shopping_guide.html')
+
+
+def return_policy(request):
+    """Chính sách đổi trả"""
+    return render(request, 'pages/return_policy.html')
+
+
+def warranty_policy(request):
+    """Chính sách bảo hành"""
+    return render(request, 'pages/warranty_policy.html')
+
+
+def faq(request):
+    """Câu hỏi thường gặp"""
+    return render(request, 'pages/faq.html')

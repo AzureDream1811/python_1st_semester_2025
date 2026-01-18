@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from apps.orders.models import Order, OrderItem
 from apps.products.models import Product, Category
 from apps.reviews.models import Review
+from apps.promotions.models import Voucher, VoucherUsage, FlashSale
 
 
 class DashboardStatistics:
@@ -49,12 +50,14 @@ class DashboardStatistics:
             'end_date': end_date.isoformat()
         }
 
-    def get_daily_revenue(self, days: int = 30) -> List[Dict[str, Any]]:
+    def get_daily_revenue(self, start_date=None, end_date=None) -> List[Dict[str, Any]]:
         """
         Lấy doanh thu theo ngày cho biểu đồ
         """
-        end_date = timezone.now().date()
-        start_date = end_date - timedelta(days=days)
+        if not end_date:
+            end_date = timezone.now().date()
+        if not start_date:
+            start_date = end_date - timedelta(days=30)
 
         daily_revenue = Order.objects.filter(
             status__in=['completed', 'delivered'],
@@ -68,22 +71,16 @@ class DashboardStatistics:
 
         return list(daily_revenue)
 
-    def get_daily_revenue_chart_data(self, days: int = 30) -> Dict[str, Any]:
+    def get_daily_revenue_chart_data(self, start_date=None, end_date=None) -> Dict[str, Any]:
         """Dữ liệu biểu đồ doanh thu theo ngày"""
-        daily_data = self.get_daily_revenue(days)
+        daily_data = self.get_daily_revenue(start_date, end_date)
 
         labels = [d['date'].strftime('%d/%m') for d in daily_data]
         values = [float(d['revenue'] or 0) for d in daily_data]
 
         return {
             'labels': labels,
-            'datasets': [{
-                'label': 'Doanh thu (VNĐ)',
-                'data': values,
-                'borderColor': '#4CAF50',
-                'backgroundColor': 'rgba(76, 175, 80, 0.1)',
-                'fill': True
-            }]
+            'data': values
         }
 
     # === ORDER STATISTICS ===
@@ -105,9 +102,17 @@ class DashboardStatistics:
             'by_status': stats
         }
 
-    def get_order_status_chart_data(self) -> Dict[str, Any]:
+    def get_order_status_chart_data(self, start_date=None, end_date=None) -> Dict[str, Any]:
         """Dữ liệu biểu đồ trạng thái đơn hàng"""
-        stats = self.get_order_stats()
+        if start_date and end_date:
+            orders = Order.objects.filter(
+                created_at__date__gte=start_date,
+                created_at__date__lte=end_date
+            )
+            status_counts = orders.values('status').annotate(count=Count('id'))
+            stats = {'by_status': {item['status']: item['count'] for item in status_counts}}
+        else:
+            stats = self.get_order_stats()
 
         status_labels = {
             'pending': 'Chờ xác nhận',
@@ -142,10 +147,8 @@ class DashboardStatistics:
 
         return {
             'labels': labels,
-            'datasets': [{
-                'data': values,
-                'backgroundColor': bg_colors
-            }]
+            'data': values,
+            'backgroundColor': bg_colors
         }
 
     def get_recent_orders(self, limit: int = 10) -> List[Order]:
@@ -366,23 +369,188 @@ class DashboardStatistics:
             }
         }
 
-    # === DASHBOARD SUMMARY ===
+    # === TIME-BASED STATISTICS ===
 
-    def get_dashboard_summary(self) -> Dict[str, Any]:
-        """Lấy tất cả thống kê cho dashboard"""
-        revenue_stats = self.get_revenue_stats()
-        order_stats = self.get_order_stats()
-        sentiment_stats = self.get_sentiment_stats()
+    def get_time_based_stats(self, period: str = 'month', custom_start=None, custom_end=None) -> Dict[str, Any]:
+        """
+        Thống kê theo mốc thời gian
+        period: 'today', 'week', 'month', 'year', 'custom'
+        """
+        today = timezone.now().date()
+
+        if period == 'today':
+            start_date = today
+            end_date = today
+            period_label = 'Hôm nay'
+        elif period == 'week':
+            start_date = today - timedelta(days=7)
+            end_date = today
+            period_label = '7 ngày qua'
+        elif period == 'month':
+            start_date = today.replace(day=1)
+            end_date = today
+            period_label = 'Tháng này'
+        elif period == 'year':
+            start_date = today.replace(month=1, day=1)
+            end_date = today
+            period_label = 'Năm nay'
+        elif period == 'custom' and custom_start and custom_end:
+            start_date = custom_start
+            end_date = custom_end
+            period_label = f'{start_date.strftime("%d/%m/%Y")} - {end_date.strftime("%d/%m/%Y")}'
+        else:
+            start_date = today.replace(day=1)
+            end_date = today
+            period_label = 'Tháng này'
+
+        revenue_stats = self.get_revenue_stats(start_date, end_date)
+
+        orders = Order.objects.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date
+        )
 
         return {
-            # Các key cho dashboard template
-            'monthly_revenue': revenue_stats['total_revenue'],
+            'period': period,
+            'period_label': period_label,
+            'start_date': start_date.isoformat(),
+            'end_date': end_date.isoformat(),
+            'total_revenue': revenue_stats['total_revenue'],
+            'total_orders': orders.count(),
+            'completed_orders': orders.filter(status__in=['completed', 'delivered']).count(),
+            'cancelled_orders': orders.filter(status='cancelled').count(),
+            'avg_order_value': revenue_stats['total_revenue'] / revenue_stats['order_count'] if revenue_stats[
+                                                                                                    'order_count'] > 0 else Decimal(
+                '0'),
+        }
+
+    # === PROMOTION REVENUE STATISTICS ===
+
+    def get_promotion_stats(self, start_date=None, end_date=None) -> Dict[str, Any]:
+        """
+        Thống kê doanh thu theo chương trình khuyến mãi
+        """
+        if not start_date:
+            start_date = timezone.now().replace(day=1).date()
+        if not end_date:
+            end_date = timezone.now().date()
+
+        voucher_usage = VoucherUsage.objects.filter(
+            used_at__date__gte=start_date,
+            used_at__date__lte=end_date
+        )
+
+        total_discount = voucher_usage.aggregate(
+            total=Sum('discount_amount')
+        )['total'] or Decimal('0')
+
+        voucher_stats = voucher_usage.values(
+            'voucher__code', 'voucher__name'
+        ).annotate(
+            usage_count=Count('id'),
+            total_discount=Sum('discount_amount')
+        ).order_by('-total_discount')[:10]
+
+        active_flash_sales = FlashSale.objects.filter(
+            is_active=True,
+            start_time__lte=timezone.now(),
+            end_time__gte=timezone.now()
+        ).count()
+
+        flash_sales = FlashSale.objects.filter(
+            start_time__date__gte=start_date,
+            end_time__date__lte=end_date
+        )
+
+        flash_sale_revenue = Decimal('0')
+        original_revenue = Decimal('0')
+        for fs in flash_sales:
+            if fs.sold_count > 0:
+                effective_price = fs.get_effective_sale_price()
+                flash_sale_revenue += effective_price * fs.sold_count
+                original_revenue += fs.product.price * fs.sold_count
+
+        discount_given = original_revenue - flash_sale_revenue
+
+        total_flash_sold = flash_sales.aggregate(
+            total=Sum('sold_count')
+        )['total'] or 0
+
+        return {
+            'period': {
+                'start': start_date.isoformat(),
+                'end': end_date.isoformat()
+            },
+            'voucher': {
+                'total_discount': total_discount,
+                'usage_count': voucher_usage.count(),
+                'top_vouchers': list(voucher_stats)
+            },
+            'flash_sale': {
+                'active_count': active_flash_sales,
+                'total_revenue': flash_sale_revenue,
+                'original_revenue': original_revenue,
+                'discount_given': discount_given,
+                'total_sold': total_flash_sold,
+                'total_campaigns': flash_sales.count()
+            }
+        }
+
+    def get_monthly_comparison(self, months: int = 6) -> List[Dict[str, Any]]:
+        """So sánh doanh thu theo tháng"""
+        today = timezone.now().date()
+        monthly_data = []
+
+        for i in range(months):
+            if i == 0:
+                end_date = today
+                start_date = today.replace(day=1)
+            else:
+                month = today.month - i
+                year = today.year
+                while month <= 0:
+                    month += 12
+                    year -= 1
+
+                start_date = today.replace(year=year, month=month, day=1)
+                if month == 12:
+                    end_date = start_date.replace(year=year + 1, month=1, day=1) - timedelta(days=1)
+                else:
+                    end_date = start_date.replace(month=month + 1, day=1) - timedelta(days=1)
+
+            stats = self.get_revenue_stats(start_date, end_date)
+            monthly_data.append({
+                'month': start_date.strftime('%m/%Y'),
+                'month_name': start_date.strftime('%B %Y'),
+                'revenue': float(stats['total_revenue']),
+                'orders': stats['order_count']
+            })
+
+        return list(reversed(monthly_data))
+
+    # === DASHBOARD SUMMARY ===
+
+    def get_dashboard_summary(self, period: str = 'month', custom_start=None, custom_end=None) -> Dict[str, Any]:
+        """Lấy tất cả thống kê cho dashboard"""
+        time_stats = self.get_time_based_stats(period, custom_start, custom_end)
+        order_stats = self.get_order_stats()
+        sentiment_stats = self.get_sentiment_stats()
+        promotion_stats = self.get_promotion_stats()
+
+        return {
+            'monthly_revenue': time_stats['total_revenue'],
             'total_orders': order_stats['total'],
             'total_customers': self.get_customer_count(),
             'total_products': self.get_active_product_count(),
-            # Chi tiết
-            'revenue': revenue_stats,
+            'period_label': time_stats['period_label'],
+            'time_stats': time_stats,
+            'revenue': {
+                'total_revenue': time_stats['total_revenue'],
+                'order_count': time_stats['completed_orders']
+            },
             'orders': order_stats,
             'sentiment': sentiment_stats,
+            'promotion': promotion_stats,
             'top_products': list(self.get_top_products(5).values('name', 'sold')),
+            'monthly_comparison': self.get_monthly_comparison(6),
         }

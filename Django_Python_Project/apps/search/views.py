@@ -1,5 +1,10 @@
 """
 Views cho Search App - ElectroShop
+
+Xử lý các request liên quan đến tìm kiếm sản phẩm:
+- Tìm kiếm sản phẩm với bộ lọc
+- Autocomplete gợi ý tìm kiếm
+- Từ khóa tìm kiếm phổ biến
 """
 from django.shortcuts import render
 from django.http import JsonResponse

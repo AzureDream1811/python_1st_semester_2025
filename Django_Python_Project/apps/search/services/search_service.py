@@ -1,9 +1,18 @@
 """
 Search Service cho ElectroShop
 Dịch vụ tìm kiếm sản phẩm với hỗ trợ tiếng Việt
+
+Chức năng chính:
+- Tìm kiếm sản phẩm theo từ khóa
+- Autocomplete gợi ý tìm kiếm
+- Chuẩn hóa tiếng Việt (bỏ dấu)
+- Sửa lỗi chính tả phổ biến
+- Highlight từ khóa trong kết quả
+- Ghi log lịch sử tìm kiếm
 """
 import re
 from typing import List, Dict, Any, Optional
+from django.db import models
 from django.db.models import Q, Count
 from apps.products.models import Product
 
@@ -77,7 +86,9 @@ class SearchService:
         Lấy danh sách gợi ý tìm kiếm (autocomplete)
         
         Tìm các sản phẩm có tên chứa từ khóa và trả về danh sách tên sản phẩm
-
+        
+        Property 27: Phải trả về kết quả cho query có từ 2 ký tự trở lên
+        
         Args:
             query: Từ khóa tìm kiếm
             limit: Số lượng gợi ý tối đa (mặc định 10)
@@ -118,7 +129,9 @@ class SearchService:
         - max_price: Giá tối đa
         - in_stock: Chỉ lấy sản phẩm còn hàng
         - rating: Đánh giá tối thiểu
-
+        
+        Property 29: Tất cả kết quả phải thỏa mãn điều kiện lọc
+        
         Args:
             query: Từ khóa tìm kiếm
             filters: Dict chứa các bộ lọc
@@ -192,7 +205,9 @@ class SearchService:
         Sửa lỗi chính tả phổ biến trong tiếng Việt
         
         Ánh xạ các từ không dấu phổ biến sang từ có dấu đúng
-
+        
+        Property 30: Query đã sửa phải có edit distance <= 2 so với query gốc
+        
         Args:
             query: Từ khóa cần sửa
             
@@ -269,7 +284,9 @@ class SearchService:
         Highlight từ khóa trong kết quả tìm kiếm
         
         Bọc các từ khóa trong thẻ <mark> để hiển thị nổi bật
-
+        
+        Property: Từ khóa phải được bọc trong thẻ <mark>
+        
         Args:
             text: Văn bản cần highlight
             keywords: Danh sách từ khóa cần highlight
@@ -294,7 +311,9 @@ class SearchService:
         Ghi log lịch sử tìm kiếm
         
         Lưu thông tin tìm kiếm vào database để phân tích
-
+        
+        Property 31: Lịch sử tìm kiếm phải được lưu lại
+        
         Args:
             query: Từ khóa đã tìm
             user: User thực hiện tìm kiếm (None nếu anonymous)

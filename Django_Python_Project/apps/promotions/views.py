@@ -1,12 +1,23 @@
 """
 Views Khuyến Mãi cho ElectroShop
+================================
+
+Module này xử lý các request liên quan đến khuyến mãi:
+- Flash Sale: Danh sách và chi tiết flash sale
+- Combo Deal: Danh sách combo khuyến mãi
+- Voucher: Xác thực và áp dụng mã giảm giá
+
+Tác giả: ElectroShop Team
 """
 from decimal import Decimal, ROUND_HALF_UP
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.contrib import messages
 from django.utils import timezone
+from django.core.paginator import Paginator
+
 from .models import Voucher, ComboDeal, FlashSale
 from .services.promotion_service import PromotionService
 
@@ -18,19 +29,23 @@ from .services.promotion_service import PromotionService
 def flash_sale_list(request):
     """
     Hiển thị danh sách Flash Sales đang diễn ra
-
+    
     Chỉ hiển thị các flash sale:
     - Đã bắt đầu (start_time <= now)
     - Chưa kết thúc (end_time >= now)
     - Đang active (is_active=True)
+    
+    Sắp xếp theo thời gian kết thúc (sắp hết trước)
+    
+    Template: promotions/flash_sale_list.html
     """
     now = timezone.now()
 
     # Lấy danh sách flash sale đang diễn ra
     flash_sales = FlashSale.objects.filter(
-        start_time__lte=now,      # Đã bắt đầu
-        end_time__gte=now,        # Chưa kết thúc
-        is_active=True            # Đang hoạt động
+        start_time__lte=now,  # Đã bắt đầu
+        end_time__gte=now,  # Chưa kết thúc
+        is_active=True  # Đang hoạt động
     ).select_related('product').order_by('end_time')  # Sắp hết trước
 
     upcoming_sales = FlashSale.objects.filter(
@@ -49,6 +64,11 @@ def flash_sale_list(request):
 def flash_sale_detail(request, pk):
     """
     Hiển thị chi tiết một Flash Sale
+    
+    Args:
+        pk: ID của flash sale
+        
+    Template: promotions/flash_sale_detail.html
     """
     flash_sale = get_object_or_404(FlashSale, pk=pk)
 
@@ -66,13 +86,15 @@ def flash_sale_detail(request, pk):
 def combo_deal_list(request):
     """
     Hiển thị danh sách Combo Deals đang có hiệu lực
-
+    
     Chỉ hiển thị các combo:
     - Đã có hiệu lực (valid_from <= now)
     - Chưa hết hạn (valid_until >= now)
     - Đang active (is_active=True)
-
+    
     Sắp xếp theo ngày tạo mới nhất
+    
+    Template: promotions/combo_deal_list.html
     """
     now = timezone.now()
     money_round = Decimal('0.01')
@@ -109,7 +131,7 @@ def combo_deal_list(request):
 
         if combo.discount_type == 'percentage':
             discount_amount = (
-                current_total * combo.discount_value / Decimal('100')
+                    current_total * combo.discount_value / Decimal('100')
             ).quantize(money_round, rounding=ROUND_HALF_UP)
         else:
             discount_amount = Decimal(combo.discount_value or 0).quantize(
@@ -119,13 +141,13 @@ def combo_deal_list(request):
         if current_total > Decimal('0'):
             discount_amount = min(discount_amount, current_total)
             final_price = (
-                current_total - discount_amount
+                    current_total - discount_amount
             ).quantize(money_round, rounding=ROUND_HALF_UP)
             discount_percent = int(
                 min(
                     100,
                     (
-                        discount_amount / current_total * 100
+                            discount_amount / current_total * 100
                     ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
                 )
             )
@@ -173,19 +195,22 @@ def combo_deal_list(request):
 def my_vouchers(request):
     """
     Hiển thị danh sách Vouchers có thể sử dụng
+    
     Yêu cầu đăng nhập để xem voucher cá nhân
-
+    
     Chỉ hiển thị voucher:
     - Chưa hết hạn (valid_until >= now)
     - Đang active (is_active=True)
+    
+    Template: promotions/my_vouchers.html
     """
     now = timezone.now()
 
     # Lấy danh sách voucher còn hiệu lực
     vouchers = Voucher.objects.filter(
-        valid_until__gte=now,     # Chưa hết hạn
-        is_active=True            # Đang hoạt động
-    ).order_by('-created_at')     # Mới nhất trước
+        valid_until__gte=now,  # Chưa hết hạn
+        is_active=True  # Đang hoạt động
+    ).order_by('-created_at')  # Mới nhất trước
 
     context = {
         'vouchers': vouchers,
@@ -197,7 +222,20 @@ def my_vouchers(request):
 def validate_voucher(request):
     """
     API: Xác thực mã voucher
+    
     Kiểm tra mã voucher có hợp lệ không trước khi áp dụng
+    
+    Method: POST
+    
+    Request Body:
+        - code: Mã voucher cần kiểm tra
+        - cart_total: Tổng giá trị giỏ hàng
+        
+    Response:
+        - valid: True/False
+        - error: Thông báo lỗi (nếu không hợp lệ)
+        - discount_type: Loại giảm giá (nếu hợp lệ)
+        - discount_value: Giá trị giảm (nếu hợp lệ)
     """
     if request.method == 'POST':
         # Lấy dữ liệu từ request
@@ -216,7 +254,24 @@ def validate_voucher(request):
 def apply_voucher(request):
     """
     API: Áp dụng voucher vào giỏ hàng
+    
     Xác thực và tính toán số tiền giảm giá
+    
+    Method: POST
+    
+    Request Body:
+        - code: Mã voucher cần áp dụng
+        - cart_total: Tổng giá trị giỏ hàng
+        
+    Response (thành công):
+        - success: True
+        - voucher: Thông tin voucher (code, discount_type, discount_value)
+        - discount_amount: Số tiền được giảm
+        - final_total: Tổng tiền sau khi giảm
+        
+    Response (thất bại):
+        - success: False
+        - error: Thông báo lỗi
     """
     if request.method == 'POST':
         # Lấy dữ liệu từ request

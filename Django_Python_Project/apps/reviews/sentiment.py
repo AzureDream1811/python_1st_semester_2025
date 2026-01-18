@@ -1,113 +1,112 @@
-# apps/reviews/sentiment.py
-try:
-    import fasttext
-    FASTTEXT_AVAILABLE = True
-except ImportError:
-    fasttext = None
-    FASTTEXT_AVAILABLE = False
-    print("[WARNING] fasttext is not installed. Sentiment analysis will be disabled.")
-
+"""
+Sentiment Analyzer wrapper cho reviews app
+Sử dụng Singleton pattern để load model một lần
+"""
+import os
 from pathlib import Path
-
-try:
-    from ml_models.aivivn_fasttext.preprocess import PreprocessText
-except ImportError:
-    PreprocessText = None
-
-# Xác định đường dẫn model từ vị trí hiện tại
-BASE_DIR = Path(__file__).resolve().parent.parent.parent  # Django_Python_Project/
-MODEL_PATH = (
-    BASE_DIR / "ml_models" / "aivivn_fasttext" / "models" / "fasttext_sentiment.bin"
-)
 
 
 class SentimentAnalyzer:
-    """
-    Singleton class để load model 1 lần duy nhất
-    Tránh load lại model mỗi lần phân tích
-    """
+    """Singleton class để phân tích sentiment"""
 
     _instance = None
-    _predictor = None
+    _model = None
+    _preprocessor = None
 
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
+            cls._instance._load_model()
         return cls._instance
 
-    def __init__(self):
-        """Khởi tạo predictor nếu chưa có"""
-        if self._predictor is None:
-            self._load_model()
-
     def _load_model(self):
-        """Load FastText model"""
+        """Load FastText model và preprocessor"""
         try:
-            if not FASTTEXT_AVAILABLE:
-                print("[WARNING] fasttext is not available, sentiment analysis disabled")
-                self._predictor = None
-                return
+            from ml_models.aivivn_fasttext.preprocess import PreprocessText
+            from ml_models.aivivn_fasttext.config import MODEL_DIR
+            import fasttext
 
-            if not MODEL_PATH.exists():
-                print(f"[WARNING] Model does not exist: {MODEL_PATH}")
-                print("   Please run train.py to create the model!")
-                self._predictor = None
-                return
+            model_path = MODEL_DIR / "fasttext_sentiment.bin"
 
-            self._predictor = fasttext.load_model(str(MODEL_PATH))
-            self._preprocess = PreprocessText()
-            print(f"[OK] Loaded sentiment model from: {MODEL_PATH}")
-
+            if model_path.exists():
+                self._model = fasttext.load_model(str(model_path))
+                self._preprocessor = PreprocessText()
+            else:
+                print(f"Warning: Model not found at {model_path}")
+                self._model = None
+                self._preprocessor = None
         except Exception as e:
-            print(f"[WARNING] Error loading model: {e}")
-            self._predictor = None
+            print(f"Error loading sentiment model: {e}")
+            self._model = None
+            self._preprocessor = None
 
     def analyze(self, text: str) -> dict:
         """
         Phân tích sentiment của text
-
-        Args:
-            text: Nội dung đánh giá
-
+        
         Returns:
             dict: {
                 'sentiment': 'positive' | 'negative' | 'neutral',
-                'score': 0.95,  # Độ tin cậy (0-1)
-                'label': '1' | '0' | 'unknown'
+                'score': float (-1 to 1),
+                'processed_text': str
             }
         """
-        # Nếu model chưa load hoặc text rỗng
-        if self._predictor is None:
-            return {"sentiment": "neutral", "score": 0.0, "label": "unknown"}
+        if not text or not isinstance(text, str):
+            return {
+                'sentiment': 'neutral',
+                'score': 0.0,
+                'processed_text': ''
+            }
 
-        if not text or not text.strip():
-            return {"sentiment": "neutral", "score": 0.0, "label": "unknown"}
+        # Nếu model chưa load, trả về neutral
+        if self._model is None or self._preprocessor is None:
+            return {
+                'sentiment': 'neutral',
+                'score': 0.0,
+                'processed_text': text
+            }
 
         try:
             # Tiền xử lý text
-            processed_text = self._preprocess.forward(text)
+            processed_text = self._preprocessor.forward(text)
 
-            # Dự đoán
-            labels, probs = self._predictor.predict(processed_text, k=1)
+            if not processed_text.strip():
+                return {
+                    'sentiment': 'neutral',
+                    'score': 0.0,
+                    'processed_text': processed_text
+                }
 
-            # Kiểm tra kết quả
-            if not labels or not probs:
-                return {"sentiment": "neutral", "score": 0.0, "label": "unknown"}
+            # Predict
+            labels, probs = self._model.predict(processed_text, k=2)
 
-            # Parse kết quả
-            label = labels[0].replace("__label__", "")
-            confidence = float(probs[0])
+            # Parse result
+            # labels format: ('__label__positive', '__label__negative')
+            primary_label = labels[0].replace('__label__', '')
+            confidence = probs[0]
 
-            # Map label sang sentiment
-            sentiment_map = {
-                "1": "positive",
-                "0": "negative",
+            # Calculate score (-1 to 1)
+            if primary_label == 'positive':
+                score = confidence
+                sentiment = 'positive' if confidence > 0.6 else 'neutral'
+            else:
+                score = -confidence
+                sentiment = 'negative' if confidence > 0.6 else 'neutral'
+
+            return {
+                'sentiment': sentiment,
+                'score': round(score, 4),
+                'processed_text': processed_text
             }
 
-            sentiment = sentiment_map.get(label, "neutral")
-
-            return {"sentiment": sentiment, "score": confidence, "label": label}
-
         except Exception as e:
-            print(f"[WARNING] Error analyzing sentiment: {e}")
-            return {"sentiment": "neutral", "score": 0.0, "label": "unknown"}
+            print(f"Error analyzing sentiment: {e}")
+            return {
+                'sentiment': 'neutral',
+                'score': 0.0,
+                'processed_text': text
+            }
+
+    def is_ready(self) -> bool:
+        """Kiểm tra model đã sẵn sàng chưa"""
+        return self._model is not None and self._preprocessor is not None

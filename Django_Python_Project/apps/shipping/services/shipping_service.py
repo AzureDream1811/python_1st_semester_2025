@@ -18,6 +18,7 @@ class ShippingService:
     def calculate_shipping_fee(self, address: Dict[str, str], items: List[Dict], carrier: str = None) -> Dict[str, Any]:
         """
         Calculate shipping fee
+        Property 32: Fee must be calculated based on carrier rates
         """
         # Get carrier config
         if carrier:
@@ -66,6 +67,7 @@ class ShippingService:
     def create_shipment(self, order, carrier: str = None) -> Shipment:
         """
         Create shipment for order
+        Property 33: Tracking code must be generated
         """
         # Calculate shipping fee
         items = [{'weight': 500, 'quantity': item.quantity} for item in order.items.all()]
@@ -103,6 +105,7 @@ class ShippingService:
     def get_tracking_info(self, tracking_code: str) -> Dict[str, Any]:
         """
         Get tracking information
+        Property 34: Must return tracking timeline
         """
         try:
             shipment = Shipment.objects.get(tracking_code=tracking_code)
@@ -133,6 +136,7 @@ class ShippingService:
     def sync_shipping_status(self, shipment_id: int) -> bool:
         """
         Sync shipping status from carrier API
+        Property 34: Status must be updated from carrier
         """
         try:
             shipment = Shipment.objects.get(id=shipment_id)
@@ -147,6 +151,7 @@ class ShippingService:
     def check_low_stock(self) -> List[Dict[str, Any]]:
         """
         Check products with low stock
+        Property 35: Must return products below threshold
         """
         from apps.products.models import Product
 
@@ -163,7 +168,9 @@ class ShippingService:
     def generate_shipping_label(self, shipment_id: int) -> bytes:
         """
         Tạo nhãn vận chuyển với barcode
-
+        
+        Property 36: Nhãn phải chứa barcode/QR code
+        
         Args:
             shipment_id: ID của shipment
             

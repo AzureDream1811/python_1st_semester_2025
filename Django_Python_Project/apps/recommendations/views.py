@@ -1,5 +1,15 @@
 """
 Views Gợi Ý Sản Phẩm cho ElectroShop
+====================================
+
+Module này cung cấp các API endpoints cho hệ thống gợi ý sản phẩm:
+- Gợi ý cá nhân hóa cho user
+- Sản phẩm tương tự
+- Sản phẩm thường mua cùng
+- Sản phẩm trending
+- Ghi nhận hoạt động người dùng
+
+Tác giả: ElectroShop Team
 """
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -20,17 +30,18 @@ from .models import UserActivity, ProductSimilarity, FrequentlyBoughtTogether
 def get_recommendations_for_user(request, user_id=None):
     """
     API trả về gợi ý sản phẩm cá nhân hóa cho user
-
+    
+    Thuật toán:
     1. Nếu user đã đăng nhập và có lịch sử mua hàng:
        - Lấy danh sách sản phẩm đã mua
        - Tìm sản phẩm tương tự với những sản phẩm đã mua
        - Loại bỏ sản phẩm đã mua
     2. Nếu không có lịch sử:
        - Trả về sản phẩm phổ biến (bán chạy + đánh giá tốt)
-
+    
     Args:
         user_id: ID của user (optional)
-
+        
     Returns:
         JSON với danh sách sản phẩm gợi ý
     """
@@ -101,13 +112,14 @@ def get_recommendations_for_user(request, user_id=None):
 def get_similar_products(request, product_id):
     """
     API trả về sản phẩm tương tự với sản phẩm đang xem
-
+    
+    Thuật toán:
     1. Tìm trong bảng ProductSimilarity (đã tính toán trước)
     2. Nếu không có, fallback sang sản phẩm cùng danh mục
-
+    
     Args:
         product_id: ID của sản phẩm đang xem
-
+        
     Returns:
         JSON với danh sách sản phẩm tương tự
     """
@@ -170,10 +182,10 @@ def get_frequently_bought_together(request, product_id):
     - Danh sách sản phẩm hay mua kèm
     - Tổng giá nếu mua combo
     - Số tiền tiết kiệm (giả định 5%)
-
+    
     Args:
         product_id: ID của sản phẩm chính
-
+        
     Returns:
         JSON với danh sách sản phẩm mua kèm và thông tin combo
     """
@@ -226,20 +238,20 @@ def get_frequently_bought_together(request, product_id):
 def log_user_activity(request):
     """
     API ghi nhận hoạt động người dùng
-
+    
     Được gọi từ frontend khi user:
     - Xem sản phẩm
     - Thêm vào giỏ hàng
     - Thêm vào wishlist
     - Tìm kiếm
-
+    
     Method: POST
-
+    
     Request Body:
         - activity_type: Loại hoạt động (view, add_to_cart, wishlist, search)
         - product_id: ID sản phẩm (optional)
         - search_query: Từ khóa tìm kiếm (optional)
-
+        
     Returns:
         JSON với kết quả ghi nhận
     """
@@ -292,11 +304,11 @@ def log_user_activity(request):
 def trending_products(request):
     """
     API trả về sản phẩm đang trending
-
+    
     Thuật toán:
     - Đếm số hoạt động (view, add_to_cart, purchase) trong 7 ngày gần nhất
     - Sắp xếp theo số hoạt động giảm dần
-
+    
     Returns:
         JSON với danh sách sản phẩm trending
     """
