@@ -106,4 +106,3 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
             user.username = username
 
         return user
-
