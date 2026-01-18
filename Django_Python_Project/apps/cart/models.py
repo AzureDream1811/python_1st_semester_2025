@@ -3,10 +3,6 @@ from django.contrib.auth.models import User
 from apps.products.models import Product
 
 
-# ==========================================
-# 1. CART MODEL
-# ==========================================
-
 class Cart(models.Model):
     """Model giỏ hàng"""
 
@@ -24,6 +20,14 @@ class Cart(models.Model):
         blank=True,
         verbose_name='Session Key'
     )
+    voucher = models.ForeignKey(
+        'promotions.Voucher',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='carts',
+        verbose_name='Voucher'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -37,20 +41,59 @@ class Cart(models.Model):
         return f"Giỏ hàng #{self.session_key}"
 
     @property
+    def active_items(self):
+        """Items chưa bị đánh dấu thanh toán sau"""
+        return self.items.filter(saved_for_later=False)
+
+    @property
+    def saved_items(self):
+        """Items đã đánh dấu thanh toán sau"""
+        return self.items.filter(saved_for_later=True)
+
+    @property
     def total_items(self):
-        """Tổng số sản phẩm trong giỏ"""
-        return sum(item.quantity for item in self.items.all())
+        """Tổng số sản phẩm trong giỏ (chỉ tính active)"""
+        return sum(item.quantity for item in self.active_items)
 
     @property
     def subtotal(self):
-        """Tổng tiền hàng"""
-        return sum(item.total_price for item in self.items.all())
+        """Tổng tiền hàng (chỉ tính active)"""
+        return sum(item.total_price for item in self.active_items)
+
+    @property
+    def discount(self):
+        """Số tiền được giảm từ voucher"""
+        if not self.voucher or not self.voucher.is_valid():
+            return 0
+
+        subtotal = self.subtotal
+
+        if subtotal < self.voucher.min_order_value:
+            return 0
+
+        if self.voucher.discount_type == 'percentage':
+            discount_amount = subtotal * self.voucher.discount_value / 100
+            if self.voucher.max_discount and discount_amount > self.voucher.max_discount:
+                discount_amount = self.voucher.max_discount
+        else:
+            discount_amount = self.voucher.discount_value
+
+        return min(discount_amount, subtotal)
 
     @property
     def total(self):
-        """Tổng tiền thanh toán"""
-        # Có thể thêm phí ship, giảm giá ở đây
-        return self.subtotal
+        """Tổng tiền thanh toán (chỉ tính active)"""
+        return self.subtotal - self.discount
+
+    def apply_voucher(self, voucher):
+        """Áp dụng voucher vào giỏ hàng"""
+        self.voucher = voucher
+        self.save(update_fields=['voucher', 'updated_at'])
+
+    def remove_voucher(self):
+        """Xóa voucher khỏi giỏ hàng"""
+        self.voucher = None
+        self.save(update_fields=['voucher', 'updated_at'])
 
     def clear(self):
         """Xóa tất cả items trong giỏ"""
@@ -69,10 +112,6 @@ class Cart(models.Model):
         session_cart.delete()
 
 
-# ==========================================
-# 2. CART ITEM MODEL
-# ==========================================
-
 class CartItem(models.Model):
     """Model item trong giỏ hàng"""
 
@@ -89,6 +128,7 @@ class CartItem(models.Model):
         verbose_name='Sản phẩm'
     )
     quantity = models.PositiveIntegerField(default=1, verbose_name='Số lượng')
+    saved_for_later = models.BooleanField(default=False, verbose_name='Thanh toán sau')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -111,7 +151,4 @@ class CartItem(models.Model):
         return self.price * self.quantity
 
     def save(self, *args, **kwargs):
-        # Đảm bảo số lượng không vượt quá tồn kho
-        if self.quantity > self.product.stock:
-            self.quantity = self.product.stock
         super().save(*args, **kwargs)

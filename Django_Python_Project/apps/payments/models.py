@@ -11,7 +11,6 @@ class PaymentTransaction(models.Model):
 
     PAYMENT_METHODS = [
         ('cod', 'Thanh toán khi nhận hàng'),
-        ('card', 'Thanh toán bằng thẻ'),
         ('vnpay', 'VNPay'),
         ('momo', 'MoMo'),
         ('zalopay', 'ZaloPay'),
