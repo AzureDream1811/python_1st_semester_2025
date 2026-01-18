@@ -18,15 +18,16 @@ urlpatterns = [
     # Custom Admin Dashboard Panel
     path('admin-dashboard/', include('apps.admin_dashboard.urls', namespace='admin_dashboard')),
 
-    # Django Allauth for Social Login (Google)
-    path('accounts/social/', include('allauth.urls')),
-
     # Main app URLs
     path('', include('apps.products.urls', namespace='products')),
     path('accounts/', include('apps.accounts.urls', namespace='accounts')),
     path('cart/', include('apps.cart.urls', namespace='cart')),
     path('orders/', include('apps.orders.urls', namespace='orders')),
     path('reviews/', include('apps.reviews.urls', namespace='reviews')),
+
+    # Advanced Features
+    path('notifications/', include('apps.notifications.urls', namespace='notifications')),
+
     path('promotions/', include('apps.promotions.urls', namespace='promotions')),
     path('payments/', include('apps.payments.urls', namespace='payments')),
     path('search/', include('apps.search.urls', namespace='search')),

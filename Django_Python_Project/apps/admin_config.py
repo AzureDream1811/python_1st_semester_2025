@@ -6,14 +6,14 @@ from django.contrib import admin
 from django.contrib.admin import AdminSite
 
 
-class ShopAdminSite(AdminSite):
-    """Custom Admin Site cho Admin"""
+class ElectroShopAdminSite(AdminSite):
+    """Custom Admin Site cho ElectroShop"""
 
     # Tiêu đề hiển thị trên trang admin
-    site_header = "🔌Shop Admin"
+    site_header = "🔌 ElectroShop Admin"
 
     # Tiêu đề trên tab trình duyệt
-    site_title = "AdminShop"
+    site_title = "ElectroShop"
 
     # Tiêu đề trên trang index
     index_title = "Quản trị hệ thống bán hàng điện gia dụng"
@@ -40,8 +40,8 @@ class ShopAdminSite(AdminSite):
 
 
 # Cấu hình admin site mặc định
-admin.site.site_header = "🔌Shop Admin"
-admin.site.site_title = "Admin Shop"
+admin.site.site_header = "🔌 ElectroShop Admin"
+admin.site.site_title = "ElectroShop"
 admin.site.index_title = "Quản trị hệ thống bán hàng điện gia dụng"
 
 # Override index method của default admin site
