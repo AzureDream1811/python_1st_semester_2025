@@ -1,5 +1,11 @@
 """
 Admin Configuration cho Accounts App - ElectroShop
+
+Quản lý các models:
+- Profile: Hồ sơ người dùng mở rộng
+- Address: Địa chỉ giao hàng
+- SavedCard: Thẻ thanh toán đã lưu
+- SocialAccount: Tài khoản đăng nhập social (Google, Facebook)
 """
 from django.contrib import admin
 from django.utils.html import format_html
@@ -10,6 +16,7 @@ from .models import Profile, Address, SavedCard, SocialAccount
 class ProfileAdmin(admin.ModelAdmin):
     """
     Quản lý hồ sơ người dùng trong Admin
+    
     Hiển thị thông tin cá nhân, avatar, và các thông tin liên hệ
     """
     # Các cột hiển thị trong danh sách
@@ -54,15 +61,16 @@ class ProfileAdmin(admin.ModelAdmin):
 class AddressAdmin(admin.ModelAdmin):
     """
     Quản lý địa chỉ giao hàng trong Admin
+    
     Hỗ trợ quản lý địa chỉ theo cấu trúc Tỉnh/Thành phố > Quận/Huyện > Phường/Xã
     """
-    # Các cột hiển thị
+    # Các cột hiển thị - SỬA LỖI: đổi 'city' thành 'province' theo model
     list_display = ['full_name', 'user', 'province', 'district', 'ward', 'is_default', 'created_at']
 
-    # Bộ lọc
+    # Bộ lọc - SỬA LỖI: đổi 'city' thành 'province'
     list_filter = ['province', 'district', 'is_default', 'created_at']
 
-    # Các trường có thể tìm kiếm
+    # Các trường có thể tìm kiếm - SỬA LỖI: đổi 'city' thành 'province'
     search_fields = ['full_name', 'user__username', 'user__email', 'address', 'province', 'district', 'ward', 'phone']
 
     # Sử dụng raw_id để chọn user nhanh hơn
@@ -74,7 +82,7 @@ class AddressAdmin(admin.ModelAdmin):
     # Các trường chỉ đọc
     readonly_fields = ['created_at', 'updated_at']
 
-    # Nhóm các trường
+    # Nhóm các trường - SỬA LỖI: đổi 'city' thành 'province'
     fieldsets = (
         ('Người dùng', {
             'fields': ('user',)
@@ -99,6 +107,7 @@ class AddressAdmin(admin.ModelAdmin):
 class SavedCardAdmin(admin.ModelAdmin):
     """
     Quản lý thẻ thanh toán đã lưu trong Admin
+    
     Hiển thị thông tin thẻ đã được mã hóa (masked) để bảo mật
     """
     # Các cột hiển thị
@@ -131,6 +140,7 @@ class SavedCardAdmin(admin.ModelAdmin):
 class SocialAccountAdmin(admin.ModelAdmin):
     """
     Quản lý tài khoản đăng nhập social trong Admin
+    
     Theo dõi các tài khoản Google, Facebook đã liên kết
     """
     # Các cột hiển thị
