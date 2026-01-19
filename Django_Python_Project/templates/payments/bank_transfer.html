@@ -1,16 +1,96 @@
-{% extends "base.html" %}
-{% block title %}Bank Transfer{% endblock %}
+{% extends 'base.html' %}
+{% load product_tags %}
+
+{% block title %}Chuyển khoản ngân hàng - ElectroShop{% endblock %}
 
 {% block content %}
-<h2>Bank Transfer Payment</h2>
-<p>Amount: <strong>{{ amount }}</strong></p>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-bank me-2"></i>Chuyển khoản ngân hàng</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 text-center mb-4 mb-md-0">
+                            <h6 class="mb-3">Quét mã QR để chuyển khoản</h6>
+                            <img src="{{ qr_url }}" alt="VietQR" class="img-fluid rounded" style="max-width: 250px;">
+                            <p class="text-muted small mt-2">Mã QR có hiệu lực trong 15 phút</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mb-3">Thông tin chuyển khoản</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="text-muted">Ngân hàng:</td>
+                                    <td><strong>{{ bank_account.bank_name }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Số tài khoản:</td>
+                                    <td>
+                                        <strong id="account-number">{{ bank_account.account_number }}</strong>
+                                        <button class="btn btn-sm btn-outline-primary ms-2" onclick="copyText('account-number')">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Tên tài khoản:</td>
+                                    <td><strong>{{ bank_account.account_name }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Số tiền:</td>
+                                    <td>
+                                        <strong class="text-primary fs-5" id="amount">{{ order.total|currency }}</strong>
+                                        <button class="btn btn-sm btn-outline-primary ms-2" onclick="copyText('amount')">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Nội dung CK:</td>
+                                    <td>
+                                        <strong id="transfer-content">{{ transfer_content }}</strong>
+                                        <button class="btn btn-sm btn-outline-primary ms-2" onclick="copyText('transfer-content')">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <div class="alert alert-warning mt-3">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <strong>Lưu ý:</strong> Vui lòng nhập đúng nội dung chuyển khoản để đơn hàng được xác nhận tự động.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'orders:detail' order.order_number %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Xem đơn hàng
+                        </a>
+                        <button class="btn btn-success" onclick="confirmPayment()">
+                            <i class="bi bi-check-lg me-2"></i>Tôi đã chuyển khoản
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-<p>Please transfer to the following bank account:</p>
-<ul>
-    <li>Bank: {{ bank_name }}</li>
-    <li>Account Number: {{ account_number }}</li>
-    <li>Account Name: {{ account_name }}</li>
-</ul>
+<script>
+function copyText(elementId) {
+    const text = document.getElementById(elementId).innerText;
+    navigator.clipboard.writeText(text.replace(/[^\d]/g, '') || text);
+    alert('Đã sao chép: ' + text);
+}
 
-<a href="{% url 'payment_status' %}" class="btn btn-primary">I have transferred</a>
+function confirmPayment() {
+    alert('Cảm ơn bạn! Chúng tôi sẽ xác nhận thanh toán trong vòng 5-10 phút.');
+    window.location.href = "{% url 'orders:detail' order.order_number %}";
+}
+</script>
 {% endblock %}

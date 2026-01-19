@@ -1,0 +1,148 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block title %}Quản lý thông báo{% endblock %}
+
+{% block content %}
+<div class="page-card">
+    <div class="page-header">
+        <h1><i class="bi bi-bell"></i> Quản lý thông báo</h1>
+        <div class="d-flex gap-2 align-items-center">
+            <span class="badge bg-primary">{{ stats.total }} tổng</span>
+            <span class="badge bg-warning text-dark">{{ stats.unread }} chưa đọc</span>
+            <a href="{% url 'admin_dashboard:notification_create' %}" class="btn btn-success ms-3">
+                <i class="bi bi-plus-lg"></i> Tạo thông báo
+            </a>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <form method="get" class="row g-2">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Tìm theo tiêu đề, nội dung, user..." value="{{ request.GET.search }}">
+            </div>
+            <div class="col-md-2">
+                <select name="type" class="form-select">
+                    <option value="">Tất cả loại</option>
+                    {% for type_code, type_name in notification_types %}
+                    <option value="{{ type_code }}" {% if request.GET.type == type_code %}selected{% endif %}>{{ type_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="is_read" class="form-select">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="0" {% if request.GET.is_read == '0' %}selected{% endif %}>Chưa đọc</option>
+                    <option value="1" {% if request.GET.is_read == '1' %}selected{% endif %}>Đã đọc</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-search"></i> Tìm kiếm
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'admin_dashboard:notification_list' %}" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <form method="post" action="{% url 'admin_dashboard:notification_bulk_action' %}" id="bulkForm">
+        {% csrf_token %}
+        <div class="mb-2 d-flex gap-2 align-items-center">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="selectAll" onclick="toggleAll(this)">
+                <label class="form-check-label" for="selectAll">Chọn tất cả</label>
+            </div>
+            <select name="action" class="form-select form-select-sm" style="width: auto;">
+                <option value="">-- Thao tác --</option>
+                <option value="mark_read">Đánh dấu đã đọc</option>
+                <option value="mark_unread">Đánh dấu chưa đọc</option>
+                <option value="delete">Xóa</option>
+            </select>
+            <button type="submit" class="btn btn-sm btn-primary" onclick="return confirm('Bạn có chắc muốn thực hiện thao tác này?')">Thực hiện</button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;"></th>
+                        <th>Người dùng</th>
+                        <th>Loại</th>
+                        <th>Tiêu đề</th>
+                        <th>Nội dung</th>
+                        <th>Trạng thái</th>
+                        <th>Thời gian</th>
+                        <th style="width: 80px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for notification in notifications %}
+                    <tr class="{% if not notification.is_read %}table-light{% endif %}">
+                        <td>
+                            <input type="checkbox" name="notification_ids" value="{{ notification.pk }}" class="form-check-input">
+                        </td>
+                        <td>
+                            <a href="{% url 'admin_dashboard:user_detail' notification.user.pk %}">
+                                {{ notification.user.username }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if notification.notification_type == 'order' %}
+                            <span class="badge bg-primary"><i class="bi bi-cart"></i> Đơn hàng</span>
+                            {% elif notification.notification_type == 'promotion' %}
+                            <span class="badge bg-success"><i class="bi bi-percent"></i> Khuyến mãi</span>
+                            {% elif notification.notification_type == 'wishlist' %}
+                            <span class="badge bg-danger"><i class="bi bi-heart"></i> Wishlist</span>
+                            {% elif notification.notification_type == 'system' %}
+                            <span class="badge bg-secondary"><i class="bi bi-gear"></i> Hệ thống</span>
+                            {% elif notification.notification_type == 'chat' %}
+                            <span class="badge bg-info"><i class="bi bi-chat"></i> Chat</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ notification.title|truncatechars:40 }}</strong>
+                        </td>
+                        <td>{{ notification.message|truncatechars:60 }}</td>
+                        <td>
+                            {% if notification.is_read %}
+                            <span class="badge bg-secondary">Đã đọc</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">Chưa đọc</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ notification.created_at|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <form method="post" action="{% url 'admin_dashboard:notification_delete' notification.pk %}" class="d-inline" onsubmit="return confirm('Xóa thông báo này?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="bi bi-bell-slash fs-1 d-block mb-2"></i>
+                            Chưa có thông báo nào
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+
+    {% include 'admin_dashboard/includes/pagination.html' %}
+</div>
+
+<script>
+function toggleAll(source) {
+    const checkboxes = document.querySelectorAll('input[name="notification_ids"]');
+    checkboxes.forEach(cb => cb.checked = source.checked);
+}
+</script>
+{% endblock %}

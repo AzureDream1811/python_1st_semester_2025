@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Câu hỏi thường gặp - ElectroShop{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'products:home' %}">Trang chủ</a></li>
+        <li class="breadcrumb-item active">Câu hỏi thường gặp</li>
+    </ol>
+</nav>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h1 class="h3 mb-0"><i class="bi bi-question-circle me-2"></i>Câu hỏi thường gặp (FAQ)</h1>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    Làm thế nào để đặt hàng trên ElectroShop?
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Bạn chỉ cần chọn sản phẩm, thêm vào giỏ hàng, điền thông tin giao hàng và chọn phương thức thanh toán. Chúng tôi hỗ trợ thanh toán COD, VNPay, MoMo và chuyển khoản ngân hàng.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    Thời gian giao hàng là bao lâu?
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <ul class="mb-0">
+                                        <li>Nội thành TP.HCM, Hà Nội: 1-2 ngày làm việc</li>
+                                        <li>Các tỉnh thành khác: 3-5 ngày làm việc</li>
+                                        <li>Vùng sâu vùng xa: 5-7 ngày làm việc</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    Phí vận chuyển được tính như thế nào?
+                                </button>
+                            </h2>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <ul class="mb-0">
+                                        <li>Đơn hàng từ 500.000đ: Miễn phí vận chuyển toàn quốc</li>
+                                        <li>Đơn hàng dưới 500.000đ: Phí ship từ 20.000đ - 50.000đ tùy khu vực</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                    Tôi có thể đổi trả sản phẩm không?
+                                </button>
+                            </h2>
+                            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Có, ElectroShop hỗ trợ đổi trả trong vòng 7 ngày đối với sản phẩm lỗi do nhà sản xuất hoặc không đúng mô tả. Vui lòng xem chi tiết tại trang <a href="{% url 'products:return_policy' %}">Chính sách đổi trả</a>.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                    Sản phẩm có được bảo hành không?
+                                </button>
+                            </h2>
+                            <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Tất cả sản phẩm tại ElectroShop đều được bảo hành chính hãng từ 12-24 tháng tùy loại sản phẩm. Chi tiết xem tại trang <a href="{% url 'products:warranty_policy' %}">Chính sách bảo hành</a>.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+                                    Làm sao để theo dõi đơn hàng?
+                                </button>
+                            </h2>
+                            <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Sau khi đăng nhập, bạn vào mục "Đơn hàng của tôi" để xem trạng thái đơn hàng. Chúng tôi cũng sẽ gửi email và SMS cập nhật tình trạng giao hàng cho bạn.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq7">
+                                    Tôi muốn hủy đơn hàng, phải làm sao?
+                                </button>
+                            </h2>
+                            <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Bạn có thể hủy đơn hàng khi đơn chưa được xử lý (trạng thái "Chờ xác nhận"). Liên hệ hotline <strong>1900 1234</strong> để được hỗ trợ hủy đơn nếu đơn đã được xử lý.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8">
+                                    Làm sao để liên hệ với ElectroShop?
+                                </button>
+                            </h2>
+                            <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <ul class="mb-0">
+                                        <li><strong>Hotline:</strong> 1900 1234 (8h - 21h hàng ngày)</li>
+                                        <li><strong>Email:</strong> support@electroshop.vn</li>
+                                        <li><strong>Địa chỉ:</strong> 123 Đường ABC, Quận XYZ, TP.HCM</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

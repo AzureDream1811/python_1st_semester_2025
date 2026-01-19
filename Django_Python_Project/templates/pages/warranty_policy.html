@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chính sách bảo hành - ElectroShop{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'products:home' %}">Trang chủ</a></li>
+        <li class="breadcrumb-item active">Chính sách bảo hành</li>
+    </ol>
+</nav>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning">
+                    <h1 class="h3 mb-0"><i class="bi bi-shield-check me-2"></i>Chính sách bảo hành</h1>
+                </div>
+                <div class="card-body">
+                    <h2 class="h5 text-warning mb-3">1. Thời gian bảo hành</h2>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Loại sản phẩm</th>
+                                    <th>Thời gian bảo hành</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Tivi, Tủ lạnh, Máy giặt, Điều hòa</td>
+                                    <td>24 tháng</td>
+                                </tr>
+                                <tr>
+                                    <td>Lò vi sóng, Bếp điện, Máy hút bụi</td>
+                                    <td>12 tháng</td>
+                                </tr>
+                                <tr>
+                                    <td>Quạt điện, Ấm siêu tốc, Nồi cơm điện</td>
+                                    <td>12 tháng</td>
+                                </tr>
+                                <tr>
+                                    <td>Phụ kiện, linh kiện thay thế</td>
+                                    <td>3-6 tháng</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h2 class="h5 text-warning mb-3">2. Điều kiện bảo hành</h2>
+                    <ul>
+                        <li>Sản phẩm còn trong thời hạn bảo hành</li>
+                        <li>Có phiếu bảo hành hoặc hóa đơn mua hàng</li>
+                        <li>Tem bảo hành còn nguyên vẹn</li>
+                        <li>Lỗi kỹ thuật do nhà sản xuất</li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <h2 class="h5 text-warning mb-3">3. Trường hợp không được bảo hành</h2>
+                    <ul class="text-danger">
+                        <li>Sản phẩm hết thời hạn bảo hành</li>
+                        <li>Không có phiếu bảo hành hoặc hóa đơn</li>
+                        <li>Tem bảo hành bị rách, mờ, hoặc có dấu hiệu tẩy xóa</li>
+                        <li>Sản phẩm bị hư hỏng do sử dụng sai cách</li>
+                        <li>Sản phẩm bị hư hỏng do thiên tai, nguồn điện không ổn định</li>
+                        <li>Sản phẩm đã được sửa chữa bởi bên thứ ba</li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <h2 class="h5 text-warning mb-3">4. Quy trình bảo hành</h2>
+                    <ol>
+                        <li>Liên hệ hotline <strong>1900 1234</strong> để được tư vấn</li>
+                        <li>Mang sản phẩm đến trung tâm bảo hành hoặc gửi qua đường bưu điện</li>
+                        <li>Kỹ thuật viên kiểm tra và xác nhận lỗi</li>
+                        <li>Sửa chữa hoặc thay thế linh kiện miễn phí</li>
+                        <li>Nhận lại sản phẩm trong 5-7 ngày làm việc</li>
+                    </ol>
+                    
+                    <div class="alert alert-info mt-4">
+                        <i class="bi bi-telephone me-2"></i>
+                        <strong>Trung tâm bảo hành:</strong> 123 Đường ABC, Quận XYZ, TP.HCM - Hotline: 1900 1234
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

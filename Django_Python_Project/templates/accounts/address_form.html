@@ -1,587 +1,474 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{% if address %}Sửa địa chỉ{% else %}Thêm địa chỉ{% endif %} - ElectroShop{% endblock %}
+{% block title %}{% if is_edit %}Chỉnh sửa{% else %}Thêm{% endif %} địa chỉ - ElectroShop{% endblock %}
 
 {% block extra_css %}
 <style>
-    :root {
-        --ink: #0f172a;
-        --muted: #475569;
-        --border: #e5e7eb;
-        --surface: #ffffff;
-        --surface-muted: #f8fafc;
-        --accent: #2563eb;
-        --error: #dc2626;
-    }
+:root {
+    --ink: #0f172a;
+    --muted: #475569;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --surface: #ffffff;
+    --surface-muted: #f8fafc;
+    --border: #e2e8f0;
+    --border-focus: #2563eb;
+    --success: #10b981;
+    --danger: #ef4444;
+}
 
-    body {
-        background: linear-gradient(135deg, #f6f7fb 0%, #eef2f7 50%, #f8fafc 100%);
-    }
+body {
+    background: linear-gradient(135deg, #f6f7fb 0%, #eef2f7 50%, #f8fafc 100%);
+}
 
-    .form-shell {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 1.5rem 1.25rem 2.5rem;
-    }
+.address-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem;
+}
 
-    .breadcrumb {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        color: var(--muted);
-        font-size: 0.875rem;
-    }
+.address-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
 
-    .breadcrumb a {
-        color: var(--accent);
-        text-decoration: none;
-    }
+.address-header__icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--accent), #3b82f6);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+}
 
-    .form-header {
-        margin-bottom: 1.5rem;
-    }
+.address-header__icon i {
+    font-size: 28px;
+    color: white;
+}
 
-    .form-header h1 {
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--ink);
-        margin: 0 0 0.5rem;
-    }
+.address-header__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 0.5rem;
+}
 
-    .form-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 18px;
-        padding: 2rem;
-        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
-    }
+.address-header__subtitle {
+    color: var(--muted);
+    margin: 0;
+}
 
-    .form-grid {
-        display: grid;
-        gap: 1.25rem;
-    }
+.address-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+}
 
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.25rem;
-    }
+.address-card__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+}
 
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
+.address-card__header i {
+    color: var(--accent);
+    font-size: 1.25rem;
+}
 
-    label {
-        font-weight: 600;
-        color: var(--ink);
-        font-size: 0.9375rem;
-    }
+.address-card__header h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+}
 
-    input,
-    select,
-    textarea {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        background: var(--surface-muted);
-        color: var(--ink);
-        font-size: 0.9375rem;
-        transition: all 0.2s ease;
-    }
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
 
-    input:focus,
-    select:focus,
-    textarea:focus {
-        outline: none;
-        border-color: var(--accent);
-        background: var(--surface);
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
+.form-row--3 {
+    grid-template-columns: repeat(3, 1fr);
+}
 
-    input.error,
-    select.error {
-        border-color: var(--error);
+@media (max-width: 640px) {
+    .form-row, .form-row--3 {
+        grid-template-columns: 1fr;
     }
+}
 
-    input:disabled,
-    select:disabled {
-        background: #e2e8f0;
-        color: #94a3b8;
-        cursor: not-allowed;
-    }
+.form-group {
+    margin-bottom: 1rem;
+    position: relative;
+}
 
-    textarea {
-        resize: vertical;
-        min-height: 100px;
-    }
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
 
-    .error-message {
-        color: var(--error);
-        font-size: 0.875rem;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
+.form-label .required {
+    color: var(--danger);
+}
 
-    .loading-indicator {
-        display: none;
-        color: var(--muted);
-        font-size: 0.875rem;
-        font-style: italic;
-    }
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface-muted);
+    font-size: 0.9375rem;
+    color: var(--ink);
+    transition: all 0.2s ease;
+}
 
-    .loading-indicator.active {
-        display: block;
-    }
+.form-control:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
 
-    .checkbox-group {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 1rem;
-        background: var(--surface-muted);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-    }
+.form-control:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
 
-    .checkbox-group input[type="checkbox"] {
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-    }
+.form-control.is-invalid {
+    border-color: var(--danger);
+    background: #fef2f2;
+}
 
-    .form-actions {
-        display: flex;
-        gap: 1rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--border);
-    }
+.form-control.is-valid {
+    border-color: var(--success);
+}
 
-    .btn {
-        flex: 1;
-        padding: 0.875rem 1.5rem;
-        border: none;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        text-decoration: none;
-    }
+.invalid-feedback {
+    display: none;
+    color: var(--danger);
+    font-size: 0.8125rem;
+    margin-top: 0.375rem;
+}
 
-    .btn-primary {
-        background: var(--accent);
-        color: white;
-        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
-    }
+.is-invalid ~ .invalid-feedback,
+.is-invalid + .invalid-feedback {
+    display: block;
+}
 
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.3);
-    }
+.form-hint {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    margin-top: 0.375rem;
+}
 
-    .btn-primary:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        transform: none;
-    }
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
 
-    .btn-secondary {
-        background: var(--surface-muted);
-        color: var(--ink);
-        border: 1px solid var(--border);
-    }
+.form-check-input {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+}
 
-    @media (max-width: 640px) {
-        .form-row {
-            grid-template-columns: 1fr;
-        }
+.form-check-input:checked {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
 
-        .form-actions {
-            flex-direction: column;
-        }
-    }
+.form-check-label {
+    font-weight: 500;
+    color: var(--ink);
+    cursor: pointer;
+}
+
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+}
+
+.btn-secondary {
+    background: var(--surface-muted);
+    color: var(--ink);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 0.8s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23475569' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.alert-danger {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+}
+
+.alert-success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+}
+
+.alert i {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="form-shell">
-    <nav class="breadcrumb">
-        <a href="{% url 'accounts:profile' %}">
-            <i class="bi bi-person-circle"></i> Tài khoản
-        </a>
-        <i class="bi bi-chevron-right"></i>
-        <a href="{% url 'accounts:address_list' %}">Sổ địa chỉ</a>
-        <i class="bi bi-chevron-right"></i>
-        <span>{% if address %}Sửa địa chỉ{% else %}Thêm mới{% endif %}</span>
-    </nav>
-
-    <div class="form-header">
-        <h1>
+<div class="address-page">
+    <div class="address-header">
+        <div class="address-header__icon">
             <i class="bi bi-geo-alt"></i>
-            {% if address %}Sửa địa chỉ{% else %}Thêm địa chỉ mới{% endif %}
-        </h1>
-        <p>Quản lý địa chỉ giao hàng của bạn</p>
+        </div>
+        <h1 class="address-header__title">{% if is_edit %}Chỉnh sửa địa chỉ{% else %}Thêm địa chỉ mới{% endif %}</h1>
+        <p class="address-header__subtitle">Địa chỉ giao hàng chính xác giúp đơn hàng đến tay bạn nhanh hơn</p>
     </div>
-
-    <div class="form-card">
-        <form class="form-grid" id="addressForm" method="post">
+    
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+        <i class="bi bi-{% if message.tags == 'error' %}exclamation-circle{% else %}check-circle{% endif %}"></i>
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+    {% endif %}
+    
+    <div class="address-card">
+        <div class="address-card__header">
+            <i class="bi bi-person-lines-fill"></i>
+            <h2>Thông tin người nhận</h2>
+        </div>
+        
+        <form method="post" id="addressForm" novalidate>
             {% csrf_token %}
-
+            
             <div class="form-row">
                 <div class="form-group">
-                    <label for="full_name">Họ và tên <span style="color: #dc2626;">*</span></label>
-                    <input id="full_name"
-                           name="full_name"
-                           required
-                           type="text"
-                           value="{{ address.full_name|default:'' }}">
-                    <span class="error-message" id="error_full_name"></span>
+                    <label class="form-label" for="full_name">
+                        Họ tên người nhận <span class="required">*</span>
+                    </label>
+                    <input type="text" class="form-control" id="full_name" name="full_name" 
+                           value="{% if address %}{{ address.full_name }}{% endif %}" 
+                           placeholder="Nguyễn Văn A" required>
+                    <div class="invalid-feedback"></div>
                 </div>
-
                 <div class="form-group">
-                    <label for="phone">Số điện thoại <span style="color: #dc2626;">*</span></label>
-                    <input id="phone"
-                           name="phone"
-                           placeholder="0912345678"
-                           required
-                           type="tel"
-                           value="{{ address.phone|default:'' }}">
-                    <span class="error-message" id="error_phone"></span>
+                    <label class="form-label" for="phone">
+                        Số điện thoại <span class="required">*</span>
+                    </label>
+                    <input type="tel" class="form-control" id="phone" name="phone" 
+                           value="{% if address %}{{ address.phone }}{% endif %}" 
+                           placeholder="0912345678" required>
+                    <div class="invalid-feedback"></div>
+                    <div class="form-hint">Định dạng: 0xxxxxxxxx hoặc +84xxxxxxxxx</div>
                 </div>
             </div>
-
+            
             <div class="form-group">
-                <label for="address">Địa chỉ cụ thể <span style="color: #dc2626;">*</span></label>
-                <textarea id="address"
-                          name="address"
-                          placeholder="Số nhà, tên đường..."
-                          required>{{ address.address|default:'' }}</textarea>
-                <span class="error-message" id="error_address"></span>
+                <label class="form-label" for="address">
+                    Địa chỉ chi tiết <span class="required">*</span>
+                </label>
+                <input type="text" class="form-control" id="address" name="address" 
+                       value="{% if address %}{{ address.address }}{% endif %}" 
+                       placeholder="Số nhà, tên đường, tòa nhà..." required>
+                <div class="invalid-feedback"></div>
             </div>
-
-            <div class="form-row">
+            
+            <div class="form-row form-row--3">
                 <div class="form-group">
-                    <label for="province">Tỉnh/Thành phố <span style="color: #dc2626;">*</span></label>
-                    <select id="province" name="province" required>
-                        <option value="">Chọn Tỉnh/Thành phố</option>
+                    <label class="form-label" for="provinceSelect">
+                        Tỉnh/Thành phố <span class="required">*</span>
+                    </label>
+                    <select class="form-control" id="provinceSelect" name="province_code" required>
+                        <option value="">-- Chọn Tỉnh/Thành phố --</option>
+                        {% for p in provinces %}
+                        <option value="{{ p.code }}" data-name="{{ p.name }}" 
+                                {% if address and address.province_code == p.code %}selected{% endif %}>
+                            {{ p.name }}
+                        </option>
+                        {% endfor %}
                     </select>
-                    <input id="province_code" name="province_code" type="hidden"
-                           value="{{ address.province_code|default:'' }}">
-                    <span class="loading-indicator" id="loading_province">
-                        <i class="bi bi-arrow-clockwise"></i> Đang tải...
-                    </span>
-                    <span class="error-message" id="error_province"></span>
+                    <input type="hidden" name="province" id="provinceName" 
+                           value="{% if address %}{{ address.province }}{% endif %}">
+                    <div class="invalid-feedback"></div>
                 </div>
-
                 <div class="form-group">
-                    <label for="district">Quận/Huyện <span style="color: #dc2626;">*</span></label>
-                    <select disabled id="district" name="district" required>
-                        <option value="">Chọn Quận/Huyện</option>
+                    <label class="form-label" for="districtSelect">
+                        Quận/Huyện <span class="required">*</span>
+                    </label>
+                    <select class="form-control" id="districtSelect" name="district_code" required 
+                            {% if not address or not address.province_code %}disabled{% endif %}>
+                        <option value="">-- Chọn Quận/Huyện --</option>
+                        {% if districts %}
+                        {% for d in districts %}
+                        <option value="{{ d.code }}" data-name="{{ d.name }}"
+                                {% if address and address.district_code == d.code %}selected{% endif %}>
+                            {{ d.name }}
+                        </option>
+                        {% endfor %}
+                        {% endif %}
                     </select>
-                    <input id="district_code" name="district_code" type="hidden"
-                           value="{{ address.district_code|default:'' }}">
-                    <span class="loading-indicator" id="loading_district">
-                        <i class="bi bi-arrow-clockwise"></i> Đang tải...
-                    </span>
-                    <span class="error-message" id="error_district"></span>
+                    <input type="hidden" name="district" id="districtName" 
+                           value="{% if address %}{{ address.district }}{% endif %}">
+                    <div class="invalid-feedback"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="wardSelect">
+                        Phường/Xã
+                    </label>
+                    <select class="form-control" id="wardSelect" name="ward_code"
+                            {% if not address or not address.district_code %}disabled{% endif %}>
+                        <option value="">-- Chọn Phường/Xã --</option>
+                        {% if wards %}
+                        {% for w in wards %}
+                        <option value="{{ w.code }}" data-name="{{ w.name }}"
+                                {% if address and address.ward_code == w.code %}selected{% endif %}>
+                            {{ w.name }}
+                        </option>
+                        {% endfor %}
+                        {% endif %}
+                    </select>
+                    <input type="hidden" name="ward" id="wardName" 
+                           value="{% if address %}{{ address.ward }}{% endif %}">
                 </div>
             </div>
-
-            <div class="form-group">
-                <label for="ward">Phường/Xã <span style="color: #dc2626;">*</span></label>
-                <select disabled id="ward" name="ward" required>
-                    <option value="">Chọn Phường/Xã</option>
-                </select>
-                <input id="ward_code" name="ward_code" type="hidden" value="{{ address.ward_code|default:'' }}">
-                <span class="loading-indicator" id="loading_ward">
-                    <i class="bi bi-arrow-clockwise"></i> Đang tải...
-                </span>
-                <span class="error-message" id="error_ward"></span>
+            
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="isDefault" name="is_default"
+                       {% if address and address.is_default %}checked{% endif %}>
+                <label class="form-check-label" for="isDefault">
+                    Đặt làm địa chỉ mặc định
+                </label>
             </div>
-
-            <div class="checkbox-group">
-                <input %}
-                       %}checked{%
-                       address.is_default
-                       endif id="is_default" if name="is_default" type="checkbox" {%>
-                <label for="is_default" style="margin: 0;">Đặt làm địa chỉ mặc định</label>
-            </div>
-
+            
             <div class="form-actions">
-                <a class="btn btn-secondary" href="{% url 'accounts:address_list' %}">
-                    <i class="bi bi-x-lg"></i>
-                    <span>Hủy</span>
-                </a>
-                <button class="btn btn-primary" id="submitBtn" type="submit">
+                <button type="submit" class="btn btn-primary" id="submitBtn">
                     <i class="bi bi-check-lg"></i>
-                    <span>{% if address %}Cập nhật{% else %}Thêm địa chỉ{% endif %}</span>
+                    {% if is_edit %}Cập nhật địa chỉ{% else %}Thêm địa chỉ{% endif %}
                 </button>
+                <a href="{% url 'accounts:profile' %}?tab=addresses" class="btn btn-secondary">
+                    <i class="bi bi-x-lg"></i>
+                    Hủy
+                </a>
             </div>
         </form>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<script src="{% static 'js/address-cascade.js' %}"></script>
 <script>
-    // Validation
-    const Validator = {
-        phone: (value) => /^(0|\+84)(3|5|7|8|9)[0-9]{8}$/.test(value.replace(/\s/g, '')),
-        required: (value) => value && value.trim().length > 0,
-        minLength: (value, min) => value.length >= min
-    };
-
-    function showError(fieldId, message) {
-        const errorElement = document.getElementById(`error_${fieldId}`);
-        const inputElement = document.getElementById(fieldId);
-        if (errorElement && inputElement) {
-            errorElement.innerHTML = `<i class="bi bi-exclamation-circle"></i> ${message}`;
-            inputElement.classList.add('error');
-        }
-    }
-
-    function clearError(fieldId) {
-        const errorElement = document.getElementById(`error_${fieldId}`);
-        const inputElement = document.getElementById(fieldId);
-        if (errorElement && inputElement) {
-            errorElement.innerHTML = '';
-            inputElement.classList.remove('error');
-        }
-    }
-
-    function showLoading(fieldId) {
-        const loadingElement = document.getElementById(`loading_${fieldId}`);
-        if (loadingElement) loadingElement.classList.add('active');
-    }
-
-    function hideLoading(fieldId) {
-        const loadingElement = document.getElementById(`loading_${fieldId}`);
-        if (loadingElement) loadingElement.classList.remove('active');
-    }
-
-    // Load provinces
-    async function loadProvinces() {
-        showLoading('province');
-        try {
-            const response = await fetch('/accounts/api/provinces/');
-            if (!response.ok) throw new Error('Cannot load');
-
-            const provinces = await response.json();
-            const select = document.getElementById('province');
-            select.innerHTML = '<option value="">Chọn Tỉnh/Thành phố</option>';
-
-            provinces.forEach(p => {
-                const option = new Option(p.name, p.name);
-                option.dataset.code = p.code;
-                select.appendChild(option);
-
-                {%
-                    if address %
-                }
-                if (p.code === '{{ address.province_code }}') {
-                    option.selected = true;
-                    loadDistricts(p.code);
-                }
-                {%
-                    endif %
-                }
-            });
-            hideLoading('province');
-        } catch (error) {
-            hideLoading('province');
-            showError('province', 'Không thể tải danh sách');
-            console.error(error);
-        }
-    }
-
-    // Load districts
-    async function loadDistricts(provinceCode) {
-        showLoading('district');
-        try {
-            const response = await fetch(`/accounts/api/districts/${provinceCode}/`);
-            if (!response.ok) throw new Error('Cannot load');
-
-            const districts = await response.json();
-            const select = document.getElementById('district');
-            select.innerHTML = '<option value="">Chọn Quận/Huyện</option>';
-            select.disabled = false;
-
-            districts.forEach(d => {
-                const option = new Option(d.name, d.name);
-                option.dataset.code = d.code;
-                select.appendChild(option);
-
-                {%
-                    if address %
-                }
-                if (d.code === '{{ address.district_code }}') {
-                    option.selected = true;
-                    loadWards(d.code);
-                }
-                {%
-                    endif %
-                }
-            });
-            hideLoading('district');
-            clearError('district');
-        } catch (error) {
-            hideLoading('district');
-            showError('district', 'Không thể tải danh sách');
-            console.error(error);
-        }
-    }
-
-    // Load wards
-    async function loadWards(districtCode) {
-        showLoading('ward');
-        try {
-            const response = await fetch(`/accounts/api/wards/${districtCode}/`);
-            if (!response.ok) throw new Error('Cannot load');
-
-            const wards = await response.json();
-            const select = document.getElementById('ward');
-            select.innerHTML = '<option value="">Chọn Phường/Xã</option>';
-            select.disabled = false;
-
-            wards.forEach(w => {
-                const option = new Option(w.name, w.name);
-                option.dataset.code = w.code;
-                select.appendChild(option);
-
-                {%
-                    if address %
-                }
-                if (w.code === '{{ address.ward_code }}') {
-                    option.selected = true;
-                }
-                {%
-                    endif %
-                }
-            });
-            hideLoading('ward');
-            clearError('ward');
-        } catch (error) {
-            hideLoading('ward');
-            showError('ward', 'Không thể tải danh sách');
-            console.error(error);
-        }
-    }
-
-    // Events
-    document.getElementById('province').addEventListener('change', function () {
-        const option = this.options[this.selectedIndex];
-        const code = option.dataset.code;
-        if (code) {
-            document.getElementById('province_code').value = code;
-            document.getElementById('district').disabled = false;
-            document.getElementById('ward').disabled = true;
-            document.getElementById('ward').innerHTML = '<option value="">Chọn Phường/Xã</option>';
-            clearError('province');
-            loadDistricts(code);
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize address cascade
+    const cascade = new AddressCascade({
+        provinceSelectId: 'provinceSelect',
+        districtSelectId: 'districtSelect',
+        wardSelectId: 'wardSelect',
+        provinceNameId: 'provinceName',
+        districtNameId: 'districtName',
+        wardNameId: 'wardName',
+        initialProvinceCode: '{{ address.province_code|default:"" }}',
+        initialDistrictCode: '{{ address.district_code|default:"" }}',
+        initialWardCode: '{{ address.ward_code|default:"" }}'
     });
-
-    document.getElementById('district').addEventListener('change', function () {
-        const option = this.options[this.selectedIndex];
-        const code = option.dataset.code;
-        if (code) {
-            document.getElementById('district_code').value = code;
-            document.getElementById('ward').disabled = false;
-            clearError('district');
-            loadWards(code);
-        }
+    
+    // Initialize form validator
+    const validator = new AddressFormValidator('addressForm', {
+        fullNameId: 'full_name',
+        phoneId: 'phone',
+        addressId: 'address',
+        provinceSelectId: 'provinceSelect',
+        districtSelectId: 'districtSelect'
     });
-
-    document.getElementById('ward').addEventListener('change', function () {
-        const option = this.options[this.selectedIndex];
-        const code = option.dataset.code;
-        if (code) {
-            document.getElementById('ward_code').value = code;
-            clearError('ward');
-        }
-    });
-
-    // Form validation
-    document.getElementById('addressForm').addEventListener('submit', function (e) {
-        let isValid = true;
-
-        ['full_name', 'phone', 'address', 'province', 'district', 'ward'].forEach(clearError);
-
-        const fullName = document.getElementById('full_name').value;
-        if (!Validator.required(fullName)) {
-            showError('full_name', 'Vui lòng nhập họ và tên');
-            isValid = false;
-        } else if (!Validator.minLength(fullName, 3)) {
-            showError('full_name', 'Họ và tên phải có ít nhất 3 ký tự');
-            isValid = false;
-        }
-
-        const phone = document.getElementById('phone').value;
-        if (!Validator.required(phone)) {
-            showError('phone', 'Vui lòng nhập số điện thoại');
-            isValid = false;
-        } else if (!Validator.phone(phone)) {
-            showError('phone', 'Số điện thoại không hợp lệ (VD: 0912345678)');
-            isValid = false;
-        }
-
-        const address = document.getElementById('address').value;
-        if (!Validator.required(address)) {
-            showError('address', 'Vui lòng nhập địa chỉ cụ thể');
-            isValid = false;
-        } else if (!Validator.minLength(address, 10)) {
-            showError('address', 'Địa chỉ phải có ít nhất 10 ký tự');
-            isValid = false;
-        }
-
-        if (!Validator.required(document.getElementById('province').value)) {
-            showError('province', 'Vui lòng chọn Tỉnh/Thành phố');
-            isValid = false;
-        }
-
-        if (!Validator.required(document.getElementById('district').value)) {
-            showError('district', 'Vui lòng chọn Quận/Huyện');
-            isValid = false;
-        }
-
-        if (!Validator.required(document.getElementById('ward').value)) {
-            showError('ward', 'Vui lòng chọn Phường/Xã');
-            isValid = false;
-        }
-
-        if (!isValid) {
-            e.preventDefault();
-            const firstError = document.querySelector('.error');
-            if (firstError) firstError.scrollIntoView({behavior: 'smooth', block: 'center'});
-        } else {
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> <span>Đang xử lý...</span>';
-        }
-    });
-
-    // Real-time phone validation
-    document.getElementById('phone').addEventListener('blur', function () {
-        if (Validator.required(this.value) && !Validator.phone(this.value)) {
-            showError('phone', 'Số điện thoại không hợp lệ (VD: 0912345678)');
-        }
-    });
-
-    document.getElementById('phone').addEventListener('input', function () {
-        if (Validator.phone(this.value)) clearError('phone');
-    });
-
-    // Init
-    document.addEventListener('DOMContentLoaded', loadProvinces);
+});
 </script>
 {% endblock %}

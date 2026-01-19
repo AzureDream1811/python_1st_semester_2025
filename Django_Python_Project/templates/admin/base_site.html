@@ -16,70 +16,13 @@
 
 {% block extrastyle %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'admin/css/custom_admin.css' %}">
-{% endblock %}
-
-{% block nav-global %}
-<nav class="admin-quick-nav">
-    <div class="quick-nav-inner">
-        <div class="nav-links">
-            <a href="{% url 'admin:index' %}" class="nav-link {% if request.path == '/admin/' %}active{% endif %}">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="7" height="7"></rect>
-                    <rect x="14" y="3" width="7" height="7"></rect>
-                    <rect x="14" y="14" width="7" height="7"></rect>
-                    <rect x="3" y="14" width="7" height="7"></rect>
-                </svg>
-                Dashboard
-            </a>
-            <a href="{% url 'admin_dashboard:revenue_report' %}" class="nav-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="1" x2="12" y2="23"></line>
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                </svg>
-                Doanh thu
-            </a>
-            <a href="{% url 'admin:orders_order_changelist' %}" class="nav-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <path d="M16 10a4 4 0 0 1-8 0"></path>
-                </svg>
-                Don hang
-            </a>
-            <a href="{% url 'admin:products_product_changelist' %}" class="nav-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
-                </svg>
-                San pham
-            </a>
-            <a href="{% url 'admin:reviews_review_changelist' %}" class="nav-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
-                Danh gia
-            </a>
-            <a href="{% url 'admin:accounts_user_changelist' %}" class="nav-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-                Nguoi dung
-            </a>
-        </div>
-        <div class="nav-actions">
-            <a href="/" target="_blank" class="nav-link nav-link-external">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                    <polyline points="15 3 21 3 21 9"></polyline>
-                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                </svg>
-                Xem trang web
-            </a>
-        </div>
-    </div>
-</nav>
+<style>
+#header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+#branding h1 a {
+    color: #fff !important;
+    font-weight: 700;
+}
+</style>
 {% endblock %}

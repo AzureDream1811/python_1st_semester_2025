@@ -1,14 +1,6 @@
 """
 Models Khuyến Mãi cho ElectroShop
-=================================
 
-Module này định nghĩa các models liên quan đến hệ thống khuyến mãi:
-- Voucher: Mã giảm giá có thể áp dụng cho đơn hàng
-- VoucherUsage: Theo dõi lịch sử sử dụng voucher
-- ComboDeal: Combo khuyến mãi khi mua nhiều sản phẩm
-- FlashSale: Chương trình giảm giá theo thời gian giới hạn
-
-Tác giả: ElectroShop Team
 """
 from django.db import models
 from django.contrib.auth.models import User

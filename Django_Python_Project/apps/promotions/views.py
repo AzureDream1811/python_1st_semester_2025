@@ -1,13 +1,6 @@
 """
 Views Khuyến Mãi cho ElectroShop
-================================
 
-Module này xử lý các request liên quan đến khuyến mãi:
-- Flash Sale: Danh sách và chi tiết flash sale
-- Combo Deal: Danh sách combo khuyến mãi
-- Voucher: Xác thực và áp dụng mã giảm giá
-
-Tác giả: ElectroShop Team
 """
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -21,10 +14,6 @@ from django.core.paginator import Paginator
 from .models import Voucher, ComboDeal, FlashSale
 from .services.promotion_service import PromotionService
 
-
-# =============================================================================
-# FLASH SALE VIEWS
-# =============================================================================
 
 def flash_sale_list(request):
     """

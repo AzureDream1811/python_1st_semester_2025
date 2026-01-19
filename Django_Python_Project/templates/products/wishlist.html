@@ -1,10 +1,580 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
 
-</body>
-</html>
+{% block title %}Danh sách yêu thích | ElectroShop{% endblock %}
+
+{% block extra_css %}
+<style>
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--es-space-3);
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-1);
+    font-size: var(--es-text-xl);
+    font-weight: var(--es-font-bold);
+    color: var(--es-text-primary);
+    margin: 0;
+}
+
+.page-title i {
+    color: var(--es-danger);
+}
+
+.page-subtitle {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+    margin: 4px 0 0 0;
+}
+
+/* ========== Wishlist Grid ========== */
+.wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--es-space-3);
+}
+
+/* ========== Wishlist Card ========== */
+.wishlist-card {
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    border: 1px solid var(--es-border-light);
+    overflow: hidden;
+    transition: all var(--es-transition-normal);
+}
+
+.wishlist-card:hover {
+    box-shadow: var(--es-shadow-card-hover);
+    transform: translateY(-4px);
+}
+
+.wishlist-card__image {
+    position: relative;
+    aspect-ratio: 1;
+    background: var(--es-bg-secondary);
+}
+
+.wishlist-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.wishlist-card__badges {
+    position: absolute;
+    top: var(--es-space-1);
+    left: var(--es-space-1);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.wishlist-card__badge {
+    padding: 4px var(--es-space-1);
+    border-radius: var(--es-radius-sm);
+    font-size: var(--es-text-xs);
+    font-weight: var(--es-font-bold);
+}
+
+.wishlist-card__badge--sale {
+    background: var(--es-danger);
+    color: var(--es-white);
+}
+
+.wishlist-card__badge--new {
+    background: var(--es-success);
+    color: var(--es-white);
+}
+
+.wishlist-card__remove {
+    position: absolute;
+    top: var(--es-space-1);
+    right: var(--es-space-1);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--es-danger);
+    color: var(--es-white);
+    border: none;
+    border-radius: var(--es-radius-full);
+    cursor: pointer;
+    transition: all var(--es-transition-fast);
+}
+
+.wishlist-card__remove:hover {
+    background: var(--es-danger-dark);
+    transform: scale(1.1);
+}
+
+.wishlist-card__body {
+    padding: var(--es-space-2);
+}
+
+.wishlist-card__name {
+    font-size: var(--es-text-sm);
+    font-weight: var(--es-font-medium);
+    margin: 0 0 var(--es-space-1) 0;
+    line-height: 1.4;
+}
+
+.wishlist-card__name a {
+    color: var(--es-text-primary);
+    text-decoration: none;
+}
+
+.wishlist-card__name a:hover {
+    color: var(--es-primary);
+}
+
+.wishlist-card__rating {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-1);
+    margin-bottom: var(--es-space-1);
+}
+
+.rating-stars {
+    display: flex;
+    gap: 2px;
+    color: var(--es-warning);
+    font-size: var(--es-text-xs);
+}
+
+.rating-count {
+    font-size: var(--es-text-xs);
+    color: var(--es-text-muted);
+}
+
+.wishlist-card__price {
+    display: flex;
+    align-items: baseline;
+    gap: var(--es-space-1);
+    margin-bottom: var(--es-space-1);
+}
+
+.price-current {
+    font-size: var(--es-text-base);
+    font-weight: var(--es-font-bold);
+    color: var(--es-primary);
+}
+
+.price-original {
+    font-size: var(--es-text-xs);
+    color: var(--es-text-muted);
+    text-decoration: line-through;
+}
+
+.wishlist-card__stock {
+    font-size: var(--es-text-xs);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.wishlist-card__stock--in {
+    color: var(--es-success);
+}
+
+.wishlist-card__stock--out {
+    color: var(--es-danger);
+}
+
+.wishlist-card__footer {
+    padding: 0 var(--es-space-2) var(--es-space-2);
+}
+
+.wishlist-card__btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--es-space-1);
+    padding: var(--es-space-1) var(--es-space-2);
+    background: var(--es-primary);
+    color: var(--es-white);
+    border: none;
+    border-radius: var(--es-radius-md);
+    font-weight: var(--es-font-semibold);
+    font-size: var(--es-text-sm);
+    cursor: pointer;
+    transition: all var(--es-transition-normal);
+    min-height: var(--es-touch-target);
+}
+
+.wishlist-card__btn:hover:not(:disabled) {
+    background: var(--es-primary-dark);
+}
+
+.wishlist-card__btn:disabled {
+    background: var(--es-gray-400);
+    cursor: not-allowed;
+}
+
+/* ========== Empty State ========== */
+.empty-state {
+    text-align: center;
+    padding: var(--es-space-8);
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    border: 1px solid var(--es-border-light);
+}
+
+.empty-state__icon {
+    font-size: 5rem;
+    color: var(--es-text-muted);
+    opacity: 0.3;
+    margin-bottom: var(--es-space-3);
+}
+
+.empty-state__title {
+    font-size: var(--es-text-lg);
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+    margin: 0 0 var(--es-space-1) 0;
+}
+
+.empty-state__desc {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+    margin-bottom: var(--es-space-3);
+}
+
+.empty-state__actions {
+    display: flex;
+    gap: var(--es-space-2);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* ========== Breadcrumb ========== */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-1);
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--es-space-3) 0;
+    font-size: var(--es-text-sm);
+}
+
+.breadcrumb-item a {
+    color: var(--es-text-secondary);
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--es-primary);
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: '/';
+    color: var(--es-text-muted);
+    margin-right: var(--es-space-1);
+}
+
+.breadcrumb-item.active {
+    color: var(--es-text-primary);
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 1200px) {
+    .wishlist-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .wishlist-grid { grid-template-columns: repeat(2, 1fr); }
+    .page-header { flex-direction: column; align-items: flex-start; gap: var(--es-space-2); }
+}
+
+@media (max-width: 576px) {
+    .wishlist-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'products:home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Danh sách yêu thích</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="bi bi-heart-fill text-danger me-2"></i>
+                Danh sách yêu thích
+            </h1>
+            <p class="text-muted mb-0">{{ wishlist_items.paginator.count }} sản phẩm</p>
+        </div>
+        {% if wishlist_items %}
+        <button class="btn btn-outline-danger btn-sm" onclick="clearAllWishlist()">
+            <i class="bi bi-trash me-1"></i>Xóa tất cả
+        </button>
+        {% endif %}
+    </div>
+
+    {% if wishlist_items %}
+    <!-- Wishlist Grid -->
+    <div class="wishlist-grid">
+        {% for item in wishlist_items %}
+        <article class="wishlist-card" id="wishlist-item-{{ item.product.id }}">
+            <!-- Image Container -->
+            <div class="wishlist-card__image">
+                <!-- Badges -->
+                <div class="wishlist-card__badges">
+                    {% if item.product.discount_percent > 0 %}
+                    <span class="wishlist-card__badge wishlist-card__badge--sale">-{{ item.product.discount_percent }}%</span>
+                    {% endif %}
+                    {% if item.product.is_new %}
+                    <span class="wishlist-card__badge wishlist-card__badge--new">Mới</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Product Image -->
+                <a href="{{ item.product.get_absolute_url }}">
+                    {% if item.product.image %}
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                    {% else %}
+                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--es-bg-secondary);">
+                        <i class="bi bi-image" style="font-size:3rem;color:var(--es-text-muted);"></i>
+                    </div>
+                    {% endif %}
+                </a>
+                
+                <!-- Remove Button -->
+                <button class="wishlist-card__remove" onclick="removeFromWishlist({{ item.product.id }})" title="Xóa khỏi yêu thích">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            
+            <!-- Content -->
+            <div class="wishlist-card__body">
+                {% if item.product.category %}
+                <span style="font-size:var(--es-text-xs);color:var(--es-text-muted);text-transform:uppercase;">{{ item.product.category.name }}</span>
+                {% endif %}
+                
+                <h3 class="wishlist-card__name">
+                    <a href="{{ item.product.get_absolute_url }}">{{ item.product.name }}</a>
+                </h3>
+                
+                <!-- Rating -->
+                <div class="wishlist-card__rating">
+                    <span class="rating-stars">
+                        {% for i in "12345" %}
+                        <i class="bi bi-star{% if forloop.counter <= item.product.average_rating %}-fill{% endif %}"></i>
+                        {% endfor %}
+                    </span>
+                    <span class="rating-count">({{ item.product.review_count }})</span>
+                </div>
+                
+                <!-- Price -->
+                <div class="wishlist-card__price">
+                    {% if item.product.sale_price and item.product.sale_price < item.product.price %}
+                    <span class="price-current">{{ item.product.sale_price|intcomma }}₫</span>
+                    <span class="price-original">{{ item.product.price|intcomma }}₫</span>
+                    {% else %}
+                    <span class="price-current" style="color:#1e3a5f;">{{ item.product.price|intcomma }}₫</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Stock Status -->
+                <div class="wishlist-card__stock {% if item.product.in_stock %}wishlist-card__stock--in{% else %}wishlist-card__stock--out{% endif %}">
+                    {% if item.product.in_stock %}
+                    <i class="bi bi-check-circle-fill"></i> Còn hàng
+                    {% else %}
+                    <i class="bi bi-x-circle-fill"></i> Hết hàng
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="wishlist-card__footer">
+                {% if item.product.in_stock %}
+                <button class="wishlist-card__btn" onclick="addToCart({{ item.product.id }})">
+                    <i class="bi bi-bag-plus"></i>
+                    <span>Thêm vào giỏ</span>
+                </button>
+                {% else %}
+                <button class="wishlist-card__btn" disabled>
+                    <i class="bi bi-x-circle"></i>
+                    <span>Hết hàng</span>
+                </button>
+                {% endif %}
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if wishlist_items.has_other_pages %}
+    <nav class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if wishlist_items.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ wishlist_items.previous_page_number }}">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for num in wishlist_items.paginator.page_range %}
+            <li class="page-item {% if wishlist_items.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if wishlist_items.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ wishlist_items.next_page_number }}">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="bi bi-heart text-muted" style="font-size: 5rem; opacity: 0.3;"></i>
+        </div>
+        <h4 class="mb-3">Danh sách yêu thích trống</h4>
+        <p class="text-muted mb-4">
+            Bạn chưa có sản phẩm nào trong danh sách yêu thích.<br>
+            Hãy khám phá và thêm những sản phẩm bạn thích!
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{% url 'products:product_list' %}" class="btn btn-primary">
+                <i class="bi bi-grid me-2"></i>Xem sản phẩm
+            </a>
+            <a href="{% url 'promotions:flash_sales' %}" class="btn btn-outline-danger">
+                <i class="bi bi-lightning me-2"></i>Flash Sale
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function removeFromWishlist(productId) {
+    Swal.fire({
+        title: 'Xác nhận xóa?',
+        text: 'Bạn có chắc muốn xóa sản phẩm này khỏi danh sách yêu thích?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/products/wishlist/remove/${productId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Animate and remove item
+                    const item = document.getElementById(`wishlist-item-${productId}`);
+                    item.style.transition = 'all 0.3s ease';
+                    item.style.opacity = '0';
+                    item.style.transform = 'scale(0.8)';
+                    setTimeout(() => {
+                        item.remove();
+                        // Check if empty
+                        if (document.querySelectorAll('[id^="wishlist-item-"]').length === 0) {
+                            location.reload();
+                        }
+                    }, 300);
+                    
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                }
+            });
+        }
+    });
+}
+
+function addToCart(productId) {
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({quantity: 1})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Đã thêm vào giỏ hàng',
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+    });
+}
+
+function clearAllWishlist() {
+    Swal.fire({
+        title: 'Xóa tất cả?',
+        text: 'Bạn có chắc muốn xóa tất cả sản phẩm khỏi danh sách yêu thích?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Xóa tất cả',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Remove all items one by one
+            const items = document.querySelectorAll('[id^="wishlist-item-"]');
+            items.forEach(item => {
+                const productId = item.id.replace('wishlist-item-', '');
+                fetch(`/products/wishlist/remove/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    }
+                });
+            });
+            
+            setTimeout(() => location.reload(), 500);
+        }
+    });
+}
+</script>
+{% endblock %}

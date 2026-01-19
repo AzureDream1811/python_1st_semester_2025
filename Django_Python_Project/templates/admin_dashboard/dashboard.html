@@ -1,190 +1,536 @@
 {% extends 'admin_dashboard/base.html' %}
 {% load static %}
+{% load humanize %}
+{% load vn_currency %}
 
 {% block title %}Dashboard{% endblock %}
 
+{% block extra_css %}
+<style>
+.dash-hero {
+    background: linear-gradient(135deg, var(--marine-primary) 0%, var(--marine-primary-light) 60%, var(--marine-accent) 100%);
+    color: #fff;
+    border-radius: 24px;
+    padding: 28px 32px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    box-shadow: 0 12px 40px rgba(30, 58, 95, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+.dash-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(20, 184, 166, 0.3) 0%, transparent 70%);
+    pointer-events: none;
+}
+.dash-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: 10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+    pointer-events: none;
+}
+.dash-hero h1 { 
+    margin: 0; 
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.01em; 
+    position: relative; 
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.dash-hero p { 
+    margin: 8px 0 0; 
+    color: rgba(255,255,255,0.85); 
+    position: relative; 
+    z-index: 1;
+    font-size: 15px;
+}
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+.kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    display: grid;
+    gap: 8px;
+    box-shadow: 0 4px 20px rgba(30, 58, 95, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+.kpi::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    opacity: 0.1;
+    transform: translate(30%, -30%);
+}
+.kpi.revenue::before { background: var(--success); }
+.kpi.orders::before { background: var(--marine-accent); }
+.kpi.customers::before { background: var(--warning); }
+.kpi.products::before { background: #8b5cf6; }
+.kpi:hover { 
+    transform: translateY(-4px); 
+    box-shadow: 0 12px 32px rgba(20, 184, 166, 0.15); 
+}
+.kpi small { 
+    color: var(--muted); 
+    text-transform: uppercase; 
+    letter-spacing: 0.5px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.kpi strong { 
+    font-size: 32px; 
+    color: var(--ink);
+    font-weight: 700;
+    line-height: 1.2;
+}
+.kpi .delta { 
+    display: inline-flex; 
+    align-items: center; 
+    gap: 4px; 
+    font-weight: 600;
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    width: fit-content;
+}
+.delta.up { 
+    color: var(--success); 
+    background: rgba(16, 185, 129, 0.1);
+}
+.delta.down { 
+    color: var(--danger); 
+    background: rgba(239, 68, 68, 0.1);
+}
+.grid-2 { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); 
+    gap: 20px; 
+}
+.card-lite { 
+    background: var(--surface); 
+    border: 1px solid var(--border); 
+    border-radius: 20px; 
+    padding: 24px; 
+    box-shadow: 0 4px 20px rgba(30, 58, 95, 0.08); 
+}
+.card-lite h3 { 
+    margin: 0 0 20px; 
+    font-size: 16px;
+    font-weight: 600;
+    display: flex; 
+    align-items: center; 
+    gap: 10px;
+    color: var(--ink);
+}
+.card-lite h3 i {
+    color: var(--marine-accent);
+}
+.table-wrap { 
+    overflow-x: auto;
+    margin: 0 -24px -24px;
+    padding: 0 24px 24px;
+}
+.table-swiss { 
+    width: 100%; 
+    border-collapse: collapse; 
+}
+.table-swiss th { 
+    background: var(--surface-muted); 
+    color: var(--muted); 
+    text-transform: uppercase; 
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px; 
+    padding: 12px 16px;
+    text-align: left;
+}
+.table-swiss td { 
+    padding: 14px 16px; 
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+}
+.table-swiss tr:last-child td {
+    border-bottom: none;
+}
+.table-swiss tr:hover td { 
+    background: rgba(20, 184, 166, 0.03); 
+}
+.table-swiss a {
+    color: var(--marine-accent);
+    font-weight: 500;
+    text-decoration: none;
+}
+.table-swiss a:hover {
+    color: #0d9488;
+}
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 12px;
+}
+.status.pending { background: #fef3c7; color: #92400e; }
+.status.confirmed { background: #dbeafe; color: #1d4ed8; }
+.status.processing { background: #ede9fe; color: #6d28d9; }
+.status.shipping { background: #cffafe; color: #0e7490; }
+.status.delivered { background: #dcfce7; color: #166534; }
+.status.cancelled { background: #fee2e2; color: #b91c1c; }
+.empty { 
+    text-align: center; 
+    color: var(--muted); 
+    padding: 32px;
+    font-size: 14px;
+}
+.promo-stat {
+    text-align: center;
+    padding: 16px;
+    border-radius: 16px;
+    flex: 1;
+}
+.promo-stat .value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.promo-stat .label {
+    font-size: 12px;
+    color: var(--muted);
+}
+.filter-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 20px;
+    box-shadow: 0 2px 12px rgba(30, 58, 95, 0.06);
+}
+@media (max-width: 768px) { 
+    .dash-hero { 
+        grid-template-columns: 1fr;
+        padding: 20px;
+    }
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<h2 class="mb-4"><i aria-hidden="true" class="bi bi-speedometer2"></i> Dashboard</h2>
+<div class="dash-hero">
+    <div>
+        <h1><i class="bi bi-speedometer2"></i> Dashboard</h1>
+        <p>Tổng quan đơn hàng, doanh thu, khách hàng</p>
+    </div>
+</div>
 
-<!-- KPI Cards - Bento Grid -->
-<section aria-label="Thống kê tổng quan" class="dashboard-kpis">
-    <!-- Revenue Card -->
-    <article aria-labelledby="kpi-revenue-title" class="kpi-card revenue">
-        <div aria-hidden="true" class="kpi-icon">
-            <i class="bi bi-currency-dollar"></i>
+<section class="filter-card">
+    <form method="get" class="d-flex flex-wrap gap-3 align-items-center">
+        <label class="fw-bold d-flex align-items-center gap-2">
+            <i class="bi bi-calendar3"></i> Thời gian:
+        </label>
+        <div class="btn-group" role="group">
+            <input type="radio" class="btn-check" name="period" id="periodToday" value="today" {% if current_period == 'today' %}checked{% endif %} onchange="toggleCustomDates('today')">
+            <label class="btn btn-outline-primary btn-sm" for="periodToday">Hôm nay</label>
+            
+            <input type="radio" class="btn-check" name="period" id="periodWeek" value="week" {% if current_period == 'week' %}checked{% endif %} onchange="toggleCustomDates('week')">
+            <label class="btn btn-outline-primary btn-sm" for="periodWeek">7 ngày qua</label>
+            
+            <input type="radio" class="btn-check" name="period" id="periodMonth" value="month" {% if current_period == 'month' %}checked{% endif %} onchange="toggleCustomDates('month')">
+            <label class="btn btn-outline-primary btn-sm" for="periodMonth">Tháng này</label>
+            
+            <input type="radio" class="btn-check" name="period" id="periodYear" value="year" {% if current_period == 'year' %}checked{% endif %} onchange="toggleCustomDates('year')">
+            <label class="btn btn-outline-primary btn-sm" for="periodYear">Năm nay</label>
+            
+            <input type="radio" class="btn-check" name="period" id="periodCustom" value="custom" {% if current_period == 'custom' %}checked{% endif %} onchange="toggleCustomDates('custom')">
+            <label class="btn btn-outline-primary btn-sm" for="periodCustom">Tùy chỉnh</label>
         </div>
-        <div class="kpi-content">
-            <h3 id="kpi-revenue-title">Doanh thu tháng</h3>
-            <p class="kpi-value">{{ stats.monthly_revenue|default:0|floatformat:0 }}đ</p>
-            {% if stats.revenue_change %}
-            <span class="kpi-change {% if stats.revenue_change >= 0 %}positive{% else %}negative{% endif %}">
-                <i aria-hidden="true"
-                   class="bi bi-{% if stats.revenue_change >= 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
-                {{ stats.revenue_change|floatformat:1 }}%
-            </span>
-            {% endif %}
+        <div id="customDates" class="d-flex gap-2 align-items-center" style="{% if current_period != 'custom' %}display:none!important;{% endif %}">
+            <div class="input-group input-group-sm" style="width: auto;">
+                <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                <input type="date" name="start_date" class="form-control" value="{{ request.GET.start_date }}" style="width: 140px;">
+            </div>
+            <span class="text-muted">đến</span>
+            <div class="input-group input-group-sm" style="width: auto;">
+                <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                <input type="date" name="end_date" class="form-control" value="{{ request.GET.end_date }}" style="width: 140px;">
+            </div>
         </div>
-    </article>
-
-    <!-- Orders Card -->
-    <article aria-labelledby="kpi-orders-title" class="kpi-card orders">
-        <div aria-hidden="true" class="kpi-icon">
-            <i class="bi bi-cart-check"></i>
-        </div>
-        <div class="kpi-content">
-            <h3 id="kpi-orders-title">Tổng đơn hàng</h3>
-            <p class="kpi-value">{{ stats.total_orders|default:0 }}</p>
-            {% if stats.orders_change %}
-            <span class="kpi-change {% if stats.orders_change >= 0 %}positive{% else %}negative{% endif %}">
-                <i aria-hidden="true"
-                   class="bi bi-{% if stats.orders_change >= 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
-                {{ stats.orders_change|floatformat:1 }}%
-            </span>
-            {% endif %}
-        </div>
-    </article>
-
-    <!-- Customers Card -->
-    <article aria-labelledby="kpi-customers-title" class="kpi-card customers">
-        <div aria-hidden="true" class="kpi-icon">
-            <i class="bi bi-people"></i>
-        </div>
-        <div class="kpi-content">
-            <h3 id="kpi-customers-title">Khách hàng</h3>
-            <p class="kpi-value">{{ stats.total_customers|default:0 }}</p>
-            {% if stats.customers_change %}
-            <span class="kpi-change {% if stats.customers_change >= 0 %}positive{% else %}negative{% endif %}">
-                <i aria-hidden="true"
-                   class="bi bi-{% if stats.customers_change >= 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
-                {{ stats.customers_change|floatformat:1 }}%
-            </span>
-            {% endif %}
-        </div>
-    </article>
-
-    <!-- Products Card -->
-    <article aria-labelledby="kpi-products-title" class="kpi-card products">
-        <div aria-hidden="true" class="kpi-icon">
-            <i class="bi bi-box-seam"></i>
-        </div>
-        <div class="kpi-content">
-            <h3 id="kpi-products-title">Sản phẩm</h3>
-            <p class="kpi-value">{{ stats.total_products|default:0 }}</p>
-            {% if stats.products_change %}
-            <span class="kpi-change {% if stats.products_change >= 0 %}positive{% else %}negative{% endif %}">
-                <i aria-hidden="true"
-                   class="bi bi-{% if stats.products_change >= 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
-                {{ stats.products_change|floatformat:1 }}%
-            </span>
-            {% endif %}
-        </div>
-    </article>
+        <button type="submit" class="btn btn-primary btn-sm">
+            <i class="bi bi-funnel"></i> Áp dụng
+        </button>
+        <span class="badge bg-success"><i class="bi bi-check-circle"></i> {{ stats.period_label|default:"Tháng này" }}</span>
+    </form>
 </section>
 
-<!-- Charts Row - Bento Grid -->
-<section aria-label="Biểu đồ thống kê" class="dashboard-charts">
-    <!-- Revenue Chart -->
-    <article class="chart-card">
-        <h3><i aria-hidden="true" class="bi bi-graph-up"></i> Doanh thu 30 ngày qua</h3>
-        <div class="chart-container">
-            <canvas aria-label="Biểu đồ doanh thu 30 ngày qua" id="revenueChart" role="img"></canvas>
-        </div>
-    </article>
-
-    <!-- Order Status Chart -->
-    <article class="chart-card">
-        <h3><i aria-hidden="true" class="bi bi-pie-chart"></i> Trạng thái đơn hàng</h3>
-        <div class="chart-container">
-            <canvas aria-label="Biểu đồ trạng thái đơn hàng" id="orderStatusChart" role="img"></canvas>
-        </div>
-    </article>
+<section class="kpi-grid" aria-label="Thống kê tổng quan">
+    <div class="kpi revenue">
+        <small>Doanh thu {{ stats.period_label|default:"tháng này" }}</small>
+        <strong>{{ stats.monthly_revenue|default:0|vnd }}</strong>
+        {% if stats.revenue_change %}
+        <span class="delta {% if stats.revenue_change >= 0 %}up{% else %}down{% endif %}">
+            <i class="bi bi-{% if stats.revenue_change >= 0 %}arrow-up-right{% else %}arrow-down-right{% endif %}"></i>
+            {{ stats.revenue_change|floatformat:1 }}%
+        </span>
+        {% endif %}
+    </div>
+    <div class="kpi orders">
+        <small>Tổng đơn hàng</small>
+        <strong>{{ stats.total_orders|default:0 }}</strong>
+        {% if stats.orders_change %}
+        <span class="delta {% if stats.orders_change >= 0 %}up{% else %}down{% endif %}">
+            <i class="bi bi-{% if stats.orders_change >= 0 %}arrow-up-right{% else %}arrow-down-right{% endif %}"></i>
+            {{ stats.orders_change|floatformat:1 }}%
+        </span>
+        {% endif %}
+    </div>
+    <div class="kpi customers">
+        <small>Khách hàng</small>
+        <strong>{{ stats.total_customers|default:0 }}</strong>
+        {% if stats.customers_change %}
+        <span class="delta {% if stats.customers_change >= 0 %}up{% else %}down{% endif %}">
+            <i class="bi bi-{% if stats.customers_change >= 0 %}arrow-up-right{% else %}arrow-down-right{% endif %}"></i>
+            {{ stats.customers_change|floatformat:1 }}%
+        </span>
+        {% endif %}
+    </div>
+    <div class="kpi products">
+        <small>Sản phẩm</small>
+        <strong>{{ stats.total_products|default:0 }}</strong>
+        {% if stats.products_change %}
+        <span class="delta {% if stats.products_change >= 0 %}up{% else %}down{% endif %}">
+            <i class="bi bi-{% if stats.products_change >= 0 %}arrow-up-right{% else %}arrow-down-right{% endif %}"></i>
+            {{ stats.products_change|floatformat:1 }}%
+        </span>
+        {% endif %}
+    </div>
 </section>
 
-<!-- Recent Orders - Data Table -->
-<section aria-label="Bảng dữ liệu" class="dashboard-tables">
-    <article class="table-card" style="grid-column: span 2;">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3><i aria-hidden="true" class="bi bi-clock-history"></i> Đơn hàng gần đây</h3>
-            <a class="view-all-link" href="{% url 'admin_dashboard:order_list' %}">
-                Xem tất cả <i aria-hidden="true" class="bi bi-arrow-right"></i>
+<section class="grid-2" aria-label="Biểu đồ">
+    <div class="card-lite">
+        <h3><i class="bi bi-graph-up"></i> Doanh thu {{ stats.period_label|default:"tháng này" }}</h3>
+        <div style="height:280px"><canvas id="revenueChart" aria-label="Biểu đồ doanh thu" role="img"></canvas></div>
+    </div>
+    <div class="card-lite">
+        <h3><i class="bi bi-pie-chart"></i> Trạng thái đơn hàng {{ stats.period_label|default:"tháng này" }}</h3>
+        <div style="height:280px"><canvas id="orderStatusChart" aria-label="Biểu đồ trạng thái đơn hàng" role="img"></canvas></div>
+    </div>
+</section>
+
+<section class="grid-2" aria-label="Khuyến mãi">
+    <div class="card-lite">
+        <h3><i class="bi bi-ticket-perforated"></i> Thống kê Voucher</h3>
+        <div class="d-flex gap-3 mb-3">
+            <div class="promo-stat" style="background: rgba(16, 185, 129, 0.1);">
+                <div class="value" style="color: var(--success);">{{ stats.promotion.voucher.usage_count|default:0 }}</div>
+                <div class="label">Lượt sử dụng</div>
+            </div>
+            <div class="promo-stat" style="background: rgba(239, 68, 68, 0.1);">
+                <div class="value" style="color: var(--danger);">{{ stats.promotion.voucher.total_discount|default:0|vnd }}</div>
+                <div class="label">Tổng giảm giá</div>
+            </div>
+        </div>
+        {% if stats.promotion.voucher.top_vouchers %}
+        <h6 class="mb-2 text-muted" style="font-size: 13px;">Top Voucher được dùng:</h6>
+        <ul class="list-unstyled mb-0">
+            {% for v in stats.promotion.voucher.top_vouchers|slice:":5" %}
+            <li class="d-flex justify-content-between border-bottom py-2">
+                <span><code style="background: var(--surface-muted); padding: 4px 8px; border-radius: 6px;">{{ v.voucher__code }}</code></span>
+                <span class="text-muted" style="font-size: 13px;">{{ v.usage_count }} lượt - {{ v.total_discount|vnd }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted text-center mb-0">Chưa có dữ liệu voucher được sử dụng</p>
+        {% endif %}
+        <div class="mt-3 text-end">
+            <a href="{% url 'admin_dashboard:voucher_list' %}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-ticket-perforated"></i> Quản lý
             </a>
         </div>
-        <div class="table-responsive">
-            <table aria-label="Danh sách đơn hàng gần đây" class="dashboard-table">
-                <thead>
+    </div>
+    <div class="card-lite">
+        <h3><i class="bi bi-lightning"></i> Thống kê Flash Sale</h3>
+        <div class="d-flex gap-3 mb-3">
+            <div class="promo-stat" style="background: rgba(245, 158, 11, 0.1);">
+                <div class="value" style="color: var(--warning);">{{ stats.promotion.flash_sale.active_count|default:0 }}</div>
+                <div class="label">Đang diễn ra</div>
+            </div>
+            <div class="promo-stat" style="background: rgba(20, 184, 166, 0.1);">
+                <div class="value" style="color: var(--marine-accent);">{{ stats.promotion.flash_sale.total_sold|default:0 }}</div>
+                <div class="label">Đã bán</div>
+            </div>
+            <div class="promo-stat" style="background: rgba(16, 185, 129, 0.1);">
+                <div class="value" style="color: var(--success);">{{ stats.promotion.flash_sale.total_revenue|default:0|vnd }}</div>
+                <div class="label">Doanh thu</div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span class="text-muted" style="font-size: 13px;">Đã giảm: <strong style="color: var(--danger);">{{ stats.promotion.flash_sale.discount_given|default:0|vnd }}</strong></span>
+            <span class="text-muted" style="font-size: 13px;">Tổng {{ stats.promotion.flash_sale.total_campaigns|default:0 }} chiến dịch</span>
+            <a href="{% url 'admin_dashboard:flash_sale_list' %}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-lightning"></i> Quản lý
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="card-lite" aria-label="Đơn hàng gần đây">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h3 class="m-0"><i class="bi bi-clock-history"></i> Đơn hàng gần đây</h3>
+        <a class="btn btn-primary btn-sm" href="{% url 'admin_dashboard:order_list' %}">
+            <i class="bi bi-arrow-right"></i> Xem tất cả
+        </a>
+    </div>
+    <div class="table-wrap">
+        <table class="table-swiss">
+            <thead>
                 <tr>
-                    <th scope="col">Mã đơn</th>
-                    <th scope="col">Khách hàng</th>
-                    <th scope="col">Tổng tiền</th>
-                    <th scope="col">Trạng thái</th>
-                    <th scope="col">Ngày đặt</th>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày đặt</th>
                 </tr>
-                </thead>
-                <tbody>
+            </thead>
+            <tbody>
                 {% for order in recent_orders %}
                 <tr>
-                    <td>
-                        <a href="{% url 'admin_dashboard:order_detail' order.pk %}">{{ order.order_number }}</a>
-                    </td>
+                    <td><a href="{% url 'admin_dashboard:order_detail' order.pk %}">{{ order.order_number }}</a></td>
                     <td>{{ order.full_name }}</td>
-                    <td>{{ order.total|floatformat:0 }}đ</td>
-                    <td>
-                            <span class="status-badge status-{{ order.status }}">
-                                {{ order.get_status_display }}
-                            </span>
-                    </td>
+                    <td><strong>{{ order.total|vnd }}</strong></td>
+                    <td><span class="status {{ order.status }}">{{ order.get_status_display }}</span></td>
                     <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
                 </tr>
                 {% empty %}
-                <tr>
-                    <td class="empty-message" colspan="5">Chưa có đơn hàng nào</td>
-                </tr>
+                <tr><td colspan="5" class="empty">Chưa có đơn hàng</td></tr>
                 {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </article>
+            </tbody>
+        </table>
+    </div>
 </section>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Load chart data
-        fetch('{% url "admin_dashboard:chart_data" %}?type=revenue')
-            .then(response => response.json())
-            .then(data => {
-                new Chart(document.getElementById('revenueChart'), {
-                    type: 'line',
-                    data: {
-                        labels: data.labels || [],
-                        datasets: [{
-                            label: 'Doanh thu (VNĐ)',
-                            data: data.data || [],
-                            borderColor: 'rgb(75, 192, 192)',
-                            tension: 0.1,
-                            fill: false
-                        }]
-                    },
-                    options: {responsive: true}
-                });
-            });
+function toggleCustomDates(value) {
+    const customDates = document.getElementById('customDates');
+    if (value === 'custom') {
+        customDates.style.display = 'flex';
+    } else {
+        customDates.style.display = 'none';
+    }
+}
 
-        fetch('{% url "admin_dashboard:chart_data" %}?type=orders')
-            .then(response => response.json())
-            .then(data => {
-                new Chart(document.getElementById('orderStatusChart'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: data.labels || [],
-                        datasets: [{
-                            data: data.data || [],
-                            backgroundColor: ['#ffc107', '#17a2b8', '#28a745', '#dc3545', '#6c757d']
-                        }]
-                    },
-                    options: {responsive: true}
-                });
+document.addEventListener('DOMContentLoaded', function() {
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#64748B';
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const period = urlParams.get('period') || 'month';
+    const startDate = urlParams.get('start_date') || '';
+    const endDate = urlParams.get('end_date') || '';
+    
+    let chartQuery = `period=${period}`;
+    if (period === 'custom' && startDate && endDate) {
+        chartQuery += `&start_date=${startDate}&end_date=${endDate}`;
+    }
+
+    fetch(`{% url "admin_dashboard:chart_data" %}?type=revenue&${chartQuery}`)
+        .then(r => r.json())
+        .then(data => {
+            const ctx = document.getElementById('revenueChart');
+            if (!ctx) return;
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels || [],
+                    datasets: [{
+                        label: 'Doanh thu (VND)',
+                        data: data.data || [],
+                        borderColor: '#14b8a6',
+                        backgroundColor: 'rgba(20, 184, 166, 0.12)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#14b8a6',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: '#E2E8F0' },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('vi-VN') + '₫';
+                                }
+                            }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
             });
-    });
+        });
+
+    fetch(`{% url "admin_dashboard:chart_data" %}?type=orders&${chartQuery}`)
+        .then(r => r.json())
+        .then(data => {
+            const ctx = document.getElementById('orderStatusChart');
+            if (!ctx) return;
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.labels || [],
+                    datasets: [{
+                        data: data.data || [],
+                        backgroundColor: data.backgroundColor || ['#f59e0b','#14b8a6','#8b5cf6','#06b6d4','#22c55e','#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16 } }
+                    },
+                    cutout: '65%'
+                }
+            });
+        });
+});
 </script>
 {% endblock %}

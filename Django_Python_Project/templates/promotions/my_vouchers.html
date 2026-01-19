@@ -1,77 +1,450 @@
 {% extends 'base.html' %}
-{% load product_tags %}
+{% load humanize %}
 
 {% block title %}Voucher của tôi - ElectroShop{% endblock %}
 
+{% block extra_css %}
+<style>
+.voucher-page {
+    padding: var(--es-space-4) 0;
+}
+
+.page-header {
+    margin-bottom: var(--es-space-4);
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    font-size: var(--es-text-2xl);
+    font-weight: var(--es-font-bold);
+    color: var(--es-text-primary);
+    margin: 0;
+}
+
+.page-title i {
+    color: var(--es-primary);
+}
+
+.page-subtitle {
+    color: var(--es-text-muted);
+    margin-top: var(--es-space-1);
+}
+
+.voucher-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--es-space-3);
+}
+
+.voucher-card {
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    overflow: hidden;
+    box-shadow: var(--es-shadow-card);
+    display: flex;
+    transition: all var(--es-transition-normal);
+    position: relative;
+}
+
+.voucher-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--es-shadow-card-hover);
+}
+
+.voucher-card::before,
+.voucher-card::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: var(--es-bg-main);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.voucher-card::before {
+    left: -10px;
+}
+
+.voucher-card::after {
+    right: -10px;
+}
+
+.voucher-left {
+    width: 140px;
+    min-width: 140px;
+    background: linear-gradient(135deg, var(--es-primary) 0%, var(--es-primary-dark) 100%);
+    color: var(--es-white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--es-space-2);
+    text-align: center;
+    position: relative;
+}
+
+.voucher-left::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 1px;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 5px,
+        rgba(255,255,255,0.3) 5px,
+        rgba(255,255,255,0.3) 10px
+    );
+}
+
+.voucher-discount {
+    font-size: 2.5rem;
+    font-weight: var(--es-font-bold);
+    line-height: 1;
+}
+
+.voucher-discount-type {
+    font-size: var(--es-text-sm);
+    opacity: 0.9;
+    margin-top: 4px;
+}
+
+.voucher-right {
+    flex: 1;
+    padding: var(--es-space-2);
+    display: flex;
+    flex-direction: column;
+}
+
+.voucher-code-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-1);
+    margin-bottom: var(--es-space-1);
+}
+
+.voucher-code {
+    font-family: monospace;
+    font-size: var(--es-text-lg);
+    font-weight: var(--es-font-bold);
+    color: var(--es-primary);
+    background: var(--es-primary-100);
+    padding: 6px 12px;
+    border-radius: var(--es-radius-sm);
+    letter-spacing: 1px;
+}
+
+.btn-copy {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: var(--es-bg-secondary);
+    color: var(--es-text-secondary);
+    border-radius: var(--es-radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--es-transition-fast);
+}
+
+.btn-copy:hover {
+    background: var(--es-primary);
+    color: var(--es-white);
+}
+
+.btn-copy.copied {
+    background: var(--es-success);
+    color: var(--es-white);
+}
+
+.voucher-desc {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-secondary);
+    margin-bottom: var(--es-space-1);
+    flex: 1;
+}
+
+.voucher-conditions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--es-space-1);
+    margin-bottom: var(--es-space-1);
+}
+
+.voucher-condition {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--es-text-xs);
+    color: var(--es-text-muted);
+    background: var(--es-bg-secondary);
+    padding: 4px 8px;
+    border-radius: var(--es-radius-sm);
+}
+
+.voucher-condition i {
+    font-size: 10px;
+}
+
+.voucher-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--es-space-1);
+    border-top: 1px dashed var(--es-border-light);
+    margin-top: auto;
+}
+
+.voucher-expiry {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--es-text-xs);
+}
+
+.voucher-expiry--warning {
+    color: var(--es-warning);
+    font-weight: var(--es-font-semibold);
+}
+
+.voucher-expiry--danger {
+    color: var(--es-danger);
+    font-weight: var(--es-font-semibold);
+}
+
+.voucher-expiry--normal {
+    color: var(--es-text-muted);
+}
+
+.btn-use {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: var(--es-primary);
+    color: var(--es-white);
+    border: none;
+    border-radius: var(--es-radius-md);
+    font-size: var(--es-text-sm);
+    font-weight: var(--es-font-semibold);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all var(--es-transition-fast);
+}
+
+.btn-use:hover {
+    background: var(--es-primary-dark);
+    color: var(--es-white);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--es-space-8);
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    box-shadow: var(--es-shadow-card);
+}
+
+.empty-state__icon {
+    font-size: 5rem;
+    color: var(--es-text-muted);
+    opacity: 0.3;
+    margin-bottom: var(--es-space-3);
+}
+
+.empty-state__title {
+    font-size: var(--es-text-xl);
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+    margin: 0 0 var(--es-space-1) 0;
+}
+
+.empty-state__desc {
+    color: var(--es-text-muted);
+    margin-bottom: var(--es-space-3);
+}
+
+.empty-state__actions {
+    display: flex;
+    gap: var(--es-space-2);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 992px) {
+    .voucher-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .voucher-card {
+        flex-direction: column;
+    }
+    
+    .voucher-left {
+        width: 100%;
+        min-width: unset;
+        padding: var(--es-space-2);
+        flex-direction: row;
+        gap: var(--es-space-1);
+    }
+    
+    .voucher-left::after {
+        display: none;
+    }
+    
+    .voucher-card::before,
+    .voucher-card::after {
+        top: 80px;
+        width: 16px;
+        height: 16px;
+    }
+    
+    .voucher-card::before {
+        left: -8px;
+    }
+    
+    .voucher-card::after {
+        right: -8px;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <h2 class="mb-4"><i class="bi bi-ticket-perforated me-2"></i>Voucher của tôi</h2>
+<div class="container voucher-page">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb" style="display:flex;gap:var(--es-space-1);list-style:none;padding:0;margin:0;font-size:var(--es-text-sm);">
+            <li><a href="{% url 'products:home' %}" style="color:var(--es-text-secondary);text-decoration:none;">Trang chủ</a></li>
+            <li style="color:var(--es-text-muted);">/</li>
+            <li style="color:var(--es-text-primary);">Voucher của tôi</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="bi bi-ticket-perforated"></i>
+            Voucher của tôi
+        </h1>
+        <p class="page-subtitle">Sử dụng voucher để được giảm giá khi thanh toán</p>
+    </div>
 
     {% if vouchers %}
-    <div class="row">
+    <!-- Voucher Grid -->
+    <div class="voucher-grid">
         {% for voucher in vouchers %}
-        <div class="col-md-6 mb-4">
-            <div class="card border-primary">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h4 class="text-primary mb-1">{{ voucher.code }}</h4>
-                            <p class="mb-2">{{ voucher.description }}</p>
-                        </div>
-                        <div class="text-end">
-                            {% if voucher.discount_type == 'percentage' %}
-                            <span class="badge bg-danger fs-5">-{{ voucher.discount_value }}%</span>
-                            {% else %}
-                            <span class="badge bg-danger fs-5">-{{ voucher.discount_value|currency }}</span>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <hr>
-
-                    <div class="row text-muted small">
-                        <div class="col-6">
-                            <i class="bi bi-cart me-1"></i>
-                            Đơn tối thiểu: {{ voucher.min_order_value|currency }}
-                        </div>
-                        <div class="col-6 text-end">
-                            {% if voucher.max_discount %}
-                            <i class="bi bi-tag me-1"></i>
-                            Giảm tối đa: {{ voucher.max_discount|currency }}
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="row text-muted small mt-2">
-                        <div class="col-6">
-                            <i class="bi bi-calendar me-1"></i>
-                            HSD: {{ voucher.valid_until|date:"d/m/Y" }}
-                        </div>
-                        <div class="col-6 text-end">
-                            <i class="bi bi-people me-1"></i>
-                            Còn lại: {{ voucher.usage_limit|default:0 }} lượt
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer bg-light">
-                    <button class="btn btn-outline-primary btn-sm copy-voucher" data-code="{{ voucher.code }}">
-                        <i class="bi bi-clipboard me-1"></i>Sao chép mã
+        <div class="voucher-card">
+            <!-- Left - Discount -->
+            <div class="voucher-left">
+                {% if voucher.discount_type == 'percentage' %}
+                <span class="voucher-discount">{{ voucher.discount_value|floatformat:0 }}%</span>
+                <span class="voucher-discount-type">GIẢM GIÁ</span>
+                {% else %}
+                <span class="voucher-discount" style="font-size:1.5rem;">{{ voucher.discount_value|floatformat:0|intcomma }}đ</span>
+                <span class="voucher-discount-type">GIẢM NGAY</span>
+                {% endif %}
+            </div>
+            
+            <!-- Right - Details -->
+            <div class="voucher-right">
+                <!-- Code + Copy -->
+                <div class="voucher-code-wrapper">
+                    <span class="voucher-code">{{ voucher.code }}</span>
+                    <button class="btn-copy" data-code="{{ voucher.code }}" title="Sao chép mã">
+                        <i class="bi bi-clipboard"></i>
                     </button>
-                    <a class="btn btn-primary btn-sm float-end" href="{% url 'products:home' %}">
-                        Mua sắm ngay <i class="bi bi-arrow-right ms-1"></i>
+                </div>
+                
+                <!-- Description -->
+                <p class="voucher-desc">{{ voucher.description|default:"Mã giảm giá đặc biệt dành cho bạn" }}</p>
+                
+                <!-- Conditions -->
+                <div class="voucher-conditions">
+                    <span class="voucher-condition">
+                        <i class="bi bi-cart"></i>
+                        Đơn tối thiểu {{ voucher.min_order_value|floatformat:0|intcomma }}₫
+                    </span>
+                    {% if voucher.max_discount %}
+                    <span class="voucher-condition">
+                        <i class="bi bi-tag"></i>
+                        Giảm tối đa {{ voucher.max_discount|floatformat:0|intcomma }}₫
+                    </span>
+                    {% endif %}
+                    {% if voucher.usage_limit %}
+                    <span class="voucher-condition">
+                        <i class="bi bi-people"></i>
+                        Còn {{ voucher.usage_limit|add:voucher.used_count|default:0 }} lượt
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <!-- Footer -->
+                <div class="voucher-footer">
+                    {% now "Y-m-d" as today %}
+                    {% with days_left=voucher.valid_until|timeuntil %}
+                    <span class="voucher-expiry 
+                        {% if 'ngày' in days_left and days_left|slice:':1'|add:0 <= 3 %}voucher-expiry--danger
+                        {% elif 'tuần' in days_left or 'ngày' in days_left and days_left|slice:':1'|add:0 <= 7 %}voucher-expiry--warning
+                        {% else %}voucher-expiry--normal{% endif %}">
+                        <i class="bi bi-clock"></i>
+                        HSD: {{ voucher.valid_until|date:"d/m/Y" }}
+                    </span>
+                    {% endwith %}
+                    
+                    <a href="{% url 'products:product_list' %}" class="btn-use">
+                        <span>Dùng ngay</span>
+                        <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
+    
+    <!-- Usage Guide -->
+    <div style="margin-top:var(--es-space-4);padding:var(--es-space-3);background:var(--es-primary-100);border-radius:var(--es-radius-bento);">
+        <h5 style="display:flex;align-items:center;gap:var(--es-space-1);margin:0 0 var(--es-space-2) 0;color:var(--es-primary-dark);">
+            <i class="bi bi-info-circle"></i>
+            Hướng dẫn sử dụng voucher
+        </h5>
+        <ol style="margin:0;padding-left:var(--es-space-3);color:var(--es-text-secondary);font-size:var(--es-text-sm);">
+            <li>Sao chép mã voucher bằng cách nhấn nút <i class="bi bi-clipboard"></i></li>
+            <li>Thêm sản phẩm vào giỏ hàng và tiến hành thanh toán</li>
+            <li>Nhập mã voucher vào ô "Mã giảm giá" ở trang thanh toán</li>
+            <li>Nhấn "Áp dụng" để được giảm giá ngay!</li>
+        </ol>
+    </div>
+    
     {% else %}
-    <div class="text-center py-5">
-        <i class="bi bi-ticket-perforated display-1 text-muted mb-3"></i>
-        <h4>Bạn chưa có voucher nào</h4>
-        <p class="text-muted">Hãy tích điểm để đổi voucher hoặc theo dõi các chương trình khuyến mãi!</p>
-        <a class="btn btn-primary" href="{% url 'promotions:flash_sales' %}">
-            <i class="bi bi-gift me-2"></i>Xem khuyến mãi
-        </a>
+    <!-- Empty State -->
+    <div class="empty-state">
+        <div class="empty-state__icon">
+            <i class="bi bi-ticket-perforated"></i>
+        </div>
+        <h3 class="empty-state__title">Bạn chưa có voucher nào</h3>
+        <p class="empty-state__desc">
+            Theo dõi các chương trình khuyến mãi để nhận voucher giảm giá!
+        </p>
+        <div class="empty-state__actions">
+            <a href="{% url 'promotions:flash_sales' %}" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:var(--es-space-1);">
+                <i class="bi bi-lightning"></i>
+                <span>Xem Flash Sale</span>
+            </a>
+            <a href="{% url 'products:product_list' %}" class="btn btn-outline-primary" style="display:inline-flex;align-items:center;gap:var(--es-space-1);">
+                <i class="bi bi-grid"></i>
+                <span>Mua sắm ngay</span>
+            </a>
+        </div>
     </div>
     {% endif %}
 </div>
@@ -79,19 +452,31 @@
 
 {% block extra_js %}
 <script>
-    document.querySelectorAll('.copy-voucher').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            const code = this.dataset.code;
-            navigator.clipboard.writeText(code).then(function () {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đã sao chép!',
-                    text: 'Mã voucher: ' + code,
-                    timer: 1500,
-                    showConfirmButton: false
-                });
+document.querySelectorAll('.btn-copy').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const code = this.dataset.code;
+        const button = this;
+        const icon = button.querySelector('i');
+        
+        navigator.clipboard.writeText(code).then(function() {
+            button.classList.add('copied');
+            icon.className = 'bi bi-check-lg';
+            
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Đã sao chép mã: ' + code,
+                showConfirmButton: false,
+                timer: 2000
             });
+            
+            setTimeout(function() {
+                button.classList.remove('copied');
+                icon.className = 'bi bi-clipboard';
+            }, 2000);
         });
     });
+});
 </script>
 {% endblock %}

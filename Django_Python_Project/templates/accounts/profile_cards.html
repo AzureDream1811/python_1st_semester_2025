@@ -1,305 +1,476 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load humanize %}
 
 {% block title %}Thẻ thanh toán - ElectroShop{% endblock %}
 
 {% block extra_css %}
 <style>
-    :root {
-        --ink: #0f172a;
-        --muted: #475569;
-        --border: #e5e7eb;
-        --surface: #ffffff;
-        --surface-muted: #f8fafc;
-        --accent: #2563eb;
-    }
+.cards-page {
+    padding: var(--es-space-4) 0;
+}
 
-    body {
-        background: linear-gradient(135deg, #f6f7fb 0%, #eef2f7 50%, #f8fafc 100%);
-    }
+.page-hero {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border-radius: var(--es-radius-bento);
+    padding: var(--es-space-4);
+    margin-bottom: var(--es-space-4);
+    color: var(--es-white);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--es-space-2);
+    position: relative;
+    overflow: hidden;
+}
 
-    .cards-shell {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 1.5rem 1.25rem 2.5rem;
-    }
+.page-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+}
 
-    .breadcrumb {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        color: var(--muted);
-        font-size: 0.875rem;
-    }
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
 
-    .breadcrumb a {
-        color: var(--accent);
-        text-decoration: none;
-        transition: color 0.2s ease;
-    }
+.hero-content h1 {
+    font-size: var(--es-text-2xl);
+    font-weight: var(--es-font-bold);
+    margin: 0 0 var(--es-space-1) 0;
+}
 
-    .breadcrumb a:hover {
-        color: var(--ink);
-    }
+.hero-content p {
+    margin: 0;
+    opacity: 0.9;
+}
 
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
+.hero-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 6px 12px;
+    border-radius: var(--es-radius-full);
+    font-size: var(--es-text-sm);
+    margin-top: var(--es-space-1);
+    display: inline-block;
+}
 
-    .page-header h1 {
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--ink);
-        margin: 0;
-    }
+.btn-hero {
+    background: var(--es-white);
+    color: #1e293b;
+    padding: 12px 24px;
+    border-radius: var(--es-radius-md);
+    font-weight: var(--es-font-semibold);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--es-transition-fast);
+    position: relative;
+    z-index: 1;
+}
 
-    .btn-primary {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1.25rem;
-        background: var(--accent);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
-    }
+.btn-hero:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
 
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.3);
-        color: white;
-    }
+.page-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: var(--es-space-3);
+}
 
-    .cards-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 1.25rem;
-    }
+.sidebar {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
 
-    .card-item {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        border-radius: 18px;
-        padding: 1.5rem;
+.sidebar-card {
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    box-shadow: var(--es-shadow-card);
+    padding: var(--es-space-2);
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    padding: 12px 16px;
+    border-radius: var(--es-radius-md);
+    color: var(--es-text-secondary);
+    text-decoration: none;
+    font-weight: var(--es-font-medium);
+    transition: all var(--es-transition-fast);
+}
+
+.sidebar-link:hover {
+    background: var(--es-bg-secondary);
+    color: var(--es-text-primary);
+}
+
+.sidebar-link.active {
+    background: var(--es-primary);
+    color: var(--es-white);
+}
+
+.sidebar-link--logout {
+    color: var(--es-danger);
+    margin-top: var(--es-space-1);
+    border-top: 1px solid var(--es-border-light);
+    padding-top: var(--es-space-2);
+}
+
+.sidebar-link--logout:hover {
+    background: #fee2e2;
+    color: var(--es-danger);
+}
+
+.main-content {
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    box-shadow: var(--es-shadow-card);
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--es-space-3);
+    border-bottom: 1px solid var(--es-border-light);
+}
+
+.content-title {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    font-size: var(--es-text-lg);
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+    margin: 0;
+}
+
+.content-title i {
+    color: var(--es-primary);
+}
+
+.content-body {
+    padding: var(--es-space-3);
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--es-space-3);
+}
+
+.payment-card {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+    color: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    padding: var(--es-space-3);
+    position: relative;
+    overflow: hidden;
+    transition: all var(--es-transition-normal);
+}
+
+.payment-card::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    right: -15%;
+    width: 150px;
+    height: 150px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+}
+
+.payment-card::after {
+    content: '';
+    position: absolute;
+    bottom: -20%;
+    left: -10%;
+    width: 100px;
+    height: 100px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+}
+
+.payment-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(30, 41, 59, 0.3);
+}
+
+.payment-card--expired {
+    background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+    opacity: 0.85;
+}
+
+.card-badges {
+    display: flex;
+    gap: var(--es-space-1);
+    margin-bottom: var(--es-space-2);
+    position: relative;
+    z-index: 1;
+}
+
+.card-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 4px 10px;
+    border-radius: var(--es-radius-full);
+    font-size: var(--es-text-xs);
+    font-weight: var(--es-font-semibold);
+}
+
+.card-badge--danger {
+    background: rgba(239, 68, 68, 0.3);
+}
+
+.card-number {
+    font-size: var(--es-text-xl);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 3px;
+    margin-bottom: var(--es-space-2);
+    position: relative;
+    z-index: 1;
+}
+
+.card-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--es-text-sm);
+    opacity: 0.85;
+    margin-bottom: var(--es-space-2);
+    position: relative;
+    z-index: 1;
+}
+
+.card-actions {
+    display: flex;
+    gap: var(--es-space-1);
+    position: relative;
+    z-index: 1;
+}
+
+.btn-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px;
+    border-radius: var(--es-radius-md);
+    font-size: var(--es-text-xs);
+    font-weight: var(--es-font-semibold);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all var(--es-transition-fast);
+}
+
+.btn-card--primary {
+    background: var(--es-white);
+    color: #1e293b;
+}
+
+.btn-card--primary:hover {
+    background: #f1f5f9;
+}
+
+.btn-card--danger {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--es-white);
+}
+
+.btn-card--danger:hover {
+    background: rgba(239, 68, 68, 0.4);
+}
+
+.security-notice {
+    margin-top: var(--es-space-3);
+    padding: var(--es-space-2);
+    background: var(--es-bg-secondary);
+    border-radius: var(--es-radius-md);
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+}
+
+.security-notice i {
+    font-size: 1.25rem;
+    color: var(--es-success);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--es-space-6);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: var(--es-text-muted);
+    opacity: 0.3;
+    margin-bottom: var(--es-space-2);
+}
+
+.empty-state p {
+    color: var(--es-text-muted);
+    margin-bottom: var(--es-space-2);
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 20px;
+    border-radius: var(--es-radius-md);
+    font-size: var(--es-text-sm);
+    font-weight: var(--es-font-semibold);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all var(--es-transition-fast);
+}
+
+.btn-action--primary {
+    background: var(--es-primary);
+    color: var(--es-white);
+}
+
+.btn-action--primary:hover {
+    background: var(--es-primary-dark);
+}
+
+@media (max-width: 992px) {
+    .page-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar {
         position: relative;
-        color: white;
-        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.3);
-        transition: all 0.3s ease;
-        overflow: hidden;
+        top: auto;
     }
-
-    .card-item::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 200px;
-        height: 200px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
-        border-radius: 50%;
+    
+    .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
     }
-
-    .card-item:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.4);
+    
+    .sidebar-link {
+        flex: 0 0 auto;
+        padding: 8px 12px;
     }
-
-    .card-item.default {
-        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    
+    .sidebar-link--logout {
+        margin-top: 0;
+        border-top: none;
+        padding-top: 8px;
     }
+}
 
-    .default-badge {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        padding: 0.35rem 0.75rem;
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
-
-    .card-brand {
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        opacity: 0.8;
-        margin-bottom: 2rem;
-    }
-
-    .card-number {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 1.375rem;
-        letter-spacing: 2px;
-        margin-bottom: 1.5rem;
-        position: relative;
-        z-index: 1;
-    }
-
-    .card-info {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 1rem;
-        position: relative;
-        z-index: 1;
-    }
-
-    .card-holder {
-        font-size: 0.875rem;
-        opacity: 0.7;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .card-expiry {
-        font-size: 0.875rem;
-        opacity: 0.7;
-        font-family: 'JetBrains Mono', monospace;
-    }
-
-    .card-actions {
-        display: flex;
-        gap: 0.5rem;
-        margin-top: 1.25rem;
-        padding-top: 1.25rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .btn-action {
-        flex: 1;
-        padding: 0.65rem;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        font-weight: 600;
-        font-size: 0.875rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        backdrop-filter: blur(10px);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.35rem;
-    }
-
-    .btn-action:hover {
-        background: rgba(255, 255, 255, 0.2);
-        border-color: rgba(255, 255, 255, 0.5);
-    }
-
-    .empty-state {
-        grid-column: 1 / -1;
+@media (max-width: 768px) {
+    .page-hero {
+        flex-direction: column;
         text-align: center;
-        padding: 4rem 2rem;
-        background: var(--surface);
-        border: 2px dashed var(--border);
-        border-radius: 18px;
     }
-
-    .empty-state i {
-        font-size: 4rem;
-        color: var(--border);
-        margin-bottom: 1rem;
-        display: block;
-    }
-
-    @media (max-width: 768px) {
-        .cards-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-    }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="cards-shell">
-    <!-- Breadcrumb -->
-    <nav class="breadcrumb">
-        <a href="{% url 'accounts:profile' %}">
-            <i class="bi bi-person-circle"></i> Tài khoản
+<div class="container cards-page">
+    <!-- Hero -->
+    <section class="page-hero">
+        <div class="hero-content">
+            <h1><i class="bi bi-credit-card me-2"></i>Thẻ thanh toán</h1>
+            <p>Lưu trữ và quản lý thẻ để thanh toán nhanh chóng, an toàn</p>
+            <span class="hero-badge">{{ cards|length }} thẻ đã lưu</span>
+        </div>
+        <a href="{% url 'accounts:card_create' %}" class="btn-hero">
+            <i class="bi bi-plus-lg"></i> Thêm thẻ mới
         </a>
-        <i class="bi bi-chevron-right"></i>
-        <span>Thẻ thanh toán</span>
-    </nav>
+    </section>
 
-    <div class="page-header">
-        <h1><i class="bi bi-credit-card"></i> Thẻ thanh toán</h1>
-        <a class="btn-primary" href="{% url 'accounts:card_create' %}">
-            <i class="bi bi-plus-lg"></i>
-            <span>Thêm thẻ mới</span>
-        </a>
-    </div>
+    <div class="page-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <nav class="sidebar-nav">
+                    <a href="{% url 'accounts:profile' %}" class="sidebar-link"><i class="bi bi-person"></i> Thông tin cá nhân</a>
+                    <a href="{% url 'orders:list' %}" class="sidebar-link"><i class="bi bi-box-seam"></i> Đơn hàng</a>
+                    <a href="{% url 'accounts:address_list' %}" class="sidebar-link"><i class="bi bi-geo-alt"></i> Địa chỉ</a>
+                    <a href="{% url 'accounts:card_list' %}" class="sidebar-link active"><i class="bi bi-credit-card"></i> Thẻ thanh toán</a>
+                    <a href="{% url 'accounts:logout' %}" class="sidebar-link sidebar-link--logout"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
+                </nav>
+            </div>
+        </aside>
 
-    <div class="cards-grid">
-        {% if cards %}
-        {% for card in cards %}
-        <div class="card-item {% if card.is_default %}default{% endif %}">
-            {% if card.is_default %}
-            <span class="default-badge">Mặc định</span>
-            {% endif %}
-
-            <div class="card-brand">{{ card.card_type }}</div>
-            <div class="card-number">•••• •••• •••• {{ card.last_four_digits }}</div>
-
-            <div class="card-info">
-                <div>
-                    <div style="font-size: 0.75rem; opacity: 0.6; margin-bottom: 0.25rem;">TÊN CHỦ THẺ</div>
-                    <div class="card-holder">{{ card.cardholder_name }}</div>
-                </div>
-                <div>
-                    <div style="font-size: 0.75rem; opacity: 0.6; margin-bottom: 0.25rem;">HẾT HẠN</div>
-                    <div class="card-expiry">{{ card.expiry_month|stringformat:"02d" }}/{{ card.expiry_year|slice:"-2:"
-                        }}
+        <!-- Main -->
+        <main class="main-content">
+            <div class="content-header">
+                <h2 class="content-title"><i class="bi bi-credit-card"></i> Thẻ thanh toán</h2>
+                <a href="{% url 'accounts:card_create' %}" class="btn-action btn-action--primary"><i class="bi bi-plus-lg"></i> Thêm mới</a>
+            </div>
+            <div class="content-body">
+                {% if cards %}
+                <div class="card-grid">
+                    {% for card in cards %}
+                    <div class="payment-card {% if card.is_expired %}payment-card--expired{% endif %}">
+                        <div class="card-badges">
+                            {% if card.is_default %}
+                            <span class="card-badge">Mặc định</span>
+                            {% endif %}
+                            {% if card.is_expired %}
+                            <span class="card-badge card-badge--danger">Hết hạn</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-number">{{ card.masked_number }}</div>
+                        <div class="card-info">
+                            <span>{{ card.cardholder_name }}</span>
+                            <span>{{ card.get_expiry_display }}</span>
+                        </div>
+                        <div class="card-actions">
+                            {% if not card.is_default and not card.is_expired %}
+                            <form action="{% url 'accounts:card_set_default' card.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-card btn-card--primary"><i class="bi bi-star"></i> Mặc định</button>
+                            </form>
+                            {% endif %}
+                            <form action="{% url 'accounts:card_delete' card.id %}" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn xóa thẻ này?')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-card btn-card--danger"><i class="bi bi-trash"></i> Xóa</button>
+                            </form>
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
-            </div>
 
-            <div class="card-actions">
-                {% if not card.is_default %}
-                <form action="{% url 'accounts:card_set_default' card.id %}" method="post" style="flex: 1;">
-                    {% csrf_token %}
-                    <button class="btn-action" style="width: 100%;" type="submit">
-                        <i class="bi bi-star"></i> Mặc định
-                    </button>
-                </form>
+                <div class="security-notice">
+                    <i class="bi bi-shield-check"></i>
+                    <span><strong>Bảo mật:</strong> Chúng tôi chỉ lưu 4 số cuối của thẻ. Số thẻ đầy đủ không được lưu trữ trên hệ thống.</span>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-credit-card"></i>
+                    <p>Chưa có thẻ thanh toán nào. Thêm thẻ để thanh toán nhanh hơn!</p>
+                    <a href="{% url 'accounts:card_create' %}" class="btn-action btn-action--primary"><i class="bi bi-plus-lg"></i> Thêm thẻ mới</a>
+                </div>
                 {% endif %}
-                <form action="{% url 'accounts:card_delete' card.id %}" method="post"
-                      onsubmit="return confirm('Bạn chắc chắn muốn xóa thẻ này?');" style="flex: 1;">
-                    {% csrf_token %}
-                    <button class="btn-action" style="width: 100%;" type="submit">
-                        <i class="bi bi-trash"></i> Xóa
-                    </button>
-                </form>
             </div>
-        </div>
-        {% endfor %}
-        {% else %}
-        <div class="empty-state">
-            <i class="bi bi-credit-card"></i>
-            <h3 style="color: var(--ink); margin: 0 0 0.5rem;">Chưa có thẻ nào</h3>
-            <p style="color: var(--muted); margin: 0 0 1.5rem;">Thêm thẻ thanh toán để thanh toán nhanh hơn</p>
-            <a class="btn-primary" href="{% url 'accounts:card_create' %}">
-                <i class="bi bi-plus-lg"></i>
-                <span>Thêm thẻ đầu tiên</span>
-            </a>
-        </div>
-        {% endif %}
+        </main>
     </div>
 </div>
 {% endblock %}

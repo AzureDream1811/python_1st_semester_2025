@@ -3,31 +3,27 @@
 {% block title %}Quản lý người dùng{% endblock %}
 
 {% block content %}
-<h2 class="mb-4"><i class="bi bi-people"></i> Quản lý người dùng</h2>
+<div class="page-card">
+    <div class="page-header">
+        <h1><i class="bi bi-people"></i> Quản lý người dùng</h1>
+    </div>
 
-<!-- Search -->
-<div class="card mb-4">
-    <div class="card-body">
-        <form class="row g-3" method="get">
+    <div class="mb-3">
+        <form method="get" class="row g-3">
             <div class="col-md-10">
-                <input class="form-control" name="search" placeholder="Tìm theo username, email hoặc tên..." type="text"
-                       value="{{ request.GET.search }}">
+                <input type="text" name="search" class="form-control" placeholder="Tìm theo username, email hoặc tên..." value="{{ request.GET.search }}">
             </div>
             <div class="col-md-2">
-                <button class="btn btn-outline-primary w-100" type="submit">
+                <button type="submit" class="btn btn-outline-primary w-100">
                     <i class="bi bi-search"></i> Tìm kiếm
                 </button>
             </div>
         </form>
     </div>
-</div>
 
-<!-- Users Table -->
-<div class="card">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
                 <tr>
                     <th>Username</th>
                     <th>Email</th>
@@ -37,8 +33,8 @@
                     <th>Ngày tham gia</th>
                     <th>Thao tác</th>
                 </tr>
-                </thead>
-                <tbody>
+            </thead>
+            <tbody>
                 {% for u in users %}
                 <tr>
                     <td><strong>{{ u.username }}</strong></td>
@@ -62,35 +58,20 @@
                     </td>
                     <td>{{ u.date_joined|date:"d/m/Y" }}</td>
                     <td>
-                        <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_dashboard:user_detail' u.pk %}">
+                        <a href="{% url 'admin_dashboard:user_detail' u.pk %}" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-eye"></i>
                         </a>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td class="text-center text-muted" colspan="7">Chưa có người dùng nào</td>
+                    <td colspan="7" class="text-center text-muted">Chưa có người dùng nào</td>
                 </tr>
                 {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        {% if page_obj.has_other_pages %}
-        <nav>
-            <ul class="pagination justify-content-center">
-                {% if page_obj.has_previous %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Trước</a>
-                </li>
-                {% endif %}
-                <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-                </li>
-                {% if page_obj.has_next %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Sau</a></li>
-                {% endif %}
-            </ul>
-        </nav>
-        {% endif %}
+            </tbody>
+        </table>
     </div>
+
+    {% include 'admin_dashboard/includes/pagination.html' %}
 </div>
 {% endblock %}

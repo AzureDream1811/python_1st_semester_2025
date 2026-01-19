@@ -1,658 +1,581 @@
 {% extends 'base.html' %}
 {% load product_tags %}
 
-{% block title %}Flash Sale - Ưu Đãi Đặc Biệt - ElectroShop{% endblock %}
+{% block title %}Flash Sale - ElectroShop{% endblock %}
 
 {% block extra_css %}
+<!-- ==================== INLINE STYLES - Flash Sale ==================== -->
 <style>
-    .flash-sale-container {
-        max-width: 1440px;
-        margin: 0 auto;
-        padding: 2rem 1.5rem;
-    }
+.flash-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--es-space-4);
+    padding: var(--es-space-1) 0 var(--es-space-4);
+}
 
-    .flash-sale-hero {
-        position: relative;
-        overflow: hidden;
-        background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 50%, #60A5FA 100%);
-        border-radius: 1.5rem;
-        padding: 3rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
-    }
+.flash-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 32px;
+    background: linear-gradient(130deg, #1e3a5f 0%, #2d5a87 45%, #0f172a 100%);
+    color: #fff;
+    padding: var(--es-space-4);
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: var(--es-space-3);
+    box-shadow: var(--es-shadow-xl);
+}
 
-    .flash-sale-hero::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -10%;
-        width: 500px;
-        height: 500px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
-        border-radius: 50%;
-    }
+.flash-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15), transparent 35%),
+                radial-gradient(circle at 80% 0%, rgba(96,165,250,0.3), transparent 32%),
+                radial-gradient(circle at 60% 90%, rgba(15,23,42,0.25), transparent 45%);
+    pointer-events: none;
+}
 
-    .flash-sale-hero::after {
-        content: '';
-        position: absolute;
-        bottom: -30%;
-        left: -5%;
-        width: 400px;
-        height: 400px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-        border-radius: 50%;
-    }
+.flash-hero__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--es-space-2);
+}
 
-    .flash-sale-hero__content {
-        position: relative;
-        z-index: 1;
-        display: grid;
-        grid-template-columns: 1fr auto;
-        align-items: center;
-        gap: 3rem;
-        color: white;
-    }
+.flash-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: var(--es-radius-full);
+    background: rgba(255, 255, 255, 0.12);
+    font-size: var(--es-text-sm);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
 
-    .flash-sale-hero__left {
-        display: flex;
+.flash-hero__title {
+    font-size: clamp(2rem, 2.4vw, 2.8rem);
+    font-weight: var(--es-font-bold);
+    line-height: 1.15;
+}
+
+.flash-hero__lead {
+    max-width: 640px;
+    font-size: 1.05rem;
+    color: #fff;
+}
+
+.flash-hero__stats {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--es-space-2);
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: var(--es-radius-bento);
+    padding: var(--es-space-2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--es-shadow-sm);
+    transition: transform var(--es-transition-normal), box-shadow var(--es-transition-normal);
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--es-shadow-md);
+}
+
+.stat-label {
+    font-size: var(--es-text-sm);
+    color: #fff;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: var(--es-font-bold);
+}
+
+.stat-hint {
+    display: block;
+    margin-top: 6px;
+    font-size: var(--es-text-sm);
+    color: #fff;
+}
+
+.flash-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--es-space-3);
+}
+
+.flash-card {
+    position: relative;
+    border-radius: var(--es-radius-bento-lg);
+    border: 1px solid var(--es-border-light);
+    background: var(--es-white);
+    padding: var(--es-space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--es-space-2);
+    box-shadow: var(--es-shadow-card);
+    overflow: hidden;
+    transition: transform var(--es-transition-normal), box-shadow var(--es-transition-normal), border-color var(--es-transition-normal);
+}
+
+.flash-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 10% 10%, rgba(59,130,246,0.08), transparent 40%),
+                radial-gradient(circle at 90% 0%, rgba(249,115,22,0.08), transparent 35%);
+    pointer-events: none;
+}
+
+.flash-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--es-shadow-card-hover);
+    border-color: var(--es-primary-200);
+}
+
+.flash-card__top {
+    display: flex;
+    gap: var(--es-space-2);
+}
+
+.flash-card__media {
+    width: 96px;
+    height: 96px;
+    border-radius: var(--es-radius-md);
+    overflow: hidden;
+    background: var(--es-bg-secondary);
+    flex-shrink: 0;
+}
+
+.flash-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.flash-card__title {
+    font-size: 1rem;
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+    margin-bottom: 6px;
+}
+
+.flash-card__badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.flash-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: var(--es-radius-full);
+    background: var(--es-primary-50);
+    color: var(--es-primary-dark);
+    font-weight: var(--es-font-medium);
+    font-size: var(--es-text-sm);
+}
+
+.flash-chip--cta {
+    background: var(--es-cta-50);
+    color: var(--es-cta-dark);
+}
+
+.flash-price {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-weight: var(--es-font-semibold);
+}
+
+.flash-price__sale {
+    font-size: 1.4rem;
+    color: var(--es-primary-dark);
+}
+
+.flash-price__orig {
+    color: var(--es-text-muted);
+    text-decoration: line-through;
+}
+
+.flash-saving {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--es-primary-50);
+    border-radius: var(--es-radius-full);
+    color: var(--es-primary-dark);
+    font-size: var(--es-text-sm);
+}
+
+.flash-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.flash-progress__bar {
+    position: relative;
+    height: 8px;
+    border-radius: var(--es-radius-full);
+    background: var(--es-border-light);
+    overflow: hidden;
+}
+
+.flash-progress__bar span {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--es-cta), var(--es-primary));
+    width: var(--progress, 0%);
+    transition: width var(--es-transition-normal);
+}
+
+.flash-progress__meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--es-text-sm);
+    color: var(--es-text-secondary);
+}
+
+.flash-countdown {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--es-danger);
+    font-weight: var(--es-font-medium);
+}
+
+.flash-card__footer {
+    display: flex;
+    gap: var(--es-space-2);
+    flex-wrap: wrap;
+}
+
+.flash-empty {
+    padding: var(--es-space-4);
+    border-radius: var(--es-radius-bento);
+    border: 1px dashed var(--es-border-dark);
+    background: var(--es-bg-secondary);
+    text-align: center;
+    display: grid;
+    gap: var(--es-space-2);
+}
+
+.flash-empty__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--es-radius-full);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--es-primary-100);
+    color: var(--es-primary);
+    font-size: 1.6rem;
+}
+
+.upcoming-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--es-space-2);
+}
+
+.upcoming-card {
+    border-radius: var(--es-radius-bento);
+    border: 1px solid var(--es-border-light);
+    background: var(--es-white);
+    padding: var(--es-space-2);
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    box-shadow: var(--es-shadow-sm);
+}
+
+.upcoming-card__media {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--es-radius-md);
+    overflow: hidden;
+    background: var(--es-bg-secondary);
+    flex-shrink: 0;
+}
+
+.upcoming-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upcoming-card__title {
+    font-weight: var(--es-font-semibold);
+    margin-bottom: 4px;
+}
+
+.section-eyebrow {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.section-title {
+    font-size: 1.6rem;
+    font-weight: var(--es-font-bold);
+    margin: 4px 0;
+}
+
+.section-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.section-pill {
+    padding: 8px 12px;
+    border-radius: var(--es-radius-full);
+    border: 1px solid var(--es-border-light);
+    background: var(--es-bg-white);
+    color: var(--es-text-secondary);
+    font-size: var(--es-text-sm);
+}
+
+@media (max-width: 992px) {
+    .flash-hero {
+        grid-template-columns: 1fr;
+    }
+    .flash-hero__stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .flash-hero__stats {
+        grid-template-columns: 1fr;
+    }
+    .flash-card__top {
         flex-direction: column;
-        gap: 1rem;
     }
+}
 
-    .flash-sale-hero__badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1.25rem;
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        border-radius: 2rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        width: fit-content;
+@media (prefers-reduced-motion: reduce) {
+    .flash-card,
+    .stat-card,
+    .flash-progress__bar span {
+        transition: none;
     }
-
-    .flash-sale-hero__title {
-        font-size: clamp(2rem, 5vw, 3rem);
-        font-weight: 800;
-        margin: 0;
-        line-height: 1.2;
-    }
-
-    .flash-sale-hero__subtitle {
-        font-size: 1.125rem;
-        opacity: 0.95;
-        margin: 0;
-        line-height: 1.6;
-        max-width: 500px;
-        color: var(--es-text-secondary);
-    }
-
-    .flash-sale-hero__right {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-        padding: 2rem;
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(20px);
-        border-radius: 1.5rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        min-width: 200px;
-    }
-
-    .flash-sale-hero__stat {
-        text-align: center;
-    }
-
-    .flash-sale-hero__stat-value {
-        font-size: 3rem;
-        font-weight: 900;
-        line-height: 1;
-        margin-bottom: 0.5rem;
-    }
-
-    .flash-sale-hero__stat-label {
-        font-size: 0.875rem;
-        opacity: 0.9;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    /* Section Header */
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #E5E7EB;
-    }
-
-    .section-header__title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #799ad5;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .section-header__title i {
-        color: #8cb1ed;
-    }
-
-    .section-header__count {
-        padding: 0.5rem 1rem;
-        background: #EFF6FF;
-        color: #1E40AF;
-        border-radius: 2rem;
-        font-size: 0.875rem;
-        font-weight: 700;
-    }
-
-    /* Product Grid */
-    .flash-sale-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
-    }
-
-    .flash-sale-card {
-        position: relative;
-        background: white;
-        border: 1px solid #E5E7EB;
-        border-radius: 1.25rem;
-        padding: 1.5rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        overflow: hidden;
-    }
-
-    .flash-sale-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, #3B82F6 0%, #60A5FA 100%);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .flash-sale-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.1);
-        border-color: #3B82F6;
-    }
-
-    .flash-sale-card:hover::before {
-        opacity: 1;
-    }
-
-    .flash-sale-card__badge {
-        position: absolute;
-        top: 1.5rem;
-        right: 1.5rem;
-        padding: 0.5rem 0.875rem;
-        background: #EF4444;
-        color: white;
-        border-radius: 0.5rem;
-        font-size: 0.8125rem;
-        font-weight: 700;
-        z-index: 2;
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-    }
-
-    .flash-sale-card__image-wrapper {
-        position: relative;
-        width: 100%;
-        padding-bottom: 100%;
-        margin-bottom: 1rem;
-        border-radius: 1rem;
-        overflow: hidden;
-        background: #F9FAFB;
-    }
-
-    .flash-sale-card__image {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-
-    .flash-sale-card:hover .flash-sale-card__image {
-        transform: scale(1.05);
-    }
-
-    .flash-sale-card__name {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #859ac8;
-        margin: 0 0 1rem;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        line-height: 1.5;
-        min-height: 3rem;
-    }
-
-    .flash-sale-card__prices {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .flash-sale-card__price-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        gap: 0.75rem;
-    }
-
-    .flash-sale-card__original {
-        font-size: 0.875rem;
-        color: #9CA3AF;
-        text-decoration: line-through;
-    }
-
-    .flash-sale-card__sale {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: #3B82F6;
-    }
-
-    .flash-sale-card__savings {
-        font-size: 0.8125rem;
-        color: #059669;
-        font-weight: 600;
-        background: #ECFDF5;
-        padding: 0.375rem 0.75rem;
-        border-radius: 0.5rem;
-        text-align: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.375rem;
-    }
-
-    /* Progress Bar */
-    .flash-sale-card__progress {
-        margin-bottom: 1rem;
-    }
-
-    .progress-label {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.8125rem;
-        color: #6B7280;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-    }
-
-    .progress-bar-wrapper {
-        height: 6px;
-        background: #F3F4F6;
-        border-radius: 1rem;
-        overflow: hidden;
-    }
-
-    .progress-bar {
-        height: 100%;
-        background: linear-gradient(90deg, #3B82F6 0%, #60A5FA 100%);
-        border-radius: 1rem;
-        transition: width 0.3s ease;
-    }
-
-    /* Countdown Timer */
-    .flash-sale-card__countdown {
-        display: flex;
-        justify-content: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .countdown-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.25rem;
-    }
-
-    .countdown-item__value {
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #1F2937;
-        color: white;
-        font-weight: 700;
-        font-size: 1.125rem;
-        border-radius: 0.5rem;
-    }
-
-    .countdown-item__label {
-        font-size: 0.6875rem;
-        color: #6B7280;
-        text-transform: uppercase;
-        font-weight: 500;
-    }
-
-    /* Button */
-    .btn-buy-now {
-        width: 100%;
-        padding: 1rem;
-        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-        color: white;
-        border: none;
-        border-radius: 0.75rem;
-        font-size: 1rem;
-        font-weight: 700;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    }
-
-    .btn-buy-now:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
-        color: white;
-    }
-
-    /* Empty State */
-    .empty-state {
-        background: white;
-        border: 2px dashed #E5E7EB;
-        border-radius: 1.5rem;
-        padding: 4rem 2rem;
-        text-align: center;
-    }
-
-    .empty-state__icon {
-        font-size: 4rem;
-        color: #D1D5DB;
-        margin-bottom: 1.5rem;
-    }
-
-    .empty-state__title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #111827;
-        margin: 0 0 0.75rem;
-    }
-
-    .empty-state__description {
-        font-size: 1rem;
-        color: #6B7280;
-        margin: 0;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .flash-sale-container {
-            padding: 1.5rem 1rem;
-        }
-
-        .flash-sale-hero {
-            padding: 2rem 1.5rem;
-        }
-
-        .flash-sale-hero__content {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-
-        .flash-sale-hero__right {
-            width: 100%;
-        }
-
-        .flash-sale-grid {
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 1rem;
-        }
-
-        .flash-sale-card {
-            padding: 1rem;
-        }
-
-        .section-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-    }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="flash-sale-container">
-    <!-- Professional Hero -->
-    <section class="flash-sale-hero">
-        <div class="flash-sale-hero__content">
-            <div class="flash-sale-hero__left">
-                <span class="flash-sale-hero__badge">
-                    <i class="bi bi-lightning-charge-fill"></i>
-                    Ưu Đãi Đặc Biệt
-                </span>
-                <h1 class="flash-sale-hero__title">
-                    Khuyến Mãi Giờ Vàng
-                </h1>
-                <p class="flash-sale-hero__subtitle">
-                    Giảm giá đến 70% cho sản phẩm công nghệ cao cấp. Số lượng có hạn, đừng bỏ lỡ!
-                </p>
+<div class="flash-page">
+    <section class="flash-hero" aria-labelledby="flash-hero-title">
+        <div class="flash-hero__content">
+            <span class="flash-hero__badge">
+                <i class="bi bi-lightning-charge-fill" aria-hidden="true"></i>
+                Flash Sale
+            </span>
+            <h1 class="flash-hero__title" id="flash-hero-title">Flash Sale đồ điện gia dụng</h1>
+            <p class="flash-hero__lead">Săn deal giá sốc, số lượng có hạn - Nhanh tay kẻo lỡ!</p>
+        </div>
+        <div class="flash-hero__stats" role="list" aria-label="Tổng quan Flash Sale">
+            <div class="stat-card" role="listitem">
+                <span class="stat-label">Đang mở</span>
+                <div class="stat-value">{{ flash_sales|length|default:0 }}</div>
+                <span class="stat-hint">Tự động áp dụng giá flash</span>
             </div>
-            <div class="flash-sale-hero__right">
-                <div class="flash-sale-hero__stat">
-                    <div class="flash-sale-hero__stat-value">{{ flash_sales.count }}</div>
-                    <div class="flash-sale-hero__stat-label">Sản phẩm</div>
+            <div class="stat-card" role="listitem">
+                <span class="stat-label">Sắp diễn ra</span>
+                <div class="stat-value">{{ upcoming_sales|length|default:0 }}</div>
+                <span class="stat-hint">Đặt nhắc nhở trước giờ mở</span>
+            </div>
+            <div class="stat-card" role="listitem">
+                <span class="stat-label">Trạng thái</span>
+                <div class="stat-value">
+                    {% if flash_sales %}Đang chạy{% else %}Tạm dừng{% endif %}
                 </div>
+                <span class="stat-hint">Đếm ngược tự động cập nhật</span>
             </div>
         </div>
     </section>
 
-    <!-- Active Flash Sales -->
     {% if flash_sales %}
-    <div class="section-header">
-        <h2 class="section-header__title">
-            <i class="bi bi-tag-fill"></i>
-            Đang giảm giá
-        </h2>
-        <span class="section-header__count">{{ flash_sales.count }} sản phẩm</span>
-    </div>
-
-    <div class="flash-sale-grid">
-        {% for sale in flash_sales %}
-        <div class="flash-sale-card">
-            <div class="flash-sale-card__badge">
-                -{{ sale.discount_percentage }}%
+    <section aria-labelledby="flash-active-title">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <div>
+                <div class="section-eyebrow">Ưu đãi đang chạy</div>
+                <h2 class="section-title" id="flash-active-title">Flash Sale đang diễn ra</h2>
             </div>
+        </div>
 
-            <a href="{% url 'products:product_detail' sale.product.slug %}">
-                <div class="flash-sale-card__image-wrapper">
-                    {% if sale.product.image %}
-                    <img alt="{{ sale.product.name }}"
-                         class="flash-sale-card__image"
-                         src="{{ sale.product.image.url }}">
-                    {% else %}
-                    <div class="flash-sale-card__image"
-                         style="display: flex; align-items: center; justify-content: center;">
-                        <i class="bi bi-image" style="font-size: 3rem; color: #D1D5DB;"></i>
+        <div class="flash-grid" role="list" aria-label="Danh sách Flash Sale đang mở">
+            {% for sale in flash_sales %}
+            <article class="flash-card" role="listitem" aria-labelledby="flash-card-{{ sale.id }}">
+                <div class="flash-card__top">
+                    <div class="flash-card__media" aria-hidden="true">
+                        {% if sale.product.image %}
+                        <img src="{{ sale.product.image.url }}" alt="">
+                        {% else %}
+                        <div class="d-flex align-items-center justify-content-center h-100 w-100 text-muted">
+                            <i class="bi bi-image"></i>
+                        </div>
+                        {% endif %}
                     </div>
+                    <div class="flex-grow-1">
+                        <h3 class="flash-card__title" id="flash-card-{{ sale.id }}">
+                            <a class="combo-link" href="{{ sale.product.get_absolute_url }}">{{ sale.product.name }}</a>
+                        </h3>
+                        <div class="flash-card__badges">
+                            <span class="flash-chip flash-chip--cta">
+                                <i class="bi bi-lightning-charge-fill" aria-hidden="true"></i>
+                                -{{ sale.discount_percentage }}%
+                            </span>
+                            <span class="flash-chip">
+                                <i class="bi bi-clock" aria-hidden="true"></i>
+                                Đến {{ sale.end_time|date:"d/m H:i" }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flash-price" aria-label="Giá flash">
+                    <span class="flash-price__sale">{{ sale.sale_price|currency }}</span>
+                    <span class="flash-price__orig">{{ sale.product.price|currency }}</span>
+                </div>
+                <span class="flash-saving">
+                    <i class="bi bi-cash-coin" aria-hidden="true"></i>
+                    Giảm {{ sale.discount_percentage }}%
+                </span>
+
+                <div class="flash-progress" aria-label="Tiến độ bán">
+                    <div class="flash-progress__meta">
+                        <span>Đã bán {{ sale.sold_count }}</span>
+                        <span>Còn {{ sale.remaining_quantity }}</span>
+                    </div>
+                    <div class="flash-progress__bar">
+                        <span style="--progress: {% widthratio sale.sold_count sale.quantity_limit 100 %}%"></span>
+                    </div>
+                </div>
+
+                <div class="flash-countdown countdown-mini" data-end="{{ sale.end_time|date:'c' }}" aria-live="polite">
+                    <i class="bi bi-stopwatch" aria-hidden="true"></i>
+                    <span class="timer-text">Đang tính giờ...</span>
+                </div>
+
+                <div class="flash-card__footer">
+                    {% if sale.sold_count < sale.quantity_limit %}
+                    <form action="{% url 'cart:add' sale.product.pk %}" method="post" class="d-flex gap-2 flex-wrap">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-bag-plus" aria-hidden="true"></i> Mua ngay
+                        </button>
+                        <a class="btn btn-outline-primary" href="{{ sale.product.get_absolute_url }}">Xem chi tiết</a>
+                    </form>
+                    {% else %}
+                    <button class="btn btn-secondary" disabled aria-disabled="true">
+                        <i class="bi bi-x-circle" aria-hidden="true"></i> Đã hết hàng
+                    </button>
                     {% endif %}
                 </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% else %}
+    <div class="flash-empty" role="status">
+        <div class="flash-empty__icon"><i class="bi bi-clock-history" aria-hidden="true"></i></div>
+        <div>
+            <h3>Chưa có Flash Sale đang mở</h3>
+            <p class="mb-0">Quay lại sau hoặc xem danh sách sản phẩm để săn ưu đãi khác.</p>
+        </div>
+        <div class="d-flex gap-2 justify-content-center flex-wrap">
+            <a class="btn btn-primary" href="{% url 'products:product_list' %}">
+                <i class="bi bi-grid" aria-hidden="true"></i> Xem sản phẩm
             </a>
-
-            <h3 class="flash-sale-card__name">
-                <a href="{% url 'products:product_detail' sale.product.slug %}"
-                   style="color: inherit; text-decoration: none;">
-                    {{ sale.product.name }}
-                </a>
-            </h3>
-
-            <div class="flash-sale-card__prices">
-                <div class="flash-sale-card__price-row">
-                    <span class="flash-sale-card__original">{{ sale.product.price|currency }}</span>
-                    <span class="flash-sale-card__sale">{{ sale.sale_price|currency }}</span>
-                </div>
-                <div class="flash-sale-card__savings">
-                    <i class="bi bi-percent"></i>
-                    <span>Tiết kiệm {{ sale.discount_percentage }}%</span>
-                </div>
-            </div>
-
-            <!-- Progress -->
-            <div class="flash-sale-card__progress">
-                <div class="progress-label">
-                    <span>Đã bán: {{ sale.sold_quantity }}</span>
-                    <span>Còn: {{ sale.remaining_quantity }}</span>
-                </div>
-                <div class="progress-bar-wrapper">
-                    {% widthratio sale.sold_quantity sale.quantity 100 as progress %}
-                    <div class="progress-bar" style="width: {{ progress }}%;"></div>
-                </div>
-            </div>
-
-            <!-- Countdown -->
-            <div class="flash-sale-card__countdown"
-                 data-end-time="{{ sale.end_time|date:'c' }}">
-                <div class="countdown-item">
-                    <div class="countdown-item__value countdown-hours">00</div>
-                    <span class="countdown-item__label">Giờ</span>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-item__value countdown-minutes">00</div>
-                    <span class="countdown-item__label">Phút</span>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-item__value countdown-seconds">00</div>
-                    <span class="countdown-item__label">Giây</span>
-                </div>
-            </div>
-
-            <a class="btn-buy-now" href="{% url 'products:product_detail' sale.product.slug %}">
-                <i class="bi bi-cart-plus"></i>
-                <span>Mua ngay</span>
+            <a class="btn btn-outline-primary" href="{% url 'promotions:flash_sales' %}">
+                <i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Tải lại
             </a>
         </div>
-        {% endfor %}
     </div>
     {% endif %}
 
-    <!-- Upcoming Flash Sales -->
     {% if upcoming_sales %}
-    <div class="section-header" style="margin-top: 3rem;">
-        <h2 class="section-header__title">
-            <i class="bi bi-clock-history"></i>
-            Sắp diễn ra
-        </h2>
-        <span class="section-header__count">{{ upcoming_sales.count }} sản phẩm</span>
-    </div>
-
-    <div class="flash-sale-grid">
-        {% for sale in upcoming_sales %}
-        <div class="flash-sale-card" style="opacity: 0.8;">
-            <div class="flash-sale-card__badge" style="background: #6B7280;">
-                Sắp bán
+    <section aria-labelledby="flash-upcoming-title">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <div>
+                <div class="section-eyebrow">Flash Sale sắp diễn ra</div>
+                <h2 class="section-title" id="flash-upcoming-title">Chuẩn bị trước giờ mở</h2>
             </div>
-
-            <div class="flash-sale-card__image-wrapper">
-                {% if sale.product.image %}
-                <img alt="{{ sale.product.name }}"
-                     class="flash-sale-card__image"
-                     src="{{ sale.product.image.url }}">
-                {% else %}
-                <div class="flash-sale-card__image"
-                     style="display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-image" style="font-size: 3rem; color: #D1D5DB;"></i>
-                </div>
-                {% endif %}
-            </div>
-
-            <h3 class="flash-sale-card__name">{{ sale.product.name }}</h3>
-
-            <div class="flash-sale-card__prices">
-                <div class="flash-sale-card__price-row">
-                    <span class="flash-sale-card__original">{{ sale.product.price|currency }}</span>
-                    <span class="flash-sale-card__sale">{{ sale.sale_price|currency }}</span>
-                </div>
-                <div class="flash-sale-card__savings">
-                    <i class="bi bi-percent"></i>
-                    <span>Giảm {{ sale.discount_percentage }}%</span>
-                </div>
-            </div>
-
-            <p style="text-align: center; color: #6B7280; font-size: 0.875rem; margin: 1rem 0; padding: 0.75rem; background: #F9FAFB; border-radius: 0.5rem;">
-                <i class="bi bi-clock"></i>
-                Bắt đầu: {{ sale.start_time|date:"d/m/Y H:i" }}
-            </p>
         </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- Empty State -->
-    {% if not flash_sales and not upcoming_sales %}
-    <div class="empty-state">
-        <div class="empty-state__icon">
-            <i class="bi bi-tag"></i>
+        <div class="upcoming-grid" role="list" aria-label="Flash sắp tới">
+            {% for sale in upcoming_sales %}
+            <article class="upcoming-card" role="listitem">
+                <div class="upcoming-card__media" aria-hidden="true">
+                    {% if sale.product.image %}
+                    <img src="{{ sale.product.image.url }}" alt="">
+                    {% endif %}
+                </div>
+                <div class="flex-grow-1">
+                    <div class="upcoming-card__title">{{ sale.product.name }}</div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-danger">-{{ sale.discount_percentage }}%</span>
+                        <span class="text-danger fw-semibold">{{ sale.sale_price|currency }}</span>
+                    </div>
+                    <small class="text-muted d-block mt-1">
+                        <i class="bi bi-clock" aria-hidden="true"></i>
+                        Bắt đầu: {{ sale.start_time|date:"d/m H:i" }}
+                    </small>
+                </div>
+            </article>
+            {% endfor %}
         </div>
-        <h2 class="empty-state__title">Hiện chưa có chương trình khuyến mãi</h2>
-        <p class="empty-state__description">
-            Vui lòng quay lại sau để không bỏ lỡ các ưu đãi hấp dẫn
-        </p>
-    </div>
+    </section>
     {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Countdown timer for flash sales
-    document.addEventListener('DOMContentLoaded', function () {
-        const countdownElements = document.querySelectorAll('[data-end-time]');
+function updateCountdowns() {
+    document.querySelectorAll('.countdown-mini').forEach(function(el) {
+        const endTime = new Date(el.dataset.end);
+        const now = new Date();
+        const diff = endTime - now;
 
-        countdownElements.forEach(element => {
-            const endTime = new Date(element.dataset.endTime).getTime();
+        if (Number.isNaN(endTime.getTime())) {
+            el.querySelector('.timer-text').textContent = 'Đang mở';
+            return;
+        }
 
-            function updateCountdown() {
-                const now = new Date().getTime();
-                const distance = endTime - now;
-
-                if (distance < 0) {
-                    element.innerHTML = '<div style="color: #DC2626; font-weight: 600; text-align: center; padding: 0.5rem; background: #FEE2E2; border-radius: 0.5rem;">Đã kết thúc</div>';
-                    return;
-                }
-
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                const hoursEl = element.querySelector('.countdown-hours');
-                const minutesEl = element.querySelector('.countdown-minutes');
-                const secondsEl = element.querySelector('.countdown-seconds');
-
-                if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
-                if (minutesEl) minutesEl.textContent = String(minutes).padStart(2, '0');
-                if (secondsEl) secondsEl.textContent = String(seconds).padStart(2, '0');
-            }
-
-            updateCountdown();
-            setInterval(updateCountdown, 1000);
-        });
+        if (diff <= 0) {
+            el.querySelector('.timer-text').textContent = 'Đã kết thúc';
+            return;
+        }
+        
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        el.querySelector('.timer-text').textContent = 
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     });
+}
+
+setInterval(updateCountdowns, 1000);
+updateCountdowns();
 </script>
 {% endblock %}

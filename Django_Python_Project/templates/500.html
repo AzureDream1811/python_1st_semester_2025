@@ -1,22 +1,73 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block extra_css %}
-    <link href="{% static 'css/errors.css' %}" rel="stylesheet">
-{% endblock %}
-
-{% block title %}500 — Lỗi máy chủ{% endblock %}
+{% block title %}500 - Lỗi hệ thống | ElectroShop{% endblock %}
 
 {% block content %}
-    <div class="error-page-wrapper">
-        <div class="error-card">
-            <i class="bi bi-bug-fill error-icon text-danger"></i>
-            <h1 class="error-title">500 — Lỗi máy chủ</h1>
-            <p class="error-lead">Có lỗi xảy ra trên máy chủ. Chúng tôi đã được thông báo và đang khắc phục.</p>
+<div class="error-page">
+    <div class="error-container">
+        <div class="error-illustration">
+            <div class="error-icon error-icon--500">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <div class="error-code error-code--danger">500</div>
+        </div>
+
+        <div class="error-content">
+            <h1 class="error-title">Lỗi hệ thống</h1>
+            <p class="error-desc">
+                Xin lỗi, đã xảy ra lỗi trong quá trình xử lý yêu cầu của bạn.
+                Đội ngũ kỹ thuật của chúng tôi đã được thông báo và đang khắc phục.
+            </p>
+
+            <div class="error-info-card">
+                <i class="bi bi-info-circle"></i>
+                <span>Mã lỗi: 500 - Internal Server Error</span>
+            </div>
 
             <div class="error-actions">
-                <a href="{% url 'products:home' %}" class="btn btn-primary me-2">Quay về trang chủ</a>
-                <a href="javascript:location.reload()" class="btn btn-outline-secondary">Thử tải lại</a>
+                <a class="btn btn-primary btn-lg" href="{% url 'products:home' %}">
+                    <i class="bi bi-house"></i>
+                    <span>Quay về trang chủ</span>
+                </a>
+                <button class="btn btn-outline-secondary btn-lg" onclick="location.reload()">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    <span>Thử lại</span>
+                </button>
+            </div>
+
+            <div class="error-suggestions">
+                <p class="error-suggestions__label">Bạn có thể thử:</p>
+                <ul class="error-suggestions__list">
+                    <li>
+                        <i class="bi bi-arrow-clockwise"></i>
+                        <span>Tải lại trang sau vài phút</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-trash"></i>
+                        <span>Xóa cache trình duyệt</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-telephone"></i>
+                        <span>Liên hệ hotline: <strong>1900 1234</strong></span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="error-contact">
+                <p class="error-contact__label">Cần hỗ trợ ngay?</p>
+                <div class="error-contact__links">
+                    <a class="error-contact__link" href="tel:19001234">
+                        <i class="bi bi-telephone"></i>
+                        <span>1900 1234</span>
+                    </a>
+                    <a class="error-contact__link" href="mailto:support@electroshop.vn">
+                        <i class="bi bi-envelope"></i>
+                        <span>support@electroshop.vn</span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

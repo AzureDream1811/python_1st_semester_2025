@@ -1,49 +1,139 @@
-{% extends "base.html" %}
-{% block title %}Refund List{% endblock %}
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Yêu cầu hoàn tiền | ElectroShop{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Refund Requests</h2>
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'products:home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'accounts:profile' %}">Tài khoản</a></li>
+            <li class="breadcrumb-item active">Yêu cầu hoàn tiền</li>
+        </ol>
+    </nav>
 
-{% if refunds %}
-<table class="table table-bordered table-hover">
-    <thead class="table-dark">
-        <tr>
-            <th>ID</th>
-            <th>Transaction ID</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for refund in refunds %}
-        <tr>
-            <td>{{ refund.id }}</td>
-            <td>{{ refund.transaction.id }}</td>
-            <td>{{ refund.transaction.amount }}</td>
-            <td>
-                {% if refund.status == "approved" %}
-                    <span class="text-success">Approved</span>
-                {% elif refund.status == "rejected" %}
-                    <span class="text-danger">Rejected</span>
-                {% else %}
-                    <span class="text-warning">Pending</span>
-                {% endif %}
-            </td>
-            <td>
-                <a href="{% url 'refund_detail' refund.id %}" class="btn btn-sm btn-primary">
-                    View
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="bi bi-arrow-counterclockwise text-primary me-2"></i>
+                Yêu cầu hoàn tiền
+            </h1>
+            <p class="text-muted mb-0">{{ refunds.paginator.count }} yêu cầu</p>
+        </div>
+        <a href="{% url 'payments:refund_request' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>Tạo yêu cầu mới
+        </a>
+    </div>
+
+    {% if refunds %}
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã yêu cầu</th>
+                        <th>Giao dịch gốc</th>
+                        <th>Số tiền hoàn</th>
+                        <th>Lý do</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Ngày xử lý</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for refund in refunds %}
+                    <tr>
+                        <td>
+                            <code class="small">#{{ refund.id }}</code>
+                        </td>
+                        <td>
+                            <a href="{% url 'orders:detail' order_number=refund.payment.order.order_number %}" class="text-decoration-none">
+                                #{{ refund.payment.order.order_number }}
+                            </a>
+                            <br>
+                            <small class="text-muted">{{ refund.payment.get_payment_method_display }}</small>
+                        </td>
+                        <td class="fw-semibold text-danger">{{ refund.amount|intcomma }}₫</td>
+                        <td>
+                            <span class="d-inline-block text-truncate" style="max-width: 200px;" title="{{ refund.reason }}">
+                                {{ refund.reason }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if refund.status == 'completed' %}
+                            <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Hoàn thành</span>
+                            {% elif refund.status == 'failed' %}
+                            <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Thất bại</span>
+                            {% elif refund.status == 'pending' %}
+                            <span class="badge bg-warning text-dark"><i class="bi bi-clock me-1"></i>Chờ xử lý</span>
+                            {% elif refund.status == 'processing' %}
+                            <span class="badge bg-info"><i class="bi bi-arrow-repeat me-1"></i>Đang xử lý</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ refund.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <small class="text-muted">{{ refund.created_at|date:"d/m/Y H:i" }}</small>
+                        </td>
+                        <td>
+                            {% if refund.processed_at %}
+                            <small class="text-success">{{ refund.processed_at|date:"d/m/Y H:i" }}</small>
+                            {% else %}
+                            <small class="text-muted">-</small>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if refunds.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if refunds.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ refunds.previous_page_number }}">
+                    <i class="bi bi-chevron-left"></i>
                 </a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No refund requests found.</p>
-{% endif %}
+            </li>
+            {% endif %}
+            
+            {% for num in refunds.paginator.page_range %}
+            <li class="page-item {% if refunds.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if refunds.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ refunds.next_page_number }}">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
 
-<a href="{% url 'transaction_history' %}" class="btn btn-secondary mt-3">
-    Back to Transactions
-</a>
+    {% else %}
+    <!-- Empty State -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-arrow-counterclockwise text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+            <h5 class="mt-3">Chưa có yêu cầu hoàn tiền</h5>
+            <p class="text-muted">Bạn chưa có yêu cầu hoàn tiền nào.</p>
+            <a href="{% url 'payments:refund_request' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Tạo yêu cầu mới
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

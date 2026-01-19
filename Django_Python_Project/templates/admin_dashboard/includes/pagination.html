@@ -1,0 +1,68 @@
+{% if page_obj.has_other_pages %}
+<nav aria-label="Phân trang" class="mt-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="text-muted small">
+            Hiển thị {{ page_obj.start_index }} - {{ page_obj.end_index }} / {{ page_obj.paginator.count }} kết quả
+        </div>
+        <ul class="pagination mb-0">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" title="Trang đầu">
+                    <i class="bi bi-chevron-double-left"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" title="Trang trước">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link"><i class="bi bi-chevron-double-left"></i></span>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link"><i class="bi bi-chevron-left"></i></span>
+            </li>
+            {% endif %}
+            
+            {% with page_obj.number as current %}
+            {% for num in page_obj.paginator.page_range %}
+                {% if num == current %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num == 1 or num == page_obj.paginator.num_pages or num >= current|add:"-2" and num <= current|add:"2" %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                </li>
+                {% elif num == current|add:"-3" or num == current|add:"3" %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% endif %}
+            {% endfor %}
+            {% endwith %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" title="Trang sau">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" title="Trang cuối">
+                    <i class="bi bi-chevron-double-right"></i>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link"><i class="bi bi-chevron-right"></i></span>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link"><i class="bi bi-chevron-double-right"></i></span>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+{% endif %}

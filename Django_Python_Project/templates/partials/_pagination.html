@@ -1,149 +1,159 @@
 {% if page_obj.has_other_pages %}
+<!-- ==================== INLINE STYLES - Pagination Component ==================== -->
 <style>
-    .bento-pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 0.5rem;
-        margin: 3rem 0;
-        padding: 0;
-        list-style: none;
-    }
+/* Pagination Style */
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: var(--es-space-3) 0;
+}
 
-    .bento-page-item {
-        display: flex;
-    }
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
 
-    .bento-page-link {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 44px;
-        height: 44px;
-        padding: 0 0.75rem;
-        background: var(--es-white, #FFFFFF);
-        border: 1px solid var(--es-gray-200, #E5E7EB);
-        border-radius: 0.75rem;
-        color: var(--es-gray-700, #374151);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.9375rem;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+.page-item {
+    display: flex;
+}
 
-    .bento-page-link:hover {
-        background: var(--es-primary, #3B82F6);
-        border-color: var(--es-primary, #3B82F6);
-        color: var(--es-white, #FFFFFF);
-        transform: translateY(-3px);
-        box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
-    }
+.page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--es-touch-target);
+    min-height: var(--es-touch-target);
+    padding: var(--es-space-1);
+    background: var(--es-white);
+    color: var(--es-text-primary);
+    border: 1px solid var(--es-border-light);
+    border-radius: var(--es-radius-md);
+    font-size: var(--es-text-sm);
+    font-weight: var(--es-font-medium);
+    text-decoration: none;
+    transition: all var(--es-transition-normal);
+    cursor: pointer;
+}
 
-    .bento-page-link:active {
-        transform: translateY(-1px);
-    }
+.page-link:hover {
+    background: var(--es-primary-50);
+    border-color: var(--es-primary);
+    color: var(--es-primary);
+    transform: translateY(-2px);
+}
 
-    .bento-page-item--active .bento-page-link {
-        background: var(--es-primary, #3B82F6);
-        border-color: var(--es-primary, #3B82F6);
-        color: var(--es-white, #FFFFFF);
-        cursor: default;
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-    }
+.page-link:focus-visible {
+    outline: var(--es-focus-ring-width) solid var(--es-primary);
+    outline-offset: var(--es-focus-ring-offset);
+}
 
-    .bento-page-item--active .bento-page-link:hover {
-        transform: none;
-    }
+.page-item.active .page-link {
+    background: var(--es-primary);
+    border-color: var(--es-primary);
+    color: var(--es-white);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
 
-    .bento-page-link i {
-        font-size: 1rem;
-        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+.page-item.active .page-link:hover {
+    transform: none;
+}
 
-    .bento-page-link:hover i {
-        transform: scale(1.15);
-    }
+.page-item.disabled .page-link {
+    background: var(--es-bg-secondary);
+    color: var(--es-text-muted);
+    cursor: not-allowed;
+    border-color: var(--es-border-light);
+}
 
-    .bento-page-link--first:hover i {
-        transform: translateX(-3px);
-    }
+.page-item.disabled .page-link:hover {
+    transform: none;
+}
 
-    .bento-page-link--prev:hover i {
-        transform: translateX(-2px);
+/* Responsive */
+@media (max-width: 576px) {
+    .page-link {
+        min-width: 36px;
+        min-height: 36px;
+        font-size: var(--es-text-xs);
     }
-
-    .bento-page-link--next:hover i {
-        transform: translateX(2px);
-    }
-
-    .bento-page-link--last:hover i {
-        transform: translateX(3px);
-    }
-
-    @media (max-width: 576px) {
-        .bento-pagination {
-            gap: 0.375rem;
-        }
-
-        .bento-page-link {
-            min-width: 40px;
-            height: 40px;
-            padding: 0 0.5rem;
-            font-size: 0.875rem;
-        }
-    }
+}
 </style>
 
-<nav aria-label="Phân trang sản phẩm">
-    <ul class="bento-pagination">
+<nav class="pagination-wrapper" aria-label="Phân trang">
+    <ul class="pagination">
         {% if page_obj.has_previous %}
-        <li class="bento-page-item">
-            <a class="bento-page-link bento-page-link--first"
+        <li class="page-item">
+            <a class="page-link" 
                href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
                aria-label="Trang đầu">
-                <i class="bi bi-chevron-double-left"></i>
+                <i class="bi bi-chevron-double-left" aria-hidden="true"></i>
             </a>
         </li>
-        <li class="bento-page-item">
-            <a class="bento-page-link bento-page-link--prev"
+        <li class="page-item">
+            <a class="page-link" 
                href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
                aria-label="Trang trước">
-                <i class="bi bi-chevron-left"></i>
+                <i class="bi bi-chevron-left" aria-hidden="true"></i>
             </a>
         </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link" aria-disabled="true">
+                <i class="bi bi-chevron-double-left" aria-hidden="true"></i>
+            </span>
+        </li>
+        <li class="page-item disabled">
+            <span class="page-link" aria-disabled="true">
+                <i class="bi bi-chevron-left" aria-hidden="true"></i>
+            </span>
+        </li>
         {% endif %}
-
+        
         {% for num in page_obj.paginator.page_range %}
-        {% if page_obj.number == num %}
-        <li class="bento-page-item bento-page-item--active">
-            <span class="bento-page-link" aria-current="page">{{ num }}</span>
-        </li>
-        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-        <li class="bento-page-item">
-            <a class="bento-page-link"
-               href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
-               aria-label="Trang {{ num }}">
-                {{ num }}
-            </a>
-        </li>
-        {% endif %}
+            {% if page_obj.number == num %}
+            <li class="page-item active" aria-current="page">
+                <span class="page-link">{{ num }}</span>
+            </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link" 
+                   href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                   aria-label="Trang {{ num }}">
+                    {{ num }}
+                </a>
+            </li>
+            {% endif %}
         {% endfor %}
-
+        
         {% if page_obj.has_next %}
-        <li class="bento-page-item">
-            <a class="bento-page-link bento-page-link--next"
+        <li class="page-item">
+            <a class="page-link" 
                href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
                aria-label="Trang sau">
-                <i class="bi bi-chevron-right"></i>
+                <i class="bi bi-chevron-right" aria-hidden="true"></i>
             </a>
         </li>
-        <li class="bento-page-item">
-            <a class="bento-page-link bento-page-link--last"
+        <li class="page-item">
+            <a class="page-link" 
                href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
                aria-label="Trang cuối">
-                <i class="bi bi-chevron-double-right"></i>
+                <i class="bi bi-chevron-double-right" aria-hidden="true"></i>
             </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link" aria-disabled="true">
+                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            </span>
+        </li>
+        <li class="page-item disabled">
+            <span class="page-link" aria-disabled="true">
+                <i class="bi bi-chevron-double-right" aria-hidden="true"></i>
+            </span>
         </li>
         {% endif %}
     </ul>

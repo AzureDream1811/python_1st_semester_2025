@@ -5,989 +5,522 @@
 
 {% block extra_css %}
 <style>
-    :root {
-        --auth-transition: cubic-bezier(0.4, 0, 0.2, 1);
-        --white: #ffffff;
-        --gray-50: #f9fafb;
-        --gray-100: #f3f4f6;
-        --gray-200: #e5e7eb;
-        --gray-300: #d1d5db;
-        --gray-600: #4b5563;
-        --gray-700: #374151;
-        --gray-900: #111827;
-    }
+.auth-shell {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+    padding: 2rem;
+}
 
-    .auth-shell {
-        min-height: calc(100vh - 200px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: var(--es-space-4, 1rem) var(--es-space-2, 0.5rem);
-        background: var(--gray-50);
-    }
+.auth-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    max-width: 1100px;
+    min-height: 700px;
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.12), 0 10px 30px rgba(0, 0, 0, 0.08);
+}
 
-    .auth-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        max-width: 1100px;
-        width: 100%;
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 25px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-        animation: slideUp 0.6s var(--auth-transition);
-    }
+.auth-form-side {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem;
+    background: #fff;
+    overflow-y: auto;
+}
 
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+.auth-form-wrapper {
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+}
 
-    /* ===== ENHANCED AUTH HERO ===== */
-    .auth-hero {
-        position: relative;
-        overflow: hidden;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-        color: white;
-        padding: 3rem;
-        display: flex;
-        align-items: center;
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-    }
+.auth-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    text-decoration: none;
+}
 
-    .auth-hero::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-        animation: pulseGlow 8s ease-in-out infinite;
-    }
+.auth-logo i {
+    color: var(--es-primary);
+}
 
-    @keyframes pulseGlow {
-        0%, 100% {
-            opacity: 0.5;
-            transform: scale(1);
-        }
-        50% {
-            opacity: 1;
-            transform: scale(1.1);
-        }
-    }
+.auth-header {
+    margin-bottom: 1.5rem;
+}
 
-    .auth-hero::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background-image: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
-        radial-gradient(circle at 60% 70%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
-        radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-        background-size: 200px 200px, 300px 300px, 250px 250px, 180px 180px;
-        animation: floatParticles 20s linear infinite;
-    }
+.auth-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.2;
+}
 
-    @keyframes floatParticles {
-        0% {
-            background-position: 0 0, 0 0, 0 0, 0 0;
-        }
-        100% {
-            background-position: 200px 200px, -300px 300px, 250px -250px, -180px 180px;
-        }
-    }
+.auth-subtitle {
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin: 0;
+}
 
-    .auth-hero__content {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-    }
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
 
-    .auth-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        padding: 12px 20px;
-        border-radius: 50px;
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: white;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        width: fit-content;
-        animation: badgeBounce 2s ease-in-out infinite;
-    }
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
 
-    @keyframes badgeBounce {
-        0%, 100% {
-            transform: translateY(0);
-        }
-        50% {
-            transform: translateY(-5px);
-        }
-    }
+.auth-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
 
-    .auth-badge i {
-        color: #ffd700;
-        font-size: 1.1rem;
-        filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
-    }
+.auth-input-group.full-width {
+    grid-column: 1 / -1;
+}
 
-    .auth-title {
-        font-size: clamp(2.5rem, 4vw, 3.5rem);
-        font-weight: 800;
-        margin: 0;
-        background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        letter-spacing: -0.03em;
-        animation: titleSlide 1s ease-out;
-    }
+.auth-label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.9rem;
+}
 
-    @keyframes titleSlide {
-        from {
-            opacity: 0;
-            transform: translateX(-30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
+.auth-label .required {
+    color: #ef4444;
+}
 
-    .auth-lead {
-        max-width: 520px;
-        font-size: 1.1rem;
-        color: rgba(255, 255, 255, 0.95);
-        margin: 0;
-        line-height: 1.7;
-        font-weight: 400;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-        animation: fadeInUp 1s ease-out 0.2s both;
-    }
+.auth-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
 
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+.auth-input-icon {
+    position: absolute;
+    left: 14px;
+    color: #9ca3af;
+    font-size: 1.1rem;
+}
 
-    .auth-features {
-        display: grid;
-        gap: 1rem;
-        margin-top: 1.5rem;
-    }
+.auth-input {
+    width: 100%;
+    padding: 14px 14px 14px 44px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: #fff;
+}
 
-    .auth-feature {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        color: white;
-        padding: 18px 20px;
-        border-radius: 16px;
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        animation: featureSlide 0.8s ease-out both;
-    }
+.auth-input:focus {
+    border-color: #14b8a6;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1);
+    outline: none;
+}
 
-    .auth-feature:nth-child(1) {
-        animation-delay: 0.3s;
-    }
+.auth-input.is-invalid {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
 
-    .auth-feature:nth-child(2) {
-        animation-delay: 0.4s;
-    }
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    .auth-feature:nth-child(3) {
-        animation-delay: 0.5s;
-    }
+.toggle-password:hover {
+    color: #6b7280;
+}
 
-    @keyframes featureSlide {
-        from {
-            opacity: 0;
-            transform: translateX(-30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
+.auth-submit {
+    width: 100%;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
 
-    .auth-feature:hover {
-        background: rgba(255, 255, 255, 0.25);
-        border-color: rgba(255, 255, 255, 0.4);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-        transform: translateX(8px) scale(1.02);
-    }
+.auth-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(20, 184, 166, 0.35);
+}
 
-    .auth-feature__icon {
-        width: 52px;
-        height: 52px;
-        min-width: 52px;
-        border-radius: 14px;
-        background: rgba(255, 255, 255, 0.25);
-        backdrop-filter: blur(10px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.3rem;
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-    }
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.25rem 0;
+    color: #9ca3af;
+    font-size: 0.9rem;
+}
 
-    .auth-feature:hover .auth-feature__icon {
-        transform: rotate(5deg) scale(1.1);
-        background: rgba(255, 255, 255, 0.35);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-    }
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e5e7eb;
+}
 
-    .auth-feature span {
-        font-weight: 500;
-        font-size: 0.95rem;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
+.social-login {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
 
-    .auth-hero__content::before {
-        content: '';
-        position: absolute;
-        top: -100px;
-        right: -100px;
-        width: 300px;
-        height: 300px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-        border-radius: 50%;
-        animation: float 6s ease-in-out infinite;
-        z-index: -1;
-    }
+.btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 12px 24px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
 
-    .auth-hero__content::after {
-        content: '';
-        position: absolute;
-        bottom: -80px;
-        left: -80px;
-        width: 200px;
-        height: 200px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
-        border-radius: 50%;
-        animation: float 8s ease-in-out infinite reverse;
-        z-index: -1;
-    }
+.btn-social:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+}
 
-    @keyframes float {
-        0%, 100% {
-            transform: translateY(0) scale(1);
-        }
-        50% {
-            transform: translateY(-20px) scale(1.05);
-        }
-    }
+.btn-social img {
+    width: 20px;
+    height: 20px;
+}
 
+.auth-footer {
+    text-align: center;
+    margin-top: 1.25rem;
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.auth-footer a {
+    color: #14b8a6;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+.auth-hero-side {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem;
+    background: linear-gradient(145deg, #1e3a5f 0%, #2d5a87 50%, #1e3a5f 100%);
+    overflow: hidden;
+}
+
+.auth-hero-side::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 80%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: #fff;
+    max-width: 480px;
+}
+
+.hero-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    line-height: 1.3;
+}
+
+.hero-visual {
+    margin: 2rem 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-3d-shape {
+    width: 260px;
+    height: 260px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.hero-3d-shape i {
+    font-size: 5rem;
+    color: rgba(255,255,255,0.9);
+}
+
+.hero-features {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.hero-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50px;
+    color: #fff;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.hero-description {
+    margin-top: 2rem;
+    font-size: 1rem;
+    color: rgba(255,255,255,0.9);
+    line-height: 1.6;
+}
+
+.auth-alert {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 12px 16px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    color: #dc2626;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.form-field__error {
+    color: #dc2626;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+@media (max-width: 1024px) {
+    .auth-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .auth-hero-side {
+        display: none;
+    }
+    
     .auth-form-side {
-        padding: 3rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--white);
-    }
-
-    .auth-card {
-        width: 100%;
-        max-width: 440px;
-        background: var(--white);
         padding: 2rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
     }
+}
 
-    .auth-card__header h2 {
-        margin: 0;
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: var(--gray-900);
-        letter-spacing: -0.01em;
+@media (max-width: 576px) {
+    .auth-form-side {
+        padding: 1.5rem;
     }
-
-    .auth-card__header p {
-        margin: 6px 0 0;
-        color: var(--gray-600);
-        font-size: 0.95rem;
+    
+    .auth-title {
+        font-size: 1.5rem;
     }
-
-    .auth-alert {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 12px 16px;
-        border-radius: 10px;
-        font-size: 0.875rem;
-        animation: shake 0.5s var(--auth-transition);
+    
+    .form-row {
+        grid-template-columns: 1fr;
     }
-
-    @keyframes shake {
-        0%, 100% {
-            transform: translateX(0);
-        }
-        25% {
-            transform: translateX(-6px);
-        }
-        75% {
-            transform: translateX(6px);
-        }
-    }
-
-    .auth-alert--error {
-        background: #fef2f2;
-        color: #dc2626;
-        border: 1px solid #fecaca;
-    }
-
-    .auth-input-group {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .auth-input-wrapper {
-        position: relative;
-        display: flex;
-        align-items: center;
-    }
-
-    .auth-input {
-        width: 100%;
-        padding: 13px 13px 13px 42px;
-        border: 1.5px solid var(--gray-200);
-        border-radius: 10px;
-        font-size: 0.95rem;
-        transition: all 0.3s var(--auth-transition);
-        background: var(--white);
-        color: var(--gray-900);
-    }
-
-    .auth-input::placeholder {
-        color: var(--gray-300);
-    }
-
-    .auth-input:hover {
-        border-color: var(--gray-300);
-    }
-
-    .auth-input:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        outline: none;
-        background: var(--white);
-    }
-
-    .auth-input.is-invalid {
-        border-color: #dc2626;
-        background: #fef2f2;
-        animation: shake 0.5s var(--auth-transition);
-    }
-
-    .auth-input.is-valid {
-        border-color: #22c55e;
-        background: #f0fdf4;
-        padding-right: 44px;
-    }
-
-    .auth-input-wrapper .touch-target ~ .auth-input.is-valid {
-        padding-right: 84px;
-    }
-
-    .auth-input-icon {
-        position: absolute;
-        left: 13px;
-        color: var(--gray-300);
-        font-size: 1.05rem;
-        transition: all 0.3s var(--auth-transition);
-        pointer-events: none;
-    }
-
-    .auth-input:focus ~ .auth-input-icon {
-        color: #3b82f6;
-    }
-
-    .input-success-icon {
-        position: absolute;
-        right: 14px;
-        color: #22c55e;
-        font-size: 1.1rem;
-        pointer-events: none;
-        animation: successPop 0.3s var(--auth-transition);
-    }
-
-    .auth-input-wrapper .touch-target ~ .input-success-icon {
-        right: 54px;
-    }
-
-    @keyframes successPop {
-        0% {
-            opacity: 0;
-            transform: scale(0);
-        }
-        50% {
-            transform: scale(1.2);
-        }
-        100% {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-
-    .auth-options {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 0.875rem;
-        gap: 1rem;
-    }
-
-    .auth-checkbox {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        cursor: pointer;
-        user-select: none;
-    }
-
-    .auth-checkbox input {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    .auth-checkbox__mark {
-        width: 20px;
-        height: 20px;
-        min-width: 20px;
-        border: 1.5px solid var(--gray-300);
-        border-radius: 5px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s var(--auth-transition);
-        background: var(--white);
-    }
-
-    .auth-checkbox:hover .auth-checkbox__mark {
-        border-color: #3b82f6;
-    }
-
-    .auth-checkbox input:checked + .auth-checkbox__mark {
-        background: #3b82f6;
-        border-color: #3b82f6;
-    }
-
-    .auth-checkbox input:checked + .auth-checkbox__mark::after {
-        content: '✓';
-        color: white;
-        font-size: 13px;
-        font-weight: 600;
-        animation: checkPop 0.3s var(--auth-transition);
-    }
-
-    @keyframes checkPop {
-        0% {
-            transform: scale(0);
-        }
-        50% {
-            transform: scale(1.2);
-        }
-        100% {
-            transform: scale(1);
-        }
-    }
-
-    .auth-checkbox__label {
-        color: var(--gray-700);
-        font-size: 0.9rem;
-    }
-
-    .auth-link {
-        color: #3b82f6;
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.2s var(--auth-transition);
-        font-size: 0.9rem;
-    }
-
-    .auth-link:hover {
-        color: #2563eb;
-        text-decoration: underline;
-    }
-
-    .auth-submit {
-        width: 100%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        padding: 13px 24px;
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 0.95rem;
-        transition: all 0.3s var(--auth-transition);
-        margin-top: 8px;
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
-        background: #3b82f6;
-        color: white;
-        border: none;
-        cursor: pointer;
-    }
-
-    .auth-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.25);
-        background: #2563eb;
-    }
-
-    .auth-submit:active {
-        transform: translateY(0);
-    }
-
-    .btn-loading {
-        position: relative;
-        color: transparent !important;
-        pointer-events: none;
-    }
-
-    .btn-loading i {
-        opacity: 0;
-    }
-
-    .btn-loading::after {
-        content: '';
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        width: 20px;
-        height: 20px;
-        margin: -10px 0 0 -10px;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-top-color: white;
-        border-radius: 50%;
-        animation: spin 0.6s linear infinite;
-    }
-
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    .auth-divider {
-        text-align: center;
-        color: var(--gray-300);
-        position: relative;
-        margin: 16px 0;
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
-
-    .auth-divider::before,
-    .auth-divider::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        width: 42%;
-        height: 1px;
-        background: var(--gray-200);
-    }
-
-    .auth-divider::before {
-        left: 0;
-    }
-
-    .auth-divider::after {
-        right: 0;
-    }
-
-    .social-buttons {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .btn-social {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        width: 100%;
-        padding: 12px 20px;
-        border: 1.5px solid var(--gray-200);
-        border-radius: 10px;
-        background: var(--white);
-        color: var(--gray-700);
-        font-size: 0.95rem;
-        font-weight: 500;
-        text-decoration: none;
-        transition: all 0.3s var(--auth-transition);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    .btn-social:hover {
-        background: var(--gray-50);
-        border-color: var(--gray-300);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        transform: translateY(-2px);
-        color: var(--gray-900);
-    }
-
-    .btn-social:active {
-        transform: translateY(0);
-    }
-
-    .btn-social svg {
-        flex-shrink: 0;
-    }
-
-    .auth-footer {
-        text-align: center;
-        font-size: 0.9rem;
-        color: var(--gray-600);
-        padding-top: 8px;
-    }
-
-    .auth-footer a {
-        color: #3b82f6;
-        text-decoration: none;
-        font-weight: 600;
-    }
-
-    .auth-footer a:hover {
-        text-decoration: underline;
-    }
-
-    .touch-target {
-        min-height: 44px;
-        min-width: 44px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: none;
-        background: transparent;
-        color: var(--gray-300);
-        cursor: pointer;
-        border-radius: 8px;
-        transition: all 0.2s var(--auth-transition);
-        position: absolute;
-        right: 6px;
-    }
-
-    .touch-target:hover {
-        background: var(--gray-50);
-        color: #3b82f6;
-    }
-
-    .touch-target:active {
-        transform: scale(0.95);
-    }
-
-    .form-field__label {
-        font-weight: 500;
-        font-size: 0.9rem;
-        color: var(--gray-700);
-    }
-
-    .form-field__required {
-        color: #dc2626;
-    }
-
-    .form-field__error {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        color: #dc2626;
-        font-size: 0.85rem;
-        margin-top: 4px;
-        animation: errorSlide 0.3s var(--auth-transition);
-    }
-
-    @keyframes errorSlide {
-        from {
-            opacity: 0;
-            transform: translateY(-8px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .validation-hint {
-        font-size: 0.8rem;
-        color: var(--gray-600);
-        margin-top: 4px;
-        font-style: italic;
-    }
-
-    @media (max-width: 992px) {
-        .auth-grid {
-            grid-template-columns: 1fr;
-            max-width: 560px;
-        }
-
-        .auth-hero {
-            display: none;
-        }
-
-        .auth-form-side {
-            padding: 2rem;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .auth-shell {
-            padding: 1rem;
-            background: var(--white);
-        }
-
-        .auth-grid {
-            box-shadow: none;
-            border: none;
-        }
-
-        .auth-card {
-            padding: 1.5rem;
-        }
-
-        .auth-form-side {
-            padding: 1rem;
-        }
-
-        .auth-options {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.75rem;
-        }
-    }
-</style>{% endblock %}
+}
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="auth-shell">
-    <div class="auth-grid">
-        <div aria-hidden="true" class="auth-hero">
-            <div class="auth-hero__content">
-                <h1 class="auth-title">Tạo tài khoản mới</h1>
-                <p class="auth-lead">Đăng ký nhanh, form rõ ràng, tương phản cao và hỗ trợ người dùng.</p>
-                <div class="auth-features">
-                    <div class="auth-feature">
-                        <span class="auth-feature__icon"><i class="bi bi-shield-check"></i></span>
-                        <span>Bảo mật thông tin</span>
-                    </div>
-                    <div class="auth-feature">
-                        <span class="auth-feature__icon"><i class="bi bi-truck"></i></span>
-                        <span>Giao nhanh toàn quốc</span>
-                    </div>
-                    <div class="auth-feature">
-                        <span class="auth-feature__icon"><i class="bi bi-gift"></i></span>
-                        <span>Tặng ưu đãi cho thành viên mới</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+    <div class="auth-container">
         <div class="auth-form-side">
-            <div aria-labelledby="register-title" class="auth-card">
-                <div class="auth-card__header">
-                    <h2 id="register-title">Đăng ký tài khoản</h2>
-                    <p>Nhập thông tin để tạo tài khoản</p>
+            <div class="auth-form-wrapper">
+                <a href="{% url 'products:home' %}" class="auth-logo">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                    ElectroShop
+                </a>
+                
+                <div class="auth-header">
+                    <h1 class="auth-title">Tạo tài khoản mới</h1>
+                    <p class="auth-subtitle">Đăng ký để nhận ưu đãi độc quyền và theo dõi đơn hàng dễ dàng.</p>
                 </div>
 
                 {% if form.non_field_errors %}
-                <div class="auth-alert auth-alert--error" role="alert">
-                    <i aria-hidden="true" class="bi bi-exclamation-circle"></i>
+                <div class="auth-alert" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
                     <span>{% for error in form.non_field_errors %}{{ error }}{% endfor %}</span>
                 </div>
                 {% endif %}
 
-                <form class="auth-form" method="post" novalidate>
+                <form method="post" class="auth-form" novalidate>
                     {% csrf_token %}
-
-                    <div class="form-grid">
+                    
+                    <div class="form-row">
                         <div class="auth-input-group">
-                            <label class="form-field__label" for="last_name">
-                                Họ <span aria-hidden="true" class="form-field__required">*</span>
-                            </label>
+                            <label for="last_name" class="auth-label">Họ <span class="required">*</span></label>
                             <div class="auth-input-wrapper">
-                                <i aria-hidden="true" class="bi bi-person auth-input-icon"></i>
-                                <input
-                                        aria-required="true"
-                                        class="auth-input {% if form.last_name.errors %}is-invalid{% endif %}"
-                                        id="last_name"
-                                        name="last_name"
-                                        placeholder="Nguyễn"
-                                        required
-                                        type="text"
-                                        value="{{ form.last_name.value|default:'' }}">
+                                <i class="bi bi-person auth-input-icon"></i>
+                                <input type="text" id="last_name" name="last_name" 
+                                       class="auth-input {% if form.last_name.errors %}is-invalid{% endif %}" 
+                                       placeholder="Nguyễn"
+                                       value="{{ form.last_name.value|default:'' }}" required>
                             </div>
+                            {% if form.last_name.errors %}
+                            <span class="form-field__error"><i class="bi bi-exclamation-circle"></i> {{ form.last_name.errors.0 }}</span>
+                            {% endif %}
                         </div>
 
                         <div class="auth-input-group">
-                            <label class="form-field__label" for="first_name">
-                                Tên <span aria-hidden="true" class="form-field__required">*</span>
-                            </label>
+                            <label for="first_name" class="auth-label">Tên <span class="required">*</span></label>
                             <div class="auth-input-wrapper">
-                                <i aria-hidden="true" class="bi bi-person auth-input-icon"></i>
-                                <input
-                                        aria-required="true"
-                                        class="auth-input {% if form.first_name.errors %}is-invalid{% endif %}"
-                                        id="first_name"
-                                        name="first_name"
-                                        placeholder="Văn A"
-                                        required
-                                        type="text"
-                                        value="{{ form.first_name.value|default:'' }}">
+                                <i class="bi bi-person auth-input-icon"></i>
+                                <input type="text" id="first_name" name="first_name" 
+                                       class="auth-input {% if form.first_name.errors %}is-invalid{% endif %}" 
+                                       placeholder="Văn A"
+                                       value="{{ form.first_name.value|default:'' }}" required>
                             </div>
-                        </div>
-
-                        <div class="auth-input-group form-group--full">
-                            <label class="form-field__label" for="email">
-                                Email <span aria-hidden="true" class="form-field__required">*</span>
-                            </label>
-                            <div class="auth-input-wrapper">
-                                <i aria-hidden="true" class="bi bi-envelope auth-input-icon"></i>
-                                <input
-                                        aria-required="true"
-                                        autocomplete="email"
-                                        class="auth-input {% if form.email.errors %}is-invalid{% endif %}"
-                                        id="email"
-                                        name="email"
-                                        placeholder="example@email.com"
-                                        required
-                                        type="email"
-                                        value="{{ form.email.value|default:'' }}">
-                            </div>
-                            <div class="validation-hint">
-                                Nhập địa chỉ email hợp lệ (ví dụ: user@gmail.com)
-                            </div>
-                        </div>
-
-                        <div class="auth-input-group form-group--full">
-                            <label class="form-field__label" for="phone">Số điện thoại</label>
-                            <div class="auth-input-wrapper">
-                                <i aria-hidden="true" class="bi bi-phone auth-input-icon"></i>
-                                <input
-                                        class="auth-input {% if form.phone.errors %}is-invalid{% endif %}"
-                                        id="phone"
-                                        maxlength="12"
-                                        name="phone"
-                                        placeholder="0123 456 789"
-                                        type="tel"
-                                        value="{{ form.phone.value|default:'' }}">
-                            </div>
-                            <div class="validation-hint">
-                                10 chữ số, bắt đầu bằng số 0
-                            </div>
-                        </div>
-
-                        <div class="auth-input-group">
-                            <label class="form-field__label" for="password1">
-                                Mật khẩu <span aria-hidden="true" class="form-field__required">*</span>
-                            </label>
-                            <div class="auth-input-wrapper">
-                                <i aria-hidden="true" class="bi bi-lock auth-input-icon"></i>
-                                <input
-                                        aria-required="true"
-                                        autocomplete="new-password"
-                                        class="auth-input {% if form.password1.errors %}is-invalid{% endif %}"
-                                        data-strength="password-strength"
-                                        id="password1"
-                                        minlength="8"
-                                        name="password1"
-                                        placeholder="••••••••"
-                                        required
-                                        type="password">
-                                <button
-                                        aria-label="Hiện/ẩn mật khẩu"
-                                        aria-pressed="false"
-                                        class="touch-target"
-                                        onclick="toggleField(event, 'password1','toggleIcon1')"
-                                        type="button">
-                                    <i aria-hidden="true" class="bi bi-eye" id="toggleIcon1"></i>
-                                </button>
-                            </div>
-                            <div class="password-strength" id="password-strength"></div>
-                            <div class="validation-hint">
-                                Tối thiểu 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt
-                            </div>
-                        </div>
-
-                        <div class="auth-input-group">
-                            <label class="form-field__label" for="password2">
-                                Nhập lại mật khẩu <span aria-hidden="true" class="form-field__required">*</span>
-                            </label>
-                            <div class="auth-input-wrapper">
-                                <i aria-hidden="true" class="bi bi-lock auth-input-icon"></i>
-                                <input
-                                        aria-required="true"
-                                        autocomplete="new-password"
-                                        class="auth-input {% if form.password2.errors %}is-invalid{% endif %}"
-                                        data-match="password1"
-                                        id="password2"
-                                        name="password2"
-                                        placeholder="••••••••"
-                                        required
-                                        type="password">
-                                <button
-                                        aria-label="Hiện/ẩn mật khẩu"
-                                        aria-pressed="false"
-                                        class="touch-target"
-                                        onclick="toggleField(event, 'password2','toggleIcon2')"
-                                        type="button">
-                                    <i aria-hidden="true" class="bi bi-eye" id="toggleIcon2"></i>
-                                </button>
-                            </div>
+                            {% if form.first_name.errors %}
+                            <span class="form-field__error"><i class="bi bi-exclamation-circle"></i> {{ form.first_name.errors.0 }}</span>
+                            {% endif %}
                         </div>
                     </div>
 
-                    <button class="auth-submit" type="submit">
-                        <i aria-hidden="true" class="bi bi-person-plus"></i>
-                        <span>Đăng ký</span>
+                    <div class="auth-input-group">
+                        <label for="email" class="auth-label">Email <span class="required">*</span></label>
+                        <div class="auth-input-wrapper">
+                            <i class="bi bi-envelope auth-input-icon"></i>
+                            <input type="email" id="email" name="email" 
+                                   class="auth-input {% if form.email.errors %}is-invalid{% endif %}" 
+                                   placeholder="hello@example.com"
+                                   value="{{ form.email.value|default:'' }}" 
+                                   autocomplete="email" required>
+                        </div>
+                        {% if form.email.errors %}
+                        <span class="form-field__error"><i class="bi bi-exclamation-circle"></i> {{ form.email.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="auth-input-group">
+                        <label for="phone" class="auth-label">Số điện thoại</label>
+                        <div class="auth-input-wrapper">
+                            <i class="bi bi-phone auth-input-icon"></i>
+                            <input type="text" id="phone" name="phone" 
+                                   class="auth-input {% if form.phone.errors %}is-invalid{% endif %}" 
+                                   placeholder="0901234567"
+                                   value="{{ form.phone.value|default:'' }}">
+                        </div>
+                        {% if form.phone.errors %}
+                        <span class="form-field__error"><i class="bi bi-exclamation-circle"></i> {{ form.phone.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="auth-input-group">
+                            <label for="password1" class="auth-label">Mật khẩu <span class="required">*</span></label>
+                            <div class="auth-input-wrapper">
+                                <i class="bi bi-lock auth-input-icon"></i>
+                                <input type="password" id="password1" name="password1" 
+                                       class="auth-input {% if form.password1.errors %}is-invalid{% endif %}" 
+                                       placeholder="Mật khẩu"
+                                       autocomplete="new-password" required>
+                                <button type="button" class="toggle-password" onclick="toggleField('password1','toggleIcon1')">
+                                    <i class="bi bi-eye" id="toggleIcon1"></i>
+                                </button>
+                            </div>
+                            {% if form.password1.errors %}
+                            <span class="form-field__error"><i class="bi bi-exclamation-circle"></i> {{ form.password1.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="auth-input-group">
+                            <label for="password2" class="auth-label">Xác nhận <span class="required">*</span></label>
+                            <div class="auth-input-wrapper">
+                                <i class="bi bi-lock auth-input-icon"></i>
+                                <input type="password" id="password2" name="password2" 
+                                       class="auth-input {% if form.password2.errors %}is-invalid{% endif %}" 
+                                       placeholder="Nhập lại"
+                                       autocomplete="new-password" required>
+                                <button type="button" class="toggle-password" onclick="toggleField('password2','toggleIcon2')">
+                                    <i class="bi bi-eye" id="toggleIcon2"></i>
+                                </button>
+                            </div>
+                            {% if form.password2.errors %}
+                            <span class="form-field__error"><i class="bi bi-exclamation-circle"></i> {{ form.password2.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-submit">
+                        Đăng ký
                     </button>
                 </form>
 
-                <div class="auth-divider"><span>Hoặc đăng ký với</span></div>
+                <div class="auth-divider">hoặc</div>
 
-                <div class="social-buttons">
-                    <a class="btn-social btn-social-google" href="/accounts/social/google/login/?next=/">
-                        <svg height="20" viewBox="0 0 24 24" width="20">
-                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                                  fill="#4285F4"/>
-                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                                  fill="#34A853"/>
-                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                                  fill="#FBBC05"/>
-                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                                  fill="#EA4335"/>
+                <div class="social-login">
+                    <a href="{% url 'accounts:google_login' %}" class="btn-social">
+                        <svg width="20" height="20" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                         </svg>
-                        Đăng ký với Google
+                        Đăng ký bằng Google
                     </a>
                 </div>
 
@@ -996,326 +529,48 @@
                 </div>
             </div>
         </div>
+
+        <div class="auth-hero-side">
+            <div class="hero-content">
+                <h2 class="hero-title">Gia nhập cộng đồng 20,000+ khách hàng tin dùng</h2>
+                
+                <div class="hero-visual">
+                    <div class="hero-3d-shape">
+                        <i class="bi bi-person-plus"></i>
+                    </div>
+                </div>
+
+                <div class="hero-features">
+                    <span class="hero-feature">
+                        <i class="bi bi-gift"></i>
+                        Ưu đãi thành viên
+                    </span>
+                    <span class="hero-feature">
+                        <i class="bi bi-star"></i>
+                        Tích điểm đổi quà
+                    </span>
+                </div>
+
+                <p class="hero-description">
+                    Tạo tài khoản để nhận ưu đãi độc quyền, theo dõi đơn hàng và tích điểm với mỗi lần mua sắm.
+                </p>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    (function () {
-        'use strict';
-
-        document.addEventListener('DOMContentLoaded', function () {
-            initFormValidation();
-            initPasswordStrength();
-            initPasswordMatch();
-            initPhoneValidation();
-        });
-
-        function initFormValidation() {
-            const forms = document.querySelectorAll('form[novalidate], .auth-form');
-
-            forms.forEach(function (form) {
-                form.addEventListener('submit', function (event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault();
-                        event.stopPropagation();
-
-                        const inputs = form.querySelectorAll('input, textarea, select');
-                        inputs.forEach(validateInput);
-                    }
-
-                    form.classList.add('was-validated');
-
-                    const submitBtn = form.querySelector('button[type="submit"]');
-                    if (submitBtn && form.checkValidity()) {
-                        submitBtn.classList.add('btn-loading');
-                        submitBtn.disabled = true;
-                    }
-                }, false);
-
-                const inputs = form.querySelectorAll('input, textarea, select');
-                inputs.forEach(function (input) {
-                    input.addEventListener('input', function () {
-                        clearTimeout(input.validationTimeout);
-                        input.validationTimeout = setTimeout(function () {
-                            validateInput(input);
-                        }, 300);
-                    });
-
-                    input.addEventListener('blur', function () {
-                        clearTimeout(input.validationTimeout);
-                        validateInput(input);
-                    });
-                });
-            });
-        }
-
-        function validateInput(input) {
-            if (!input.required && !input.value.trim()) {
-                input.classList.remove('is-invalid', 'is-valid');
-                hideError(input);
-                hideSuccess(input);
-                return true;
-            }
-
-            let isValid = input.checkValidity();
-            const value = input.value.trim();
-
-            if (input.type === 'email' && value) {
-                isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-                if (!isValid) {
-                    input.setCustomValidity('Email không hợp lệ');
-                } else {
-                    input.setCustomValidity('');
-                }
-            }
-
-            if ((input.name === 'first_name' || input.name === 'last_name') && value) {
-                if (!/^[a-zA-ZÀ-ỹ\s]+$/.test(value)) {
-                    isValid = false;
-                    input.setCustomValidity('Tên chỉ được chứa chữ cái');
-                } else {
-                    input.setCustomValidity('');
-                }
-            }
-
-            if ((input.name === 'password1' || input.name === 'password') && value) {
-                if (value.length < 8) {
-                    isValid = false;
-                    input.setCustomValidity('Mật khẩu phải có ít nhất 8 ký tự');
-                } else {
-                    input.setCustomValidity('');
-                }
-            }
-
-            if (isValid) {
-                input.classList.remove('is-invalid');
-                input.classList.add('is-valid');
-                hideError(input);
-                showSuccess(input);
-            } else {
-                input.classList.remove('is-valid');
-                input.classList.add('is-invalid');
-                showError(input, input.validationMessage);
-                hideSuccess(input);
-            }
-
-            return isValid;
-        }
-
-        function showError(input, message) {
-            const errorId = input.id + '-error';
-            let errorElement = document.getElementById(errorId);
-
-            if (!errorElement) {
-                errorElement = document.createElement('span');
-                errorElement.id = errorId;
-                errorElement.className = 'form-field__error';
-                errorElement.setAttribute('role', 'alert');
-                errorElement.innerHTML = '<i class="bi bi-exclamation-circle"></i> <span class="error-text"></span>';
-
-                const wrapper = input.closest('.auth-input-group');
-                if (wrapper) {
-                    wrapper.appendChild(errorElement);
-                }
-            }
-
-            const errorText = errorElement.querySelector('.error-text');
-            if (errorText) {
-                errorText.textContent = message || input.validationMessage;
-            }
-
-            errorElement.style.display = 'flex';
-        }
-
-        function hideError(input) {
-            const errorId = input.id + '-error';
-            const errorElement = document.getElementById(errorId);
-
-            if (errorElement) {
-                errorElement.style.display = 'none';
-            }
-        }
-
-        function showSuccess(input) {
-            if (!input.value.trim() || !input.checkValidity()) return;
-
-            const wrapper = input.closest('.auth-input-wrapper');
-            if (wrapper) {
-                let icon = wrapper.querySelector('.input-success-icon');
-                if (!icon) {
-                    icon = document.createElement('i');
-                    icon.className = 'bi bi-check-circle input-success-icon';
-                    wrapper.appendChild(icon);
-                }
-            }
-        }
-
-        function hideSuccess(input) {
-            const wrapper = input.closest('.auth-input-wrapper');
-            if (wrapper) {
-                const icon = wrapper.querySelector('.input-success-icon');
-                if (icon) icon.remove();
-            }
-        }
-
-        function initPasswordStrength() {
-            const passwordInputs = document.querySelectorAll('input[data-strength]');
-
-            passwordInputs.forEach(function (input) {
-                const strengthMeterId = input.dataset.strength;
-                const strengthMeter = document.getElementById(strengthMeterId);
-
-                if (strengthMeter) {
-                    let strengthBar = strengthMeter.querySelector('.password-strength__bar');
-                    if (!strengthBar) {
-                        strengthBar = document.createElement('div');
-                        strengthBar.className = 'password-strength__bar';
-                        strengthMeter.appendChild(strengthBar);
-                    }
-
-                    let strengthText = document.createElement('div');
-                    strengthText.className = 'password-strength__text';
-                    strengthMeter.after(strengthText);
-
-                    input.addEventListener('input', function () {
-                        const strength = calculatePasswordStrength(input.value);
-                        updateStrengthMeter(strengthBar, strengthText, strength, input.value.length);
-                    });
-                }
-            });
-        }
-
-        function calculatePasswordStrength(password) {
-            if (!password) return 0;
-            let strength = 0;
-            if (password.length >= 8) strength++;
-            if (password.length >= 12) strength++;
-            if (/[a-z]/.test(password)) strength++;
-            if (/[A-Z]/.test(password)) strength++;
-            if (/[0-9]/.test(password)) strength++;
-            if (/[^a-zA-Z0-9]/.test(password)) strength++;
-            return Math.min(strength, 5);
-        }
-
-        function updateStrengthMeter(bar, textElement, strength, passwordLength) {
-            const levels = [
-                {name: 'Rất yếu', hint: 'Thêm chữ hoa, số và ký tự đặc biệt'},
-                {name: 'Yếu', hint: 'Cần thêm độ dài và ký tự đặc biệt'},
-                {name: 'Trung bình', hint: 'Khá tốt, thêm ký tự đặc biệt'},
-                {name: 'Tốt', hint: 'Mật khẩu tốt'},
-                {name: 'Mạnh', hint: 'Mật khẩu mạnh'},
-                {name: 'Rất mạnh', hint: 'Mật khẩu rất mạnh'}
-            ];
-
-            const colors = ['#dc3545', '#fd7e14', '#ffc107', '#20c997', '#198754', '#22c55e'];
-
-            const percentage = passwordLength ? (strength / 5) * 100 : 0;
-            bar.style.width = percentage + '%';
-            bar.style.backgroundColor = colors[strength] || colors[0];
-
-            if (textElement && passwordLength) {
-                const level = levels[strength] || levels[0];
-                textElement.textContent = 'Độ mạnh: ' + level.name + ' - ' + level.hint;
-                textElement.style.color = colors[strength] || colors[0];
-                textElement.style.display = 'block';
-            } else if (textElement) {
-                textElement.style.display = 'none';
-            }
-        }
-
-        function initPasswordMatch() {
-            const confirmInputs = document.querySelectorAll('input[data-match]');
-
-            confirmInputs.forEach(function (confirmInput) {
-                const originalInputId = confirmInput.dataset.match;
-                const originalInput = document.getElementById(originalInputId);
-
-                if (originalInput) {
-                    confirmInput.addEventListener('input', function () {
-                        clearTimeout(confirmInput.matchTimeout);
-                        confirmInput.matchTimeout = setTimeout(function () {
-                            checkPasswordMatch(originalInput, confirmInput);
-                        }, 300);
-                    });
-
-                    originalInput.addEventListener('input', function () {
-                        if (confirmInput.value) {
-                            clearTimeout(confirmInput.matchTimeout);
-                            confirmInput.matchTimeout = setTimeout(function () {
-                                checkPasswordMatch(originalInput, confirmInput);
-                            }, 300);
-                        }
-                    });
-                }
-            });
-        }
-
-        function checkPasswordMatch(originalInput, confirmInput) {
-            if (!confirmInput.value) {
-                confirmInput.setCustomValidity('');
-                confirmInput.classList.remove('is-invalid', 'is-valid');
-                hideError(confirmInput);
-                hideSuccess(confirmInput);
-                return;
-            }
-
-            if (confirmInput.value !== originalInput.value) {
-                confirmInput.setCustomValidity('Mật khẩu không khớp');
-                confirmInput.classList.add('is-invalid');
-                confirmInput.classList.remove('is-valid');
-                showError(confirmInput, 'Mật khẩu không khớp');
-                hideSuccess(confirmInput);
-            } else {
-                confirmInput.setCustomValidity('');
-                confirmInput.classList.remove('is-invalid');
-                confirmInput.classList.add('is-valid');
-                hideError(confirmInput);
-                showSuccess(confirmInput);
-            }
-        }
-
-        function initPhoneValidation() {
-            const phoneInputs = document.querySelectorAll('input[type="tel"], input[name="phone"]');
-
-            phoneInputs.forEach(function (input) {
-                input.addEventListener('input', function () {
-                    let value = input.value.replace(/\D/g, '');
-
-                    if (value.length > 10) {
-                        value = value.slice(0, 10);
-                    }
-
-                    if (value.length > 4 && value.length <= 7) {
-                        value = value.slice(0, 4) + ' ' + value.slice(4);
-                    } else if (value.length > 7) {
-                        value = value.slice(0, 4) + ' ' + value.slice(4, 7) + ' ' + value.slice(7, 10);
-                    }
-
-                    input.value = value;
-                });
-            });
-        }
-
-    })();
-
-    function toggleField(event, id, iconId) {
-        event.preventDefault();
-        const input = document.getElementById(id);
-        const icon = document.getElementById(iconId);
-        const button = icon ? icon.closest('button') : null;
-
-        if (!input || !icon) return;
-
-        const isText = input.type === 'text';
-        input.type = isText ? 'password' : 'text';
-        icon.classList.toggle('bi-eye');
-        icon.classList.toggle('bi-eye-slash');
-
-        if (button) {
-            button.setAttribute('aria-pressed', !isText);
-        }
-    }
+function toggleField(id, iconId) {
+    const input = document.getElementById(id);
+    const icon = document.getElementById(iconId);
+    if (!input || !icon) return;
+    
+    const isText = input.type === 'text';
+    input.type = isText ? 'password' : 'text';
+    icon.classList.toggle('bi-eye');
+    icon.classList.toggle('bi-eye-slash');
+}
 </script>
 {% endblock %}

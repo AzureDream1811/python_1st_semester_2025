@@ -5,363 +5,637 @@
 
 {% block extra_css %}
 <style>
-    :root {
-        --ink: #0f172a;
-        --muted: #475569;
-        --border: #e5e7eb;
-        --surface: #ffffff;
-        --surface-muted: #f8fafc;
-        --accent: #2563eb;
-    }
+:root {
+    --card-primary: #1e3a5f;
+    --card-primary-light: #2d5a87;
+    --card-accent: #14b8a6;
+    --card-success: #22c55e;
+    --card-danger: #ef4444;
+    --card-warning: #f59e0b;
+    --card-border: #e2e8f0;
+    --card-muted: #64748b;
+    --card-radius: 16px;
+}
 
-    body {
-        background: linear-gradient(135deg, #f6f7fb 0%, #eef2f7 50%, #f8fafc 100%);
-    }
+.card-form-page {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+    padding: 2rem 0 4rem;
+}
 
-    .form-shell {
-        max-width: 700px;
-        margin: 0 auto;
-        padding: 1.5rem 1.25rem 2.5rem;
-    }
+.card-form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
 
-    .breadcrumb {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        color: var(--muted);
-        font-size: 0.875rem;
-    }
+.card-form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
 
-    .breadcrumb a {
-        color: var(--accent);
-        text-decoration: none;
-        transition: color 0.2s ease;
-    }
+.card-form-header__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--card-primary) 0%, var(--card-primary-light) 100%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    box-shadow: 0 8px 24px rgba(30, 58, 95, 0.3);
+}
 
-    .breadcrumb a:hover {
-        color: var(--ink);
-    }
+.card-form-header__icon i {
+    font-size: 1.75rem;
+    color: #fff;
+}
 
-    .form-header {
-        margin-bottom: 1.5rem;
-    }
+.card-form-header__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--card-primary);
+    margin: 0 0 0.5rem;
+}
 
-    .form-header h1 {
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--ink);
-        margin: 0 0 0.5rem;
-    }
+.card-form-header__subtitle {
+    color: var(--card-muted);
+    font-size: 1rem;
+}
 
-    .form-header p {
-        color: var(--muted);
-        margin: 0;
-    }
+.card-form-card {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
 
-    .card-preview {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        border-radius: 18px;
-        padding: 2rem;
-        color: white;
-        margin-bottom: 2rem;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.3);
-    }
+.card-form-card__header {
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, var(--card-primary) 0%, var(--card-primary-light) 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
-    .card-preview::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 200px;
-        height: 200px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
-        border-radius: 50%;
-    }
+.card-form-card__header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
 
-    .preview-number {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 1.5rem;
-        letter-spacing: 3px;
-        margin-bottom: 1.5rem;
-        position: relative;
-        z-index: 1;
-    }
+.card-form-card__header a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: color 0.2s ease;
+}
 
-    .preview-info {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 1rem;
-        position: relative;
-        z-index: 1;
-    }
+.card-form-card__header a:hover {
+    color: #fff;
+}
 
-    .form-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 18px;
-        padding: 2rem;
-        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
-    }
+.card-form-card__body {
+    padding: 1.5rem;
+}
 
-    .form-grid {
-        display: grid;
-        gap: 1.25rem;
-    }
+.form-group {
+    margin-bottom: 1.25rem;
+}
 
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-label .required {
+    color: var(--card-danger);
+}
+
+.form-input,
+.form-select {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--card-border);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: #fff;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: var(--card-accent);
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.15);
+}
+
+.form-input.is-valid {
+    border-color: var(--card-success);
+}
+
+.form-input.is-invalid {
+    border-color: var(--card-danger);
+}
+
+.form-error {
+    color: var(--card-danger);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.form-success {
+    color: var(--card-success);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.card-input-wrapper {
+    position: relative;
+}
+
+.card-input-wrapper .card-brand-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-input-wrapper .card-brand-icon img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.cvv-input {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 4px;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.form-check input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--card-accent) 0%, #0d9488 100%);
+    color: #fff;
+    flex: 1;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(20, 184, 166, 0.4);
+}
+
+.btn-secondary {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid var(--card-border);
+}
+
+.btn-secondary:hover {
+    background: #e2e8f0;
+}
+
+.card-brands {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--card-border);
+}
+
+.card-brands__label {
+    color: var(--card-muted);
+    font-size: 0.9rem;
+}
+
+.card-brands__icons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.card-brands__icons img {
+    height: 28px;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.card-brands__icons img:hover {
+    opacity: 1;
+}
+
+.security-notice {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #ecfdf5;
+    border-radius: 12px;
+    color: #059669;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}
+
+@media (max-width: 576px) {
     .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.25rem;
+        grid-template-columns: 1fr;
     }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    label {
-        font-weight: 600;
-        color: var(--ink);
-        font-size: 0.9375rem;
-    }
-
-    input,
-    select {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        background: var(--surface-muted);
-        color: var(--ink);
-        font-size: 0.9375rem;
-        transition: all 0.2s ease;
-    }
-
-    input:focus,
-    select:focus {
-        outline: none;
-        border-color: var(--accent);
-        background: var(--surface);
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
-
-    .checkbox-group {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 1rem;
-        background: var(--surface-muted);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-    }
-
-    .checkbox-group input[type="checkbox"] {
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-    }
-
+    
     .form-actions {
-        display: flex;
-        gap: 1rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--border);
+        flex-direction: column;
     }
-
-    .btn {
-        flex: 1;
-        padding: 0.875rem 1.5rem;
-        border: none;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        text-decoration: none;
-    }
-
-    .btn-primary {
-        background: var(--accent);
-        color: white;
-        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.3);
-    }
-
+    
     .btn-secondary {
-        background: var(--surface-muted);
-        color: var(--ink);
-        border: 1px solid var(--border);
+        order: 1;
     }
+}
 
-    .security-note {
-        display: flex;
-        gap: 0.75rem;
-        padding: 1rem;
-        background: rgba(37, 99, 235, 0.05);
-        border: 1px solid rgba(37, 99, 235, 0.2);
-        border-radius: 12px;
-        color: var(--muted);
-        font-size: 0.875rem;
+@media (prefers-reduced-motion: reduce) {
+    .btn,
+    .form-input {
+        transition: none;
     }
-
-    @media (max-width: 640px) {
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-
-        .form-actions {
-            flex-direction: column;
-        }
-    }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="form-shell">
-    <!-- Breadcrumb -->
-    <nav class="breadcrumb">
-        <a href="{% url 'accounts:profile' %}">
-            <i class="bi bi-person-circle"></i> Tài khoản
-        </a>
-        <i class="bi bi-chevron-right"></i>
-        <a href="{% url 'accounts:card_list' %}">Thẻ thanh toán</a>
-        <i class="bi bi-chevron-right"></i>
-        <span>Thêm mới</span>
-    </nav>
-
-    <div class="form-header">
-        <h1><i class="bi bi-credit-card"></i> Thêm thẻ thanh toán</h1>
-        <p>Thêm thẻ để thanh toán nhanh hơn</p>
-    </div>
-
-    <!-- Card Preview -->
-    <div class="card-preview">
-        <div class="preview-number" id="previewNumber">•••• •••• •••• ••••</div>
-        <div class="preview-info">
-            <div>
-                <div style="font-size: 0.75rem; opacity: 0.6; margin-bottom: 0.25rem;">TÊN CHỦ THẺ</div>
-                <div id="previewName" style="text-transform: uppercase; font-size: 0.875rem;">CARDHOLDER NAME</div>
+<div class="card-form-page">
+    <div class="card-form-container">
+        <div class="card-form-header">
+            <div class="card-form-header__icon">
+                <i class="bi bi-credit-card-2-front"></i>
             </div>
-            <div>
-                <div style="font-size: 0.75rem; opacity: 0.6; margin-bottom: 0.25rem;">HẾT HẠN</div>
-                <div id="previewExpiry" style="font-family: 'JetBrains Mono', monospace; font-size: 0.875rem;">MM/YY
-                </div>
+            <h1 class="card-form-header__title">Thêm thẻ thanh toán</h1>
+            <p class="card-form-header__subtitle">Lưu thẻ để thanh toán nhanh hơn</p>
+        </div>
+        
+        <div class="card-form-card">
+            <div class="card-form-card__header">
+                <h3><i class="bi bi-credit-card"></i> Chi tiết thẻ</h3>
+                <a href="{% url 'accounts:profile' %}?tab=payments">
+                    <i class="bi bi-arrow-left"></i> Quay lại
+                </a>
+            </div>
+            
+            <div class="card-form-card__body">
+                <form method="post" id="cardForm">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            Số thẻ <span class="required">*</span>
+                        </label>
+                        <div class="card-input-wrapper">
+                            <input type="text" name="card_number" class="form-input" id="card-number"
+                                   placeholder="1234 5678 9012 3456" maxlength="19"
+                                   autocomplete="cc-number" required>
+                            <div class="card-brand-icon" id="card-brand-icon"></div>
+                        </div>
+                        <div id="card-number-feedback"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            Tên chủ thẻ <span class="required">*</span>
+                        </label>
+                        <input type="text" name="cardholder_name" class="form-input" id="card-holder"
+                               placeholder="NGUYEN VAN A" autocomplete="cc-name"
+                               style="text-transform: uppercase;" required>
+                        <div class="form-error" id="card-holder-error"></div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Ngày hết hạn <span class="required">*</span>
+                            </label>
+                            <input type="text" name="card_expiry" class="form-input" id="card-expiry"
+                                   placeholder="MM/YY" maxlength="5" autocomplete="cc-exp" required>
+                            <div class="form-error" id="card-expiry-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                CVV <span class="required">*</span>
+                            </label>
+                            <input type="password" name="cvv" class="form-input cvv-input" id="card-cvv"
+                                   placeholder="***" maxlength="4" autocomplete="cc-csc" required>
+                            <div class="form-error" id="card-cvv-error"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-check">
+                            <input type="checkbox" name="is_default" value="1">
+                            <span>Đặt làm thẻ mặc định</span>
+                        </label>
+                    </div>
+                    
+                    <div class="security-notice">
+                        <i class="bi bi-shield-lock"></i>
+                        <span>Thông tin thẻ được mã hóa và bảo mật. Chúng tôi chỉ lưu 4 số cuối.</span>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <a href="{% url 'accounts:profile' %}?tab=payments" class="btn btn-secondary">
+                            Hủy
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                            <i class="bi bi-plus-circle"></i>
+                            Thêm thẻ
+                        </button>
+                    </div>
+                    
+                    <div class="card-brands">
+                        <span class="card-brands__label">Chấp nhận:</span>
+                        <div class="card-brands__icons">
+                            <img src="{% static 'images/payment/visa.svg' %}" alt="Visa">
+                            <img src="{% static 'images/payment/mastercard.svg' %}" alt="Mastercard">
+                            <img src="{% static 'images/payment/jcb.svg' %}" alt="JCB">
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-
-    <div class="form-card">
-        <form class="form-grid" method="post">
-            {% csrf_token %}
-
-            <div class="form-group">
-                <label for="card_number">Số thẻ <span style="color: #dc2626;">*</span></label>
-                <input id="card_number" maxlength="19" name="card_number"
-                       placeholder="1234 5678 9012 3456" required type="text">
-            </div>
-
-            <div class="form-group">
-                <label for="cardholder_name">Tên chủ thẻ <span style="color: #dc2626;">*</span></label>
-                <input id="cardholder_name" name="cardholder_name" placeholder="NGUYEN VAN A"
-                       required style="text-transform: uppercase;" type="text">
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="expiry_month">Tháng hết hạn <span style="color: #dc2626;">*</span></label>
-                    <select id="expiry_month" name="expiry_month" required>
-                        <option value="">Chọn tháng</option>
-                        {% for month in "123456789012"|make_list %}
-                        <option value="{{ forloop.counter }}">{{ forloop.counter|stringformat:"02d" }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="expiry_year">Năm hết hạn <span style="color: #dc2626;">*</span></label>
-                    <select id="expiry_year" name="expiry_year" required>
-                        <option value="">Chọn năm</option>
-                        {% for year in "12345678910"|make_list %}
-                        <option value="{{ 2026|add:forloop.counter0 }}">{{ 2026|add:forloop.counter0 }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="cvv">CVV/CVC <span style="color: #dc2626;">*</span></label>
-                <input id="cvv" maxlength="4" name="cvv" placeholder="123" required type="text">
-            </div>
-
-            <div class="checkbox-group">
-                <input id="is_default" name="is_default" type="checkbox">
-                <label for="is_default" style="margin: 0;">Đặt làm thẻ mặc định</label>
-            </div>
-
-            <div class="security-note">
-                <i class="bi bi-shield-check" style="font-size: 1.25rem; color: var(--accent);"></i>
-                <div>
-                    <strong>Bảo mật thông tin</strong><br>
-                    Thông tin thẻ của bạn được mã hóa và bảo mật tuyệt đối.
-                </div>
-            </div>
-
-            <div class="form-actions">
-                <a class="btn btn-secondary" href="{% url 'accounts:card_list' %}">
-                    <i class="bi bi-x-lg"></i>
-                    <span>Hủy</span>
-                </a>
-                <button class="btn btn-primary" type="submit">
-                    <i class="bi bi-check-lg"></i>
-                    <span>Thêm thẻ</span>
-                </button>
-            </div>
-        </form>
-    </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-    // Card number formatting
-    document.getElementById('card_number').addEventListener('input', function (e) {
-        let value = e.target.value.replace(/\s/g, '');
-        let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
-        e.target.value = formattedValue;
-
-        // Update preview
-        document.getElementById('previewNumber').textContent =
-            formattedValue || '•••• •••• •••• ••••';
-    });
-
-    // Cardholder name preview
-    document.getElementById('cardholder_name').addEventListener('input', function (e) {
-        document.getElementById('previewName').textContent =
-            e.target.value.toUpperCase() || 'CARDHOLDER NAME';
-    });
-
-    // Expiry preview
-    function updateExpiryPreview() {
-        const month = document.getElementById('expiry_month').value;
-        const year = document.getElementById('expiry_year').value;
-        const monthStr = month ? month.padStart(2, '0') : 'MM';
-        const yearStr = year ? year.slice(-2) : 'YY';
-        document.getElementById('previewExpiry').textContent = `${monthStr}/${yearStr}`;
+const CardValidator = {
+    patterns: {
+        visa: /^4[0-9]{0,15}$/,
+        mastercard: /^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[01]|2720)[0-9]{0,14}$/,
+        jcb: /^(35[2-8][0-9])[0-9]{0,12}$/
+    },
+    
+    icons: {
+        visa: '{% static "images/payment/visa.svg" %}',
+        mastercard: '{% static "images/payment/mastercard.svg" %}',
+        jcb: '{% static "images/payment/jcb.svg" %}'
+    },
+    
+    detectBrand: function(number) {
+        const cleaned = number.replace(/\s/g, '');
+        for (const [brand, pattern] of Object.entries(this.patterns)) {
+            if (pattern.test(cleaned)) return brand;
+        }
+        return null;
+    },
+    
+    formatNumber: function(value) {
+        const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        const parts = [];
+        for (let i = 0; i < v.length && i < 16; i += 4) {
+            parts.push(v.substring(i, i + 4));
+        }
+        return parts.join(' ');
+    },
+    
+    formatExpiry: function(value) {
+        const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        if (v.length >= 2) {
+            return v.substring(0, 2) + '/' + v.substring(2, 4);
+        }
+        return v;
+    },
+    
+    validateExpiry: function(value) {
+        const match = value.match(/^(\d{2})\/(\d{2})$/);
+        if (!match) return { valid: false, error: 'Định dạng không hợp lệ (MM/YY)' };
+        
+        const month = parseInt(match[1], 10);
+        const year = parseInt('20' + match[2], 10);
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth() + 1;
+        
+        if (month < 1 || month > 12) {
+            return { valid: false, error: 'Tháng không hợp lệ' };
+        }
+        
+        if (year < currentYear || (year === currentYear && month < currentMonth)) {
+            return { valid: false, error: 'Thẻ đã hết hạn' };
+        }
+        
+        return { valid: true };
+    },
+    
+    validateCVV: function(value, brand) {
+        const minLength = 3;
+        if (value.length < minLength || value.length > 4) {
+            return { valid: false, error: 'CVV phải có 3-4 số' };
+        }
+        if (!/^\d+$/.test(value)) {
+            return { valid: false, error: 'CVV chỉ được chứa số' };
+        }
+        return { valid: true };
+    },
+    
+    validateNumber: function(value) {
+        const cleaned = value.replace(/\s/g, '');
+        if (cleaned.length < 13 || cleaned.length > 16) {
+            return { valid: false, error: 'Số thẻ phải có 13-16 số' };
+        }
+        if (!this.detectBrand(cleaned)) {
+            return { valid: false, error: 'Loại thẻ không được hỗ trợ' };
+        }
+        
+        let sum = 0;
+        let isEven = false;
+        for (let i = cleaned.length - 1; i >= 0; i--) {
+            let digit = parseInt(cleaned[i], 10);
+            if (isEven) {
+                digit *= 2;
+                if (digit > 9) digit -= 9;
+            }
+            sum += digit;
+            isEven = !isEven;
+        }
+        
+        if (sum % 10 !== 0) {
+            return { valid: false, error: 'Số thẻ không hợp lệ' };
+        }
+        
+        return { valid: true };
     }
+};
 
-    document.getElementById('expiry_month').addEventListener('change', updateExpiryPreview);
-    document.getElementById('expiry_year').addEventListener('change', updateExpiryPreview);
+document.addEventListener('DOMContentLoaded', function() {
+    const cardNumberInput = document.getElementById('card-number');
+    const cardBrandIcon = document.getElementById('card-brand-icon');
+    const cardNumberFeedback = document.getElementById('card-number-feedback');
+    const cardExpiryInput = document.getElementById('card-expiry');
+    const cardCvvInput = document.getElementById('card-cvv');
+    const cardHolderInput = document.getElementById('card-holder');
+    const cardForm = document.getElementById('cardForm');
+    
+    if (cardNumberInput) {
+        cardNumberInput.addEventListener('input', function(e) {
+            const formatted = CardValidator.formatNumber(this.value);
+            this.value = formatted;
+            
+            const brand = CardValidator.detectBrand(formatted);
+            if (brand && CardValidator.icons[brand]) {
+                cardBrandIcon.innerHTML = `<img src="${CardValidator.icons[brand]}" alt="${brand}">`;
+            } else {
+                cardBrandIcon.innerHTML = '';
+            }
+            
+            const cleaned = formatted.replace(/\s/g, '');
+            if (cleaned.length >= 13) {
+                const result = CardValidator.validateNumber(formatted);
+                if (result.valid) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                    cardNumberFeedback.innerHTML = '<span class="form-success"><i class="bi bi-check-circle"></i> Số thẻ hợp lệ</span>';
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                    cardNumberFeedback.innerHTML = `<span class="form-error"><i class="bi bi-x-circle"></i> ${result.error}</span>`;
+                }
+            } else {
+                this.classList.remove('is-valid', 'is-invalid');
+                cardNumberFeedback.innerHTML = '';
+            }
+        });
+    }
+    
+    if (cardExpiryInput) {
+        cardExpiryInput.addEventListener('input', function(e) {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            this.value = value;
+        });
+        
+        cardExpiryInput.addEventListener('blur', function() {
+            const result = CardValidator.validateExpiry(this.value);
+            const errorEl = document.getElementById('card-expiry-error');
+            if (!result.valid && this.value.length > 0) {
+                this.classList.add('is-invalid');
+                errorEl.textContent = result.error;
+            } else {
+                this.classList.remove('is-invalid');
+                errorEl.textContent = '';
+            }
+        });
+    }
+    
+    if (cardCvvInput) {
+        cardCvvInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').substring(0, 4);
+        });
+        
+        cardCvvInput.addEventListener('blur', function() {
+            const brand = CardValidator.detectBrand(cardNumberInput.value);
+            const result = CardValidator.validateCVV(this.value, brand);
+            const errorEl = document.getElementById('card-cvv-error');
+            if (!result.valid && this.value.length > 0) {
+                this.classList.add('is-invalid');
+                errorEl.textContent = result.error;
+            } else {
+                this.classList.remove('is-invalid');
+                errorEl.textContent = '';
+            }
+        });
+    }
+    
+    if (cardHolderInput) {
+        cardHolderInput.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+    }
+    
+    if (cardForm) {
+        cardForm.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            const numberResult = CardValidator.validateNumber(cardNumberInput.value);
+            if (!numberResult.valid) {
+                cardNumberInput.classList.add('is-invalid');
+                cardNumberFeedback.innerHTML = `<span class="form-error"><i class="bi bi-x-circle"></i> ${numberResult.error}</span>`;
+                isValid = false;
+            }
+            
+            const expiryResult = CardValidator.validateExpiry(cardExpiryInput.value);
+            if (!expiryResult.valid) {
+                cardExpiryInput.classList.add('is-invalid');
+                document.getElementById('card-expiry-error').textContent = expiryResult.error;
+                isValid = false;
+            }
+            
+            const brand = CardValidator.detectBrand(cardNumberInput.value);
+            const cvvResult = CardValidator.validateCVV(cardCvvInput.value, brand);
+            if (!cvvResult.valid) {
+                cardCvvInput.classList.add('is-invalid');
+                document.getElementById('card-cvv-error').textContent = cvvResult.error;
+                isValid = false;
+            }
+            
+            if (!cardHolderInput.value.trim()) {
+                cardHolderInput.classList.add('is-invalid');
+                document.getElementById('card-holder-error').textContent = 'Vui lòng nhập tên chủ thẻ';
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    }
+});
 </script>
 {% endblock %}

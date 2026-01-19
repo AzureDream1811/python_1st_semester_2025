@@ -1,0 +1,9 @@
+/* Basic Django Admin Customization */
+#header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+
+#branding h1 a {
+    color: #fff !important;
+    font-weight: 700;
+}

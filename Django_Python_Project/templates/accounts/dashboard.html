@@ -1,382 +1,584 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load humanize %}
 
-{% block title %}Dashboard - ElectroShop{% endblock %}
+{% block title %}Dashboard | ElectroShop{% endblock %}
 
 {% block extra_css %}
 <style>
-    :root {
-        --ink: #0f172a;
-        --muted: #475569;
-        --subtle: #cbd5e1;
-        --accent: #111827;
-        --accent-2: #2563eb;
-        --surface: #ffffff;
-        --surface-muted: #f8fafc;
-        --border: #e5e7eb;
-        --success: #16a34a;
-    }
+:root {
+    --ink: #0f172a;
+    --muted: #475569;
+    --subtle: #cbd5e1;
+    --accent: #1e3a5f;
+    --accent-2: #14b8a6;
+    --surface: #ffffff;
+    --surface-muted: #f8fafc;
+    --border: #e5e7eb;
+    --success: #16a34a;
+    --warning: #f59e0b;
+    --danger: #dc2626;
+}
 
-    body {
-        background: linear-gradient(135deg, #f6f7fb 0%, #eef2f7 50%, #f8fafc 100%);
-    }
+body {
+    background: linear-gradient(135deg, #f6f7fb 0%, #eef2f7 50%, #f8fafc 100%);
+}
 
-    .dashboard-shell {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 1.5rem 1.25rem 2.5rem;
-    }
+.account-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
 
-    .dashboard-header {
-        margin-bottom: 1.5rem;
-    }
+.account-hero {
+    background: radial-gradient(circle at 20% 20%, rgba(37, 99, 235, 0.08), transparent 35%), radial-gradient(circle at 80% 0%, rgba(15, 23, 42, 0.08), transparent 32%), #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.25rem;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+}
 
-    .dashboard-header h1 {
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--ink);
-        margin: 0 0 0.5rem;
-    }
+.hero-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
 
-    .dashboard-header p {
-        color: var(--muted);
-        margin: 0;
-    }
+.hero-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
 
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.25rem;
-        margin-bottom: 2rem;
-    }
+.hero-eyebrow::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--accent);
+}
 
-    .stat-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 18px;
-        padding: 1.5rem;
-        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+.hero-meta h1 {
+    margin: 0;
+    font-size: 2rem;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+}
 
-    .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
-    }
+.hero-meta p {
+    margin: 0;
+    color: var(--muted);
+    max-width: 620px;
+}
 
-    .stat-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        display: grid;
-        place-items: center;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-    }
+.hero-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
 
-    .stat-icon.primary {
-        background: rgba(37, 99, 235, 0.1);
-        color: var(--accent-2);
-    }
+.chip {
+    background: var(--surface-muted);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.9rem;
+    border: 1px solid var(--border);
+}
 
-    .stat-icon.success {
-        background: rgba(22, 163, 74, 0.1);
-        color: var(--success);
-    }
+.hero-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.75rem;
+}
 
-    .stat-icon.warning {
-        background: rgba(234, 179, 8, 0.1);
-        color: #ca8a04;
-    }
+.hero-box {
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 0.85rem;
+    display: grid;
+    gap: 0.35rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--ink);
-        margin: 0;
-    }
+.hero-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(15, 23, 42, 0.12);
+}
 
-    .stat-label {
-        color: var(--muted);
-        font-size: 0.9375rem;
-        margin: 0.25rem 0 0;
-    }
+.hero-box small {
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+}
 
-    .content-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 1.25rem;
-    }
+.hero-box strong {
+    font-size: 1.35rem;
+    color: var(--ink);
+}
 
-    .panel {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 18px;
-        padding: 1.5rem;
-        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
-    }
+.account-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 1.25rem;
+}
 
+.account-nav {
+    position: sticky;
+    top: 96px;
+    align-self: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 0.35rem;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.account-nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.7rem 0.85rem;
+    color: var(--ink);
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.account-nav a:hover {
+    background: var(--surface-muted);
+    transform: translateX(2px);
+}
+
+.account-nav a.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 10px 25px rgba(17, 24, 39, 0.25);
+}
+
+.account-nav a .bi {
+    font-size: 1.05rem;
+}
+
+.account-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.alert-bento {
+    background: linear-gradient(120deg, #fef3c7, #fff8e1);
+    border: 1px solid #fcd34d;
+    border-radius: 16px;
+    padding: 1rem 1.25rem;
+    display: grid;
+    gap: 0.45rem;
+    color: #92400e;
+    box-shadow: 0 12px 32px rgba(250, 204, 21, 0.15);
+}
+
+.alert-bento h4 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+}
+
+.alert-bento ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: #b45309;
+}
+
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0.9rem;
+}
+
+.bento-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1rem;
+    display: grid;
+    gap: 0.35rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.bento-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(15, 23, 42, 0.1);
+}
+
+.bento-card .label {
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.bento-card .value {
+    font-size: 1.8rem;
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.bento-card .meta {
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+.badge-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.badge-dot::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.15);
+}
+
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.panel-header h3 {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.05rem;
+    color: var(--ink);
+}
+
+.table-responsive {
+    width: 100%;
+}
+
+.table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 0.9rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink);
+}
+
+.table thead th {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    background: var(--surface-muted);
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.status-pending { background: #fef3c7; color: #92400e; }
+.status-confirmed { background: #e0f2fe; color: #075985; }
+.status-shipping { background: #dbeafe; color: #1d4ed8; }
+.status-delivered { background: #dcfce7; color: #166534; }
+.status-cancelled { background: #fee2e2; color: #b91c1c; }
+.status-default { background: #e5e7eb; color: #374151; }
+
+.empty-state {
+    padding: 1.6rem;
+    text-align: center;
+    color: var(--muted);
+    display: grid;
+    gap: 0.35rem;
+}
+
+.quick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0.9rem;
+}
+
+.quick-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1rem;
+    display: grid;
+    gap: 0.35rem;
+    text-decoration: none;
+    color: var(--ink);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.quick-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-2);
+    box-shadow: 0 16px 32px rgba(37, 99, 235, 0.12);
+}
+
+.quick-card h4 {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 1rem;
+}
+
+.quick-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+.btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--accent-2);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.btn-ghost .bi {
+    transition: transform 0.2s ease;
+}
+
+.btn-ghost:hover .bi {
+    transform: translateX(4px);
+}
+
+@media (max-width: 1060px) {
+    .account-layout {
+        grid-template-columns: 1fr;
+    }
+    .account-nav {
+        position: relative;
+        top: auto;
+    }
+    .account-hero {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
     .panel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.25rem;
-    }
-
-    .panel-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0;
-        display: flex;
-        align-items: center;
+        flex-direction: column;
+        align-items: flex-start;
         gap: 0.5rem;
     }
-
-    .btn-ghost {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.5rem 0.75rem;
-        color: var(--accent-2);
-        background: transparent;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: background 0.2s ease;
-    }
-
-    .btn-ghost:hover {
-        background: rgba(37, 99, 235, 0.08);
-    }
-
-    .order-list {
-        display: flex;
+    .hero-chips {
         flex-direction: column;
-        gap: 1rem;
+        align-items: flex-start;
     }
+}
 
-    .order-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem;
-        background: var(--surface-muted);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        transition: all 0.2s ease;
-        text-decoration: none;
-        color: inherit;
-    }
-
-    .order-item:hover {
-        border-color: var(--accent-2);
-        transform: translateX(4px);
-    }
-
-    .order-info h4 {
-        margin: 0 0 0.25rem;
-        font-size: 1rem;
-        color: var(--ink);
-    }
-
-    .order-info p {
-        margin: 0;
-        font-size: 0.875rem;
-        color: var(--muted);
-    }
-
-    .order-status {
-        padding: 0.4rem 0.75rem;
-        border-radius: 999px;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-
-    .status-pending {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .status-delivered {
-        background: #d1fae5;
-        color: #065f46;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 2rem;
-        color: var(--muted);
-    }
-
-    .empty-state i {
-        font-size: 3rem;
-        color: var(--subtle);
-        margin-bottom: 0.75rem;
-        display: block;
-    }
-
-    .voucher-item {
-        padding: 1rem;
-        background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(147, 197, 253, 0.05));
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        margin-bottom: 0.75rem;
-    }
-
-    .voucher-code {
-        font-family: 'JetBrains Mono', monospace;
-        font-weight: 700;
-        color: var(--accent-2);
-        font-size: 1.125rem;
-    }
-
-    .voucher-expiry {
-        font-size: 0.875rem;
-        color: var(--muted);
-        margin-top: 0.25rem;
-    }
-
-    @media (max-width: 1024px) {
-        .content-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 640px) {
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-    }
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--accent-2);
+    outline-offset: 3px;
+    box-shadow: none;
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-shell">
-    <div class="dashboard-header">
-        <h1>Dashboard</h1>
-        <p>Xin chào, {{ user.get_full_name|default:user.username }}! Chào mừng trở lại.</p>
-    </div>
-
-    <!-- Stats Grid -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon primary">
-                <i class="bi bi-box-seam"></i>
+<div class="account-shell">
+    <section class="account-hero" aria-label="Tổng quan tài khoản">
+        <div class="hero-meta">
+            <span class="hero-eyebrow">ElectroShop</span>
+            <h1>Dashboard</h1>
+            <p>Quản lý đơn hàng, voucher, danh sách yêu thích, địa chỉ và thẻ thanh toán trong một bảng điều khiển tối giản, rõ ràng.</p>
+            <div class="hero-chips" role="list">
+                <span class="chip" role="listitem">Tổng đơn: {{ total_orders }}</span>
+                <span class="chip" role="listitem">Đang xử lý: {{ pending_orders }}</span>
+                <span class="chip" role="listitem">Địa chỉ: {{ address_count }}</span>
+                <span class="chip" role="listitem">Thẻ: {{ card_count }}</span>
             </div>
-            <h2 class="stat-value">{{ total_orders }}</h2>
-            <p class="stat-label">Tổng đơn hàng</p>
         </div>
-
-        <div class="stat-card">
-            <div class="stat-icon warning">
-                <i class="bi bi-clock"></i>
+        <div class="hero-grid" aria-label="Chỉ số nhanh">
+            <div class="hero-box">
+                <small>Đơn chờ</small>
+                <strong>{{ pending_orders }}</strong>
+                <span class="badge-dot">Chờ xác nhận / giao hàng</span>
             </div>
-            <h2 class="stat-value">{{ pending_orders }}</h2>
-            <p class="stat-label">Đang xử lý</p>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon success">
-                <i class="bi bi-check-circle"></i>
-            </div>
-            <h2 class="stat-value">{{ completed_orders }}</h2>
-            <p class="stat-label">Hoàn thành</p>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon primary">
-                <i class="bi bi-ticket-perforated"></i>
-            </div>
-            <h2 class="stat-value">{{ voucher_count }}</h2>
-            <p class="stat-label">Voucher khả dụng</p>
-        </div>
-    </div>
-
-    <!-- Content Grid -->
-    <div class="content-grid">
-        <!-- Recent Orders -->
-        <div class="panel">
-            <div class="panel-header">
-                <h3 class="panel-title">
-                    <i class="bi bi-clock-history"></i>
-                    Đơn hàng gần đây
-                </h3>
-                <a class="btn-ghost" href="{% url 'orders:list' %}">
-                    Xem tất cả <i class="bi bi-arrow-right"></i>
+            <div class="hero-box">
+                <small>Thông báo</small>
+                <strong><i class="bi bi-bell"></i> Live</strong>
+                <a class="btn-ghost" href="{% url 'notifications:list' %}">
+                    Xem thông báo <i class="bi bi-arrow-up-right"></i>
                 </a>
             </div>
-
-            {% if recent_orders %}
-            <div class="order-list">
-                {% for order in recent_orders %}
-                <a class="order-item" href="{% url 'orders:detail' order.order_number %}">
-                    <div class="order-info">
-                        <h4>Đơn hàng #{{ order.order_number }}</h4>
-                        <p>{{ order.created_at|date:"d/m/Y H:i" }} • {{ order.items.count }} sản phẩm</p>
-                    </div>
-                    <span class="order-status status-{{ order.status }}">
-                        {{ order.get_status_display }}
-                    </span>
-                </a>
-                {% endfor %}
+            <div class="hero-box">
+                <small>Voucher</small>
+                <strong>{{ voucher_count }}</strong>
+                <a class="btn-ghost" href="{% url 'promotions:my_vouchers' %}">Quản lý voucher <i class="bi bi-arrow-up-right"></i></a>
             </div>
-            {% else %}
-            <div class="empty-state">
-                <i class="bi bi-inbox"></i>
-                <p>Chưa có đơn hàng nào</p>
+        </div>
+    </section>
+
+    <div class="account-layout">
+        <aside class="account-nav" aria-label="Điều hướng tài khoản">
+            <nav>
+                <a href="{% url 'accounts:dashboard' %}" class="active" aria-current="page"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                <a href="{% url 'accounts:profile' %}"><i class="bi bi-person"></i> Thông tin cá nhân</a>
+                <a href="{% url 'orders:list' %}"><i class="bi bi-box-seam"></i> Đơn hàng</a>
+                <a href="{% url 'accounts:address_list' %}"><i class="bi bi-geo-alt"></i> Địa chỉ</a>
+                <a href="{% url 'accounts:card_list' %}"><i class="bi bi-credit-card"></i> Thẻ thanh toán</a>
+                <a href="{% url 'products:wishlist' %}"><i class="bi bi-heart"></i> Yêu thích</a>
+                <a href="{% url 'promotions:my_vouchers' %}"><i class="bi bi-ticket-perforated"></i> Voucher</a>
+                <a href="{% url 'payments:transaction_history' %}"><i class="bi bi-receipt"></i> Lịch sử giao dịch</a>
+                <a href="{% url 'notifications:list' %}"><i class="bi bi-bell"></i> Thông báo</a>
+            </nav>
+        </aside>
+
+        <main class="account-main">
+            {% if expiring_vouchers %}
+            <div class="alert-bento" role="status">
+                <h4><i class="bi bi-exclamation-triangle"></i> Voucher sắp hết hạn</h4>
+                <p>Bạn có {{ expiring_vouchers|length }} voucher sẽ hết hạn trong 7 ngày tới:</p>
+                <ul>
+                    {% for uv in expiring_vouchers %}
+                    <li>{{ uv.voucher.code }} - Giảm {{ uv.voucher.discount_value|intcomma }}{% if uv.voucher.discount_type == 'percent' %}%{% else %}₫{% endif %} (HSD: {{ uv.voucher.end_date|date:"d/m/Y" }})</li>
+                    {% endfor %}
+                </ul>
+                <a class="btn-ghost" href="{% url 'promotions:my_vouchers' %}">Xem voucher <i class="bi bi-arrow-up-right"></i></a>
             </div>
             {% endif %}
-        </div>
 
-        <!-- Sidebar -->
-        <div>
-            <!-- Vouchers -->
-            <div class="panel" style="margin-bottom: 1.25rem;">
+            <div class="bento-grid" aria-label="Chỉ số">
+                <div class="bento-card">
+                    <span class="label">Đơn hàng</span>
+                    <span class="value">{{ total_orders }}</span>
+                    <p class="meta">Đang chờ: {{ pending_orders }}</p>
+                </div>
+                <div class="bento-card">
+                    <span class="label">Voucher</span>
+                    <span class="value">{{ voucher_count }}</span>
+                    <p class="meta">Ưu đãi khả dụng</p>
+                </div>
+                <div class="bento-card">
+                    <span class="label">Yêu thích</span>
+                    <span class="value">{{ wishlist_count }}</span>
+                    <p class="meta">Sản phẩm đã lưu</p>
+                </div>
+            </div>
+
+            <section class="panel" aria-label="Đơn hàng gần đây">
                 <div class="panel-header">
-                    <h3 class="panel-title">
-                        <i class="bi bi-ticket-perforated"></i>
-                        Voucher
-                    </h3>
+                    <h3><i class="bi bi-clock-history"></i> Đơn hàng gần đây</h3>
+                    <a class="btn-ghost" href="{% url 'orders:list' %}">Xem tất cả <i class="bi bi-arrow-up-right"></i></a>
                 </div>
-
-                {% if expiring_vouchers %}
-                {% for voucher in expiring_vouchers %}
-                <div class="voucher-item">
-                    <div class="voucher-code">{{ voucher.voucher.code }}</div>
-                    <div class="voucher-expiry">
-                        Hết hạn: {{ voucher.voucher.end_date|date:"d/m/Y" }}
-                    </div>
+                {% if recent_orders %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Ngày đặt</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in recent_orders %}
+                            <tr>
+                                <td><code>#{{ order.order_number }}</code></td>
+                                <td>{{ order.created_at|date:"d/m/Y" }}</td>
+                                <td class="fw-semibold">{{ order.total|intcomma }}₫</td>
+                                <td>
+                                    {% if order.status == 'pending' %}
+                                    <span class="status-badge status-pending">Chờ xác nhận</span>
+                                    {% elif order.status == 'confirmed' %}
+                                    <span class="status-badge status-confirmed">Đã xác nhận</span>
+                                    {% elif order.status == 'shipping' %}
+                                    <span class="status-badge status-shipping">Đang giao</span>
+                                    {% elif order.status == 'delivered' %}
+                                    <span class="status-badge status-delivered">Đã giao</span>
+                                    {% elif order.status == 'cancelled' %}
+                                    <span class="status-badge status-cancelled">Đã hủy</span>
+                                    {% else %}
+                                    <span class="status-badge status-default">{{ order.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a class="btn-ghost" href="{% url 'orders:detail' order_number=order.order_number %}">
+                                        Chi tiết <i class="bi bi-arrow-up-right"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-                {% endfor %}
                 {% else %}
                 <div class="empty-state">
-                    <i class="bi bi-ticket"></i>
-                    <p>Không có voucher</p>
+                    <i class="bi bi-box" style="font-size: 2rem; opacity: 0.4;"></i>
+                    <p>Chưa có đơn hàng nào</p>
                 </div>
                 {% endif %}
-            </div>
+            </section>
 
-            <!-- Quick Actions -->
-            <div class="panel">
-                <h3 class="panel-title" style="margin-bottom: 1rem;">
-                    <i class="bi bi-lightning"></i>
-                    Thao tác nhanh
-                </h3>
-                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                    <a class="btn-ghost" href="{% url 'accounts:profile' %}" style="justify-content: flex-start;">
-                        <i class="bi bi-person"></i> Thông tin cá nhân
-                    </a>
-                    <a class="btn-ghost" href="{% url 'accounts:address_list' %}" style="justify-content: flex-start;">
-                        <i class="bi bi-geo-alt"></i> Sổ địa chỉ
-                    </a>
-                    <a class="btn-ghost" href="{% url 'orders:list' %}" style="justify-content: flex-start;">
-                        <i class="bi bi-box-seam"></i> Đơn hàng
-                    </a>
-                </div>
+            <div class="quick-grid" aria-label="Liên kết nhanh">
+                <a class="quick-card" href="{% url 'accounts:address_list' %}">
+                    <h4><i class="bi bi-geo-alt"></i> Địa chỉ giao hàng</h4>
+                    <p>{{ address_count }} địa chỉ đã lưu</p>
+                    <span class="btn-ghost">Quản lý <i class="bi bi-arrow-right-short"></i></span>
+                </a>
+                <a class="quick-card" href="{% url 'accounts:card_list' %}">
+                    <h4><i class="bi bi-credit-card"></i> Thẻ thanh toán</h4>
+                    <p>{{ card_count }} thẻ đã lưu</p>
+                    <span class="btn-ghost">Quản lý <i class="bi bi-arrow-right-short"></i></span>
+                </a>
             </div>
-        </div>
+        </main>
     </div>
 </div>
 {% endblock %}

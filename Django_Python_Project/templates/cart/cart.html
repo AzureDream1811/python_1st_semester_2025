@@ -5,602 +5,1001 @@
 
 {% block extra_css %}
 <style>
-    .cart-shell {
-        display: flex;
-        flex-direction: column;
-        gap: var(--es-space-3);
-        padding: var(--es-space-1) 0 var(--es-space-4);
-    }
+.cart-page {
+    padding: var(--es-space-4) 0;
+    min-height: 60vh;
+}
 
-    .cart-hero {
-        position: relative;
-        overflow: hidden;
-        border-radius: var(--es-radius-bento-lg);
-        background: linear-gradient(135deg, var(--es-primary) 0%, var(--es-primary-dark) 45%, #0f172a 100%);
-        color: var(--es-white);
-        padding: var(--es-space-4);
-        display: grid;
-        grid-template-columns: 1.3fr 1fr;
-        gap: var(--es-space-3);
-        box-shadow: var(--es-shadow-xl);
-    }
+.cart-header {
+    text-align: center;
+    margin-bottom: var(--es-space-4);
+}
 
-    .cart-hero::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.16), transparent 35%),
-        radial-gradient(circle at 80% 0%, rgba(96, 165, 250, 0.3), transparent 30%),
-        radial-gradient(circle at 60% 90%, rgba(15, 23, 42, 0.2), transparent 45%);
-        pointer-events: none;
-    }
+.cart-header__icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #1e3a5f, #2d5a87);
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.5rem;
+    margin-bottom: var(--es-space-2);
+}
 
-    .cart-hero__content {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        flex-direction: column;
-        gap: var(--es-space-2);
-    }
+.cart-header__title {
+    font-size: 1.75rem;
+    font-weight: var(--es-font-bold);
+    color: var(--es-text-primary);
+    margin-bottom: 4px;
+}
 
-    .cart-breadcrumb {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        border-radius: var(--es-radius-full);
-        background: rgba(255, 255, 255, 0.12);
-        font-size: var(--es-text-sm);
-    }
+.cart-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: var(--es-space-3);
+    align-items: start;
+}
 
-    .cart-breadcrumb a {
-        color: var(--es-white);
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        opacity: 0.9;
-    }
+.cart-items-section {
+    background: var(--es-white);
+    border: 1px solid var(--es-border-light);
+    border-radius: 20px;
+    overflow: hidden;
+}
 
-    .cart-breadcrumb a:hover {
-        opacity: 1;
-    }
+.cart-items-header {
+    padding: var(--es-space-2) var(--es-space-3);
+    border-bottom: 1px solid var(--es-border-light);
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 140px;
+    gap: var(--es-space-2);
+    font-size: var(--es-text-sm);
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
 
-    .cart-hero__title {
-        font-size: clamp(2rem, 2.4vw, 2.7rem);
-        font-weight: var(--es-font-bold);
-        line-height: 1.1;
-    }
+.cart-items-list {
+    display: flex;
+    flex-direction: column;
+}
 
-    .cart-hero__lead {
-        max-width: 620px;
-        font-size: 1.05rem;
-        opacity: 0.92;
-    }
+.cart-item {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 140px;
+    gap: var(--es-space-2);
+    align-items: center;
+    padding: var(--es-space-3);
+    border-bottom: 1px solid var(--es-border-light);
+    transition: background 0.2s ease-out;
+}
 
-    .cart-hero__stats {
-        position: relative;
-        z-index: 1;
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: var(--es-space-2);
-    }
+.cart-item:last-child {
+    border-bottom: none;
+}
 
-    .hero-stat {
-        background: rgba(255, 255, 255, 0.12);
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        border-radius: var(--es-radius-bento);
-        padding: var(--es-space-2);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        box-shadow: var(--es-shadow-sm);
-        transition: transform var(--es-transition-normal), box-shadow var(--es-transition-normal);
-    }
+.cart-item:hover {
+    background: var(--es-bg-secondary);
+}
 
-    .hero-stat:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--es-shadow-md);
-    }
+.cart-item__product {
+    display: flex;
+    gap: var(--es-space-2);
+    align-items: flex-start;
+}
 
-    .hero-stat__label {
-        font-size: var(--es-text-sm);
-        opacity: 0.9;
-    }
+.cart-item__image {
+    width: 90px;
+    height: 90px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--es-bg-secondary);
+    flex-shrink: 0;
+}
 
-    .hero-stat__value {
-        font-size: 1.5rem;
-        font-weight: var(--es-font-bold);
-    }
+.cart-item__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
-    .hero-stat__hint {
-        display: block;
-        margin-top: 6px;
-        font-size: var(--es-text-sm);
-        opacity: 0.85;
-    }
+.cart-item__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--es-text-muted);
+    font-size: 1.5rem;
+}
 
+.cart-item__info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cart-item__name {
+    font-size: var(--es-text-base);
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+    text-decoration: none;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cart-item__name:hover {
+    color: var(--es-primary);
+}
+
+.cart-item__meta {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+}
+
+.cart-item__stock {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--es-text-xs);
+    margin-top: 4px;
+}
+
+.cart-item__stock--in {
+    color: var(--es-success);
+}
+
+.cart-item__stock--out {
+    color: var(--es-danger);
+}
+
+.cart-item__actions {
+    display: flex;
+    gap: var(--es-space-2);
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.cart-item__action {
+    font-size: var(--es-text-xs);
+    color: var(--es-text-muted);
+    text-decoration: underline;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.cart-item__action:hover {
+    color: var(--es-primary);
+}
+
+.cart-item__action--remove:hover {
+    color: var(--es-danger);
+}
+
+.cart-item__price {
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+}
+
+.cart-item__quantity {
+    display: flex;
+    align-items: center;
+}
+
+.quantity-input-group {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--es-border-light);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--es-white);
+}
+
+.quantity-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--es-bg-secondary);
+    border: none;
+    color: var(--es-text-primary);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.quantity-btn:hover {
+    background: #1e3a5f;
+    color: #fff;
+}
+
+.quantity-input {
+    width: 60px;
+    height: 36px;
+    text-align: center;
+    border: none;
+    border-left: 1px solid var(--es-border-light);
+    border-right: 1px solid var(--es-border-light);
+    font-size: var(--es-text-sm);
+    font-weight: var(--es-font-semibold);
+    -moz-appearance: textfield;
+}
+
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.quantity-input:focus {
+    outline: none;
+    background: rgba(20, 184, 166, 0.05);
+}
+
+.cart-item__total {
+    font-size: 1.05rem;
+    font-weight: var(--es-font-bold);
+    color: var(--es-text-primary);
+}
+
+.cart-item__actions-col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cart-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border: 1px solid var(--es-border-light);
+    border-radius: 6px;
+    background: var(--es-white);
+    font-size: var(--es-text-xs);
+    color: var(--es-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.cart-action-btn:hover {
+    border-color: #1e3a5f;
+    color: #1e3a5f;
+}
+
+.cart-action-btn--wishlist:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.cart-action-btn--later:hover {
+    border-color: #f59e0b;
+    color: #f59e0b;
+}
+
+.cart-action-btn--remove {
+    border-color: transparent;
+    color: var(--es-text-muted);
+}
+
+.cart-action-btn--remove:hover {
+    border-color: var(--es-danger);
+    color: var(--es-danger);
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.cart-action-btn--move {
+    background: linear-gradient(135deg, #1e3a5f, #2d5a87);
+    color: #fff;
+    border-color: transparent;
+}
+
+.cart-action-btn--move:hover {
+    background: linear-gradient(135deg, #2d5a87, #1e3a5f);
+}
+
+.saved-later-section {
+    margin-top: var(--es-space-4);
+    background: var(--es-bg-secondary);
+    border: 1px solid var(--es-border-light);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.saved-later-header {
+    padding: var(--es-space-2) var(--es-space-3);
+    background: #fff8e1;
+    border-bottom: 1px solid #ffe082;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.saved-later-header__icon {
+    color: #f59e0b;
+    font-size: 1.25rem;
+}
+
+.saved-later-header__title {
+    font-weight: var(--es-font-semibold);
+    color: #92400e;
+}
+
+.saved-later-header__count {
+    font-size: var(--es-text-sm);
+    color: #b45309;
+}
+
+.saved-later-list {
+    padding: var(--es-space-2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--es-space-2);
+}
+
+.saved-later-item {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    padding: var(--es-space-2);
+    background: var(--es-white);
+    border-radius: 12px;
+}
+
+.saved-later-item__image {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.saved-later-item__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.saved-later-item__info {
+    flex: 1;
+}
+
+.saved-later-item__name {
+    font-weight: var(--es-font-medium);
+    color: var(--es-text-primary);
+    text-decoration: none;
+    font-size: var(--es-text-sm);
+}
+
+.saved-later-item__name:hover {
+    color: var(--es-primary);
+}
+
+.saved-later-item__price {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+    margin-top: 2px;
+}
+
+.saved-later-item__actions {
+    display: flex;
+    gap: 8px;
+}
+
+.cart-footer {
+    padding: var(--es-space-2) var(--es-space-3);
+    border-top: 1px solid var(--es-border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--es-bg-secondary);
+}
+
+.cart-footer__count {
+    font-weight: var(--es-font-semibold);
+}
+
+.cart-footer__subtotal {
+    font-size: 1.1rem;
+    font-weight: var(--es-font-bold);
+}
+
+.cart-summary {
+    position: sticky;
+    top: 100px;
+}
+
+.summary-card {
+    background: var(--es-white);
+    border: 1px solid var(--es-border-light);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.summary-card__header {
+    padding: var(--es-space-2) var(--es-space-3);
+    border-bottom: 1px solid var(--es-border-light);
+    font-weight: var(--es-font-semibold);
+    text-transform: uppercase;
+    font-size: var(--es-text-sm);
+    letter-spacing: 0.5px;
+    color: var(--es-text-muted);
+}
+
+.summary-card__body {
+    padding: var(--es-space-3);
+}
+
+.promo-form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: var(--es-space-3);
+}
+
+.promo-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid var(--es-border-light);
+    border-radius: 8px;
+    font-size: var(--es-text-sm);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.promo-input::placeholder {
+    color: var(--es-text-muted);
+}
+
+.promo-input:focus {
+    outline: none;
+    border-color: var(--es-primary);
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+}
+
+.promo-btn {
+    padding: 12px 20px;
+    background: #1e3a5f;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: var(--es-font-semibold);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.promo-btn:hover {
+    background: #2d5a87;
+}
+
+.summary-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: var(--es-space-2);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--es-text-sm);
+    color: var(--es-text-secondary);
+}
+
+.summary-row--discount {
+    color: var(--es-danger);
+}
+
+.summary-row__value--free {
+    color: var(--es-success);
+    font-weight: var(--es-font-medium);
+}
+
+.summary-divider {
+    border: none;
+    border-top: 1px solid var(--es-border-light);
+    margin: var(--es-space-2) 0;
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1rem;
+    font-weight: var(--es-font-bold);
+    margin-bottom: var(--es-space-2);
+}
+
+.summary-total__value {
+    color: var(--es-primary-dark);
+}
+
+.shipping-notice {
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.1), rgba(13, 148, 136, 0.05));
+    border: 1px solid rgba(20, 184, 166, 0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: var(--es-space-3);
+    text-align: center;
+}
+
+.shipping-notice__text {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-secondary);
+}
+
+.shipping-notice__amount {
+    color: #14b8a6;
+    font-weight: var(--es-font-bold);
+}
+
+.checkout-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #1e3a5f, #2d5a87);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: var(--es-font-semibold);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.checkout-btn:hover {
+    background: linear-gradient(135deg, #2d5a87, #1e3a5f);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(30, 58, 95, 0.3);
+    color: #fff;
+}
+
+.continue-shopping {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: var(--es-space-3);
+    color: var(--es-text-muted);
+    font-size: var(--es-text-sm);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.continue-shopping:hover {
+    color: var(--es-primary);
+}
+
+.cart-empty {
+    text-align: center;
+    padding: var(--es-space-6) var(--es-space-4);
+    background: var(--es-white);
+    border: 1px dashed var(--es-border-dark);
+    border-radius: 20px;
+}
+
+.cart-empty__icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, rgba(30, 58, 95, 0.1), rgba(45, 90, 135, 0.05));
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--es-space-3);
+    color: #1e3a5f;
+    font-size: 2rem;
+}
+
+.cart-empty__title {
+    font-size: 1.25rem;
+    font-weight: var(--es-font-bold);
+    margin-bottom: 8px;
+}
+
+.cart-empty__text {
+    color: var(--es-text-muted);
+    margin-bottom: var(--es-space-3);
+}
+
+.cart-empty__actions {
+    display: flex;
+    gap: var(--es-space-2);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
     .cart-layout {
-        display: grid;
-        grid-template-columns: 1.1fr 0.9fr;
-        gap: var(--es-space-3);
+        grid-template-columns: 1fr;
     }
-
-    .cart-card,
+    
     .cart-summary {
-        background: var(--es-white);
-        border: 1px solid var(--es-border-light);
-        border-radius: var(--es-radius-bento-lg);
-        box-shadow: var(--es-shadow-card);
-        overflow: hidden;
+        position: static;
     }
+}
 
-    .cart-card__header,
-    .cart-summary__header {
-        padding: var(--es-space-2) var(--es-space-3);
-        border-bottom: 1px solid var(--es-border-light);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: var(--es-space-2);
+@media (max-width: 768px) {
+    .cart-items-header {
+        display: none;
     }
-
-    .cart-card__body {
-        padding: var(--es-space-3);
-    }
-
-    .cart-items {
-        display: flex;
-        flex-direction: column;
-        gap: var(--es-space-2);
-    }
-
+    
     .cart-item {
-        position: relative;
-        display: grid;
-        grid-template-columns: auto 1fr auto auto;
+        grid-template-columns: 1fr;
         gap: var(--es-space-2);
-        align-items: center;
-        padding: var(--es-space-2);
-        border: 1px solid var(--es-border-light);
-        border-radius: var(--es-radius-bento);
-        background: var(--es-bg-white);
-        transition: border-color var(--es-transition-normal), box-shadow var(--es-transition-normal);
     }
-
-    .cart-item:hover {
-        border-color: var(--es-primary-200);
-        box-shadow: var(--es-shadow-card-hover);
-    }
-
-    .cart-item__media {
-        width: 96px;
-        height: 96px;
-        border-radius: var(--es-radius-md);
-        overflow: hidden;
-        background: var(--es-bg-secondary);
-        flex-shrink: 0;
-    }
-
-    .cart-item__media img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .cart-item__placeholder {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--es-text-muted);
-        font-size: 1.6rem;
-    }
-
-    .cart-item__info {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .cart-item__name a {
-        color: var(--es-text-primary);
-        font-weight: var(--es-font-semibold);
-        text-decoration: none;
-    }
-
-    .cart-item__name a:hover {
-        color: var(--es-primary);
-    }
-
-    .cart-item__meta {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        color: var(--es-text-muted);
-        font-size: var(--es-text-sm);
-    }
-
+    
     .cart-item__price,
     .cart-item__quantity,
-    .cart-item__subtotal {
+    .cart-item__total {
         display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 4px;
-        min-width: 110px;
+        justify-content: space-between;
+        align-items: center;
     }
-
-    .price-label,
-    .quantity-label,
-    .subtotal-label {
-        font-size: var(--es-text-xs);
+    
+    .cart-item__price::before {
+        content: 'Đơn giá:';
+        font-weight: normal;
         color: var(--es-text-muted);
     }
-
-    .price-value {
-        font-weight: var(--es-font-semibold);
-    }
-
-    .subtotal-value {
-        font-size: 1.05rem;
-        font-weight: var(--es-font-bold);
-        color: var(--es-primary-dark);
-    }
-
-    .quantity-input {
-        display: inline-flex;
-        align-items: center;
-        border: 1px solid var(--es-border-light);
-        border-radius: var(--es-radius-md);
-        overflow: hidden;
-    }
-
-    .qty-btn {
-        width: var(--es-touch-target);
-        height: 40px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--es-bg-secondary);
-        border: none;
-        cursor: pointer;
-        transition: background var(--es-transition-fast);
-    }
-
-    .qty-btn:hover {
-        background: var(--es-gray-200);
-    }
-
-    .quantity-input input {
-        width: 54px;
-        height: 40px;
-        text-align: center;
-        border: none;
-        font-weight: var(--es-font-semibold);
-        background: var(--es-white);
-    }
-
-    .remove-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        width: 32px;
-        height: 32px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--es-bg-white);
-        border: 1px solid var(--es-border-light);
-        border-radius: var(--es-radius-full);
+    
+    .cart-item__quantity::before {
+        content: 'Số lượng:';
+        font-weight: normal;
         color: var(--es-text-muted);
-        cursor: pointer;
-        transition: background var(--es-transition-normal), border-color var(--es-transition-normal), color var(--es-transition-normal);
     }
-
-    .remove-btn:hover {
-        background: var(--es-danger-50);
-        border-color: var(--es-danger);
-        color: var(--es-danger);
+    
+    .cart-item__total::before {
+        content: 'Thành tiền:';
+        font-weight: normal;
+        color: var(--es-text-muted);
     }
-
-    .cart-summary {
-        position: sticky;
-        top: var(--es-space-4);
-        display: flex;
+    
+    .cart-footer {
         flex-direction: column;
         gap: var(--es-space-2);
-    }
-
-    .cart-summary__body {
-        padding: var(--es-space-3);
-        display: flex;
-        flex-direction: column;
-        gap: var(--es-space-2);
-    }
-
-    .summary-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        color: var(--es-text-primary);
-    }
-
-    .summary-row--discount {
-        color: var(--es-danger);
-    }
-
-    .summary-total {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-weight: var(--es-font-bold);
-        font-size: 1.1rem;
-    }
-
-    .summary-divider {
-        margin: 4px 0;
-        border-color: var(--es-border-light);
-    }
-
-    .cart-summary__checkout {
-        width: 100%;
-    }
-
-    .cart-empty {
-        padding: var(--es-space-4);
-        border: 1px dashed var(--es-border-dark);
-        border-radius: var(--es-radius-bento);
-        background: var(--es-bg-secondary);
         text-align: center;
-        display: grid;
-        gap: var(--es-space-2);
     }
+}
 
-    .cart-empty__icon {
-        width: 72px;
-        height: 72px;
-        border-radius: var(--es-radius-full);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--es-primary-100);
-        color: var(--es-primary);
-        margin: 0 auto;
-        font-size: 1.6rem;
+@media (prefers-reduced-motion: reduce) {
+    .cart-item,
+    .checkout-btn,
+    .quantity-select {
+        transition: none;
     }
-
-    @media (max-width: 1024px) {
-        .cart-layout {
-            grid-template-columns: 1fr;
-        }
-
-        .cart-hero {
-            grid-template-columns: 1fr;
-        }
-
-        .cart-hero__stats {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-
-    @media (max-width: 768px) {
-        .cart-hero__stats {
-            grid-template-columns: 1fr;
-        }
-
-        .cart-item {
-            grid-template-columns: 1fr;
-            align-items: flex-start;
-        }
-
-        .cart-item__price,
-        .cart-item__quantity,
-        .cart-item__subtotal {
-            align-items: flex-start;
-        }
-
-        .remove-btn {
-            position: static;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .hero-stat,
-        .cart-item,
-        .remove-btn {
-            transition: none;
-        }
-    }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="cart-shell">
-    <section aria-labelledby="cart-title" class="cart-hero">
-        <div class="cart-hero__content">
-            <div aria-label="Breadcrumb" class="cart-breadcrumb">
-                <a href="{% url 'products:home' %}"><i aria-hidden="true" class="bi bi-house"></i> Trang chủ</a>
-                <span aria-hidden="true">/</span>
-                <span aria-current="page">Giỏ hàng</span>
-            </div>
-            <p class="cart-hero__lead">Kiểm tra sản phẩm, số lượng, giá và tiếp tục thanh toán.</p>
+<div class="cart-page">
+    <div class="cart-header">
+        <div class="cart-header__icon">
+            <i class="bi bi-bag" aria-hidden="true"></i>
         </div>
-        <div aria-label="Tổng quan giỏ" class="cart-hero__stats" role="list">
-            <div class="hero-stat" role="listitem">
-                <span class="hero-stat__label">Số sản phẩm</span>
-                <div class="hero-stat__value">{{ cart.total_items }}</div>
-                <span class="hero-stat__hint">Đã chọn trong giỏ</span>
-            </div>
-            <div class="hero-stat" role="listitem">
-                <span class="hero-stat__label">Tạm tính</span>
-                <div class="hero-stat__value">{{ cart.subtotal|currency }}</div>
-                <span class="hero-stat__hint">Chưa áp dụng giảm</span>
-            </div>
-            <div class="hero-stat" role="listitem">
-                <span class="hero-stat__label">Thanh toán</span>
-                <div class="hero-stat__value">{{ cart.total|currency }}</div>
-                <span class="hero-stat__hint">Miễn phí vận chuyển</span>
-            </div>
-        </div>
-    </section>
-
+        <h1 class="cart-header__title">Giỏ hàng của bạn</h1>
+    </div>
+    
+    {% if items or saved_items %}
     {% if items %}
     <div class="cart-layout">
-        <div class="cart-card">
-            <div class="cart-card__header">
-                <div class="d-flex align-items-center gap-2">
-                    <i aria-hidden="true" class="bi bi-bag"></i>
-                    <span>Danh sách sản phẩm</span>
-                </div>
-                <span class="text-muted">{{ items|length }} sản phẩm</span>
+        <div class="cart-items-section">
+            <div class="cart-items-header">
+                <span>Sản phẩm</span>
+                <span>Đơn giá</span>
+                <span>Số lượng</span>
+                <span>Thành tiền</span>
+                <span>Thao tác</span>
             </div>
-            <div class="cart-card__body">
-                <div aria-label="Sản phẩm trong giỏ" class="cart-items" role="list">
-                    {% for item in items %}
-                    <article aria-label="{{ item.product.name }}" class="cart-item" role="listitem">
-                        <a class="cart-item__media" href="{{ item.product.get_absolute_url }}">
+            
+            <div class="cart-items-list" role="list" aria-label="Sản phẩm trong giỏ">
+                {% for item in items %}
+                <article class="cart-item" role="listitem" data-item-id="{{ item.pk }}">
+                    <div class="cart-item__product">
+                        <a href="{{ item.product.get_absolute_url }}" class="cart-item__image">
                             {% if item.product.image %}
-                            <img alt="{{ item.product.name }}" src="{{ item.product.image.url }}">
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
                             {% else %}
-                            <div class="cart-item__placeholder"><i class="bi bi-image"></i></div>
+                            <div class="cart-item__placeholder">
+                                <i class="bi bi-image" aria-hidden="true"></i>
+                            </div>
                             {% endif %}
                         </a>
-
                         <div class="cart-item__info">
-                            <h3 class="cart-item__name">
-                                <a href="{{ item.product.get_absolute_url }}">{{ item.product.name }}</a>
-                            </h3>
+                            <a href="{{ item.product.get_absolute_url }}" class="cart-item__name">
+                                {{ item.product.name }}
+                            </a>
                             <div class="cart-item__meta">
-                                {% if item.product.brand %}<span>{{ item.product.brand.name }}</span>{% endif %}
-                                {% if item.product.category %}<span>{{ item.product.category.name }}</span>{% endif %}
-                                {% if item.product.in_stock %}
-                                <span class="text-success"><i aria-hidden="true" class="bi bi-check-circle-fill"></i> Còn hàng</span>
-                                {% else %}
-                                <span class="text-danger"><i aria-hidden="true" class="bi bi-x-circle-fill"></i> Hết hàng</span>
-                                {% endif %}
+                                {% if item.product.brand %}{{ item.product.brand.name }}{% endif %}
+                                {% if item.product.category %} - {{ item.product.category.name }}{% endif %}
                             </div>
+                            {% if item.product.is_on_flash_sale %}
+                            <span class="badge bg-danger text-white" style="font-size: 10px; padding: 3px 6px;">
+                                <i class="bi bi-lightning-fill"></i> Flash Sale -{{ item.product.discount_percent }}%
+                            </span>
+                            {% elif item.product.discount_percent > 0 %}
+                            <span class="badge bg-warning text-dark" style="font-size: 10px; padding: 3px 6px;">
+                                <i class="bi bi-tag-fill"></i> Giảm {{ item.product.discount_percent }}%
+                            </span>
+                            {% endif %}
+                            {% if item.product.in_stock %}
+                            <span class="cart-item__stock cart-item__stock--in">
+                                <i class="bi bi-check-circle-fill" aria-hidden="true"></i> Còn hàng
+                            </span>
+                            {% else %}
+                            <span class="cart-item__stock cart-item__stock--out">
+                                <i class="bi bi-x-circle-fill" aria-hidden="true"></i> Hết hàng
+                            </span>
+                            {% endif %}
                         </div>
-
-                        <div class="cart-item__price">
-                            <span class="price-label">Đơn giá</span>
-                            <span class="price-value">{{ item.price|currency }}</span>
-                        </div>
-
-                        <div class="cart-item__quantity">
-                            <span class="quantity-label">Số lượng</span>
-                            <form action="{% url 'cart:update' item.pk %}" class="quantity-form" method="post">
-                                {% csrf_token %}
-                                <div class="quantity-input">
-                                    <button aria-label="Giảm" class="qty-btn" onclick="updateQty(this, -1)"
-                                            type="button">
-                                        <i aria-hidden="true" class="bi bi-dash"></i>
-                                    </button>
-                                    <input max="{{ item.product.stock }}" min="1" name="quantity" type="number"
-                                           value="{{ item.quantity }}">
-                                    <button aria-label="Tăng" class="qty-btn" onclick="updateQty(this, 1)"
-                                            type="button">
-                                        <i aria-hidden="true" class="bi bi-plus"></i>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-
-                        <div class="cart-item__subtotal">
-                            <span class="subtotal-label">Thành tiền</span>
-                            <span class="subtotal-value">{{ item.total_price|currency }}</span>
-                        </div>
-
-                        <form action="{% url 'cart:remove' item.pk %}" method="post">
+                    </div>
+                    
+                    <div class="cart-item__price">
+                        {% if item.product.current_price < item.product.price %}
+                        <span style="text-decoration: line-through; color: #999; font-size: 0.85em; display: block;">{{ item.product.price|currency }}</span>
+                        <span style="color: #e53935; font-weight: bold;">{{ item.price|currency }}</span>
+                        {% else %}
+                        {{ item.price|currency }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="cart-item__quantity">
+                        <form action="{% url 'cart:update' item.pk %}" method="post" class="quantity-form">
                             {% csrf_token %}
-                            <button class="remove-btn" onclick="return confirm('Bạn chắc chắn muốn xóa sản phẩm này?')" title="Xóa sản phẩm"
-                                    type="submit">
-                                <i aria-hidden="true" class="bi bi-trash"></i>
+                            <div class="quantity-input-group">
+                                <button type="button" class="quantity-btn quantity-btn--minus" onclick="changeQuantity(this, -1)" aria-label="Giảm số lượng">
+                                    <i class="bi bi-dash"></i>
+                                </button>
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="0" class="quantity-input" aria-label="Số lượng">
+                                <button type="button" class="quantity-btn quantity-btn--plus" onclick="changeQuantity(this, 1)" aria-label="Tăng số lượng">
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="cart-item__total">
+                        {{ item.total_price|currency }}
+                    </div>
+                    
+                    <div class="cart-item__actions-col">
+                        <form action="{% url 'cart:add_to_wishlist' item.pk %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="cart-action-btn cart-action-btn--wishlist" title="Thêm vào yêu thích">
+                                <i class="bi bi-heart"></i> Yêu thích
                             </button>
                         </form>
-                    </article>
-                    {% endfor %}
+                        <form action="{% url 'cart:save_for_later' item.pk %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="cart-action-btn cart-action-btn--later" title="Thanh toán sau">
+                                <i class="bi bi-clock"></i> Để sau
+                            </button>
+                        </form>
+                        <form action="{% url 'cart:remove' item.pk %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="cart-action-btn cart-action-btn--remove" onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')" title="Xóa">
+                                <i class="bi bi-trash"></i> Xóa
+                            </button>
+                        </form>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            
+            <div class="cart-footer">
+                <span class="cart-footer__count">{{ items|length }} sản phẩm</span>
+                <span class="cart-footer__subtotal">{{ cart.subtotal|currency }}</span>
+            </div>
+        </div>
+        
+        <aside class="cart-summary" aria-label="Tóm tắt đơn hàng">
+            <div class="summary-card">
+                <div class="summary-card__header">
+                    Nhập mã giảm giá
                 </div>
-
-                <div class="d-flex gap-2 mt-3">
-                    <a class="btn btn-outline-primary" href="{% url 'products:product_list' %}">
-                        <i aria-hidden="true" class="bi bi-arrow-left"></i> Tiếp tục mua sắm
+                <div class="summary-card__body">
+                    {% if cart.voucher %}
+                    <div class="applied-voucher mb-3 p-3 border rounded bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-ticket-perforated text-success"></i>
+                                <strong class="text-success">{{ cart.voucher.code }}</strong>
+                                <br>
+                                <small class="text-muted">{{ cart.voucher.name }}</small>
+                            </div>
+                            <form action="{% url 'cart:remove_voucher' %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa mã">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <form class="promo-form" method="post" action="{% url 'cart:detail' %}">
+                        {% csrf_token %}
+                        <input type="text" name="promo_code" class="promo-input {% if voucher_error %}border-danger{% endif %}" placeholder="Mã giảm giá">
+                        <button type="submit" class="promo-btn">Áp dụng</button>
+                    </form>
+                    {% if voucher_error %}
+                    <div class="text-danger small mt-2"><i class="bi bi-exclamation-circle"></i> {{ voucher_error }}</div>
+                    {% endif %}
+                    {% if voucher_success %}
+                    <div class="text-success small mt-2"><i class="bi bi-check-circle"></i> {{ voucher_success }}</div>
+                    {% endif %}
+                    {% endif %}
+                    
+                    <div class="summary-rows">
+                        <div class="summary-row">
+                            <span>Tạm tính ({{ cart.total_items }} sản phẩm)</span>
+                            <span>{{ cart.subtotal|currency }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Phí vận chuyển</span>
+                            <span class="summary-row__value--free">Miễn phí</span>
+                        </div>
+                        {% if cart.discount > 0 %}
+                        <div class="summary-row summary-row--discount">
+                            <span>Giảm giá ({{ cart.voucher.code }})</span>
+                            <span class="text-success">-{{ cart.discount|currency }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <hr class="summary-divider">
+                    
+                    <div class="summary-total">
+                        <span>Tổng thanh toán</span>
+                        <span class="summary-total__value">{{ cart.total|currency }}</span>
+                    </div>
+                    
+                    <div class="shipping-notice">
+                        <p class="shipping-notice__text">
+                            <i class="bi bi-truck" aria-hidden="true"></i>
+                            Miễn phí vận chuyển cho đơn hàng từ <span class="shipping-notice__amount">500.000đ</span>
+                        </p>
+                    </div>
+                    
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'orders:checkout' %}" class="checkout-btn">
+                        <i class="bi bi-lock-fill" aria-hidden="true"></i>
+                        Tiến hành thanh toán
+                    </a>
+                    {% else %}
+                    <a href="{% url 'accounts:login' %}?next={% url 'orders:checkout' %}" class="checkout-btn">
+                        <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
+                        Đăng nhập để thanh toán
+                    </a>
+                    {% endif %}
+                    
+                    <a href="{% url 'products:product_list' %}" class="continue-shopping">
+                        <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                        Tiếp tục mua sắm
                     </a>
                 </div>
             </div>
-        </div>
-
-        <aside aria-label="Tóm tắt đơn hàng" class="cart-summary">
-            <div class="cart-summary__header">
-                <div class="d-flex align-items-center gap-2">
-                    <i aria-hidden="true" class="bi bi-receipt"></i>
-                    <span>Tạm tính đơn hàng</span>
-                </div>
-            </div>
-            <div class="cart-summary__body">
-                <div class="summary-row">
-                    <span>Tạm tính ({{ cart.total_items }} sản phẩm)</span>
-                    <span>{{ cart.subtotal|currency }}</span>
-                </div>
-                <div class="summary-row">
-                    <span>Phí vận chuyển</span>
-                    <span class="text-success">Miễn phí</span>
-                </div>
-                {% if cart.discount > 0 %}
-                <div class="summary-row summary-row--discount">
-                    <span>Giảm giá</span>
-                    <span>-{{ cart.discount|currency }}</span>
-                </div>
-                {% endif %}
-                <hr class="summary-divider">
-                <div class="summary-total">
-                    <span>Tổng thanh toán</span>
-                    <span>{{ cart.total|currency }}</span>
-                </div>
-
-                {% if user.is_authenticated %}
-                <a class="btn btn-primary btn-lg cart-summary__checkout" href="{% url 'orders:checkout' %}">
-                    <i aria-hidden="true" class="bi bi-credit-card"></i> Tiến hành thanh toán
-                </a>
-                {% else %}
-                <a class="btn btn-primary btn-lg cart-summary__checkout"
-                   href="{% url 'accounts:login' %}?next={% url 'orders:checkout' %}">
-                    <i aria-hidden="true" class="bi bi-box-arrow-in-right"></i> Đăng nhập để thanh toán
-                </a>
-                {% endif %}
-            </div>
         </aside>
     </div>
+    {% endif %}
+    
+    {% if saved_items %}
+    <div class="saved-later-section">
+        <div class="saved-later-header">
+            <i class="bi bi-clock-history saved-later-header__icon" aria-hidden="true"></i>
+            <span class="saved-later-header__title">Thanh toán sau</span>
+            <span class="saved-later-header__count">({{ saved_items|length }} sản phẩm)</span>
+        </div>
+        <div class="saved-later-list">
+            {% for item in saved_items %}
+            <div class="saved-later-item">
+                <a href="{{ item.product.get_absolute_url }}" class="saved-later-item__image">
+                    {% if item.product.image %}
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                    {% else %}
+                    <div class="cart-item__placeholder">
+                        <i class="bi bi-image" aria-hidden="true"></i>
+                    </div>
+                    {% endif %}
+                </a>
+                <div class="saved-later-item__info">
+                    <a href="{{ item.product.get_absolute_url }}" class="saved-later-item__name">
+                        {{ item.product.name }}
+                    </a>
+                    <div class="saved-later-item__price">
+                        {{ item.price|currency }} x {{ item.quantity }} = {{ item.total_price|currency }}
+                    </div>
+                </div>
+                <div class="saved-later-item__actions">
+                    <form action="{% url 'cart:move_to_cart' item.pk %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="cart-action-btn cart-action-btn--move" title="Chuyển vào giỏ hàng">
+                            <i class="bi bi-cart-plus"></i> Mua ngay
+                        </button>
+                    </form>
+                    <form action="{% url 'cart:remove' item.pk %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="cart-action-btn cart-action-btn--remove" onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')" title="Xóa">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
     {% else %}
     <div class="cart-empty" role="status">
-        <div class="cart-empty__icon"><i aria-hidden="true" class="bi bi-bag-x"></i></div>
-        <div>
-            <h3>Giỏ hàng trống</h3>
-            <p class="mb-0">Thêm sản phẩm yêu thích và quay lại thanh toán sau.</p>
+        <div class="cart-empty__icon">
+            <i class="bi bi-bag-x" aria-hidden="true"></i>
         </div>
-        <div class="d-flex gap-2 justify-content-center flex-wrap">
-            <a class="btn btn-primary" href="{% url 'products:product_list' %}">
-                <i aria-hidden="true" class="bi bi-grid"></i> Khám phá sản phẩm
+        <h2 class="cart-empty__title">Giỏ hàng trống</h2>
+        <p class="cart-empty__text">Bạn chưa có sản phẩm nào trong giỏ hàng. Hãy khám phá các sản phẩm của chúng tôi!</p>
+        <div class="cart-empty__actions">
+            <a href="{% url 'products:product_list' %}" class="btn btn-primary">
+                <i class="bi bi-grid" aria-hidden="true"></i> Xem sản phẩm
             </a>
-            <a class="btn btn-outline-primary" href="{% url 'promotions:flash_sales' %}">
-                <i aria-hidden="true" class="bi bi-lightning-charge-fill"></i> Xem Flash Sale
+            <a href="{% url 'promotions:flash_sales' %}" class="btn btn-outline-primary">
+                <i class="bi bi-lightning-charge-fill" aria-hidden="true"></i> Flash Sale
             </a>
         </div>
     </div>
     {% endif %}
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-    function updateQty(button, delta) {
-        const input = button.closest('.quantity-input').querySelector('input[name="quantity"]');
-        const form = button.closest('form');
-        const max = parseInt(input.getAttribute('max')) || 999;
-        let val = parseInt(input.value) || 1;
-        val = Math.min(Math.max(val + delta, 1), max);
-        input.value = val;
+function changeQuantity(btn, delta) {
+    const group = btn.closest('.quantity-input-group');
+    const input = group.querySelector('.quantity-input');
+    const form = btn.closest('form');
+    let value = parseInt(input.value) || 1;
+    value = Math.max(0, value + delta);
+    
+    if (value === 0) {
+        if (confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+            input.value = 0;
+            form.submit();
+        }
+    } else {
+        input.value = value;
         form.submit();
     }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.quantity-input').forEach(function(input) {
+        input.addEventListener('change', function() {
+            let value = parseInt(this.value) || 0;
+            if (value < 0) value = 0;
+            
+            if (value === 0) {
+                if (!confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+                    this.value = 1;
+                    return;
+                }
+            }
+            this.value = value;
+            this.closest('form').submit();
+        });
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.closest('form').submit();
+            }
+        });
+    });
+});
 </script>
 {% endblock %}

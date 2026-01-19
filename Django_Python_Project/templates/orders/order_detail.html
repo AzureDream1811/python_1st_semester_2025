@@ -1,490 +1,241 @@
 {% extends 'base.html' %}
 {% load product_tags %}
 
-{% block title %}Chi tiết đơn hàng #{{ order.order_number }} - ElectroShop{% endblock %}
-
-{% block extra_css %}
-<style>
-    /* ==================== ORDER DETAIL - SWISS + BENTO ==================== */
-
-    .order-detail-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem 1.5rem;
-    }
-
-    /* Hero */
-    .order-detail-hero {
-        position: relative;
-        overflow: hidden;
-        background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 50%, #6D28D9 100%);
-        border-radius: 2rem;
-        padding: 2.5rem;
-        color: white;
-        box-shadow: 0 16px 48px rgba(139, 92, 246, 0.2);
-        margin-bottom: 2rem;
-    }
-
-    .order-detail-hero::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background-image:
-            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-        background-size: 24px 24px;
-        opacity: 0.3;
-    }
-
-    .order-detail-hero__content {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .order-detail-hero__title {
-        font-size: clamp(1.5rem, 4vw, 2rem);
-        font-weight: 800;
-        margin: 0 0 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .order-detail-hero__date {
-        font-size: 0.9375rem;
-        opacity: 0.9;
-        margin: 0;
-    }
-
-    .order-detail-hero__badges {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-    }
-
-    .status-badge {
-        padding: 0.75rem 1.5rem;
-        border-radius: 2rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .status-badge::before {
-        content: '';
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: white;
-        display: inline-block;
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    @keyframes pulse {
-        0%, 100% {
-            opacity: 1;
-        }
-        50% {
-            opacity: 0.5;
-        }
-    }
-
-    /* Info Grid */
-    .info-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .info-card {
-        background: white;
-        border: 1px solid #E5E7EB;
-        border-radius: 1.5rem;
-        padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    }
-
-    .info-card__title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #111827;
-        margin: 0 0 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .info-item {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        padding: 1rem 0;
-        border-bottom: 1px solid #F3F4F6;
-    }
-
-    .info-item:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
-
-    .info-item:first-child {
-        padding-top: 0;
-    }
-
-    .info-item__label {
-        font-size: 0.875rem;
-        color: #6B7280;
-        font-weight: 500;
-    }
-
-    .info-item__value {
-        font-size: 1rem;
-        color: #111827;
-        font-weight: 600;
-    }
-
-    /* Items Section */
-    .items-section {
-        background: white;
-        border: 1px solid #E5E7EB;
-        border-radius: 1.5rem;
-        padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        margin-bottom: 1.5rem;
-    }
-
-    .items-section__title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #111827;
-        margin: 0 0 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .items-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .order-item {
-        display: grid;
-        grid-template-columns: 80px 1fr auto auto auto;
-        gap: 1.5rem;
-        align-items: center;
-        padding: 1.25rem;
-        background: #F9FAFB;
-        border-radius: 1rem;
-        transition: all 0.2s ease;
-    }
-
-    .order-item:hover {
-        background: #F3F4F6;
-    }
-
-    .order-item__image {
-        width: 80px;
-        height: 80px;
-        border-radius: 0.75rem;
-        object-fit: cover;
-        background: white;
-    }
-
-    .order-item__name {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #111827;
-        margin: 0;
-    }
-
-    .order-item__quantity,
-    .order-item__price,
-    .order-item__total {
-        font-size: 0.9375rem;
-        font-weight: 600;
-        color: #374151;
-        text-align: right;
-    }
-
-    .order-item__total {
-        font-size: 1.125rem;
-        color: #3B82F6;
-    }
-
-    /* Summary Section */
-    .summary-section {
-        background: white;
-        border: 1px solid #E5E7EB;
-        border-radius: 1.5rem;
-        padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        margin-bottom: 1.5rem;
-    }
-
-    .summary-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .summary-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 1rem;
-    }
-
-    .summary-item__label {
-        color: #6B7280;
-    }
-
-    .summary-item__value {
-        font-weight: 600;
-        color: #111827;
-    }
-
-    .summary-item--discount .summary-item__value {
-        color: #DC2626;
-    }
-
-    .summary-item--total {
-        padding: 1.5rem;
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
-        border-radius: 1rem;
-        margin-top: 1rem;
-    }
-
-    .summary-item--total .summary-item__label {
-        font-size: 1.125rem;
-        font-weight: 700;
-        color: #111827;
-    }
-
-    .summary-item--total .summary-item__value {
-        font-size: 2rem;
-        font-weight: 800;
-        color: #3B82F6;
-    }
-
-    /* Action Buttons */
-    .action-buttons {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-    }
-
-    .btn-back {
-        padding: 1rem 2rem;
-        border-radius: 1rem;
-        font-size: 1rem;
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.75rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: none;
-        cursor: pointer;
-        background: white;
-        color: #374151;
-        border: 1px solid #E5E7EB;
-    }
-
-    .btn-back:hover {
-        background: #F9FAFB;
-        border-color: #D1D5DB;
-        color: #374151;
-        transform: translateX(-4px);
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .order-detail-container {
-            padding: 1.5rem 1rem;
-        }
-
-        .order-detail-hero {
-            padding: 2rem 1.5rem;
-        }
-
-        .order-detail-hero__content {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-
-        .info-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .info-card,
-        .items-section,
-        .summary-section {
-            padding: 1.5rem;
-        }
-
-        .order-item {
-            grid-template-columns: 60px 1fr;
-            gap: 1rem;
-        }
-
-        .order-item__quantity,
-        .order-item__price {
-            display: none;
-        }
-
-        .order-item__total {
-            grid-column: 2;
-            text-align: right;
-        }
-
-        .action-buttons {
-            flex-direction: column;
-        }
-
-        .btn-back {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-</style>
-{% endblock %}
+{% block title %}Đơn hàng {{ order.order_number }} - ElectroShop{% endblock %}
 
 {% block content %}
-<div class="order-detail-container">
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'products:home' %}">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'orders:list' %}">Đơn hàng</a></li>
+        <li class="breadcrumb-item active">#{{ order.order_number }}</li>
+    </ol>
+</nav>
 
-    <!-- Info Grid -->
-    <div class="info-grid">
-        <!-- Shipping Info -->
-        <div class="info-card">
-            <h2 class="info-card__title">
-                <i class="bi bi-truck"></i>
-                Thông tin giao hàng
-            </h2>
-            <div class="info-item">
-                <span class="info-item__label">Họ tên</span>
-                <span class="info-item__value">{{ order.full_name }}</span>
+<!-- Order Header -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h4 class="mb-1">Đơn hàng #{{ order.order_number }}</h4>
+                <p class="text-muted mb-0">
+                    <i class="bi bi-calendar3 me-1"></i>Đặt ngày {{ order.created_at|date:"d/m/Y" }} lúc {{ order.created_at|time:"H:i" }}
+                </p>
             </div>
-            <div class="info-item">
-                <span class="info-item__label">Email</span>
-                <span class="info-item__value">{{ order.email }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-item__label">Số điện thoại</span>
-                <span class="info-item__value">{{ order.phone }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-item__label">Địa chỉ</span>
-                <span class="info-item__value">
-                    {{ order.address }}{% if order.ward %}, {{ order.ward }}{% endif %}, {{ order.district }}, {{ order.city }}
+            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                <span class="order-status {% if order.status == 'completed' or order.status == 'delivered' %}delivered{% elif order.status == 'cancelled' %}cancelled{% elif order.status == 'shipping' %}shipped{% elif order.status == 'processing' %}processing{% else %}pending{% endif %}" style="font-size: 1rem; padding: 0.625rem 1.25rem;">
+                    {% if order.status == 'completed' or order.status == 'delivered' %}
+                    <i class="bi bi-check-circle-fill me-1"></i>
+                    {% elif order.status == 'cancelled' %}
+                    <i class="bi bi-x-circle-fill me-1"></i>
+                    {% elif order.status == 'shipping' %}
+                    <i class="bi bi-truck me-1"></i>
+                    {% elif order.status == 'processing' %}
+                    <i class="bi bi-gear me-1"></i>
+                    {% else %}
+                    <i class="bi bi-clock me-1"></i>
+                    {% endif %}
+                    {{ order.get_status_display }}
                 </span>
-            </div>
-            {% if order.note %}
-            <div class="info-item">
-                <span class="info-item__label">Ghi chú</span>
-                <span class="info-item__value">{{ order.note }}</span>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- Order Info -->
-        <div class="info-card">
-            <h2 class="info-card__title">
-                <i class="bi bi-info-circle"></i>
-                Chi tiết đơn hàng
-            </h2>
-            <div class="info-item">
-                <span class="info-item__label">Mã đơn hàng</span>
-                <span class="info-item__value">#{{ order.order_number }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-item__label">Ngày đặt</span>
-                <span class="info-item__value">{{ order.created_at|date:"d/m/Y H:i" }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-item__label">Trạng thái thanh toán</span>
-                <span class="info-item__value">{{ order.get_payment_status_display }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-item__label">Phương thức thanh toán</span>
-                <span class="info-item__value">{{ order.get_payment_method_display }}</span>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Items Section -->
-    <div class="items-section">
-        <h2 class="items-section__title">
-            <i class="bi bi-box-seam"></i>
-            Sản phẩm đã đặt ({{ order.items.count }})
-        </h2>
-        <div class="items-list">
-            {% for item in order.items.all %}
-            <div class="order-item">
-                {% if item.product.image %}
-                <img src="{{ item.product.image.url }}"
-                     alt="{{ item.product.name }}"
-                     class="order-item__image">
-                {% else %}
-                <div class="order-item__image" style="display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-image" style="color: #D1D5DB; font-size: 2rem;"></i>
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <!-- Order Timeline -->
+        {% if order.status != 'cancelled' %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>Trạng thái đơn hàng</h5>
+            </div>
+            <div class="card-body">
+                <div class="order-timeline">
+                    <div class="timeline-item {% if order.status %}completed{% endif %}">
+                        <div class="fw-semibold">Đơn hàng đã đặt</div>
+                        <small class="text-muted">{{ order.created_at|date:"d/m/Y H:i" }}</small>
+                    </div>
+                    <div class="timeline-item {% if order.status == 'processing' or order.status == 'shipping' or order.status == 'completed' or order.status == 'delivered' %}completed{% elif order.status == 'confirmed' %}active{% endif %}">
+                        <div class="fw-semibold">Đã xác nhận</div>
+                        <small class="text-muted">Đơn hàng đã được xác nhận</small>
+                    </div>
+                    <div class="timeline-item {% if order.status == 'shipping' or order.status == 'completed' or order.status == 'delivered' %}completed{% elif order.status == 'processing' %}active{% endif %}">
+                        <div class="fw-semibold">Đang xử lý</div>
+                        <small class="text-muted">Đang chuẩn bị hàng</small>
+                    </div>
+                    <div class="timeline-item {% if order.status == 'completed' or order.status == 'delivered' %}completed{% elif order.status == 'shipping' %}active{% endif %}">
+                        <div class="fw-semibold">Đang giao hàng</div>
+                        <small class="text-muted">Đơn hàng đang được vận chuyển</small>
+                    </div>
+                    <div class="timeline-item {% if order.status == 'completed' or order.status == 'delivered' %}completed{% endif %}">
+                        <div class="fw-semibold">Hoàn thành</div>
+                        <small class="text-muted">Giao hàng thành công</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Order Items -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-box-seam me-2 text-primary"></i>Sản phẩm đã đặt</h5>
+            </div>
+            <div class="card-body p-0">
+                {% for item in order.items.all %}
+                <div class="d-flex align-items-start p-3 {% if not forloop.last %}border-bottom{% endif %}">
+                    {% if item.product_image %}
+                    <img src="{{ item.product_image }}" width="80" height="80" class="rounded me-3" style="object-fit: contain; background: #f8f9fa;">
+                    {% else %}
+                    <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="bi bi-image text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">
+                            {% if item.product and item.product.is_active %}
+                            <a href="{% url 'products:detail' item.product.slug %}" class="text-decoration-none text-dark">{{ item.product_name }}</a>
+                            {% else %}
+                            {{ item.product_name }}
+                            {% endif %}
+                        </h6>
+                        <small class="text-muted">
+                            {{ item.price|currency }} x {{ item.quantity }}
+                        </small>
+                        {% if order.status == 'completed' or order.status == 'delivered' %}
+                        <div class="mt-2">
+                            <form action="{% url 'orders:rebuy_item' order.order_number item.pk %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-cart-plus me-1"></i>Mua lại
+                                </button>
+                            </form>
+                            {% if item.product and item.product.is_active %}
+                            <a href="{% url 'products:detail' item.product.slug %}#reviews" class="btn btn-sm btn-outline-secondary ms-1">
+                                <i class="bi bi-star me-1"></i>Đánh giá
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <span class="fw-bold text-danger">{{ item.total_price|currency }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Shipping Info -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-geo-alt me-2 text-primary"></i>Thông tin giao hàng</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <h6 class="text-muted mb-2">Người nhận</h6>
+                        <p class="mb-1 fw-semibold">{{ order.full_name }}</p>
+                        <p class="mb-1"><i class="bi bi-telephone me-2 text-muted"></i>{{ order.phone }}</p>
+                        <p class="mb-0"><i class="bi bi-envelope me-2 text-muted"></i>{{ order.email }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted mb-2">Địa chỉ</h6>
+                        <p class="mb-0">
+                            <i class="bi bi-geo-alt me-2 text-muted"></i>
+                            {{ order.address }}{% if order.ward %}, {{ order.ward }}{% endif %}{% if order.district %}, {{ order.district }}{% endif %}{% if order.city %}, {{ order.city }}{% endif %}
+                        </p>
+                    </div>
+                </div>
+                {% if order.note %}
+                <hr>
+                <div>
+                    <h6 class="text-muted mb-2">Ghi chú</h6>
+                    <p class="mb-0 fst-italic">
+                        <i class="bi bi-chat-left-text me-2 text-muted"></i>{{ order.note }}
+                    </p>
                 </div>
                 {% endif %}
-                <h3 class="order-item__name">{{ item.product_name }}</h3>
-                <div class="order-item__quantity">x{{ item.quantity }}</div>
-                <div class="order-item__price">{{ item.price|currency }}</div>
-                <div class="order-item__total">{{ item.get_line_total|currency }}</div>
             </div>
-            {% endfor %}
         </div>
     </div>
-
-    <!-- Summary Section -->
-    <div class="summary-section">
-        <div class="summary-list">
-            <div class="summary-item">
-                <span class="summary-item__label">Tạm tính</span>
-                <span class="summary-item__value">{{ order.subtotal|currency }}</span>
+    
+    <!-- Order Summary Sidebar -->
+    <div class="col-lg-4">
+        <div class="card cart-summary mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-receipt me-2"></i>Tóm tắt đơn hàng</h5>
             </div>
-            <div class="summary-item">
-                <span class="summary-item__label">Phí vận chuyển</span>
-                <span class="summary-item__value">
-                    {% if order.shipping_fee %}
-                    {{ order.shipping_fee|currency }}
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Tạm tính</span>
+                    <span>{{ order.subtotal|currency }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Phí vận chuyển</span>
+                    {% if order.shipping_fee > 0 %}
+                    <span>{{ order.shipping_fee|currency }}</span>
                     {% else %}
-                    Miễn phí
+                    <span class="text-success">Miễn phí</span>
                     {% endif %}
-                </span>
-            </div>
-            {% if order.discount > 0 %}
-            <div class="summary-item summary-item--discount">
-                <span class="summary-item__label">Giảm giá</span>
-                <span class="summary-item__value">-{{ order.discount|currency }}</span>
-            </div>
-            {% endif %}
-            <div class="summary-item summary-item--total">
-                <span class="summary-item__label">Tổng cộng</span>
-                <span class="summary-item__value">{{ order.total|currency }}</span>
+                </div>
+                {% if order.discount > 0 %}
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Giảm giá</span>
+                    <span class="text-success">-{{ order.discount|currency }}</span>
+                </div>
+                {% endif %}
+                <hr>
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="h6 mb-0">Tổng cộng</span>
+                    <span class="order-total">{{ order.total|currency }}</span>
+                </div>
+                
+                <!-- Payment Info -->
+                <div class="bg-light rounded p-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Phương thức</span>
+                        <span class="fw-semibold">{{ order.get_payment_method_display }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Trạng thái</span>
+                        <span class="badge {% if order.payment_status == 'paid' %}bg-success{% else %}bg-warning{% endif %}">
+                            {{ order.get_payment_status_display }}
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-        <a href="{% url 'orders:list' %}" class="btn-back">
-            <i class="bi bi-arrow-left"></i>
-            <span>Quay lại danh sách</span>
-        </a>
+        
+        <!-- Actions -->
+        <div class="d-grid gap-2">
+            {% if order.status == 'shipping' and order.shipment %}
+            <a href="{% url 'shipping:track' order.shipment.tracking_code %}" class="btn btn-info">
+                <i class="bi bi-geo-alt me-2"></i>Theo dõi đơn hàng
+            </a>
+            {% endif %}
+            
+            {% if order.status == 'completed' or order.status == 'delivered' %}
+            <form action="{% url 'orders:rebuy' order.order_number %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-arrow-repeat me-2"></i>Mua lại tất cả
+                </button>
+            </form>
+            {% endif %}
+            
+            {% if order.can_cancel %}
+            <form action="{% url 'orders:cancel' order.order_number %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger w-100" onclick="return confirm('Bạn có chắc muốn hủy đơn hàng này?')">
+                    <i class="bi bi-x-circle me-2"></i>Hủy đơn hàng
+                </button>
+            </form>
+            {% endif %}
+            
+            <a href="{% url 'orders:list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Quay lại danh sách
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}

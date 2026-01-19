@@ -1,51 +1,499 @@
 {% extends 'admin_dashboard/base.html' %}
+{% load humanize vn_currency %}
 
-{% block title %}Thêm Flash Sale{% endblock %}
+{% block title %}{% if object %}Sửa{% else %}Thêm{% endif %} Flash Sale{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-lightning"></i> Thêm Flash Sale</h2>
-    <a class="btn btn-outline-secondary" href="{% url 'admin_dashboard:flash_sale_list' %}">
-        <i class="bi bi-arrow-left"></i> Quay lại
-    </a>
+<div class="page-card">
+    <div class="page-header">
+        <h1><i class="bi bi-lightning"></i> {% if object %}Sửa{% else %}Thêm{% endif %} Flash Sale</h1>
+        <a href="{% url 'admin_dashboard:flash_sale_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
+    </div>
+    
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+        {% for error in form.non_field_errors %}
+        <p class="mb-0">{{ error }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <form method="post" id="flashSaleForm" novalidate>
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Sản phẩm <span class="text-danger">*</span></label>
+                <div class="searchable-select-wrapper">
+                    <input type="text" class="form-control" id="product-search" placeholder="Nhập tên sản phẩm để tìm..." autocomplete="off">
+                    <input type="hidden" name="product" id="id_product" value="{{ form.product.value|default:'' }}">
+                    <div class="searchable-dropdown" id="product-dropdown">
+                        {% for product in form.product.field.queryset %}
+                        <div class="dropdown-item" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}" data-sale-price="{{ product.sale_price|default:'null' }}" data-stock="{{ product.stock }}">
+                            <strong>{{ product.name }}</strong>
+                            <small class="d-block text-muted">{{ product.category.name|default:"-" }} • Tồn: {{ product.stock }} • {{ product.price|vnd }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="invalid-feedback" id="product-error">
+                    {% if form.product.errors %}{% for error in form.product.errors %}{{ error }}{% endfor %}{% endif %}
+                </div>
+                <small class="text-muted">Chỉ hiển thị sản phẩm đang bán và còn hàng</small>
+                <div id="product-info" class="mt-2 p-2 bg-light rounded" style="display: none;">
+                    <small>
+                        <strong>Giá gốc:</strong> <span id="product-price">-</span> |
+                        <strong>Tồn kho:</strong> <span id="product-stock">-</span>
+                    </small>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Giá Flash Sale <span class="text-danger">*</span></label>
+                {{ form.sale_price }}
+                <div class="invalid-feedback" id="sale_price-error">
+                    {% if form.sale_price.errors %}{% for error in form.sale_price.errors %}{{ error }}{% endfor %}{% endif %}
+                </div>
+                <small class="text-muted">Từ 1,000 VNĐ, phải nhỏ hơn giá gốc</small>
+                <div id="discount-info" class="mt-1" style="display: none;">
+                    <span class="badge bg-danger">Giảm <span id="discount-percent">0</span>%</span>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Số lượng giới hạn <span class="text-danger">*</span></label>
+                {{ form.quantity_limit }}
+                <div class="invalid-feedback" id="quantity_limit-error">
+                    {% if form.quantity_limit.errors %}{% for error in form.quantity_limit.errors %}{{ error }}{% endfor %}{% endif %}
+                </div>
+                <small class="text-muted">Tối đa bằng tồn kho hiện tại</small>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Thời gian bắt đầu <span class="text-danger">*</span></label>
+                {{ form.start_time }}
+                <div class="invalid-feedback" id="start_time-error">
+                    {% if form.start_time.errors %}{% for error in form.start_time.errors %}{{ error }}{% endfor %}{% endif %}
+                </div>
+                <small class="text-muted">Khuyến nghị: ít nhất trước 1 giờ</small>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Thời gian kết thúc <span class="text-danger">*</span></label>
+                {{ form.end_time }}
+                <div class="invalid-feedback" id="end_time-error">
+                    {% if form.end_time.errors %}{% for error in form.end_time.errors %}{{ error }}{% endfor %}{% endif %}
+                </div>
+                <small class="text-muted">Phải sau thời gian bắt đầu. Khuyến nghị: 1-24 giờ</small>
+                <div id="duration-info" class="mt-1" style="display: none;">
+                    <span class="badge bg-info">Thời lượng: <span id="duration-hours">0</span> giờ</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-check mb-3">
+            {{ form.is_active }}
+            <label class="form-check-label">Kích hoạt</label>
+            <div class="invalid-feedback" id="is_active-error">
+                {% if form.is_active.errors %}{% for error in form.is_active.errors %}{{ error }}{% endfor %}{% endif %}
+            </div>
+            <small class="d-block text-muted">Flash Sale sẽ tự động active trong khoảng thời gian đã chọn</small>
+        </div>
+        
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            <strong>Lưu ý:</strong>
+            <ul class="mb-0 mt-2">
+                <li>Giá Flash Sale phải thấp hơn giá gốc và giá khuyến mãi (nếu có)</li>
+                <li>Số lượng không được vượt quá tồn kho hiện tại</li>
+                <li>Sản phẩm không được có Flash Sale khác trong cùng khoảng thời gian</li>
+                <li>Flash Sale nên diễn ra từ 1-24 giờ để tạo sự urgency</li>
+            </ul>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+            <i class="bi bi-lightning"></i> {% if object %}Cập nhật{% else %}Tạo{% endif %} Flash Sale
+        </button>
+        <a href="{% url 'admin_dashboard:flash_sale_list' %}" class="btn btn-outline-secondary ms-2">
+            <i class="bi bi-x-lg"></i> Hủy
+        </a>
+    </form>
 </div>
 
-<div class="card">
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label class="form-label">Sản phẩm *</label>
-                {{ form.product }}
-            </div>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Giá Flash Sale *</label>
-                    {{ form.sale_price }}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Số lượng giới hạn *</label>
-                    {{ form.quantity_limit }}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Bắt đầu *</label>
-                    {{ form.start_time }}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Kết thúc *</label>
-                    {{ form.end_time }}
-                </div>
-            </div>
-            <div class="form-check mb-3">
-                {{ form.is_active }}
-                <label class="form-check-label">Kích hoạt</label>
-            </div>
-            <button class="btn btn-primary" type="submit">
-                <i class="bi bi-check-lg"></i> Tạo Flash Sale
-            </button>
-        </form>
-    </div>
-</div>
+<style>
+.form-control.is-invalid, .form-select.is-invalid {
+    border-color: #dc3545;
+}
+.form-control.is-valid, .form-select.is-valid {
+    border-color: #198754;
+}
+.invalid-feedback {
+    display: none;
+    color: #dc3545;
+    font-size: 0.875em;
+}
+.invalid-feedback.d-block {
+    display: block;
+}
+.searchable-select-wrapper {
+    position: relative;
+}
+.searchable-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    z-index: 1000;
+    display: none;
+}
+.searchable-dropdown.show {
+    display: block;
+}
+.searchable-dropdown .dropdown-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+.searchable-dropdown .dropdown-item:hover,
+.searchable-dropdown .dropdown-item.active {
+    background: #e9ecef;
+}
+.searchable-dropdown .dropdown-item:last-child {
+    border-bottom: none;
+}
+.searchable-dropdown .no-results {
+    padding: 1rem;
+    text-align: center;
+    color: #6c757d;
+}
+#product-search.selected {
+    background-color: #f8f9fa;
+    border-color: #198754;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('flashSaleForm');
+    const productHiddenInput = document.getElementById('id_product');
+    const productSearchInput = document.getElementById('product-search');
+    const productDropdown = document.getElementById('product-dropdown');
+    const salePriceInput = document.getElementById('id_sale_price');
+    const quantityInput = document.getElementById('id_quantity_limit');
+    const startTimeInput = document.getElementById('id_start_time');
+    const endTimeInput = document.getElementById('id_end_time');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    const productInfo = document.getElementById('product-info');
+    const productPriceSpan = document.getElementById('product-price');
+    const productStockSpan = document.getElementById('product-stock');
+    const discountInfo = document.getElementById('discount-info');
+    const discountPercentSpan = document.getElementById('discount-percent');
+    const durationInfo = document.getElementById('duration-info');
+    const durationHoursSpan = document.getElementById('duration-hours');
+    
+    let productData = {};
+    const errors = {};
+    const dropdownItems = productDropdown.querySelectorAll('.dropdown-item');
+    
+    {% for product in form.product.field.queryset %}
+    productData[{{ product.id }}] = {
+        name: "{{ product.name|escapejs }}",
+        price: {{ product.price }},
+        salePrice: {{ product.sale_price|default:"null" }},
+        stock: {{ product.stock }}
+    };
+    {% endfor %}
+    
+    if (productHiddenInput.value && productData[productHiddenInput.value]) {
+        productSearchInput.value = productData[productHiddenInput.value].name;
+        productSearchInput.classList.add('selected');
+        updateProductInfo();
+    }
+    
+    productSearchInput.addEventListener('focus', function() {
+        productDropdown.classList.add('show');
+        filterProducts('');
+    });
+    
+    productSearchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        filterProducts(query);
+        productDropdown.classList.add('show');
+        productHiddenInput.value = '';
+        productSearchInput.classList.remove('selected');
+        productInfo.style.display = 'none';
+    });
+    
+    function filterProducts(query) {
+        let hasResults = false;
+        dropdownItems.forEach(item => {
+            const name = item.dataset.name.toLowerCase();
+            if (name.includes(query)) {
+                item.style.display = 'block';
+                hasResults = true;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        const noResults = productDropdown.querySelector('.no-results');
+        if (noResults) noResults.remove();
+        
+        if (!hasResults) {
+            const noResultsDiv = document.createElement('div');
+            noResultsDiv.className = 'no-results';
+            noResultsDiv.textContent = 'Không tìm thấy sản phẩm';
+            productDropdown.appendChild(noResultsDiv);
+        }
+    }
+    
+    dropdownItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const name = this.dataset.name;
+            productHiddenInput.value = id;
+            productSearchInput.value = name;
+            productSearchInput.classList.add('selected');
+            productDropdown.classList.remove('show');
+            updateProductInfo();
+            clearError('product');
+        });
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.searchable-select-wrapper')) {
+            productDropdown.classList.remove('show');
+        }
+    });
+    
+    function showError(fieldId, message) {
+        const input = document.getElementById('id_' + fieldId);
+        const errorDiv = document.getElementById(fieldId + '-error');
+        if (input && errorDiv) {
+            input.classList.add('is-invalid');
+            input.classList.remove('is-valid');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('d-block');
+            errors[fieldId] = true;
+        }
+        updateSubmitButton();
+    }
+    
+    function clearError(fieldId) {
+        const input = document.getElementById('id_' + fieldId);
+        const errorDiv = document.getElementById(fieldId + '-error');
+        if (input && errorDiv) {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+            errorDiv.textContent = '';
+            errorDiv.classList.remove('d-block');
+            delete errors[fieldId];
+        }
+        updateSubmitButton();
+    }
+    
+    function updateSubmitButton() {
+        submitBtn.disabled = Object.keys(errors).length > 0;
+    }
+    
+    function formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+    
+    function formatVND(num) {
+        return formatNumber(num) + '₫';
+    }
+    
+    function updateProductInfo() {
+        const productId = productHiddenInput.value;
+        if (productId && productData[productId]) {
+            const data = productData[productId];
+            productPriceSpan.textContent = formatVND(data.price);
+            productStockSpan.textContent = data.stock;
+            productInfo.style.display = 'block';
+            
+            quantityInput.max = data.stock;
+            
+            updateDiscountInfo();
+        } else {
+            productInfo.style.display = 'none';
+        }
+    }
+    
+    function updateDiscountInfo() {
+        const productId = productHiddenInput.value;
+        const salePrice = parseFloat(salePriceInput.value);
+        
+        if (productId && productData[productId] && salePrice > 0) {
+            const originalPrice = productData[productId].price;
+            const discount = ((originalPrice - salePrice) / originalPrice) * 100;
+            discountPercentSpan.textContent = discount.toFixed(0);
+            discountInfo.style.display = 'block';
+        } else {
+            discountInfo.style.display = 'none';
+        }
+    }
+    
+    function updateDurationInfo() {
+        const startTime = new Date(startTimeInput.value);
+        const endTime = new Date(endTimeInput.value);
+        
+        if (startTime && endTime && endTime > startTime) {
+            const hours = (endTime - startTime) / (1000 * 60 * 60);
+            durationHoursSpan.textContent = hours.toFixed(1);
+            durationInfo.style.display = 'block';
+        } else {
+            durationInfo.style.display = 'none';
+        }
+    }
+    
+    function validateProduct() {
+        if (!productHiddenInput.value) {
+            showError('product', 'Vui lòng chọn sản phẩm.');
+            productSearchInput.classList.add('is-invalid');
+            return false;
+        }
+        productSearchInput.classList.remove('is-invalid');
+        clearError('product');
+        return true;
+    }
+    
+    function validateSalePrice() {
+        const salePrice = parseFloat(salePriceInput.value);
+        const productId = productHiddenInput.value;
+        
+        if (!salePrice || salePrice < 1000) {
+            showError('sale_price', 'Giá Flash Sale phải từ 1,000 VNĐ trở lên.');
+            return false;
+        }
+        
+        if (productId && productData[productId]) {
+            const data = productData[productId];
+            if (salePrice >= data.price) {
+                showError('sale_price', `Giá Flash Sale phải nhỏ hơn giá gốc (${formatVND(data.price)}).`);
+                return false;
+            }
+            
+            if (data.salePrice && salePrice >= data.salePrice) {
+                showError('sale_price', `Giá Flash Sale phải nhỏ hơn giá khuyến mãi hiện tại (${formatVND(data.salePrice)}).`);
+                return false;
+            }
+            
+            const discount = ((data.price - salePrice) / data.price) * 100;
+            if (discount < 10) {
+                showError('sale_price', `Cảnh báo: Giảm giá chỉ ${discount.toFixed(0)}% có thể không hấp dẫn.`);
+                return false;
+            }
+            if (discount > 80) {
+                showError('sale_price', `Cảnh báo: Giảm giá ${discount.toFixed(0)}% (>80%). Vui lòng kiểm tra lại.`);
+                return false;
+            }
+        }
+        
+        clearError('sale_price');
+        return true;
+    }
+    
+    function validateQuantity() {
+        const quantity = parseInt(quantityInput.value);
+        const productId = productHiddenInput.value;
+        
+        if (!quantity || quantity < 1) {
+            showError('quantity_limit', 'Số lượng giới hạn phải ít nhất là 1.');
+            return false;
+        }
+        
+        if (productId && productData[productId]) {
+            const stock = productData[productId].stock;
+            if (quantity > stock) {
+                showError('quantity_limit', `Số lượng vượt quá tồn kho hiện tại (${stock}).`);
+                return false;
+            }
+            if (quantity > stock * 0.8) {
+                showError('quantity_limit', `Cảnh báo: Đang dùng >80% tồn kho (${stock}) cho Flash Sale.`);
+                return false;
+            }
+        }
+        
+        clearError('quantity_limit');
+        return true;
+    }
+    
+    function validateTime() {
+        const startTime = new Date(startTimeInput.value);
+        const endTime = new Date(endTimeInput.value);
+        
+        if (!startTimeInput.value) {
+            showError('start_time', 'Thời gian bắt đầu không được để trống.');
+            return false;
+        }
+        clearError('start_time');
+        
+        if (!endTimeInput.value) {
+            showError('end_time', 'Thời gian kết thúc không được để trống.');
+            return false;
+        }
+        
+        if (endTime <= startTime) {
+            showError('end_time', 'Thời gian kết thúc phải sau thời gian bắt đầu.');
+            return false;
+        }
+        
+        const hours = (endTime - startTime) / (1000 * 60 * 60);
+        if (hours < 1) {
+            showError('end_time', 'Flash Sale phải diễn ra ít nhất 1 giờ.');
+            return false;
+        }
+        if (hours > 168) {
+            showError('end_time', `Cảnh báo: Flash Sale quá dài (${hours.toFixed(0)} giờ > 7 ngày).`);
+            return false;
+        }
+        
+        clearError('end_time');
+        return true;
+    }
+    
+    salePriceInput.addEventListener('input', updateDiscountInfo);
+    salePriceInput.addEventListener('blur', validateSalePrice);
+    
+    quantityInput.addEventListener('blur', validateQuantity);
+    
+    startTimeInput.addEventListener('change', function() {
+        updateDurationInfo();
+        validateTime();
+    });
+    
+    endTimeInput.addEventListener('change', function() {
+        updateDurationInfo();
+        validateTime();
+    });
+    
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        isValid = validateProduct() && isValid;
+        isValid = validateSalePrice() && isValid;
+        isValid = validateQuantity() && isValid;
+        isValid = validateTime() && isValid;
+        
+        if (!isValid) {
+            e.preventDefault();
+            const firstError = document.querySelector('.is-invalid');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        }
+    });
+    
+    updateProductInfo();
+});
+</script>
 {% endblock %}

@@ -1,296 +1,389 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load humanize %}
 
-{% block title %}Sổ địa chỉ - ElectroShop{% endblock %}
+{% block title %}Địa chỉ của tôi - ElectroShop{% endblock %}
 
 {% block extra_css %}
 <style>
-    :root {
-        --ink: #0f172a;
-        --muted: #475569;
-        --border: #e5e7eb;
-        --surface: #ffffff;
-        --surface-muted: #f8fafc;
-        --accent: #2563eb;
-    }
+.addresses-page {
+    padding: var(--es-space-4) 0;
+}
 
-    body {
-        background: linear-gradient(135deg, #f6f7fb 0%, #eef2f7 50%, #f8fafc 100%);
-    }
+.page-hero {
+    background: linear-gradient(135deg, var(--es-primary) 0%, var(--es-primary-dark) 100%);
+    border-radius: var(--es-radius-bento);
+    padding: var(--es-space-4);
+    margin-bottom: var(--es-space-4);
+    color: var(--es-white);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--es-space-2);
+}
 
-    .addresses-shell {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 1.5rem 1.25rem 2.5rem;
-    }
+.hero-content h1 {
+    font-size: var(--es-text-2xl);
+    font-weight: var(--es-font-bold);
+    margin: 0 0 var(--es-space-1) 0;
+}
 
-    .breadcrumb {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        color: var(--muted);
-        font-size: 0.875rem;
-    }
+.hero-content p {
+    margin: 0;
+    opacity: 0.9;
+}
 
-    .breadcrumb a {
-        color: var(--accent);
-        text-decoration: none;
-        transition: color 0.2s ease;
-    }
+.hero-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 6px 12px;
+    border-radius: var(--es-radius-full);
+    font-size: var(--es-text-sm);
+    margin-top: var(--es-space-1);
+    display: inline-block;
+}
 
-    .breadcrumb a:hover {
-        color: var(--ink);
-    }
+.btn-hero {
+    background: var(--es-white);
+    color: var(--es-primary);
+    padding: 12px 24px;
+    border-radius: var(--es-radius-md);
+    font-weight: var(--es-font-semibold);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--es-transition-fast);
+}
 
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
+.btn-hero:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
 
-    .page-header h1 {
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--ink);
-        margin: 0;
-    }
+.page-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: var(--es-space-3);
+}
 
-    .btn-primary {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1.25rem;
-        background: var(--accent);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
-    }
+.sidebar {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
 
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.3);
-        color: white;
-    }
+.sidebar-card {
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    box-shadow: var(--es-shadow-card);
+    padding: var(--es-space-2);
+}
 
-    .addresses-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 1.25rem;
-    }
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
 
-    .address-card {
-        background: var(--surface);
-        border: 2px solid var(--border);
-        border-radius: 18px;
-        padding: 1.5rem;
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    padding: 12px 16px;
+    border-radius: var(--es-radius-md);
+    color: var(--es-text-secondary);
+    text-decoration: none;
+    font-weight: var(--es-font-medium);
+    transition: all var(--es-transition-fast);
+}
+
+.sidebar-link:hover {
+    background: var(--es-bg-secondary);
+    color: var(--es-text-primary);
+}
+
+.sidebar-link.active {
+    background: var(--es-primary);
+    color: var(--es-white);
+}
+
+.sidebar-link--logout {
+    color: var(--es-danger);
+    margin-top: var(--es-space-1);
+    border-top: 1px solid var(--es-border-light);
+    padding-top: var(--es-space-2);
+}
+
+.sidebar-link--logout:hover {
+    background: #fee2e2;
+    color: var(--es-danger);
+}
+
+.main-content {
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    box-shadow: var(--es-shadow-card);
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--es-space-3);
+    border-bottom: 1px solid var(--es-border-light);
+}
+
+.content-title {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    font-size: var(--es-text-lg);
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+    margin: 0;
+}
+
+.content-title i {
+    color: var(--es-primary);
+}
+
+.content-body {
+    padding: var(--es-space-3);
+}
+
+.address-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--es-space-3);
+}
+
+.address-card {
+    border: 1px solid var(--es-border-light);
+    border-radius: var(--es-radius-bento);
+    padding: var(--es-space-3);
+    position: relative;
+    transition: all var(--es-transition-fast);
+}
+
+.address-card:hover {
+    border-color: var(--es-primary);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+.address-card--default {
+    border-color: var(--es-primary);
+    background: var(--es-primary-100);
+}
+
+.address-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--es-primary);
+    color: var(--es-white);
+    padding: 4px 12px;
+    border-radius: var(--es-radius-full);
+    font-size: var(--es-text-xs);
+    font-weight: var(--es-font-semibold);
+}
+
+.address-name {
+    font-size: var(--es-text-lg);
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+    margin-bottom: var(--es-space-1);
+}
+
+.address-phone {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+    margin-bottom: var(--es-space-1);
+}
+
+.address-text {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-secondary);
+    line-height: 1.5;
+    margin-bottom: var(--es-space-2);
+}
+
+.address-actions {
+    display: flex;
+    gap: var(--es-space-1);
+    flex-wrap: wrap;
+    padding-top: var(--es-space-2);
+    border-top: 1px dashed var(--es-border-light);
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px;
+    border-radius: var(--es-radius-md);
+    font-size: var(--es-text-sm);
+    font-weight: var(--es-font-medium);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all var(--es-transition-fast);
+}
+
+.btn-action--primary {
+    background: var(--es-primary);
+    color: var(--es-white);
+}
+
+.btn-action--primary:hover {
+    background: var(--es-primary-dark);
+}
+
+.btn-action--secondary {
+    background: var(--es-bg-secondary);
+    color: var(--es-text-primary);
+}
+
+.btn-action--secondary:hover {
+    background: var(--es-gray-200);
+}
+
+.btn-action--danger {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.btn-action--danger:hover {
+    background: #fecaca;
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--es-space-6);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: var(--es-text-muted);
+    opacity: 0.3;
+    margin-bottom: var(--es-space-2);
+}
+
+.empty-state p {
+    color: var(--es-text-muted);
+    margin-bottom: var(--es-space-2);
+}
+
+@media (max-width: 992px) {
+    .page-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar {
         position: relative;
-        transition: all 0.2s ease;
-        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+        top: auto;
     }
-
-    .address-card:hover {
-        border-color: var(--accent);
-        transform: translateY(-4px);
-        box-shadow: 0 16px 32px rgba(15, 23, 42, 0.1);
+    
+    .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
     }
-
-    .address-card.default {
-        border-color: var(--accent);
-        background: linear-gradient(135deg, rgba(37, 99, 235, 0.02), transparent);
+    
+    .sidebar-link {
+        flex: 0 0 auto;
+        padding: 8px 12px;
     }
-
-    .default-badge {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        padding: 0.35rem 0.75rem;
-        background: var(--accent);
-        color: white;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
+    
+    .sidebar-link--logout {
+        margin-top: 0;
+        border-top: none;
+        padding-top: 8px;
     }
+}
 
-    .address-name {
-        font-size: 1.125rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0 0 0.5rem;
-    }
-
-    .address-phone {
-        color: var(--muted);
-        font-size: 0.9375rem;
-        margin: 0 0 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-    }
-
-    .address-details {
-        color: var(--muted);
-        line-height: 1.6;
-        margin: 0 0 1.25rem;
-    }
-
-    .address-actions {
-        display: flex;
-        gap: 0.5rem;
-        padding-top: 1rem;
-        border-top: 1px solid var(--border);
-    }
-
-    .btn-action {
-        flex: 1;
-        padding: 0.65rem;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        background: var(--surface-muted);
-        color: var(--ink);
-        font-weight: 600;
-        font-size: 0.875rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.35rem;
-    }
-
-    .btn-action:hover {
-        background: var(--accent);
-        color: white;
-        border-color: var(--accent);
-    }
-
-    .btn-action.danger:hover {
-        background: #dc2626;
-        border-color: #dc2626;
-    }
-
-    .empty-state {
-        grid-column: 1 / -1;
+@media (max-width: 768px) {
+    .page-hero {
+        flex-direction: column;
         text-align: center;
-        padding: 4rem 2rem;
-        background: var(--surface);
-        border: 2px dashed var(--border);
-        border-radius: 18px;
     }
-
-    .empty-state i {
-        font-size: 4rem;
-        color: var(--border);
-        margin-bottom: 1rem;
-        display: block;
-    }
-
-    .empty-state h3 {
-        color: var(--ink);
-        margin: 0 0 0.5rem;
-    }
-
-    .empty-state p {
-        color: var(--muted);
-        margin: 0 0 1.5rem;
-    }
-
-    @media (max-width: 768px) {
-        .addresses-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-
-        .btn-primary {
-            width: 100%;
-            justify-content: center;
-        }
-    }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="addresses-shell">
-    <!-- Breadcrumb -->
-    <nav class="breadcrumb">
-        <a href="{% url 'accounts:profile' %}">
-            <i class="bi bi-person-circle"></i> Tài khoản
+<div class="container addresses-page">
+    <!-- Hero -->
+    <section class="page-hero">
+        <div class="hero-content">
+            <h1><i class="bi bi-geo-alt me-2"></i>Địa chỉ giao hàng</h1>
+            <p>Quản lý địa chỉ nhận hàng và chọn địa chỉ mặc định</p>
+            <span class="hero-badge">{{ addresses|length }} địa chỉ đã lưu</span>
+        </div>
+        <a href="{% url 'accounts:address_create' %}" class="btn-hero">
+            <i class="bi bi-plus-lg"></i> Thêm địa chỉ mới
         </a>
-        <i class="bi bi-chevron-right"></i>
-        <span>Sổ địa chỉ</span>
-    </nav>
+    </section>
 
-    <div class="page-header">
-        <h1><i class="bi bi-geo-alt"></i> Sổ địa chỉ</h1>
-        <a class="btn-primary" href="{% url 'accounts:address_create' %}">
-            <i class="bi bi-plus-lg"></i>
-            <span>Thêm địa chỉ mới</span>
-        </a>
-    </div>
-
-    <div class="addresses-grid">
-        {% if addresses %}
-        {% for address in addresses %}
-        <div class="address-card {% if address.is_default %}default{% endif %}">
-            {% if address.is_default %}
-            <span class="default-badge">Mặc định</span>
-            {% endif %}
-
-            <h3 class="address-name">{{ address.full_name }}</h3>
-            <p class="address-phone">
-                <i class="bi bi-telephone"></i> {{ address.phone }}
-            </p>
-            <p class="address-details">
-                {{ address.address }}<br>
-                {% if address.ward %}{{ address.ward }}, {% endif %}{{ address.district }}<br>
-                {{ address.province }}
-            </p>
-
-            <div class="address-actions">
-                {% if not address.is_default %}
-                <form action="{% url 'accounts:address_set_default' address.id %}" method="post" style="flex: 1;">
-                    {% csrf_token %}
-                    <button class="btn-action" style="width: 100%;" type="submit">
-                        <i class="bi bi-star"></i> Mặc định
-                    </button>
-                </form>
-                {% endif %}
-                <a class="btn-action" href="{% url 'accounts:address_edit' address.id %}">
-                    <i class="bi bi-pencil"></i> Sửa
-                </a>
-                <form action="{% url 'accounts:address_delete' address.id %}" method="post"
-                      onsubmit="return confirm('Bạn chắc chắn muốn xóa địa chỉ này?');" style="flex: 1;">
-                    {% csrf_token %}
-                    <button class="btn-action danger" style="width: 100%;" type="submit">
-                        <i class="bi bi-trash"></i> Xóa
-                    </button>
-                </form>
+    <div class="page-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <nav class="sidebar-nav">
+                    <a href="{% url 'accounts:profile' %}" class="sidebar-link"><i class="bi bi-person"></i> Thông tin cá nhân</a>
+                    <a href="{% url 'orders:list' %}" class="sidebar-link"><i class="bi bi-box-seam"></i> Đơn hàng</a>
+                    <a href="{% url 'accounts:address_list' %}" class="sidebar-link active"><i class="bi bi-geo-alt"></i> Địa chỉ</a>
+                    <a href="{% url 'accounts:card_list' %}" class="sidebar-link"><i class="bi bi-credit-card"></i> Thẻ thanh toán</a>
+                    <a href="{% url 'accounts:logout' %}" class="sidebar-link sidebar-link--logout"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
+                </nav>
             </div>
-        </div>
-        {% endfor %}
-        {% else %}
-        <div class="empty-state">
-            <i class="bi bi-geo-alt"></i>
-            <h3>Chưa có địa chỉ nào</h3>
-            <p>Thêm địa chỉ giao hàng để đặt hàng nhanh hơn</p>
-            <a class="btn-primary" href="{% url 'accounts:address_create' %}">
-                <i class="bi bi-plus-lg"></i>
-                <span>Thêm địa chỉ đầu tiên</span>
-            </a>
-        </div>
-        {% endif %}
+        </aside>
+
+        <!-- Main -->
+        <main class="main-content">
+            <div class="content-header">
+                <h2 class="content-title"><i class="bi bi-geo-alt"></i> Sổ địa chỉ</h2>
+                <a href="{% url 'accounts:address_create' %}" class="btn-action btn-action--primary"><i class="bi bi-plus-lg"></i> Thêm mới</a>
+            </div>
+            <div class="content-body">
+                {% if addresses %}
+                <div class="address-grid">
+                    {% for address in addresses %}
+                    <div class="address-card {% if address.is_default %}address-card--default{% endif %}">
+                        {% if address.is_default %}
+                        <span class="address-badge">Mặc định</span>
+                        {% endif %}
+                        <div class="address-name">{{ address.full_name }}</div>
+                        <div class="address-phone"><i class="bi bi-telephone"></i> {{ address.phone }}</div>
+                        <div class="address-text">
+                            {{ address.address }}{% if address.ward %}, {{ address.ward }}{% endif %}, {{ address.district }}, {{ address.province }}
+                        </div>
+                        <div class="address-actions">
+                            <a href="{% url 'accounts:address_edit' address.id %}" class="btn-action btn-action--secondary"><i class="bi bi-pencil"></i> Sửa</a>
+                            {% if not address.is_default %}
+                            <form action="{% url 'accounts:address_set_default' address.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-action btn-action--primary"><i class="bi bi-star"></i> Mặc định</button>
+                            </form>
+                            {% endif %}
+                            <form action="{% url 'accounts:address_delete' address.id %}" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn xóa địa chỉ này?')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-action btn-action--danger"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-geo-alt"></i>
+                    <p>Chưa có địa chỉ nào. Thêm địa chỉ để giao hàng nhanh hơn!</p>
+                    <a href="{% url 'accounts:address_create' %}" class="btn-action btn-action--primary"><i class="bi bi-plus-lg"></i> Thêm địa chỉ mới</a>
+                </div>
+                {% endif %}
+            </div>
+        </main>
     </div>
 </div>
 {% endblock %}

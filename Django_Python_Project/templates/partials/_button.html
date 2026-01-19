@@ -1,0 +1,38 @@
+{% comment %}
+Button Component
+Sử dụng: {% include 'partials/_button.html' with type='primary' text='Click me' %}
+
+Params:
+- type: primary, cta, danger, success, outline-primary (default: primary)
+- text: Button text
+- icon: Bootstrap icon class (optional)
+- size: sm, lg (optional)
+- disabled: true/false (optional)
+- loading: true/false (optional)
+- href: URL for link button (optional)
+- onclick: JavaScript onclick handler (optional)
+- aria_label: Custom aria-label (optional)
+{% endcomment %}
+
+{% if href %}
+<a href="{{ href }}" 
+   class="btn btn-{{ type|default:'primary' }}{% if size %} btn-{{ size }}{% endif %} touch-target"
+   {% if disabled %}aria-disabled="true" tabindex="-1"{% endif %}
+   {% if aria_label %}aria-label="{{ aria_label }}"{% else %}aria-label="{{ text }}"{% endif %}
+   role="button">
+    {% if icon %}<i class="bi bi-{{ icon }}" aria-hidden="true"></i>{% endif %}
+    <span>{{ text }}</span>
+</a>
+{% else %}
+<button type="{{ button_type|default:'button' }}" 
+        class="btn btn-{{ type|default:'primary' }}{% if size %} btn-{{ size }}{% endif %}{% if loading %} btn--loading{% endif %} touch-target"
+        {% if disabled or loading %}disabled aria-disabled="true"{% endif %}
+        {% if onclick %}onclick="{{ onclick }}"{% endif %}
+        {% if aria_label %}aria-label="{{ aria_label }}"{% else %}aria-label="{{ text }}"{% endif %}>
+    {% if icon %}<i class="bi bi-{{ icon }}" aria-hidden="true"></i>{% endif %}
+    <span class="btn__text">{{ text }}</span>
+    {% if loading %}
+    <span class="spinner" aria-hidden="true"></span>
+    {% endif %}
+</button>
+{% endif %}

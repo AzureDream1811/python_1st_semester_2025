@@ -1,22 +1,81 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block extra_css %}
-    <link href="{% static 'css/errors.css' %}" rel="stylesheet">
-{% endblock %}
-
-{% block title %}403 — Không có quyền truy cập{% endblock %}
+{% block title %}403 - Không có quyền truy cập | ElectroShop{% endblock %}
 
 {% block content %}
-    <div class="error-page-wrapper">
-        <div class="error-card">
-            <i class="bi bi-shield-lock-fill error-icon"></i>
-            <h1 class="error-title">403 — Không có quyền truy cập</h1>
-            <p class="error-lead">Bạn không có quyền xem trang này hoặc hành động bị từ chối.</p>
-
-            <div class="error-actions">
-                <a href="{% url 'products:home' %}" class="btn btn-primary me-2">Quay về trang chủ</a>
-                <a href="javascript:history.back()" class="btn btn-outline-secondary">Quay lại</a>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <!-- Illustration -->
+            <div class="mb-4">
+                <i class="bi bi-shield-lock text-warning" style="font-size: 8rem; opacity: 0.3;"></i>
             </div>
+
+            <!-- Error Code -->
+            <h1 class="display-1 fw-bold text-warning mb-3">403</h1>
+
+            <!-- Message -->
+            <h2 class="h4 mb-3">Không có quyền truy cập</h2>
+            <p class="text-muted mb-4">
+                Xin lỗi, bạn không có quyền truy cập vào trang này.
+                <br>Vui lòng đăng nhập với tài khoản có quyền phù hợp hoặc quay về trang chủ.
+            </p>
+
+            <!-- Actions -->
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a class="btn btn-primary btn-lg" href="{% url 'products:home' %}">
+                    <i class="bi bi-house me-2"></i>Quay về trang chủ
+                </a>
+                {% if not user.is_authenticated %}
+                <a class="btn btn-outline-primary btn-lg" href="{% url 'accounts:login' %}">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập
+                </a>
+                {% endif %}
+                <a class="btn btn-outline-secondary btn-lg" href="{% url 'chat:home' %}">
+                    <i class="bi bi-headset me-2"></i>Liên hệ hỗ trợ
+                </a>
+            </div>
+
+            <!-- Info Card -->
+            <div class="mt-5">
+                <div class="card bg-light border-0">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="bi bi-info-circle text-primary me-2"></i>
+                            Tại sao tôi thấy trang này?
+                        </h6>
+                        <ul class="list-unstyled text-start mb-0 small text-muted">
+                            <li class="mb-2">
+                                <i class="bi bi-check2 text-success me-2"></i>
+                                Bạn chưa đăng nhập vào hệ thống
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check2 text-success me-2"></i>
+                                Tài khoản của bạn không có quyền truy cập
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check2 text-success me-2"></i>
+                                Liên kết đã hết hạn hoặc không hợp lệ
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Status -->
+            {% if user.is_authenticated %}
+            <div class="mt-4 p-3 bg-light rounded">
+                <p class="mb-2">
+                    <i class="bi bi-person-circle me-2"></i>
+                    Đang đăng nhập với: <strong>{{ user.email }}</strong>
+                </p>
+                <a class="btn btn-outline-danger btn-sm" href="{% url 'accounts:logout' %}">
+                    <i class="bi bi-box-arrow-right me-1"></i>Đăng xuất
+                </a>
+            </div>
+            {% endif %}
         </div>
     </div>
+</div>
 {% endblock %}

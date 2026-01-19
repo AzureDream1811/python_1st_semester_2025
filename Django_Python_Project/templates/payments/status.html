@@ -1,145 +1,226 @@
 {% extends 'base.html' %}
-{% load static %}
 {% load product_tags %}
 
-{% block title %}Trạng thái đơn hàng - ElectroShop{% endblock %}
-
-{% block extra_css %}
-    <link href="{% static 'css/payment_status.css' %}" rel="stylesheet">
-{% endblock %}
+{% block title %}Trạng thái thanh toán - ElectroShop{% endblock %}
 
 {% block content %}
-    <div class="status-container py-5">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-10">
-                    <div class="card status-header-card mb-4 border-0 shadow-lg overflow-hidden">
-                        <div class="card-body p-5 text-center text-white {% if transaction.status == 'success' %}bg-success-gradient{% elif transaction.status == 'failed' or transaction.status == 'cancelled' %}bg-danger-gradient{% else %}bg-warning-gradient{% endif %}">
-                            <div class="status-icon-circle mb-3 shadow">
-                                {% if transaction.status == 'success' %}
-                                    <i class="bi bi-check-lg bounce-in"></i>
-                                {% elif transaction.status == 'failed' or transaction.status == 'cancelled' %}
-                                    <i class="bi bi-x-lg shake"></i>
+<div class="container py-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'products:home' %}"><i class="fas fa-home me-1"></i>Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'orders:list' %}">Đơn hàng</a></li>
+            <li class="breadcrumb-item active">Trạng thái thanh toán</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Status Card -->
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden fade-in-up">
+                <!-- Header with gradient -->
+                <div class="card-header py-4 text-white {% if transaction and transaction.status == 'success' %}bg-gradient-success{% elif transaction and transaction.status == 'pending' %}bg-gradient-warning{% else %}bg-gradient-dark{% endif %}">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h4 class="mb-1">
+                                {% if transaction and transaction.status == 'success' %}
+                                <i class="fas fa-check-circle me-2"></i>Thanh toán thành công
+                                {% elif transaction and transaction.status == 'pending' %}
+                                <i class="fas fa-clock me-2"></i>Đang xử lý thanh toán
+                                {% elif transaction and transaction.status == 'failed' %}
+                                <i class="fas fa-times-circle me-2"></i>Thanh toán thất bại
                                 {% else %}
-                                    <i class="bi bi-hourglass-split spin-slow"></i>
+                                <i class="fas fa-hourglass-half me-2"></i>Chờ thanh toán
                                 {% endif %}
+                            </h4>
+                            <p class="mb-0 opacity-75">Đơn hàng #{{ order.order_number }}</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="display-6 fw-bold">{{ order.total|currency }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <!-- Order Info -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center p-3 bg-light rounded-3">
+                                <div class="flex-shrink-0">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                                        <i class="fas fa-user text-primary fa-lg"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <small class="text-muted d-block">Người nhận</small>
+                                    <strong>{{ order.full_name }}</strong>
+                                </div>
                             </div>
-                            <h2 class="fw-bold mb-1">Thanh toán {{ transaction.get_status_display }}</h2>
-                            <p class="mb-0 opacity-75">Mã đơn hàng: <span
-                                    class="fw-bold">#{{ order.order_number }}</span> | Giao
-                                dịch: {{ transaction.transaction_id }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center p-3 bg-light rounded-3">
+                                <div class="flex-shrink-0">
+                                    <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                                        <i class="fas fa-credit-card text-success fa-lg"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <small class="text-muted d-block">Phương thức</small>
+                                    <strong>
+                                        {% if order.payment_method == 'cod' %}
+                                        <i class="fas fa-money-bill-wave text-success me-1"></i>COD
+                                        {% elif order.payment_method == 'bank_transfer' %}
+                                        <i class="fas fa-university text-primary me-1"></i>Chuyển khoản
+                                        {% elif order.payment_method == 'momo' %}
+                                        <i class="fas fa-wallet text-danger me-1"></i>MoMo
+                                        {% elif order.payment_method == 'zalopay' %}
+                                        <i class="fas fa-wallet text-info me-1"></i>ZaloPay
+                                        {% elif order.payment_method == 'vnpay' %}
+                                        <i class="fas fa-credit-card text-warning me-1"></i>VNPay
+                                        {% else %}
+                                        {{ order.get_payment_method_display }}
+                                        {% endif %}
+                                    </strong>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="row g-4">
-                        <div class="col-md-7">
-                            <div class="card shadow-sm border-0 h-100">
-                                <div class="card-header bg-white py-3 border-bottom">
-                                    <h5 class="mb-0 fw-bold d-flex align-items-center">
-                                        <i class="bi bi-cart-check text-primary me-2"></i>Sản phẩm đã đặt
-                                    </h5>
-                                </div>
-                                <div class="card-body p-0">
-                                    <div class="table-responsive">
-                                        <table class="table align-middle mb-0">
-                                            <thead class="table-light">
-                                            <tr class="small text-uppercase fw-bold text-muted">
-                                                <th class="ps-4 py-3" style="width: 100px;">Ảnh</th>
-                                                <th class="py-3">Tên</th>
-                                                <th class="text-center py-3">Số lượng</th>
-                                                <th class="text-end pe-4 py-3">Thành tiền</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {% for item in order.items.all %}
-                                                <tr class="product-row">
-                                                    <td class="ps-4 py-3">
-                                                        <div class="product-img-wrapper">
-                                                            <img src="{{ item.product.image.url }}"
-                                                                 class="img-main rounded-3 shadow-sm"
-                                                                 alt="{{ item.product_name }}">
-                                                        </div>
-                                                    </td>
-
-                                                    <td class="py-3">
-                                                        <div class="product-info">
-                                                            <div class="fw-bold small text-dark mb-1">{{ item.product_name }}</div>
-                                                            <div class="text-muted extra-small">{{ item.price|currency }}</div>
-                                                        </div>
-                                                    </td>
-
-                                                    <td class="text-center py-3">
-                                                        <span class="badge bg-light text-dark border fw-bold">x{{ item.quantity }}</span>
-                                                    </td>
-
-                                                    <td class="text-end pe-4 py-3">
-                                                        <span class="fw-bold text-primary">{{ item.total_price|currency }}</span>
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                    {% if transaction %}
+                    <!-- Transaction Details -->
+                    <div class="border rounded-3 p-4 mb-4">
+                        <h6 class="text-muted mb-3">
+                            <i class="fas fa-receipt me-2"></i>Chi tiết giao dịch
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <small class="text-muted d-block">Mã giao dịch</small>
+                                <code class="fs-6">{{ transaction.transaction_id }}</code>
                             </div>
-                        </div>
-
-                        <div class="col-md-5">
-                            <div class="card shadow-sm border-0 mb-4">
-                                <div class="card-body p-4">
-                                    <h6 class="text-muted small text-uppercase fw-bold mb-3 d-flex align-items-center">
-                                        <i class="bi bi-geo-alt me-2"></i>Địa chỉ nhận hàng
-                                    </h6>
-                                    <div class="delivery-info">
-                                        <p class="mb-1 fw-bold text-dark">{{ order.full_name }}</p>
-                                        <p class="mb-1 small text-muted"><i
-                                                class="bi bi-telephone me-2"></i>{{ order.phone }}</p>
-                                        <p class="mb-0 small text-muted"><i
-                                                class="bi bi-map me-2"></i>{{ order.address }}, {{ order.ward }}, {{ order.district }}, {{ order.city }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="card shadow-sm border-0 mb-4">
-                                <div class="card-body p-4">
-                                    <h6 class="text-muted small text-uppercase fw-bold mb-3">Tóm tắt đơn hàng</h6>
-                                    <div class="d-flex justify-content-between mb-2 small">
-                                        <span class="text-muted">Tiền hàng:</span>
-                                        <span class="fw-semibold">{{ order.subtotal|currency }}</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between mb-2 small">
-                                        <span class="text-muted">Phí vận chuyển:</span>
-                                        <span class="fw-semibold text-success">+ {{ order.shipping_fee|currency }}</span>
-                                    </div>
-                                    {% if order.discount > 0 %}
-                                        <div class="d-flex justify-content-between mb-2 small">
-                                            <span class="text-muted">Giảm giá:</span>
-                                            <span class="text-danger fw-semibold">- {{ order.discount|currency }}</span>
-                                        </div>
-                                    {% endif %}
-                                    <hr class="my-3 border-dashed">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="fw-bold text-dark">Tổng cộng:</span>
-                                        <span class="fs-4 fw-bold text-primary">{{ order.total|currency }}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="d-grid gap-3">
-                                <a href="{% url 'products:home' %}" class="btn btn-primary-custom py-3 shadow-sm">
-                                    <i class="bi bi-house-door-fill me-2"></i>Quay lại trang chủ
-                                </a>
+                            <div class="col-sm-6">
+                                <small class="text-muted d-block">Trạng thái</small>
                                 {% if transaction.status == 'success' %}
-                                    <a href="{% url 'payments:refund_request' %}" class="btn btn-outline-custom">
-                                        <i class="bi bi-arrow-return-left me-2"></i>Gửi yêu cầu hoàn tiền
-                                    </a>
+                                <span class="badge bg-success rounded-pill px-3 py-2">
+                                    <i class="fas fa-check me-1"></i>Thành công
+                                </span>
+                                {% elif transaction.status == 'pending' %}
+                                <span class="badge bg-warning text-dark rounded-pill px-3 py-2">
+                                    <i class="fas fa-spinner fa-spin me-1"></i>Đang xử lý
+                                </span>
+                                {% elif transaction.status == 'processing' %}
+                                <span class="badge bg-info rounded-pill px-3 py-2">
+                                    <i class="fas fa-cog fa-spin me-1"></i>Đang xử lý
+                                </span>
+                                {% else %}
+                                <span class="badge bg-danger rounded-pill px-3 py-2">
+                                    <i class="fas fa-times me-1"></i>Thất bại
+                                </span>
                                 {% endif %}
                             </div>
+                            <div class="col-sm-6">
+                                <small class="text-muted d-block">Số tiền</small>
+                                <strong class="text-primary">{{ transaction.amount|currency }}</strong>
+                            </div>
+                            <div class="col-sm-6">
+                                <small class="text-muted d-block">Thời gian</small>
+                                <strong>{{ transaction.created_at|date:"d/m/Y H:i:s" }}</strong>
+                            </div>
+                            {% if transaction.response_code %}
+                            <div class="col-12">
+                                <small class="text-muted d-block">Mã phản hồi</small>
+                                <code>{{ transaction.response_code }}</code>
+                                {% if transaction.response_message %}
+                                <span class="text-muted ms-2">- {{ transaction.response_message }}</span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Status Timeline -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">
+                            <i class="fas fa-history me-2"></i>Tiến trình
+                        </h6>
+                        <div class="d-flex align-items-center">
+                            <div class="text-center">
+                                <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <small class="d-block mt-1 text-muted">Đặt hàng</small>
+                            </div>
+                            <div class="flex-grow-1 mx-2">
+                                <div class="progress" style="height: 4px;">
+                                    <div class="progress-bar bg-success" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="rounded-circle {% if transaction.status == 'success' %}bg-success{% elif transaction.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %} text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    {% if transaction.status == 'success' %}
+                                    <i class="fas fa-check"></i>
+                                    {% elif transaction.status == 'pending' %}
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    {% else %}
+                                    <i class="fas fa-times"></i>
+                                    {% endif %}
+                                </div>
+                                <small class="d-block mt-1 text-muted">Thanh toán</small>
+                            </div>
+                            <div class="flex-grow-1 mx-2">
+                                <div class="progress" style="height: 4px;">
+                                    <div class="progress-bar {% if transaction.status == 'success' %}bg-success{% else %}bg-secondary{% endif %}" style="width: {% if transaction.status == 'success' %}100{% else %}0{% endif %}%"></div>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="rounded-circle {% if transaction.status == 'success' %}bg-success{% else %}bg-secondary{% endif %} text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-truck"></i>
+                                </div>
+                                <small class="d-block mt-1 text-muted">Giao hàng</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- No Transaction -->
+                    <div class="alert alert-warning border-0 rounded-3 d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="alert-heading mb-1">Chưa có giao dịch thanh toán</h6>
+                            <p class="mb-0 small">Đơn hàng này chưa được thanh toán hoặc đang chờ xác nhận.</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="card-footer bg-light border-0 p-4">
+                    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+                        <a href="{% url 'orders:detail' order.order_number %}" class="btn btn-primary">
+                            <i class="fas fa-eye me-2"></i>Xem chi tiết đơn hàng
+                        </a>
+                        <div class="d-flex gap-2">
+                            {% if transaction and transaction.status == 'failed' %}
+                            <a href="{% url 'orders:checkout' %}" class="btn btn-outline-warning">
+                                <i class="fas fa-redo me-2"></i>Thử lại
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'products:home' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-home me-2"></i>Về trang chủ
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Help Section -->
+            <div class="text-center mt-4">
+                <p class="text-muted mb-2">Cần hỗ trợ?</p>
+                <a href="{% url 'chat:home' %}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-headset me-2"></i>Liên hệ hỗ trợ
+                </a>
+            </div>
         </div>
     </div>
+</div>
 {% endblock %}
