@@ -47,8 +47,7 @@ def register(request):
     else:
         form = UserRegistrationForm()
 
-    import os
-    google_client_id = os.environ.get('GOOGLE_CLIENT_ID', '')
+    google_client_id = settings.GOOGLE_CLIENT_ID
     return render(request, 'accounts/register.html', {
         'form': form,
         'google_client_id': google_client_id
@@ -97,8 +96,7 @@ def login_view(request):
     else:
         form = UserLoginForm()
 
-    import os
-    google_client_id = os.environ.get('GOOGLE_CLIENT_ID', '')
+    google_client_id = settings.GOOGLE_CLIENT_ID
     return render(request, 'accounts/login.html', {
         'form': form,
         'google_client_id': google_client_id
@@ -762,7 +760,7 @@ def api_validate_card(request):
 class CheckEmailAPIView(View):
     """
     API endpoint kiểm tra email đã tồn tại chưa
-    
+
     Security:
     - Rate limited: 20 requests per minute per IP
     - Origin header validation
@@ -814,7 +812,7 @@ class CheckEmailAPIView(View):
 class SocialRegisterAPIView(View):
     """
     API endpoint đăng ký tài khoản qua social
-    
+
     Security:
     - Rate limited: 5 requests per minute per IP (strict for registration)
     - Origin header validation
@@ -918,7 +916,7 @@ class SocialRegisterAPIView(View):
 class SocialLoginAPIView(View):
     """
     API endpoint đăng nhập qua social
-    
+
     Security:
     - Rate limited: 10 requests per minute per IP
     - Origin header validation
@@ -992,10 +990,9 @@ social_login_api = SocialLoginAPIView.as_view()
 
 def google_login_redirect(request):
     """Redirect to Google OAuth"""
-    import os
     import urllib.parse
 
-    client_id = os.environ.get('GOOGLE_CLIENT_ID', '')
+    client_id = settings.GOOGLE_CLIENT_ID
 
     # Build redirect URI
     redirect_uri = request.build_absolute_uri('/accounts/google/callback/')
@@ -1007,7 +1004,8 @@ def google_login_redirect(request):
         'response_type': 'code',
         'scope': 'openid email profile',
         'access_type': 'offline',
-        'prompt': 'select_account'
+        # Force account chooser + consent screen each time
+        'prompt': 'consent select_account'
     }
 
     # Store next URL in session
@@ -1021,7 +1019,6 @@ def google_login_redirect(request):
 
 def google_callback(request):
     """Handle Google OAuth callback"""
-    import os
     import urllib.parse
     import urllib.request
 
@@ -1036,8 +1033,8 @@ def google_callback(request):
         messages.error(request, 'Không nhận được mã xác thực từ Google')
         return redirect('accounts:login')
 
-    client_id = os.environ.get('GOOGLE_CLIENT_ID', '')
-    client_secret = os.environ.get('GOOGLE_CLIENT_SECRET', '')
+    client_id = settings.GOOGLE_CLIENT_ID
+    client_secret = settings.GOOGLE_CLIENT_SECRET
     redirect_uri = request.build_absolute_uri('/accounts/google/callback/')
 
     # Exchange code for tokens

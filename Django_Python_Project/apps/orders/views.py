@@ -116,8 +116,12 @@ def checkout(request):
                 )
 
             # Tạo Order
+            order_number = request.session.get('draft_order_number') or Order.generate_order_number()
+            if Order.objects.filter(order_number=order_number).exists():
+                order_number = Order.generate_order_number()
+                request.session['draft_order_number'] = order_number
             order = Order.objects.create(
-                order_number=Order.generate_order_number(),
+                order_number=order_number,
                 user=request.user,
                 full_name=full_name,
                 email=email,
@@ -161,6 +165,7 @@ def checkout(request):
 
             # Clear cart
             cart.clear()
+            request.session.pop('draft_order_number', None)
 
         messages.success(request, f'Đặt hàng thành công! Mã đơn hàng: {order.order_number}')
 
@@ -182,24 +187,49 @@ def checkout(request):
     saved_addresses = Address.objects.filter(user=request.user).order_by('-is_default', '-created_at')
     saved_cards = SavedCard.objects.filter(user=request.user, is_expired=False)
     default_address = saved_addresses.filter(is_default=True).first()
-
-    # Tạo QR codes cho các phương thức thanh toán
+    # Generate QR codes for payment methods
     from apps.payments.models import BankAccount, EWalletAccount
     from apps.payments.services.qr_service import QRService
 
+    draft_order_number = request.session.get('draft_order_number')
+    if not draft_order_number:
+        draft_order_number = Order.generate_order_number()
+        request.session['draft_order_number'] = draft_order_number
+
+    transfer_phone = ''
+    if default_address and default_address.phone:
+        transfer_phone = default_address.phone
+    elif profile and getattr(profile, 'phone', None):
+        transfer_phone = profile.phone
+
+    transfer_content = QRService.generate_transfer_content(draft_order_number, transfer_phone)
+
     # QR Bank Transfer
     bank_qr_url = None
-    bank_account = BankAccount.objects.filter(is_active=True, is_default=True).first()
+    bank_account = BankAccount.objects.filter(
+        is_active=True,
+        bank_code='MB'
+    ).order_by('-is_default').first()
+    if not bank_account:
+        bank_account = BankAccount.objects.filter(is_active=True, is_default=True).first()
     if not bank_account:
         bank_account = BankAccount.objects.filter(is_active=True).first()
+    if not bank_account:
+        bank_account = BankAccount(
+            bank_code='MB',
+            bank_name='MB Bank',
+            account_number='123456789',
+            account_name='DEMO PROJECT',
+            is_active=True,
+            is_default=True
+        )
 
     if bank_account:
-        temp_content = f"DH{request.user.id}{cart.id}"
         bank_qr_url = QRService.generate_vietqr_url(
             bank_code=bank_account.bank_code,
             account_number=bank_account.account_number,
             amount=cart.total,
-            content=temp_content,
+            content=transfer_content,
             account_name=bank_account.account_name
         )
 
@@ -208,13 +238,20 @@ def checkout(request):
     momo_account = EWalletAccount.objects.filter(wallet_type='momo', is_active=True, is_default=True).first()
     if not momo_account:
         momo_account = EWalletAccount.objects.filter(wallet_type='momo', is_active=True).first()
+    if not momo_account:
+        momo_account = EWalletAccount(
+            wallet_type='momo',
+            wallet_id='0900000000',
+            wallet_name='DEMO MOMO',
+            is_active=True,
+            is_default=True
+        )
 
     if momo_account:
-        temp_content = f"DH{request.user.id}{cart.id}"
         momo_data = QRService.generate_momo_qr(
             phone=momo_account.wallet_id,
             amount=cart.total,
-            content=temp_content
+            content=transfer_content
         )
         momo_qr_base64 = momo_data.get('qr_base64')
 
@@ -223,13 +260,20 @@ def checkout(request):
     zalopay_account = EWalletAccount.objects.filter(wallet_type='zalopay', is_active=True, is_default=True).first()
     if not zalopay_account:
         zalopay_account = EWalletAccount.objects.filter(wallet_type='zalopay', is_active=True).first()
+    if not zalopay_account:
+        zalopay_account = EWalletAccount(
+            wallet_type='zalopay',
+            wallet_id='0900000000',
+            wallet_name='DEMO ZALOPAY',
+            is_active=True,
+            is_default=True
+        )
 
     if zalopay_account:
-        temp_content = f"DH{request.user.id}{cart.id}"
         zalopay_data = QRService.generate_zalopay_qr(
             wallet_id=zalopay_account.wallet_id,
             amount=cart.total,
-            content=temp_content
+            content=transfer_content
         )
         zalopay_qr_base64 = zalopay_data.get('qr_base64')
 
@@ -240,6 +284,7 @@ def checkout(request):
         'saved_addresses': saved_addresses,
         'saved_cards': saved_cards,
         'default_address': default_address,
+        'transfer_content': transfer_content,
         'bank_account': bank_account,
         'bank_qr_url': bank_qr_url,
         'momo_account': momo_account,
@@ -427,3 +472,5 @@ def rebuy_item(request, order_number, item_id):
 
     messages.success(request, f'Đã thêm "{item.product_name}" vào giỏ hàng.')
     return redirect('cart:detail')
+
+

@@ -1149,7 +1149,7 @@ select.form-select:disabled {
                                             <div class="bank-detail-row">
                                                 <span>Nội dung CK</span>
                                                 <span>
-                                                    <span id="transfer-content">DH{{ user.id|default:'0' }}{{ cart.id }}</span>
+                                                    <span id="transfer-content">{{ transfer_content }}</span>
                                                     <button type="button" class="copy-btn" onclick="copyToClipboard(document.getElementById('transfer-content').textContent)">
                                                         <i class="bi bi-clipboard"></i>
                                                     </button>
@@ -1164,7 +1164,7 @@ select.form-select:disabled {
                                         {% endif %}
                                     </div>
                                 </div>
-                                
+
                                 <label class="payment-option">
                                     <input type="radio" name="payment_method" value="momo">
                                     <div class="payment-option__content">
@@ -1180,7 +1180,7 @@ select.form-select:disabled {
                                         </div>
                                     </div>
                                 </label>
-                                
+
                                 <div id="momo-details" class="payment-details">
                                     <div class="qr-payment-area">
                                         {% if momo_qr_base64 %}
@@ -1201,7 +1201,7 @@ select.form-select:disabled {
                                             </div>
                                             <div class="bank-detail-row">
                                                 <span>Nội dung</span>
-                                                <span>DH{{ user.id|default:'0' }}{{ cart.id }}</span>
+                                                <span>{{ transfer_content }}</span>
                                             </div>
                                         </div>
                                         {% else %}
@@ -1212,7 +1212,7 @@ select.form-select:disabled {
                                         {% endif %}
                                     </div>
                                 </div>
-                                
+
                                 <label class="payment-option">
                                     <input type="radio" name="payment_method" value="zalopay">
                                     <div class="payment-option__content">
@@ -1228,7 +1228,7 @@ select.form-select:disabled {
                                         </div>
                                     </div>
                                 </label>
-                                
+
                                 <div id="zalopay-details" class="payment-details">
                                     <div class="qr-payment-area">
                                         {% if zalopay_qr_base64 %}
@@ -1249,7 +1249,7 @@ select.form-select:disabled {
                                             </div>
                                             <div class="bank-detail-row">
                                                 <span>Nội dung</span>
-                                                <span>DH{{ user.id|default:'0' }}{{ cart.id }}</span>
+                                                <span>{{ transfer_content }}</span>
                                             </div>
                                         </div>
                                         {% else %}
