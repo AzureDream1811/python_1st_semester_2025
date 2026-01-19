@@ -24,15 +24,18 @@ class Notification(models.Model):
         related_name='notifications',
         verbose_name='Người dùng'
     )
+
     notification_type = models.CharField(
         max_length=50,
         choices=NOTIFICATION_TYPES,
         verbose_name='Loại thông báo'
     )
+
     title = models.CharField(max_length=200, verbose_name='Tiêu đề')
     message = models.TextField(verbose_name='Nội dung')
     data = models.JSONField(default=dict, blank=True, verbose_name='Dữ liệu bổ sung')
     url = models.CharField(max_length=500, blank=True, verbose_name='Đường dẫn')
+
     is_read = models.BooleanField(default=False, verbose_name='Đã đọc')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')
     read_at = models.DateTimeField(null=True, blank=True, verbose_name='Ngày đọc')
@@ -67,11 +70,14 @@ class PushSubscription(models.Model):
         related_name='push_subscriptions',
         verbose_name='Người dùng'
     )
-    endpoint = models.TextField(verbose_name='Endpoint')
+
+    endpoint = models.CharField(max_length=500, verbose_name='Endpoint')
     p256dh = models.CharField(max_length=200, verbose_name='P256DH Key')
     auth = models.CharField(max_length=100, verbose_name='Auth Key')
+
     is_active = models.BooleanField(default=True, verbose_name='Đang hoạt động')
     user_agent = models.CharField(max_length=500, blank=True, verbose_name='User Agent')
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Ngày đăng ký')
     last_used = models.DateTimeField(auto_now=True, verbose_name='Lần sử dụng cuối')
 
@@ -79,6 +85,9 @@ class PushSubscription(models.Model):
         verbose_name = 'Đăng ký Push'
         verbose_name_plural = 'Đăng ký Push'
         unique_together = ['user', 'endpoint']
+        indexes = [
+            models.Index(fields=['user', 'is_active']),
+        ]
 
     def __str__(self):
         return f"{self.user.username} - Push Subscription"
