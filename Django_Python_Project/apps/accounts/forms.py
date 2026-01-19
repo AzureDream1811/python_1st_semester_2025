@@ -147,17 +147,63 @@ class UserUpdateForm(forms.ModelForm):
         widgets = {
             'first_name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Tên'
+                'placeholder': 'Tên',
+                'minlength': '2',
+                'maxlength': '50'
             }),
             'last_name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Họ'
+                'placeholder': 'Họ',
+                'minlength': '2',
+                'maxlength': '50'
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-control',
-                'readonly': 'readonly'  # Không cho đổi email
+                'readonly': 'readonly'
             }),
         }
+
+    def __init__(self, *args, **kwargs):
+        self.is_social_account = kwargs.pop('is_social_account', False)
+        super().__init__(*args, **kwargs)
+
+        if self.is_social_account:
+            self.fields['email'].widget.attrs['readonly'] = 'readonly'
+            self.fields['email'].help_text = 'Email không thể thay đổi với tài khoản Google'
+
+    def clean_first_name(self):
+        import re
+        first_name = self.cleaned_data.get('first_name', '').strip()
+
+        if not first_name:
+            raise forms.ValidationError('Vui lòng nhập tên.')
+        if len(first_name) < 2:
+            raise forms.ValidationError('Tên phải có ít nhất 2 ký tự.')
+        if len(first_name) > 50:
+            raise forms.ValidationError('Tên không được quá 50 ký tự.')
+
+        vietnamese_pattern = r'^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\s]+$'
+        if not re.match(vietnamese_pattern, first_name):
+            raise forms.ValidationError('Tên chỉ được chứa chữ cái và khoảng trắng.')
+
+        return first_name.strip()
+
+    def clean_last_name(self):
+        import re
+        last_name = self.cleaned_data.get('last_name', '').strip()
+
+        if not last_name:
+            raise forms.ValidationError('Vui lòng nhập họ.')
+        if len(last_name) < 2:
+            raise forms.ValidationError('Họ phải có ít nhất 2 ký tự.')
+        if len(last_name) > 50:
+            raise forms.ValidationError('Họ không được quá 50 ký tự.')
+
+        vietnamese_pattern = r'^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\s]+$'
+        if not re.match(vietnamese_pattern, last_name):
+            raise forms.ValidationError('Họ chỉ được chứa chữ cái và khoảng trắng.')
+
+        return last_name.strip()
 
 
 class ProfileUpdateForm(forms.ModelForm):
@@ -172,12 +218,14 @@ class ProfileUpdateForm(forms.ModelForm):
         widgets = {
             'phone': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Số điện thoại'
+                'placeholder': 'Số điện thoại (VD: 0912345678)'
             }),
             'address': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
-                'placeholder': 'Địa chỉ của bạn'
+                'placeholder': 'Địa chỉ của bạn',
+                'minlength': '10',
+                'maxlength': '500'
             }),
             'date_of_birth': forms.DateInput(attrs={
                 'class': 'form-control',
@@ -187,20 +235,96 @@ class ProfileUpdateForm(forms.ModelForm):
                 'class': 'form-select'
             }),
             'avatar': forms.FileInput(attrs={
-                'class': 'form-control'
+                'class': 'form-control',
+                'accept': 'image/jpeg,image/png,image/webp'
             }),
         }
+
+    def clean_phone(self):
+        import re
+        phone = self.cleaned_data.get('phone', '').strip()
+
+        if not phone:
+            return ''
+
+        pattern = r'^(0|\+84)[0-9]{9,10}$'
+        if not re.match(pattern, phone):
+            raise forms.ValidationError('Số điện thoại không hợp lệ. VD: 0912345678 hoặc +84912345678')
+
+        existing = Profile.objects.filter(phone=phone).exclude(pk=self.instance.pk if self.instance else None)
+        if existing.exists():
+            raise forms.ValidationError('Số điện thoại này đã được sử dụng.')
+
+        return phone
+
+    def clean_date_of_birth(self):
+        from datetime import date
+        dob = self.cleaned_data.get('date_of_birth')
+
+        if not dob:
+            return None
+
+        today = date.today()
+
+        if dob > today:
+            raise forms.ValidationError('Ngày sinh không thể là ngày trong tương lai.')
+
+        age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+        if age < 13:
+            raise forms.ValidationError('Bạn phải từ 13 tuổi trở lên.')
+        if age > 120:
+            raise forms.ValidationError('Ngày sinh không hợp lệ.')
+
+        return dob
+
+    def clean_gender(self):
+        gender = self.cleaned_data.get('gender', '')
+        valid_genders = ['', 'male', 'female', 'other']
+
+        if gender and gender not in valid_genders:
+            raise forms.ValidationError('Giới tính không hợp lệ.')
+
+        return gender
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data.get('avatar')
+
+        if not avatar:
+            return avatar
+
+        if hasattr(avatar, 'size') and avatar.size > 5 * 1024 * 1024:
+            raise forms.ValidationError('Ảnh đại diện không được vượt quá 5MB.')
+
+        if hasattr(avatar, 'content_type'):
+            allowed_types = ['image/jpeg', 'image/png', 'image/webp']
+            if avatar.content_type not in allowed_types:
+                raise forms.ValidationError('Chỉ chấp nhận định dạng JPG, PNG hoặc WebP.')
+
+        return avatar
+
+    def clean_address(self):
+        address = self.cleaned_data.get('address', '').strip()
+
+        if not address:
+            return ''
+
+        if len(address) < 10:
+            raise forms.ValidationError('Địa chỉ phải có ít nhất 10 ký tự.')
+        if len(address) > 500:
+            raise forms.ValidationError('Địa chỉ không được quá 500 ký tự.')
+
+        return address
 
 
 class CustomPasswordChangeForm(PasswordChangeForm):
     """
-    Form đổi mật khẩu với style Bootstrap
+    Form đổi mật khẩu với style Bootstrap và validation nâng cao
     """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Tùy chỉnh widget và label cho từng field
         self.fields['old_password'].widget.attrs.update({
             'class': 'form-control',
             'placeholder': 'Mật khẩu hiện tại'
@@ -209,17 +333,58 @@ class CustomPasswordChangeForm(PasswordChangeForm):
 
         self.fields['new_password1'].widget.attrs.update({
             'class': 'form-control',
-            'placeholder': 'Mật khẩu mới'
+            'placeholder': 'Mật khẩu mới',
+            'id': 'new_password1'
         })
         self.fields['new_password1'].label = 'Mật khẩu mới'
-        self.fields['new_password1'].help_text = 'Mật khẩu phải có ít nhất 8 ký tự'
+        self.fields['new_password1'].help_text = ''
 
         self.fields['new_password2'].widget.attrs.update({
             'class': 'form-control',
             'placeholder': 'Xác nhận mật khẩu mới'
         })
         self.fields['new_password2'].label = 'Xác nhận mật khẩu mới'
-        self.fields['new_password2'].help_text = 'Nhập lại mật khẩu mới để xác nhận'
+        self.fields['new_password2'].help_text = ''
+
+    def clean_new_password1(self):
+        import re
+        password = self.cleaned_data.get('new_password1')
+        old_password = self.cleaned_data.get('old_password')
+
+        if not password:
+            raise forms.ValidationError('Vui lòng nhập mật khẩu mới.')
+
+        if len(password) < 8:
+            raise forms.ValidationError('Mật khẩu phải có ít nhất 8 ký tự.')
+
+        if not re.search(r'[A-Z]', password):
+            raise forms.ValidationError('Mật khẩu phải có ít nhất 1 chữ hoa.')
+
+        if not re.search(r'[a-z]', password):
+            raise forms.ValidationError('Mật khẩu phải có ít nhất 1 chữ thường.')
+
+        if not re.search(r'[0-9]', password):
+            raise forms.ValidationError('Mật khẩu phải có ít nhất 1 số.')
+
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            raise forms.ValidationError('Mật khẩu phải có ít nhất 1 ký tự đặc biệt.')
+
+        if old_password and password == old_password:
+            raise forms.ValidationError('Mật khẩu mới không được giống mật khẩu cũ.')
+
+        user = self.user
+        if user:
+            user_info = [
+                user.email.split('@')[0] if user.email else '',
+                user.first_name.lower() if user.first_name else '',
+                user.last_name.lower() if user.last_name else ''
+            ]
+            password_lower = password.lower()
+            for info in user_info:
+                if info and len(info) >= 3 and info in password_lower:
+                    raise forms.ValidationError('Mật khẩu không được chứa tên hoặc email của bạn.')
+
+        return password
 
 
 class AddressForm(forms.ModelForm):
@@ -228,10 +393,13 @@ class AddressForm(forms.ModelForm):
     
     Tích hợp API provinces.open-api.vn để chọn Tỉnh/Thành phố, Quận/Huyện, Phường/Xã
     JavaScript sẽ xử lý việc load data từ API
+    
+    LƯU Ý: Model Address sử dụng 'province' thay vì 'city'
     """
 
     class Meta:
         model = Address
+        # SỬA LỖI: Đổi 'city' thành 'province' theo model Address
         fields = [
             'full_name',
             'phone',
@@ -257,6 +425,7 @@ class AddressForm(forms.ModelForm):
             }),
 
             # Select cho province, district, ward với API URL
+            # SỬA LỖI: Đổi 'city' thành 'province'
             'province': forms.Select(attrs={
                 'class': 'form-select',
                 'id': 'province-select',

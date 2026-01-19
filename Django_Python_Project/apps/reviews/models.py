@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from apps.products.models import Product
 from apps.orders.models import OrderItem
-from typing import Tuple, Dict
 
 
 class Review(models.Model):
@@ -62,8 +61,8 @@ class Review(models.Model):
     )
     sentiment_score = models.FloatField(
         default=0,
-        validators=[MinValueValidator(0), MaxValueValidator(1)],
-        verbose_name='Độ tin cậy dự đoán'
+        validators=[MinValueValidator(-1), MaxValueValidator(1)],
+        verbose_name='Điểm sentiment'
     )
 
     # Hình ảnh đánh giá
@@ -107,26 +106,27 @@ class Review(models.Model):
         verbose_name = 'Đánh giá'
         verbose_name_plural = 'Đánh giá'
         ordering = ['-created_at']
-        unique_together = ['product', 'user']
+        unique_together = ['product', 'user', 'order_item']
 
     def __str__(self):
         return f"{self.user.email} - {self.product.name} ({self.rating} sao)"
 
     def save(self, *args, **kwargs):
-        """Kiểm tra verified purchase trước khi save"""
+        # Kiểm tra verified purchase
         if self.order_item:
             self.is_verified_purchase = True
 
+        # Xử lý sentiment nếu có comment
+        if self.comment and not self.sentiment:
+            self.analyze_sentiment()
+
         super().save(*args, **kwargs)
 
-        # Cập nhật sentiment stats cho product
+        # Cập nhật sentiment cho sản phẩm
         self.product.update_sentiment_stats()
 
     def analyze_sentiment(self):
-        """
-        Phân tích sentiment cho review
-        Method này để gọi thủ công nếu cần
-        """
+        """Phân tích sentiment cho review"""
         from .sentiment import SentimentAnalyzer
 
         analyzer = SentimentAnalyzer()
@@ -134,6 +134,7 @@ class Review(models.Model):
 
         self.sentiment = result['sentiment']
         self.sentiment_score = result['score']
+        # processed_text được sử dụng nội bộ, không lưu vào DB
 
     def get_images(self):
         """Lấy danh sách hình ảnh"""
@@ -152,16 +153,74 @@ class Review(models.Model):
             'neutral': 'secondary',
         }
         return colors.get(self.sentiment, 'secondary')
-    
+
     @property
-    def sentiment_icon(self):
-        """Icon hiển thị sentiment"""
-        icons = {
-            'positive': '😊',
-            'negative': '😞',
-            'neutral': '😐',
-        }
-        return icons.get(self.sentiment, '😐')
+    def rating_sentiment_mismatch(self):
+        """
+        Kiểm tra xem số sao có khớp với sentiment không
+        
+        Returns:
+            dict: {'mismatch': bool, 'message': str, 'severity': str}
+            
+        Logic:
+        - 4-5 sao nhưng sentiment tiêu cực → mismatch nghiêm trọng
+        - 1-2 sao nhưng sentiment tích cực → mismatch nghiêm trọng  
+        - 3 sao với sentiment mạnh → mismatch nhẹ
+        """
+        if not self.sentiment:
+            return {'mismatch': False, 'message': '', 'severity': 'none'}
+
+        if self.rating >= 4 and self.sentiment == 'negative':
+            return {
+                'mismatch': True,
+                'message': f'Cảnh báo: Đánh giá {self.rating} sao nhưng nội dung tiêu cực (AI score: {self.sentiment_score:.2f})',
+                'severity': 'high'
+            }
+
+        if self.rating <= 2 and self.sentiment == 'positive':
+            return {
+                'mismatch': True,
+                'message': f'Cảnh báo: Đánh giá {self.rating} sao nhưng nội dung tích cực (AI score: {self.sentiment_score:.2f})',
+                'severity': 'high'
+            }
+
+        if self.rating == 3:
+            if self.sentiment == 'positive' and self.sentiment_score > 0.7:
+                return {
+                    'mismatch': True,
+                    'message': f'Gợi ý: Nội dung rất tích cực, có thể xem xét nâng sao',
+                    'severity': 'low'
+                }
+            if self.sentiment == 'negative' and self.sentiment_score < -0.7:
+                return {
+                    'mismatch': True,
+                    'message': f'Gợi ý: Nội dung tiêu cực mạnh, có thể xem xét giảm sao',
+                    'severity': 'low'
+                }
+
+        return {'mismatch': False, 'message': '', 'severity': 'none'}
+
+    @property
+    def ai_suggested_rating(self):
+        """
+        Gợi ý số sao dựa trên phân tích AI
+        
+        Returns:
+            int: Số sao được gợi ý (1-5)
+        """
+        if not self.sentiment or self.sentiment_score == 0:
+            return self.rating
+
+        if self.sentiment_score >= 0.8:
+            return 5
+        elif self.sentiment_score >= 0.5:
+            return 4
+        elif self.sentiment_score >= -0.2:
+            return 3
+        elif self.sentiment_score >= -0.6:
+            return 2
+        else:
+            return 1
 
 
 class ReviewHelpful(models.Model):
@@ -190,25 +249,14 @@ class ReviewHelpful(models.Model):
         return f"{self.user.email} - Review #{self.review.pk}"
 
     def save(self, *args, **kwargs):
-        """
-        Cập nhật số lượt hữu ích sau khi lưu review hữu ích
-        """
         super().save(*args, **kwargs)
         # Cập nhật số lượt hữu ích
-        self.review.helpful_count = self.review.helpful_votes.count()  # type: ignore
+        self.review.helpful_count = self.review.helpful_votes.count()
         self.review.save(update_fields=['helpful_count'])
 
-    def delete(self, *args, **kwargs) -> Tuple[int, Dict[str, int]]:
-        """
-        ✅ SỬA: Override delete() với đúng return type
-        """
+    def delete(self, *args, **kwargs):
         review = self.review
-        # Gọi delete của parent và lưu kết quả
-        result = super().delete(*args, **kwargs)
-        
+        super().delete(*args, **kwargs)
         # Cập nhật số lượt hữu ích
-        review.helpful_count = review.helpful_votes.count()  # type: ignore
+        review.helpful_count = review.helpful_votes.count()
         review.save(update_fields=['helpful_count'])
-        
-        # Return kết quả từ parent delete
-        return result

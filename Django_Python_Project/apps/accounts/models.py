@@ -78,17 +78,19 @@ class Address(models.Model):
     phone = models.CharField(
         validators=[phone_regex],
         max_length=15,
-        verbose_name='Số điện thoại'
+        verbose_name='Số điện thoại',
+        blank=True,
+        default=''
     )
-    address = models.TextField(verbose_name='Địa chỉ chi tiết')
+    address = models.TextField(verbose_name='Địa chỉ chi tiết', blank=True, default='')
 
     # Tỉnh/Thành phố
-    province = models.CharField(max_length=100, verbose_name='Tỉnh/Thành phố')
-    province_code = models.CharField(max_length=10, verbose_name='Mã tỉnh/thành phố')
+    province = models.CharField(max_length=100, verbose_name='Tỉnh/Thành phố', blank=True, default='')
+    province_code = models.CharField(max_length=10, verbose_name='Mã tỉnh/thành phố', blank=True, default='')
 
     # Quận/Huyện
-    district = models.CharField(max_length=100, verbose_name='Quận/Huyện')
-    district_code = models.CharField(max_length=10, verbose_name='Mã quận/huyện')
+    district = models.CharField(max_length=100, verbose_name='Quận/Huyện', blank=True, default='')
+    district_code = models.CharField(max_length=10, verbose_name='Mã quận/huyện', blank=True, default='')
 
     # Phường/Xã
     ward = models.CharField(max_length=100, blank=True, verbose_name='Phường/Xã')
@@ -209,3 +211,81 @@ class SocialAccount(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.get_provider_display()}"
+
+
+class UserSession(models.Model):
+    """Model quản lý phiên đăng nhập của người dùng"""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='user_sessions',
+        verbose_name='Người dùng'
+    )
+    session_key = models.CharField(max_length=40, verbose_name='Session Key')
+    device = models.CharField(max_length=200, blank=True, verbose_name='Thiết bị')
+    browser = models.CharField(max_length=100, blank=True, verbose_name='Trình duyệt')
+    os = models.CharField(max_length=100, blank=True, verbose_name='Hệ điều hành')
+    ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name='Địa chỉ IP')
+    location = models.CharField(max_length=200, blank=True, verbose_name='Vị trí')
+    is_current = models.BooleanField(default=False, verbose_name='Phiên hiện tại')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Đăng nhập lúc')
+    last_activity = models.DateTimeField(auto_now=True, verbose_name='Hoạt động cuối')
+
+    class Meta:
+        verbose_name = 'Phiên đăng nhập'
+        verbose_name_plural = 'Phiên đăng nhập'
+        ordering = ['-last_activity']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.device or 'Unknown'} - {self.ip_address}"
+
+
+class LoginHistory(models.Model):
+    """Model lưu lịch sử đăng nhập"""
+
+    STATUS_CHOICES = [
+        ('success', 'Thành công'),
+        ('failed', 'Thất bại'),
+        ('2fa_required', 'Yêu cầu 2FA'),
+    ]
+
+    PROVIDER_CHOICES = [
+        ('email', 'Email/Password'),
+        ('google', 'Google'),
+        ('facebook', 'Facebook'),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='login_history',
+        verbose_name='Người dùng'
+    )
+    login_time = models.DateTimeField(auto_now_add=True, verbose_name='Thời gian đăng nhập')
+    ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name='Địa chỉ IP')
+    device = models.CharField(max_length=200, blank=True, verbose_name='Thiết bị')
+    browser = models.CharField(max_length=100, blank=True, verbose_name='Trình duyệt')
+    os = models.CharField(max_length=100, blank=True, verbose_name='Hệ điều hành')
+    location = models.CharField(max_length=200, blank=True, verbose_name='Vị trí')
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='success',
+        verbose_name='Trạng thái'
+    )
+    provider = models.CharField(
+        max_length=20,
+        choices=PROVIDER_CHOICES,
+        default='email',
+        verbose_name='Phương thức'
+    )
+    user_agent = models.TextField(blank=True, verbose_name='User Agent')
+
+    class Meta:
+        verbose_name = 'Lịch sử đăng nhập'
+        verbose_name_plural = 'Lịch sử đăng nhập'
+        ordering = ['-login_time']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.login_time} - {self.status}"

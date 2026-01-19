@@ -62,4 +62,13 @@ urlpatterns = [
     path('api/check-email/', views.check_email_api, name='api_check_email'),
     path('api/social-register/', views.social_register_api, name='api_social_register'),
     path('api/social-login/', views.social_login_api, name='api_social_login'),
+
+    # Google OAuth
+    path('google/login/', views.google_login_redirect, name='google_login'),
+    path('google/callback/', views.google_callback, name='google_callback'),
+
+    # Security
+    path('change-password/', views.change_password, name='change_password'),
+    path('sessions/<int:session_id>/terminate/', views.terminate_session, name='terminate_session'),
+    path('sessions/terminate-all/', views.terminate_all_sessions, name='terminate_all_sessions'),
 ]

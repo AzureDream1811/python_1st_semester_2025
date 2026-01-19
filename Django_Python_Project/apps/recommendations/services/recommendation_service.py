@@ -1,14 +1,46 @@
+"""
+Service Gợi Ý Sản Phẩm cho ElectroShop
+======================================
+
+Module này chứa các service xử lý logic nghiệp vụ gợi ý sản phẩm:
+- Tìm sản phẩm tương tự
+- Gợi ý cá nhân hóa
+- Sản phẩm thường mua cùng
+- Sản phẩm trending
+- Cập nhật độ tương đồng (Celery task)
+
+Tác giả: ElectroShop Team
+"""
 from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import timedelta
 
 
 class RecommendationService:
-    """Service for product recommendations"""
+    """
+    Service quản lý các thuật toán gợi ý sản phẩm
+    
+    Cung cấp các phương thức:
+    - get_similar_products: Tìm sản phẩm tương tự
+    - get_personalized_recommendations: Gợi ý cá nhân hóa
+    - get_frequently_bought_together: Sản phẩm mua cùng
+    - get_trending_products: Sản phẩm trending
+    - track_activity: Ghi nhận hoạt động
+    - update_product_similarities: Cập nhật độ tương đồng
+    """
 
     @staticmethod
     def get_similar_products(product_id, limit=10):
-        """Get similar products based on category and attributes"""
+        """
+        Tìm sản phẩm tương tự dựa trên danh mục và thuộc tính
+        
+        Args:
+            product_id: ID sản phẩm cần tìm tương tự
+            limit: Số lượng kết quả tối đa
+            
+        Returns:
+            List[Product]: Danh sách sản phẩm tương tự
+        """
         from apps.products.models import Product
 
         try:
@@ -16,49 +48,59 @@ class RecommendationService:
         except Product.DoesNotExist:
             return []
 
-        # Find products in same category, excluding current product
+        # Tìm sản phẩm cùng danh mục
         similar = Product.objects.filter(
             category=product.category,
             is_active=True
         ).exclude(pk=product_id)
 
-        # Also include products from same brand
+        # Thêm sản phẩm cùng thương hiệu
         if product.brand:
             similar = similar | Product.objects.filter(
                 brand=product.brand,
                 is_active=True
             ).exclude(pk=product_id)
 
-        # Order by rating and limit
+        # Sắp xếp theo rating
         similar = similar.distinct().order_by('-avg_rating', '-created_at')[:limit]
 
         return list(similar)
 
     @staticmethod
     def get_personalized_recommendations(user, limit=10):
-        """Get personalized recommendations based on user history"""
+        """
+        Gợi ý cá nhân hóa dựa trên lịch sử người dùng
+        
+        Args:
+            user: User object
+            limit: Số lượng kết quả tối đa
+            
+        Returns:
+            List[Product]: Danh sách sản phẩm gợi ý
+        """
         from apps.products.models import Product
         from apps.recommendations.models import UserActivity
 
         if not user.is_authenticated:
             return RecommendationService.get_trending_products(limit)
 
-        # Get user's viewed and purchased categories
+        # Lấy danh mục từ lịch sử
         activities = UserActivity.objects.filter(user=user).values_list(
             'product__category_id', flat=True
         ).distinct()
 
-        category_ids = list(activities)
+        category_ids = list(filter(None, activities))
 
         if not category_ids:
             return RecommendationService.get_trending_products(limit)
 
-        # Get products from those categories that user hasn't purchased
+        # Lấy sản phẩm đã mua
         purchased_ids = UserActivity.objects.filter(
             user=user,
             activity_type='purchase'
         ).values_list('product_id', flat=True)
 
+        # Gợi ý sản phẩm chưa mua
         recommendations = Product.objects.filter(
             category_id__in=category_ids,
             is_active=True
@@ -70,16 +112,25 @@ class RecommendationService:
 
     @staticmethod
     def get_frequently_bought_together(product_id, limit=5):
-        """Get products frequently bought together"""
+        """
+        Tìm sản phẩm thường được mua cùng
+        
+        Args:
+            product_id: ID sản phẩm chính
+            limit: Số lượng kết quả tối đa
+            
+        Returns:
+            List[Product]: Danh sách sản phẩm mua cùng
+        """
         from apps.products.models import Product
         from apps.orders.models import OrderItem
 
-        # Find orders containing this product
+        # Tìm đơn hàng chứa sản phẩm này
         order_ids = OrderItem.objects.filter(
             product_id=product_id
         ).values_list('order_id', flat=True)
 
-        # Find other products in those orders
+        # Tìm sản phẩm khác trong đơn hàng
         related_products = OrderItem.objects.filter(
             order_id__in=order_ids
         ).exclude(
@@ -94,16 +145,23 @@ class RecommendationService:
 
     @staticmethod
     def get_trending_products(limit=10):
-        """Get trending products based on recent views and purchases"""
+        """
+        Lấy sản phẩm đang trending trong 7 ngày
+        
+        Args:
+            limit: Số lượng kết quả tối đa
+            
+        Returns:
+            List[Product]: Danh sách sản phẩm trending
+        """
         from apps.products.models import Product
         from apps.recommendations.models import UserActivity
 
-        # Last 7 days
         since = timezone.now() - timedelta(days=7)
 
-        # Count activities per product
         trending = UserActivity.objects.filter(
-            created_at__gte=since
+            created_at__gte=since,
+            product__isnull=False
         ).values('product_id').annotate(
             score=Count('id')
         ).order_by('-score')[:limit]
@@ -111,17 +169,23 @@ class RecommendationService:
         product_ids = [t['product_id'] for t in trending]
 
         if not product_ids:
-            # Fallback to newest products
             return list(Product.objects.filter(is_active=True).order_by('-created_at')[:limit])
 
         return list(Product.objects.filter(pk__in=product_ids, is_active=True))
 
     @staticmethod
     def get_search_suggestions(limit=10):
-        """Get popular search terms"""
+        """
+        Lấy gợi ý tìm kiếm phổ biến trong 30 ngày
+        
+        Args:
+            limit: Số lượng kết quả tối đa
+            
+        Returns:
+            List[str]: Danh sách từ khóa gợi ý
+        """
         from apps.analytics.models import SearchLog
 
-        # Last 30 days
         since = timezone.now() - timedelta(days=30)
 
         popular = SearchLog.objects.filter(
@@ -134,7 +198,14 @@ class RecommendationService:
 
     @staticmethod
     def track_activity(user, product_id, activity_type):
-        """Track user activity for recommendations"""
+        """
+        Ghi nhận hoạt động người dùng
+        
+        Args:
+            user: User object
+            product_id: ID sản phẩm
+            activity_type: Loại hoạt động
+        """
         from apps.recommendations.models import UserActivity
 
         if not user.is_authenticated:
@@ -148,7 +219,11 @@ class RecommendationService:
 
     @staticmethod
     def update_product_similarities():
-        """Update pre-computed product similarities (run as Celery task)"""
+        """
+        Cập nhật độ tương đồng sản phẩm (Celery task)
+        
+        Chạy định kỳ để cập nhật bảng ProductSimilarity
+        """
         from apps.products.models import Product
         from apps.recommendations.models import ProductSimilarity
 
@@ -157,14 +232,14 @@ class RecommendationService:
         for product in products:
             similar = RecommendationService.get_similar_products(product.id, limit=20)
 
-            # Clear old similarities
+            # Xóa dữ liệu cũ
             ProductSimilarity.objects.filter(product=product).delete()
 
-            # Create new similarities
+            # Tạo dữ liệu mới
             for i, sim_product in enumerate(similar):
-                score = 1.0 - (i * 0.05)  # Decreasing score
+                score = 1.0 - (i * 0.05)
                 ProductSimilarity.objects.create(
                     product=product,
                     similar_product=sim_product,
-                    score=score
+                    score=max(score, 0.1)
                 )

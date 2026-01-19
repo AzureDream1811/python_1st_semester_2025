@@ -1,5 +1,6 @@
 """
 Models Khuyến Mãi cho ElectroShop
+
 """
 from django.db import models
 from django.contrib.auth.models import User
@@ -10,10 +11,17 @@ from apps.products.models import Product
 class Voucher(models.Model):
     """
     Model Voucher/Mã giảm giá
-
+    
     Hỗ trợ 2 loại giảm giá:
     - percentage: Giảm theo phần trăm (VD: 10% tổng đơn)
     - fixed: Giảm số tiền cố định (VD: 50.000đ)
+    
+    Các ràng buộc:
+    - Giới hạn tổng số lần sử dụng (usage_limit)
+    - Giới hạn số lần sử dụng mỗi người (usage_limit_per_user)
+    - Giá trị đơn hàng tối thiểu (min_order_value)
+    - Số tiền giảm tối đa (max_discount)
+    - Thời gian hiệu lực (valid_from -> valid_until)
     """
 
     # Các loại giảm giá được hỗ trợ
@@ -60,7 +68,10 @@ class Voucher(models.Model):
     def is_valid(self):
         """
         Kiểm tra voucher có còn hiệu lực không
-
+        
+        Returns:
+            bool: True nếu voucher còn hiệu lực, False nếu không
+            
         Điều kiện hợp lệ:
         - Voucher đang active
         - Thời gian hiện tại nằm trong khoảng valid_from -> valid_until
@@ -86,13 +97,13 @@ class Voucher(models.Model):
 class VoucherUsage(models.Model):
     """
     Model theo dõi lịch sử sử dụng Voucher
-
+    
     Ghi lại thông tin mỗi lần voucher được sử dụng:
     - Ai sử dụng (user)
     - Cho đơn hàng nào (order)
     - Số tiền được giảm (discount_amount)
     - Thời điểm sử dụng (used_at)
-
+    
     Dùng để:
     - Kiểm tra giới hạn sử dụng mỗi người
     - Thống kê hiệu quả voucher
@@ -143,10 +154,11 @@ class VoucherUsage(models.Model):
 class ComboDeal(models.Model):
     """
     Model Combo Deal - Khuyến mãi khi mua combo sản phẩm
-
+    
     Cho phép tạo các combo khuyến mãi:
     - Mua sản phẩm A + B + C được giảm X%
-
+    - Mua combo laptop + chuột + bàn phím giảm 500.000đ
+    
     Tự động áp dụng khi giỏ hàng chứa đủ các sản phẩm trong combo
     """
     # Thông tin combo
@@ -192,6 +204,9 @@ class ComboDeal(models.Model):
     def is_valid(self):
         """
         Kiểm tra combo có còn hiệu lực không
+        
+        Returns:
+            bool: True nếu combo còn hiệu lực
         """
         now = timezone.now()
         return (
@@ -203,24 +218,50 @@ class ComboDeal(models.Model):
 class FlashSale(models.Model):
     """
     Model Flash Sale - Giảm giá sốc theo thời gian
-
+    
     Chương trình giảm giá đặc biệt với:
     - Thời gian giới hạn (VD: 2 tiếng)
     - Số lượng giới hạn (VD: chỉ 50 sản phẩm)
-    - Giá sale đặc biệt
+    - Giá sale đặc biệt hoặc giảm theo phần trăm
+    
+    Thường dùng cho các sự kiện:
+    - Flash Sale 12h trưa
+    - Deal sốc cuối tuần
+    - Khuyến mãi sinh nhật
     """
+    DISCOUNT_TYPE_CHOICES = [
+        ('fixed', 'Giá cố định'),
+        ('percentage', 'Phần trăm'),
+    ]
+
     # Sản phẩm flash sale
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='flash_sales',
+        related_name='promo_flash_sales',
         verbose_name='Sản phẩm'
+    )
+
+    # Loại giảm giá
+    discount_type = models.CharField(
+        max_length=20,
+        choices=DISCOUNT_TYPE_CHOICES,
+        default='percentage',
+        verbose_name='Loại giảm giá'
+    )
+
+    # Phần trăm giảm giá (nếu discount_type = 'percentage')
+    discount_percent = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Phần trăm giảm (%)'
     )
 
     # Giá flash sale (thay thế giá gốc trong thời gian sale)
     sale_price = models.DecimalField(
         max_digits=12,
         decimal_places=2,
+        null=True,
+        blank=True,
         verbose_name='Giá flash sale'
     )
 
@@ -247,7 +288,10 @@ class FlashSale(models.Model):
     def is_available(self):
         """
         Kiểm tra flash sale có còn khả dụng không
-
+        
+        Returns:
+            bool: True nếu flash sale còn khả dụng
+            
         Điều kiện khả dụng:
         - Flash sale đang active
         - Thời gian hiện tại nằm trong khoảng start_time -> end_time
@@ -263,14 +307,52 @@ class FlashSale(models.Model):
     def remaining_quantity(self):
         """
         Tính số lượng còn lại
+        
+        Returns:
+            int: Số sản phẩm còn lại có thể mua
         """
         return max(0, self.quantity_limit - self.sold_count)
 
+    def get_effective_sale_price(self):
+        """
+        Tính giá bán thực tế dựa trên loại giảm giá
+        
+        Returns:
+            Decimal: Giá bán thực tế
+        """
+        from decimal import Decimal
+
+        if self.discount_type == 'percent' and self.discount_percent and self.discount_percent > 0:
+            discount_amount = self.product.price * Decimal(self.discount_percent) / 100
+            return self.product.price - discount_amount
+        elif self.sale_price:
+            return self.sale_price
+        return self.product.price
+
+    @property
     def discount_percentage(self):
         """
         Tính phần trăm giảm giá so với giá gốc
+        
+        Returns:
+            int: Phần trăm giảm giá (0-100)
         """
-        if self.product.price > 0:
+        if self.discount_type == 'percent' and self.discount_percent:
+            return self.discount_percent
+
+        if self.product.price > 0 and self.sale_price:
             discount = ((self.product.price - self.sale_price) / self.product.price) * 100
             return int(discount)
         return 0
+
+    def save(self, *args, **kwargs):
+        """Tính toán sale_price khi lưu"""
+        from decimal import Decimal
+
+        if self.discount_type == 'percent' and self.discount_percent and self.discount_percent > 0:
+            discount_amount = self.product.price * Decimal(self.discount_percent) / 100
+            self.sale_price = self.product.price - discount_amount
+        elif self.discount_type == 'fixed' and not self.sale_price:
+            self.sale_price = self.product.price
+
+        super().save(*args, **kwargs)

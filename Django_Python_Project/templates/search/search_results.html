@@ -3,202 +3,645 @@
 
 {% block title %}Tìm kiếm: {{ query }} - ElectroShop{% endblock %}
 
+{% block extra_css %}
+<style>
+.search-page {
+    padding: 2rem 0;
+    min-height: 70vh;
+}
+
+.search-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.search-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.search-breadcrumb a {
+    color: #6b7280;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.search-breadcrumb a:hover {
+    color: #14b8a6;
+}
+
+.search-breadcrumb i {
+    font-size: 0.75rem;
+}
+
+.search-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+}
+
+.filters-sidebar {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.filters-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+
+.filters-title i {
+    color: #14b8a6;
+}
+
+.filters-clear {
+    font-size: 0.85rem;
+    color: #6b7280;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.filters-clear:hover {
+    color: #ef4444;
+}
+
+.filter-group {
+    margin-bottom: 1.5rem;
+}
+
+.filter-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.75rem;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: #374151;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.25rem;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #14b8a6;
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+}
+
+.price-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.price-input {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    padding: 0.65rem 0.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    text-align: center;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.price-input:focus {
+    outline: none;
+    border-color: #14b8a6;
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+}
+
+.price-separator {
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+}
+
+.filter-checkbox input {
+    width: 20px;
+    height: 20px;
+    accent-color: #14b8a6;
+    cursor: pointer;
+}
+
+.filter-checkbox span {
+    font-size: 0.9rem;
+    color: #374151;
+}
+
+.filter-checkbox i {
+    color: #10b981;
+}
+
+.filter-apply-btn {
+    width: 100%;
+    padding: 0.875rem;
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.filter-apply-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(20, 184, 166, 0.3);
+}
+
+.search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.results-header {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.results-info h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 0.25rem 0;
+}
+
+.results-info h2 span {
+    color: #14b8a6;
+}
+
+.results-count {
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.results-count strong {
+    color: #111827;
+}
+
+.results-sort {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.results-sort label {
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.sort-select {
+    padding: 0.5rem 2rem 0.5rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #374151;
+    background: #fff;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1rem;
+}
+
+.sort-select:focus {
+    outline: none;
+    border-color: #14b8a6;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+
+.empty-results {
+    background: #fff;
+    border-radius: 16px;
+    padding: 4rem 2rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.empty-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.empty-icon i {
+    font-size: 2.5rem;
+    color: #9ca3af;
+}
+
+.empty-results h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 0.5rem 0;
+}
+
+.empty-results p {
+    color: #6b7280;
+    margin: 0 0 1.5rem 0;
+}
+
+.empty-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-primary-custom {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-primary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(20, 184, 166, 0.3);
+    color: #fff;
+}
+
+.btn-secondary-custom {
+    padding: 0.75rem 1.5rem;
+    background: #fff;
+    color: #374151;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-secondary-custom:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+    color: #374151;
+}
+
+.suggestions-card {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    margin-top: 1.5rem;
+}
+
+.suggestions-header {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.suggestions-header i {
+    color: #d97706;
+    font-size: 1.1rem;
+}
+
+.suggestions-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #92400e;
+}
+
+.suggestions-body {
+    padding: 1.25rem 1.5rem;
+}
+
+.suggestions-body ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: #4b5563;
+}
+
+.suggestions-body li {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.suggestions-body li:last-child {
+    margin-bottom: 0;
+}
+
+.pagination-custom {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+
+.page-btn {
+    min-width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    background: #fff;
+    color: #374151;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.page-btn:hover {
+    border-color: #14b8a6;
+    color: #14b8a6;
+}
+
+.page-btn.active {
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+    border-color: transparent;
+    color: #fff;
+}
+
+@media (max-width: 992px) {
+    .search-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .filters-sidebar {
+        position: static;
+    }
+}
+
+@media (max-width: 576px) {
+    .search-page {
+        padding: 1rem 0;
+    }
+    
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .results-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<nav aria-label="breadcrumb" class="mb-4">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'products:home' %}">Trang chủ</a></li>
-        <li class="breadcrumb-item active">Tìm kiếm</li>
-    </ol>
-</nav>
+<div class="search-page">
+    <div class="search-container">
+        <nav class="search-breadcrumb">
+            <a href="{% url 'products:home' %}"><i class="bi bi-house-fill"></i> Trang chủ</a>
+            <i class="bi bi-chevron-right"></i>
+            <span>Tìm kiếm</span>
+            {% if query %}
+            <i class="bi bi-chevron-right"></i>
+            <span>{{ query }}</span>
+            {% endif %}
+        </nav>
 
-</div>
-<div class="row">
-    <!-- Filters Sidebar -->
-    <div class="col-lg-3 mb-4">
-        <div class="card search-filters">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0"><i class="bi bi-funnel me-2 text-primary"></i>Bộ lọc</h5>
-                <a class="btn btn-sm btn-link text-muted p-0" href="{% url 'search:search' %}?q={{ query }}">Xóa</a>
-            </div>
-
-            <form action="{% url 'search:search' %}" id="filterForm" method="get">
-                <input name="q" type="hidden" value="{{ query }}">
-
-                <!-- Category -->
-                <div class="filter-section">
-                    <h6 class="filter-title">Danh mục</h6>
-                    <select class="form-select form-select-sm" name="category" onchange="this.form.submit()">
-                        <option value="">Tất cả danh mục</option>
-                        {% for cat in categories %}
-                        <option %} %}selected{% cat.slug endif filters.category== if value="{{ cat.slug }}" {%>
-                            {{ cat.name }}
-                        </option>
-                        {% endfor %}
-                    </select>
+        <div class="search-layout">
+            <aside class="filters-sidebar">
+                <div class="filters-header">
+                    <h3 class="filters-title">
+                        <i class="bi bi-sliders"></i>
+                        Bộ lọc
+                    </h3>
+                    <a href="{% url 'search:search' %}?q={{ query }}" class="filters-clear">
+                        <i class="bi bi-x-circle"></i> Xóa bộ lọc
+                    </a>
                 </div>
-
-                <!-- Brand -->
-                {% if brands %}
-                <div class="filter-section">
-                    <h6 class="filter-title">Thương hiệu</h6>
-                    <select class="form-select form-select-sm" name="brand" onchange="this.form.submit()">
-                        <option value="">Tất cả thương hiệu</option>
-                        {% for brand in brands %}
-                        <option %} %}selected{% brand.slug endif filters.brand== if value="{{ brand.slug }}" {%>
-                            {{ brand.name }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                {% endif %}
-
-                <!-- Price Range -->
-                <div class="filter-section">
-                    <h6 class="filter-title">Khoảng giá</h6>
-                    <div class="price-range mb-2">
-                        <input class="form-control form-control-sm" name="min_price" placeholder="Từ"
-                               type="number" value="{{ filters.min_price }}">
-                        <span class="text-muted">-</span>
-                        <input class="form-control form-control-sm" name="max_price" placeholder="Đến"
-                               type="number" value="{{ filters.max_price }}">
+                
+                <form method="get" id="filterForm">
+                    <input type="hidden" name="q" value="{{ query }}">
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Danh mục</label>
+                        <select name="category" class="filter-select" onchange="this.form.submit()">
+                            <option value="">Tất cả danh mục</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.slug }}" {% if filters.category == cat.slug %}selected{% endif %}>
+                                {{ cat.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
                     </div>
-                </div>
-
-                <!-- In Stock -->
-                <div class="filter-section" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">
-                    <div class="form-check">
-                        <input
-                                class="form-check-input"
-                                filters.in_stock== id="inStock" if
-                                name="in_stock" onchange="this.form.submit()"
-                                type="checkbox" value="true" {% 'true' %}checked{% endif %}>
-
-                        <label class="form-check-label" for="inStock">
-                            <i class="bi bi-check-circle text-success me-1"></i>Chỉ còn hàng
+                    
+                    {% if brands %}
+                    <div class="filter-group">
+                        <label class="filter-label">Thương hiệu</label>
+                        <select name="brand" class="filter-select" onchange="this.form.submit()">
+                            <option value="">Tất cả thương hiệu</option>
+                            {% for brand in brands %}
+                            <option value="{{ brand.slug }}" {% if filters.brand == brand.slug %}selected{% endif %}>
+                                {{ brand.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Khoảng giá (VNĐ)</label>
+                        <div class="price-inputs">
+                            <input type="number" name="min_price" class="price-input" 
+                                   placeholder="Từ" value="{{ filters.min_price }}">
+                            <span class="price-separator">—</span>
+                            <input type="number" name="max_price" class="price-input" 
+                                   placeholder="Đến" value="{{ filters.max_price }}">
+                        </div>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-checkbox">
+                            <input type="checkbox" name="in_stock" value="true" 
+                                   {% if filters.in_stock %}checked{% endif %} onchange="this.form.submit()">
+                            <span><i class="bi bi-check-circle-fill"></i> Chỉ còn hàng</span>
                         </label>
                     </div>
-                </div>
+                    
+                    <button type="submit" class="filter-apply-btn">
+                        <i class="bi bi-funnel-fill"></i>
+                        Áp dụng bộ lọc
+                    </button>
+                </form>
+            </aside>
 
-                <button class="btn btn-primary w-100 mt-3" type="submit">
-                    <i class="bi bi-search me-1"></i>Áp dụng
-                </button>
-            </form>
-
-        </div>
-    </div>
-
-    <!-- Results -->
-    <div class="col-lg-9">
-        <!-- Search Header -->
-        <div class="card mb-4">
-            <div class="card-body py-3">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                    <div>
+            <main class="search-results">
+                <div class="results-header">
+                    <div class="results-info">
                         {% if query %}
-                        <h5 class="mb-1">Kết quả tìm kiếm: "<span class="text-primary">{{ query }}</span>"</h5>
+                        <h2>Kết quả cho "<span>{{ query }}</span>"</h2>
+                        {% else %}
+                        <h2>Tất cả sản phẩm</h2>
                         {% endif %}
-                        <span class="search-results-count">
-                            Tìm thấy <span class="fw-semibold">{{ total_results }}</span> sản phẩm
-                        </span>
+                        <p class="results-count">
+                            Tìm thấy <strong>{{ total_results }}</strong> sản phẩm
+                        </p>
                     </div>
-                    <div class="search-sort">
-                        <label class="text-muted me-2">Sắp xếp:</label>
-                        <select class="form-select form-select-sm" name="sort" onchange="window.location.href='?q={{ query }}&sort=' + this.value"
-                                style="width: auto;">
-                            <option if sort== value="relevance" {%
-                            'relevance' %}selected{% endif %}>Liên quan nhất</option>
-                            <option if sort== value="price_asc" {%
-                            'price_asc' %}selected{% endif %}>Giá thấp → cao</option>
-                            <option if sort== value="price_desc" {%
-                            'price_desc' %}selected{% endif %}>Giá cao → thấp</option>
-                            <option if sort== value="newest" {%
-                            'newest' %}selected{% endif %}>Mới nhất</option>
-                            <option if sort== value="rating" {%
-                            'rating' %}selected{% endif %}>Đánh giá cao</option>
+                    <div class="results-sort">
+                        <label>Sắp xếp:</label>
+                        <select class="sort-select" onchange="window.location.href='?q={{ query }}&sort=' + this.value">
+                            <option value="relevance" {% if sort == 'relevance' %}selected{% endif %}>Liên quan nhất</option>
+                            <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Giá thấp đến cao</option>
+                            <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Giá cao đến thấp</option>
+                            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Mới nhất</option>
+                            <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Đánh giá cao</option>
                         </select>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        {% if products %}
-        <!-- Product Grid -->
-        <div class="row g-4">
-            {% for product in products %}
-            <div class="col-6 col-md-4">
-                {% include 'partials/_product_card.html' %}
-            </div>
-            {% endfor %}
-        </div>
+                {% if products %}
+                <div class="products-grid">
+                    {% for product in products %}
+                    {% include 'partials/_product_card.html' %}
+                    {% endfor %}
+                </div>
 
-        <!-- Pagination -->
-        {% if products.has_other_pages %}
-        <nav class="mt-4">
-            <ul class="pagination justify-content-center">
-                {% if products.has_previous %}
-                <li class="page-item">
-                    <a class="page-link"
-                       href="?q={{ query }}&page={{ products.previous_page_number }}{% if sort %}&sort={{ sort }}{% endif %}">
+                {% if products.has_other_pages %}
+                <nav class="pagination-custom">
+                    {% if products.has_previous %}
+                    <a href="?q={{ query }}&page={{ products.previous_page_number }}{% if sort %}&sort={{ sort }}{% endif %}" class="page-btn">
                         <i class="bi bi-chevron-left"></i>
                     </a>
-                </li>
-                {% endif %}
-
-                {% for num in products.paginator.page_range %}
-                {% if num > products.number|add:'-3' and num < products.number|add:'3' %}
-                <li class="page-item {% if products.number == num %}active{% endif %}">
-                    <a class="page-link" href="?q={{ query }}&page={{ num }}{% if sort %}&sort={{ sort }}{% endif %}">{{
-                        num }}</a>
-                </li>
-                {% endif %}
-                {% endfor %}
-
-                {% if products.has_next %}
-                <li class="page-item">
-                    <a class="page-link"
-                       href="?q={{ query }}&page={{ products.next_page_number }}{% if sort %}&sort={{ sort }}{% endif %}">
+                    {% endif %}
+                    
+                    {% for num in products.paginator.page_range %}
+                    {% if num > products.number|add:'-3' and num < products.number|add:'3' %}
+                    <a href="?q={{ query }}&page={{ num }}{% if sort %}&sort={{ sort }}{% endif %}" 
+                       class="page-btn {% if products.number == num %}active{% endif %}">
+                        {{ num }}
+                    </a>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if products.has_next %}
+                    <a href="?q={{ query }}&page={{ products.next_page_number }}{% if sort %}&sort={{ sort }}{% endif %}" class="page-btn">
                         <i class="bi bi-chevron-right"></i>
                     </a>
-                </li>
+                    {% endif %}
+                </nav>
                 {% endif %}
-            </ul>
-        </nav>
-        {% endif %}
-
-        {% else %}
-        <!-- Empty State -->
-        <div class="card">
-            <div class="card-body">
-                <div class="empty-state">
-                    <i class="bi bi-search"></i>
-                    <h4>Không tìm thấy sản phẩm</h4>
+                
+                {% else %}
+                <div class="empty-results">
+                    <div class="empty-icon">
+                        <i class="bi bi-search"></i>
+                    </div>
+                    <h3>Không tìm thấy sản phẩm</h3>
                     <p>Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc</p>
-                    <div class="d-flex gap-2 justify-content-center">
-                        <a class="btn btn-primary" href="{% url 'products:product_list' %}">
-                            <i class="bi bi-grid me-1"></i>Xem tất cả sản phẩm
+                    <div class="empty-actions">
+                        <a href="{% url 'products:product_list' %}" class="btn-primary-custom">
+                            <i class="bi bi-grid-3x3-gap-fill"></i>
+                            Xem tất cả sản phẩm
                         </a>
-                        <a class="btn btn-outline-secondary" href="{% url 'products:home' %}">
-                            <i class="bi bi-house me-1"></i>Về trang chủ
+                        <a href="{% url 'products:home' %}" class="btn-secondary-custom">
+                            <i class="bi bi-house-fill"></i>
+                            Về trang chủ
                         </a>
                     </div>
                 </div>
-            </div>
+                
+                <div class="suggestions-card">
+                    <div class="suggestions-header">
+                        <i class="bi bi-lightbulb-fill"></i>
+                        <h4>Gợi ý tìm kiếm</h4>
+                    </div>
+                    <div class="suggestions-body">
+                        <ul>
+                            <li>Kiểm tra chính tả từ khóa của bạn</li>
+                            <li>Sử dụng từ khóa ngắn gọn và phổ biến hơn</li>
+                            <li>Thử tìm kiếm theo tên thương hiệu hoặc danh mục sản phẩm</li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </main>
         </div>
-
-        <!-- Search Suggestions -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-lightbulb me-2 text-warning"></i>Gợi ý tìm kiếm</h6>
-            </div>
-            <div class="card-body">
-                <ul class="mb-0">
-                    <li>Kiểm tra chính tả từ khóa</li>
-                    <li>Sử dụng từ khóa ngắn gọn hơn</li>
-                    <li>Thử tìm kiếm theo tên thương hiệu hoặc danh mục</li>
-                </ul>
-            </div>
-        </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

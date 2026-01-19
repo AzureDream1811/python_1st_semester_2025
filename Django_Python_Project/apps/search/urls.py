@@ -1,10 +1,15 @@
 """
 URL Configuration cho Search App - ElectroShop
+
+Định nghĩa các URL patterns cho chức năng tìm kiếm:
+- /search/ - Trang kết quả tìm kiếm
+- /search/autocomplete/ - API gợi ý tìm kiếm
+- /search/suggestions/ - API từ khóa phổ biến
 """
 from django.urls import path
-
 from . import views
 
+# Namespace cho app, dùng trong template: {% url 'search:search' %}
 app_name = 'search'
 
 urlpatterns = [

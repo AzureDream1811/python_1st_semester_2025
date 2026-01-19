@@ -1,194 +1,474 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}{% if is_edit %}Sửa{% else %}Thêm{% endif %} địa chỉ - ElectroShop{% endblock %}
+{% block title %}{% if is_edit %}Chỉnh sửa{% else %}Thêm{% endif %} địa chỉ - ElectroShop{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --ink: #0f172a;
+    --muted: #475569;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --surface: #ffffff;
+    --surface-muted: #f8fafc;
+    --border: #e2e8f0;
+    --border-focus: #2563eb;
+    --success: #10b981;
+    --danger: #ef4444;
+}
+
+body {
+    background: linear-gradient(135deg, #f6f7fb 0%, #eef2f7 50%, #f8fafc 100%);
+}
+
+.address-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem;
+}
+
+.address-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.address-header__icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--accent), #3b82f6);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+}
+
+.address-header__icon i {
+    font-size: 28px;
+    color: white;
+}
+
+.address-header__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 0.5rem;
+}
+
+.address-header__subtitle {
+    color: var(--muted);
+    margin: 0;
+}
+
+.address-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+}
+
+.address-card__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+}
+
+.address-card__header i {
+    color: var(--accent);
+    font-size: 1.25rem;
+}
+
+.address-card__header h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.form-row--3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 640px) {
+    .form-row, .form-row--3 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-group {
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.form-label .required {
+    color: var(--danger);
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface-muted);
+    font-size: 0.9375rem;
+    color: var(--ink);
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-control:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.form-control.is-invalid {
+    border-color: var(--danger);
+    background: #fef2f2;
+}
+
+.form-control.is-valid {
+    border-color: var(--success);
+}
+
+.invalid-feedback {
+    display: none;
+    color: var(--danger);
+    font-size: 0.8125rem;
+    margin-top: 0.375rem;
+}
+
+.is-invalid ~ .invalid-feedback,
+.is-invalid + .invalid-feedback {
+    display: block;
+}
+
+.form-hint {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    margin-top: 0.375rem;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.form-check-input {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+.form-check-label {
+    font-weight: 500;
+    color: var(--ink);
+    cursor: pointer;
+}
+
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+}
+
+.btn-secondary {
+    background: var(--surface-muted);
+    color: var(--ink);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 0.8s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23475569' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.alert-danger {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+}
+
+.alert-success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+}
+
+.alert i {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0">
-                        <i class="bi bi-geo-alt me-2 text-primary"></i>
-                        {% if is_edit %}Sửa địa chỉ{% else %}Thêm địa chỉ mới{% endif %}
-                    </h5>
+<div class="address-page">
+    <div class="address-header">
+        <div class="address-header__icon">
+            <i class="bi bi-geo-alt"></i>
+        </div>
+        <h1 class="address-header__title">{% if is_edit %}Chỉnh sửa địa chỉ{% else %}Thêm địa chỉ mới{% endif %}</h1>
+        <p class="address-header__subtitle">Địa chỉ giao hàng chính xác giúp đơn hàng đến tay bạn nhanh hơn</p>
+    </div>
+    
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+        <i class="bi bi-{% if message.tags == 'error' %}exclamation-circle{% else %}check-circle{% endif %}"></i>
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+    {% endif %}
+    
+    <div class="address-card">
+        <div class="address-card__header">
+            <i class="bi bi-person-lines-fill"></i>
+            <h2>Thông tin người nhận</h2>
+        </div>
+        
+        <form method="post" id="addressForm" novalidate>
+            {% csrf_token %}
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="full_name">
+                        Họ tên người nhận <span class="required">*</span>
+                    </label>
+                    <input type="text" class="form-control" id="full_name" name="full_name" 
+                           value="{% if address %}{{ address.full_name }}{% endif %}" 
+                           placeholder="Nguyễn Văn A" required>
+                    <div class="invalid-feedback"></div>
                 </div>
-                <div class="card-body">
-                    <form id="addressForm" method="post">
-                        {% csrf_token %}
-
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Họ tên người nhận <span class="text-danger">*</span></label>
-                                <input class="form-control" name="full_name" required
-                                       type="text" value="{% if address %}{{ address.full_name }}{% endif %}">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
-                                <input class="form-control" name="phone" required
-                                       type="tel" value="{% if address %}{{ address.phone }}{% endif %}">
-                            </div>
-
-                            <div class="col-12">
-                                <label class="form-label">Địa chỉ chi tiết <span class="text-danger">*</span></label>
-                                <input class="form-control" name="address" placeholder="Số nhà, tên đường"
-                                       required
-                                       type="text" value="{% if address %}{{ address.address }}{% endif %}">
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Tỉnh/Thành phố <span class="text-danger">*</span></label>
-                                <select class="form-select" id="provinceSelect" name="province_code" required>
-                                    <option value="">-- Chọn Tỉnh/Thành phố --</option>
-                                    {% for p in provinces %}
-                                    <option %} %}selected{%
-                                            address address.province_code== and data-name="{{ p.name }}" endif if p.code value="{{ p.code }}" {%>
-                                        {{ p.name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                                <input id="provinceName" name="province" type="hidden"
-                                       value="{% if address %}{{ address.province }}{% endif %}">
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Quận/Huyện <span class="text-danger">*</span></label>
-                                <select class="form-select" id="districtSelect" name="district_code" required>
-                                    <option value="">-- Chọn Quận/Huyện --</option>
-                                    {% for d in districts %}
-                                    <option %} %}selected{%
-                                            address address.district_code== and d.code data-name="{{ d.name }}" endif if value="{{ d.code }}" {%>
-                                        {{ d.name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                                <input id="districtName" name="district" type="hidden"
-                                       value="{% if address %}{{ address.district }}{% endif %}">
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Phường/Xã</label>
-                                <select class="form-select" id="wardSelect" name="ward_code">
-                                    <option value="">-- Chọn Phường/Xã --</option>
-                                    {% for w in wards %}
-                                    <option %} %}selected{%
-                                            address address.ward_code== and data-name="{{ w.name }}" endif if value="{{ w.code }}" w.code {%>
-                                        {{ w.name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                                <input id="wardName" name="ward" type="hidden"
-                                       value="{% if address %}{{ address.ward }}{% endif %}">
-                            </div>
-
-                            <div class="col-12">
-                                <div class="form-check">
-                                    <input %} %}checked{% address address.is_default
-                                           and class="form-check-input" endif id="isDefault" if name="is_default" type="checkbox" {%>
-                                    <label class="form-check-label" for="isDefault">
-                                        Đặt làm địa chỉ mặc định
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 d-flex gap-2">
-                            <button class="btn btn-primary" type="submit">
-                                <i class="bi bi-check-lg me-1"></i>
-                                {% if is_edit %}Cập nhật{% else %}Thêm địa chỉ{% endif %}
-                            </button>
-                            <a class="btn btn-outline-secondary" href="{% url 'accounts:address_list' %}">
-                                Hủy
-                            </a>
-                        </div>
-                    </form>
+                <div class="form-group">
+                    <label class="form-label" for="phone">
+                        Số điện thoại <span class="required">*</span>
+                    </label>
+                    <input type="tel" class="form-control" id="phone" name="phone" 
+                           value="{% if address %}{{ address.phone }}{% endif %}" 
+                           placeholder="0912345678" required>
+                    <div class="invalid-feedback"></div>
+                    <div class="form-hint">Định dạng: 0xxxxxxxxx hoặc +84xxxxxxxxx</div>
                 </div>
             </div>
-        </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="address">
+                    Địa chỉ chi tiết <span class="required">*</span>
+                </label>
+                <input type="text" class="form-control" id="address" name="address" 
+                       value="{% if address %}{{ address.address }}{% endif %}" 
+                       placeholder="Số nhà, tên đường, tòa nhà..." required>
+                <div class="invalid-feedback"></div>
+            </div>
+            
+            <div class="form-row form-row--3">
+                <div class="form-group">
+                    <label class="form-label" for="provinceSelect">
+                        Tỉnh/Thành phố <span class="required">*</span>
+                    </label>
+                    <select class="form-control" id="provinceSelect" name="province_code" required>
+                        <option value="">-- Chọn Tỉnh/Thành phố --</option>
+                        {% for p in provinces %}
+                        <option value="{{ p.code }}" data-name="{{ p.name }}" 
+                                {% if address and address.province_code == p.code %}selected{% endif %}>
+                            {{ p.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" name="province" id="provinceName" 
+                           value="{% if address %}{{ address.province }}{% endif %}">
+                    <div class="invalid-feedback"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="districtSelect">
+                        Quận/Huyện <span class="required">*</span>
+                    </label>
+                    <select class="form-control" id="districtSelect" name="district_code" required 
+                            {% if not address or not address.province_code %}disabled{% endif %}>
+                        <option value="">-- Chọn Quận/Huyện --</option>
+                        {% if districts %}
+                        {% for d in districts %}
+                        <option value="{{ d.code }}" data-name="{{ d.name }}"
+                                {% if address and address.district_code == d.code %}selected{% endif %}>
+                            {{ d.name }}
+                        </option>
+                        {% endfor %}
+                        {% endif %}
+                    </select>
+                    <input type="hidden" name="district" id="districtName" 
+                           value="{% if address %}{{ address.district }}{% endif %}">
+                    <div class="invalid-feedback"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="wardSelect">
+                        Phường/Xã
+                    </label>
+                    <select class="form-control" id="wardSelect" name="ward_code"
+                            {% if not address or not address.district_code %}disabled{% endif %}>
+                        <option value="">-- Chọn Phường/Xã --</option>
+                        {% if wards %}
+                        {% for w in wards %}
+                        <option value="{{ w.code }}" data-name="{{ w.name }}"
+                                {% if address and address.ward_code == w.code %}selected{% endif %}>
+                            {{ w.name }}
+                        </option>
+                        {% endfor %}
+                        {% endif %}
+                    </select>
+                    <input type="hidden" name="ward" id="wardName" 
+                           value="{% if address %}{{ address.ward }}{% endif %}">
+                </div>
+            </div>
+            
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="isDefault" name="is_default"
+                       {% if address and address.is_default %}checked{% endif %}>
+                <label class="form-check-label" for="isDefault">
+                    Đặt làm địa chỉ mặc định
+                </label>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="bi bi-check-lg"></i>
+                    {% if is_edit %}Cập nhật địa chỉ{% else %}Thêm địa chỉ{% endif %}
+                </button>
+                <a href="{% url 'accounts:profile' %}?tab=addresses" class="btn btn-secondary">
+                    <i class="bi bi-x-lg"></i>
+                    Hủy
+                </a>
+            </div>
+        </form>
     </div>
 </div>
 
+<script src="{% static 'js/address-cascade.js' %}"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const provinceSelect = document.getElementById('provinceSelect');
-        const districtSelect = document.getElementById('districtSelect');
-        const wardSelect = document.getElementById('wardSelect');
-
-        const provinceName = document.getElementById('provinceName');
-        const districtName = document.getElementById('districtName');
-        const wardName = document.getElementById('wardName');
-
-        // Update hidden name fields when selection changes
-        function updateHiddenName(select, hiddenInput) {
-            const selected = select.options[select.selectedIndex];
-            hiddenInput.value = selected ? selected.dataset.name || '' : '';
-        }
-
-        // Fetch districts when province changes
-        provinceSelect.addEventListener('change', async function () {
-            const code = this.value;
-            updateHiddenName(this, provinceName);
-
-            // Reset district and ward
-            districtSelect.innerHTML = '<option value="">-- Chọn Quận/Huyện --</option>';
-            wardSelect.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>';
-            districtName.value = '';
-            wardName.value = '';
-
-            if (!code) return;
-
-            try {
-                const response = await fetch(`/accounts/api/districts/${code}/`);
-                const data = await response.json();
-
-                data.districts.forEach(d => {
-                    const option = document.createElement('option');
-                    option.value = d.code;
-                    option.textContent = d.name;
-                    option.dataset.name = d.name;
-                    districtSelect.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Error fetching districts:', error);
-            }
-        });
-
-        // Fetch wards when district changes
-        districtSelect.addEventListener('change', async function () {
-            const code = this.value;
-            updateHiddenName(this, districtName);
-
-            // Reset ward
-            wardSelect.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>';
-            wardName.value = '';
-
-            if (!code) return;
-
-            try {
-                const response = await fetch(`/accounts/api/wards/${code}/`);
-                const data = await response.json();
-
-                data.wards.forEach(w => {
-                    const option = document.createElement('option');
-                    option.value = w.code;
-                    option.textContent = w.name;
-                    option.dataset.name = w.name;
-                    wardSelect.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Error fetching wards:', error);
-            }
-        });
-
-        // Update ward name when selection changes
-        wardSelect.addEventListener('change', function () {
-            updateHiddenName(this, wardName);
-        });
-
-        // Initialize hidden names if editing
-        updateHiddenName(provinceSelect, provinceName);
-        updateHiddenName(districtSelect, districtName);
-        updateHiddenName(wardSelect, wardName);
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize address cascade
+    const cascade = new AddressCascade({
+        provinceSelectId: 'provinceSelect',
+        districtSelectId: 'districtSelect',
+        wardSelectId: 'wardSelect',
+        provinceNameId: 'provinceName',
+        districtNameId: 'districtName',
+        wardNameId: 'wardName',
+        initialProvinceCode: '{{ address.province_code|default:"" }}',
+        initialDistrictCode: '{{ address.district_code|default:"" }}',
+        initialWardCode: '{{ address.ward_code|default:"" }}'
     });
+    
+    // Initialize form validator
+    const validator = new AddressFormValidator('addressForm', {
+        fullNameId: 'full_name',
+        phoneId: 'phone',
+        addressId: 'address',
+        provinceSelectId: 'provinceSelect',
+        districtSelectId: 'districtSelect'
+    });
+});
 </script>
 {% endblock %}

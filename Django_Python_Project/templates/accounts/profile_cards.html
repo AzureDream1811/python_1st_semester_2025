@@ -1,131 +1,476 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block title %}Thẻ thanh toán - ElectroShop{% endblock %}
 
+{% block extra_css %}
+<style>
+.cards-page {
+    padding: var(--es-space-4) 0;
+}
+
+.page-hero {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border-radius: var(--es-radius-bento);
+    padding: var(--es-space-4);
+    margin-bottom: var(--es-space-4);
+    color: var(--es-white);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--es-space-2);
+    position: relative;
+    overflow: hidden;
+}
+
+.page-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-content h1 {
+    font-size: var(--es-text-2xl);
+    font-weight: var(--es-font-bold);
+    margin: 0 0 var(--es-space-1) 0;
+}
+
+.hero-content p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+.hero-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 6px 12px;
+    border-radius: var(--es-radius-full);
+    font-size: var(--es-text-sm);
+    margin-top: var(--es-space-1);
+    display: inline-block;
+}
+
+.btn-hero {
+    background: var(--es-white);
+    color: #1e293b;
+    padding: 12px 24px;
+    border-radius: var(--es-radius-md);
+    font-weight: var(--es-font-semibold);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--es-transition-fast);
+    position: relative;
+    z-index: 1;
+}
+
+.btn-hero:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.page-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: var(--es-space-3);
+}
+
+.sidebar {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.sidebar-card {
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    box-shadow: var(--es-shadow-card);
+    padding: var(--es-space-2);
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    padding: 12px 16px;
+    border-radius: var(--es-radius-md);
+    color: var(--es-text-secondary);
+    text-decoration: none;
+    font-weight: var(--es-font-medium);
+    transition: all var(--es-transition-fast);
+}
+
+.sidebar-link:hover {
+    background: var(--es-bg-secondary);
+    color: var(--es-text-primary);
+}
+
+.sidebar-link.active {
+    background: var(--es-primary);
+    color: var(--es-white);
+}
+
+.sidebar-link--logout {
+    color: var(--es-danger);
+    margin-top: var(--es-space-1);
+    border-top: 1px solid var(--es-border-light);
+    padding-top: var(--es-space-2);
+}
+
+.sidebar-link--logout:hover {
+    background: #fee2e2;
+    color: var(--es-danger);
+}
+
+.main-content {
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    box-shadow: var(--es-shadow-card);
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--es-space-3);
+    border-bottom: 1px solid var(--es-border-light);
+}
+
+.content-title {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    font-size: var(--es-text-lg);
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+    margin: 0;
+}
+
+.content-title i {
+    color: var(--es-primary);
+}
+
+.content-body {
+    padding: var(--es-space-3);
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--es-space-3);
+}
+
+.payment-card {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+    color: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    padding: var(--es-space-3);
+    position: relative;
+    overflow: hidden;
+    transition: all var(--es-transition-normal);
+}
+
+.payment-card::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    right: -15%;
+    width: 150px;
+    height: 150px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+}
+
+.payment-card::after {
+    content: '';
+    position: absolute;
+    bottom: -20%;
+    left: -10%;
+    width: 100px;
+    height: 100px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+}
+
+.payment-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(30, 41, 59, 0.3);
+}
+
+.payment-card--expired {
+    background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+    opacity: 0.85;
+}
+
+.card-badges {
+    display: flex;
+    gap: var(--es-space-1);
+    margin-bottom: var(--es-space-2);
+    position: relative;
+    z-index: 1;
+}
+
+.card-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 4px 10px;
+    border-radius: var(--es-radius-full);
+    font-size: var(--es-text-xs);
+    font-weight: var(--es-font-semibold);
+}
+
+.card-badge--danger {
+    background: rgba(239, 68, 68, 0.3);
+}
+
+.card-number {
+    font-size: var(--es-text-xl);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 3px;
+    margin-bottom: var(--es-space-2);
+    position: relative;
+    z-index: 1;
+}
+
+.card-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--es-text-sm);
+    opacity: 0.85;
+    margin-bottom: var(--es-space-2);
+    position: relative;
+    z-index: 1;
+}
+
+.card-actions {
+    display: flex;
+    gap: var(--es-space-1);
+    position: relative;
+    z-index: 1;
+}
+
+.btn-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px;
+    border-radius: var(--es-radius-md);
+    font-size: var(--es-text-xs);
+    font-weight: var(--es-font-semibold);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all var(--es-transition-fast);
+}
+
+.btn-card--primary {
+    background: var(--es-white);
+    color: #1e293b;
+}
+
+.btn-card--primary:hover {
+    background: #f1f5f9;
+}
+
+.btn-card--danger {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--es-white);
+}
+
+.btn-card--danger:hover {
+    background: rgba(239, 68, 68, 0.4);
+}
+
+.security-notice {
+    margin-top: var(--es-space-3);
+    padding: var(--es-space-2);
+    background: var(--es-bg-secondary);
+    border-radius: var(--es-radius-md);
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+}
+
+.security-notice i {
+    font-size: 1.25rem;
+    color: var(--es-success);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--es-space-6);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: var(--es-text-muted);
+    opacity: 0.3;
+    margin-bottom: var(--es-space-2);
+}
+
+.empty-state p {
+    color: var(--es-text-muted);
+    margin-bottom: var(--es-space-2);
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 20px;
+    border-radius: var(--es-radius-md);
+    font-size: var(--es-text-sm);
+    font-weight: var(--es-font-semibold);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all var(--es-transition-fast);
+}
+
+.btn-action--primary {
+    background: var(--es-primary);
+    color: var(--es-white);
+}
+
+.btn-action--primary:hover {
+    background: var(--es-primary-dark);
+}
+
+@media (max-width: 992px) {
+    .page-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar {
+        position: relative;
+        top: auto;
+    }
+    
+    .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .sidebar-link {
+        flex: 0 0 auto;
+        padding: 8px 12px;
+    }
+    
+    .sidebar-link--logout {
+        margin-top: 0;
+        border-top: none;
+        padding-top: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-hero {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="row">
+<div class="container cards-page">
+    <!-- Hero -->
+    <section class="page-hero">
+        <div class="hero-content">
+            <h1><i class="bi bi-credit-card me-2"></i>Thẻ thanh toán</h1>
+            <p>Lưu trữ và quản lý thẻ để thanh toán nhanh chóng, an toàn</p>
+            <span class="hero-badge">{{ cards|length }} thẻ đã lưu</span>
+        </div>
+        <a href="{% url 'accounts:card_create' %}" class="btn-hero">
+            <i class="bi bi-plus-lg"></i> Thêm thẻ mới
+        </a>
+    </section>
+
+    <div class="page-layout">
         <!-- Sidebar -->
-        <div class="col-lg-3 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
-                             style="width: 50px; height: 50px;">
-                            <i class="bi bi-person-fill fs-4"></i>
-                        </div>
-                        <div class="ms-3">
-                            <h6 class="mb-0">{{ user.get_full_name|default:user.username }}</h6>
-                            <small class="text-muted">{{ user.email }}</small>
-                        </div>
-                    </div>
-                    <hr>
-                    <nav class="nav flex-column">
-                        <a class="nav-link" href="{% url 'accounts:profile' %}">
-                            <i class="bi bi-person me-2"></i>Thông tin cá nhân
-                        </a>
-                        <a class="nav-link" href="{% url 'accounts:address_list' %}">
-                            <i class="bi bi-geo-alt me-2"></i>Địa chỉ giao hàng
-                        </a>
-                        <a class="nav-link active" href="{% url 'accounts:card_list' %}">
-                            <i class="bi bi-credit-card me-2"></i>Thẻ thanh toán
-                        </a>
-                        <a class="nav-link" href="{% url 'orders:list' %}">
-                            <i class="bi bi-bag me-2"></i>Đơn hàng của tôi
-                        </a>
-                    </nav>
-                </div>
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <nav class="sidebar-nav">
+                    <a href="{% url 'accounts:profile' %}" class="sidebar-link"><i class="bi bi-person"></i> Thông tin cá nhân</a>
+                    <a href="{% url 'orders:list' %}" class="sidebar-link"><i class="bi bi-box-seam"></i> Đơn hàng</a>
+                    <a href="{% url 'accounts:address_list' %}" class="sidebar-link"><i class="bi bi-geo-alt"></i> Địa chỉ</a>
+                    <a href="{% url 'accounts:card_list' %}" class="sidebar-link active"><i class="bi bi-credit-card"></i> Thẻ thanh toán</a>
+                    <a href="{% url 'accounts:logout' %}" class="sidebar-link sidebar-link--logout"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
+                </nav>
             </div>
-        </div>
+        </aside>
 
-        <!-- Main Content -->
-        <div class="col-lg-9">
-            <div class="card">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <h5 class="mb-0">
-                        <i class="bi bi-credit-card me-2 text-primary"></i>Thẻ thanh toán
-                    </h5>
-                    <a class="btn btn-primary btn-sm" href="{% url 'accounts:card_create' %}">
-                        <i class="bi bi-plus-lg me-1"></i>Thêm thẻ
-                    </a>
-                </div>
-                <div class="card-body">
-                    {% if cards %}
-                    <div class="row g-3">
-                        {% for card in cards %}
-                        <div class="col-md-6">
-                            <div class="card h-100 {% if card.is_default %}border-primary{% endif %} {% if card.is_expired %}border-danger{% endif %}">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <div>
-                                            {% if card.is_default %}
-                                            <span class="badge bg-primary me-1">Mặc định</span>
-                                            {% endif %}
-                                            {% if card.is_expired %}
-                                            <span class="badge bg-danger">Hết hạn</span>
-                                            {% endif %}
-                                        </div>
-                                        <!-- Card Type Icon -->
-                                        {% if card.card_type == 'visa' %}
-                                        <img alt="Visa" height="30" src="https://img.icons8.com/color/48/visa.png">
-                                        {% elif card.card_type == 'mastercard' %}
-                                        <img alt="Mastercard" height="30"
-                                             src="https://img.icons8.com/color/48/mastercard.png">
-                                        {% elif card.card_type == 'jcb' %}
-                                        <img alt="JCB" height="30" src="https://img.icons8.com/color/48/jcb.png">
-                                        {% endif %}
-                                    </div>
-
-                                    <h6 class="card-title font-monospace">{{ card.masked_number }}</h6>
-                                    <p class="card-text text-muted small mb-1">
-                                        {{ card.cardholder_name }}
-                                    </p>
-                                    <p class="card-text small {% if card.is_expired %}text-danger{% else %}text-muted{% endif %}">
-                                        Hết hạn: {{ card.get_expiry_display }}
-                                    </p>
-                                </div>
-                                <div class="card-footer bg-white border-top-0">
-                                    <div class="btn-group btn-group-sm">
-                                        {% if not card.is_default and not card.is_expired %}
-                                        <form action="{% url 'accounts:card_set_default' card.id %}" class="d-inline"
-                                              method="post">
-                                            {% csrf_token %}
-                                            <button class="btn btn-outline-success" type="submit">
-                                                <i class="bi bi-star"></i> Mặc định
-                                            </button>
-                                        </form>
-                                        {% endif %}
-                                        <form action="{% url 'accounts:card_delete' card.id %}" class="d-inline"
-                                              method="post"
-                                              onsubmit="return confirm('Bạn có chắc muốn xóa thẻ này?')">
-                                            {% csrf_token %}
-                                            <button class="btn btn-outline-danger" type="submit">
-                                                <i class="bi bi-trash"></i> Xóa
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="text-center py-5">
-                        <i class="bi bi-credit-card text-muted" style="font-size: 4rem;"></i>
-                        <p class="text-muted mt-3">Bạn chưa lưu thẻ nào</p>
-                        <a class="btn btn-primary" href="{% url 'accounts:card_create' %}">
-                            <i class="bi bi-plus-lg me-1"></i>Thêm thẻ mới
-                        </a>
-                    </div>
-                    {% endif %}
-
-                    <div class="alert alert-info mt-4">
-                        <i class="bi bi-shield-check me-2"></i>
-                        <strong>Bảo mật:</strong> Chúng tôi chỉ lưu 4 số cuối của thẻ. Số thẻ đầy đủ không được lưu trữ.
-                    </div>
-                </div>
+        <!-- Main -->
+        <main class="main-content">
+            <div class="content-header">
+                <h2 class="content-title"><i class="bi bi-credit-card"></i> Thẻ thanh toán</h2>
+                <a href="{% url 'accounts:card_create' %}" class="btn-action btn-action--primary"><i class="bi bi-plus-lg"></i> Thêm mới</a>
             </div>
-        </div>
+            <div class="content-body">
+                {% if cards %}
+                <div class="card-grid">
+                    {% for card in cards %}
+                    <div class="payment-card {% if card.is_expired %}payment-card--expired{% endif %}">
+                        <div class="card-badges">
+                            {% if card.is_default %}
+                            <span class="card-badge">Mặc định</span>
+                            {% endif %}
+                            {% if card.is_expired %}
+                            <span class="card-badge card-badge--danger">Hết hạn</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-number">{{ card.masked_number }}</div>
+                        <div class="card-info">
+                            <span>{{ card.cardholder_name }}</span>
+                            <span>{{ card.get_expiry_display }}</span>
+                        </div>
+                        <div class="card-actions">
+                            {% if not card.is_default and not card.is_expired %}
+                            <form action="{% url 'accounts:card_set_default' card.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-card btn-card--primary"><i class="bi bi-star"></i> Mặc định</button>
+                            </form>
+                            {% endif %}
+                            <form action="{% url 'accounts:card_delete' card.id %}" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn xóa thẻ này?')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-card btn-card--danger"><i class="bi bi-trash"></i> Xóa</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="security-notice">
+                    <i class="bi bi-shield-check"></i>
+                    <span><strong>Bảo mật:</strong> Chúng tôi chỉ lưu 4 số cuối của thẻ. Số thẻ đầy đủ không được lưu trữ trên hệ thống.</span>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-credit-card"></i>
+                    <p>Chưa có thẻ thanh toán nào. Thêm thẻ để thanh toán nhanh hơn!</p>
+                    <a href="{% url 'accounts:card_create' %}" class="btn-action btn-action--primary"><i class="bi bi-plus-lg"></i> Thêm thẻ mới</a>
+                </div>
+                {% endif %}
+            </div>
+        </main>
     </div>
 </div>
 {% endblock %}

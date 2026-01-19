@@ -3,43 +3,318 @@
 {% block title %}{% if object %}Sửa{% else %}Thêm{% endif %} danh mục{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-folder"></i> {% if object %}Sửa{% else %}Thêm{% endif %} danh mục</h2>
-    <a class="btn btn-outline-secondary" href="{% url 'admin_dashboard:category_list' %}">
-        <i class="bi bi-arrow-left"></i> Quay lại
-    </a>
+<div class="page-card">
+    <div class="page-header">
+        <h1><i class="bi bi-folder"></i> {% if object %}Sửa{% else %}Thêm{% endif %} danh mục</h1>
+        <a href="{% url 'admin_dashboard:category_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
+    </div>
+    
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+        {% for error in form.non_field_errors %}
+        <p class="mb-0">{{ error }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <form method="post" enctype="multipart/form-data" novalidate id="categoryForm">
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Tên danh mục <span class="text-danger">*</span></label>
+                {{ form.name }}
+                <div class="invalid-feedback" id="name-error">
+                    {% if form.name.errors %}{% for error in form.name.errors %}{{ error }}{% endfor %}{% endif %}
+                </div>
+                <div class="d-flex justify-content-between">
+                    <small class="text-muted">2-100 ký tự, cho phép chữ cái có dấu, số, khoảng trắng và dấu gạch ngang</small>
+                    <small class="text-muted"><span id="name-count">0</span>/100</small>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Slug</label>
+                {{ form.slug }}
+                <div class="invalid-feedback" id="slug-error">
+                    {% if form.slug.errors %}{% for error in form.slug.errors %}{{ error }}{% endfor %}{% endif %}
+                </div>
+                <small class="text-muted">Tự động tạo từ tên nếu để trống. Chỉ chữ thường, số và dấu gạch ngang.</small>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Mô tả</label>
+            {{ form.description }}
+            <div class="invalid-feedback" id="description-error">
+                {% if form.description.errors %}{% for error in form.description.errors %}{{ error }}{% endfor %}{% endif %}
+            </div>
+            <div class="d-flex justify-content-between">
+                <small class="text-muted">Tối đa 1000 ký tự</small>
+                <small class="text-muted"><span id="description-count">0</span>/1000</small>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Hình ảnh</label>
+            <div id="image-preview-container" class="mb-2" style="display: none;">
+                <img id="image-preview" src="" alt="Preview" style="max-height: 100px; border-radius: 8px;">
+                <small class="d-block text-muted">Xem trước hình ảnh mới</small>
+            </div>
+            {% if object and object.image %}
+            <div class="mb-2" id="current-image">
+                <img src="{{ object.image.url }}" alt="Current image" style="max-height: 100px; border-radius: 8px;">
+                <small class="d-block text-muted">Hình ảnh hiện tại</small>
+            </div>
+            {% endif %}
+            {{ form.image }}
+            <div class="invalid-feedback" id="image-error">
+                {% if form.image.errors %}{% for error in form.image.errors %}{{ error }}{% endfor %}{% endif %}
+            </div>
+            <small class="text-muted">Định dạng: JPG, PNG, WebP, SVG. Kích thước tối đa: 2MB. Đề xuất: 400x400px</small>
+        </div>
+        
+        <div class="form-check mb-3">
+            {{ form.is_active }}
+            <label class="form-check-label">Hoạt động</label>
+            <div class="invalid-feedback" id="is_active-error">
+                {% if form.is_active.errors %}{% for error in form.is_active.errors %}{{ error }}{% endfor %}{% endif %}
+            </div>
+            <small class="d-block text-muted">Bỏ chọn để ẩn danh mục trên website</small>
+        </div>
+        
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            <strong>Lưu ý:</strong>
+            <ul class="mb-0 mt-2">
+                <li>Slug sẽ tự động tạo từ tên danh mục nếu bạn để trống</li>
+                <li>Tên danh mục phải duy nhất trong hệ thống</li>
+                <li>Tắt danh mục sẽ ẩn tất cả sản phẩm thuộc danh mục này</li>
+            </ul>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+            <i class="bi bi-check-lg"></i> {% if object %}Cập nhật{% else %}Tạo mới{% endif %}
+        </button>
+        <a href="{% url 'admin_dashboard:category_list' %}" class="btn btn-outline-secondary ms-2">
+            <i class="bi bi-x-lg"></i> Hủy
+        </a>
+    </form>
 </div>
 
-<div class="card">
-    <div class="card-body">
-        <form enctype="multipart/form-data" method="post">
-            {% csrf_token %}
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Tên danh mục *</label>
-                    {{ form.name }}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Slug</label>
-                    {{ form.slug }}
-                </div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Mô tả</label>
-                {{ form.description }}
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Hình ảnh</label>
-                {{ form.image }}
-            </div>
-            <div class="form-check mb-3">
-                {{ form.is_active }}
-                <label class="form-check-label">Hoạt động</label>
-            </div>
-            <button class="btn btn-primary" type="submit">
-                <i class="bi bi-check-lg"></i> {% if object %}Cập nhật{% else %}Tạo mới{% endif %}
-            </button>
-        </form>
-    </div>
-</div>
+<style>
+.form-control.is-invalid, .form-control.error {
+    border-color: #dc3545;
+}
+.form-control.is-valid {
+    border-color: #198754;
+}
+.invalid-feedback {
+    display: none;
+    color: #dc3545;
+    font-size: 0.875em;
+}
+.invalid-feedback.d-block {
+    display: block;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('categoryForm');
+    const nameInput = document.getElementById('id_name');
+    const slugInput = document.getElementById('id_slug');
+    const descriptionInput = document.getElementById('id_description');
+    const imageInput = document.getElementById('id_image');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    let slugManuallyEdited = {{ object.slug|yesno:"true,false" }};
+    let debounceTimer;
+    const errors = {};
+    
+    function generateSlug(input) {
+        return input
+            .toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/đ/g, 'd').replace(/Đ/g, 'd')
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-+|-+$/g, '')
+            .slice(0, 96);
+    }
+    
+    function showError(fieldId, message) {
+        const input = document.getElementById('id_' + fieldId);
+        const errorDiv = document.getElementById(fieldId + '-error');
+        if (input && errorDiv) {
+            input.classList.add('is-invalid');
+            input.classList.remove('is-valid');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('d-block');
+            errors[fieldId] = true;
+        }
+        updateSubmitButton();
+    }
+    
+    function clearError(fieldId) {
+        const input = document.getElementById('id_' + fieldId);
+        const errorDiv = document.getElementById(fieldId + '-error');
+        if (input && errorDiv) {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+            errorDiv.textContent = '';
+            errorDiv.classList.remove('d-block');
+            delete errors[fieldId];
+        }
+        updateSubmitButton();
+    }
+    
+    function updateSubmitButton() {
+        submitBtn.disabled = Object.keys(errors).length > 0;
+    }
+    
+    function updateCharCount(inputId, countId, max) {
+        const input = document.getElementById('id_' + inputId);
+        const countSpan = document.getElementById(countId);
+        if (input && countSpan) {
+            const len = input.value.length;
+            countSpan.textContent = len;
+            countSpan.style.color = len > max ? '#dc3545' : '#6c757d';
+        }
+    }
+    
+    function validateName() {
+        const name = nameInput.value.trim();
+        if (!name) {
+            showError('name', 'Tên danh mục không được để trống.');
+            return false;
+        }
+        if (name.length < 2) {
+            showError('name', 'Tên danh mục phải có ít nhất 2 ký tự.');
+            return false;
+        }
+        if (name.length > 100) {
+            showError('name', 'Tên danh mục không được quá 100 ký tự.');
+            return false;
+        }
+        const pattern = /^[\w\s\-\u00C0-\u1EF9]+$/u;
+        if (!pattern.test(name)) {
+            showError('name', 'Tên danh mục chỉ được chứa chữ cái, số, khoảng trắng và dấu gạch ngang.');
+            return false;
+        }
+        clearError('name');
+        return true;
+    }
+    
+    function validateSlug() {
+        const slug = slugInput.value.trim();
+        if (slug) {
+            if (slug.length < 2) {
+                showError('slug', 'Slug phải có ít nhất 2 ký tự.');
+                return false;
+            }
+            if (slug.length > 96) {
+                showError('slug', 'Slug không được quá 96 ký tự.');
+                return false;
+            }
+            const pattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+            if (!pattern.test(slug)) {
+                showError('slug', 'Slug chỉ được chứa chữ thường, số và dấu gạch ngang.');
+                return false;
+            }
+        }
+        clearError('slug');
+        return true;
+    }
+    
+    function validateDescription() {
+        const description = descriptionInput.value.trim();
+        if (description.length > 1000) {
+            showError('description', 'Mô tả không được quá 1000 ký tự.');
+            return false;
+        }
+        clearError('description');
+        return true;
+    }
+    
+    function validateImage() {
+        if (imageInput.files && imageInput.files[0]) {
+            const file = imageInput.files[0];
+            const maxSize = 2 * 1024 * 1024;
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'];
+            
+            if (file.size > maxSize) {
+                showError('image', `Kích thước hình ảnh tối đa là 2MB. File hiện tại: ${(file.size / 1024 / 1024).toFixed(1)}MB`);
+                return false;
+            }
+            if (!allowedTypes.includes(file.type)) {
+                showError('image', 'Định dạng hình ảnh không hợp lệ. Chỉ chấp nhận: JPG, PNG, WebP, SVG.');
+                return false;
+            }
+        }
+        clearError('image');
+        return true;
+    }
+    
+    nameInput.addEventListener('input', function() {
+        updateCharCount('name', 'name-count', 100);
+        
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function() {
+            if (!slugManuallyEdited && nameInput.value) {
+                slugInput.value = generateSlug(nameInput.value);
+            }
+        }, 300);
+    });
+    
+    nameInput.addEventListener('blur', validateName);
+    
+    slugInput.addEventListener('input', function() {
+        slugManuallyEdited = slugInput.value.trim() !== '';
+    });
+    
+    slugInput.addEventListener('blur', validateSlug);
+    
+    descriptionInput.addEventListener('input', function() {
+        updateCharCount('description', 'description-count', 1000);
+    });
+    
+    descriptionInput.addEventListener('blur', validateDescription);
+    
+    imageInput.addEventListener('change', function() {
+        if (validateImage() && this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('image-preview').src = e.target.result;
+                document.getElementById('image-preview-container').style.display = 'block';
+                const currentImage = document.getElementById('current-image');
+                if (currentImage) currentImage.style.display = 'none';
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+    
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        isValid = validateName() && isValid;
+        isValid = validateSlug() && isValid;
+        isValid = validateDescription() && isValid;
+        isValid = validateImage() && isValid;
+        
+        if (!isValid) {
+            e.preventDefault();
+            const firstError = document.querySelector('.is-invalid');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        }
+    });
+    
+    updateCharCount('name', 'name-count', 100);
+    updateCharCount('description', 'description-count', 1000);
+});
+</script>
 {% endblock %}

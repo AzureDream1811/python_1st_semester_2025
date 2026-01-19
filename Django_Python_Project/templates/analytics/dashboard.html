@@ -1,10 +1,247 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load humanize %}
 
-</body>
-</html>
+{% block title %}Analytics Dashboard - ElectroShop{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3"><i class="bi bi-graph-up me-2"></i>Analytics Dashboard</h1>
+        <div class="btn-group">
+            <a href="{% url 'analytics:search' %}" class="btn btn-outline-primary">Search Analytics</a>
+            <a href="{% url 'analytics:funnel' %}" class="btn btn-outline-primary">Funnel Analysis</a>
+            <a href="{% url 'analytics:products' %}" class="btn btn-outline-primary">Product Analytics</a>
+        </div>
+    </div>
+    
+    <!-- Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="bi bi-cart-check display-6 text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title mb-0">{{ total_orders|intcomma }}</h5>
+                            <p class="card-text text-muted small mb-0">Tổng đơn hàng</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="bi bi-currency-dollar display-6 text-success"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title mb-0">{{ total_revenue|floatformat:0|intcomma }}đ</h5>
+                            <p class="card-text text-muted small mb-0">Tổng doanh thu</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="bi bi-box display-6 text-info"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title mb-0">{{ total_products|intcomma }}</h5>
+                            <p class="card-text text-muted small mb-0">Sản phẩm hoạt động</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="bi bi-star display-6 text-warning"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title mb-0">{{ total_reviews|intcomma }}</h5>
+                            <p class="card-text text-muted small mb-0">Đánh giá</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Revenue Chart -->
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">Doanh thu 30 ngày gần nhất</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sentiment Analysis -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">Phân tích Sentiment</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-success"><i class="bi bi-emoji-smile me-1"></i>Tích cực</span>
+                            <span class="fw-bold">{{ sentiment_stats.positive }}</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: {% widthratio sentiment_stats.positive total_reviews 100 %}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-secondary"><i class="bi bi-emoji-neutral me-1"></i>Trung lập</span>
+                            <span class="fw-bold">{{ sentiment_stats.neutral }}</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-secondary" style="width: {% widthratio sentiment_stats.neutral total_reviews 100 %}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-0">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-danger"><i class="bi bi-emoji-frown me-1"></i>Tiêu cực</span>
+                            <span class="fw-bold">{{ sentiment_stats.negative }}</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-danger" style="width: {% widthratio sentiment_stats.negative total_reviews 100 %}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Products -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">Top sản phẩm bán chạy</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Danh mục</th>
+                                    <th>Đã bán</th>
+                                    <th>Giá</th>
+                                    <th>Sentiment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in top_products %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if product.image %}
+                                            <img src="{{ product.image.url }}" class="me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                            {% endif %}
+                                            <div>
+                                                <div class="fw-bold">{{ product.name|truncatechars:50 }}</div>
+                                                <small class="text-muted">{{ product.sku }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ product.category.name|default:"-" }}</td>
+                                    <td><span class="badge bg-primary">{{ product.sold }}</span></td>
+                                    <td>{{ product.current_price|floatformat:0|intcomma }}đ</td>
+                                    <td>
+                                        {% if product.sentiment_score > 0.3 %}
+                                        <span class="badge bg-success">Tích cực</span>
+                                        {% elif product.sentiment_score < -0.3 %}
+                                        <span class="badge bg-danger">Tiêu cực</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Trung lập</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Chưa có dữ liệu</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Revenue Chart
+fetch('{% url "analytics:revenue_chart" %}')
+    .then(response => response.json())
+    .then(data => {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: data.revenue,
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                    tension: 0.1,
+                    fill: true
+                }, {
+                    label: 'Đơn hàng',
+                    data: data.orders,
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    yAxisID: 'y1',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

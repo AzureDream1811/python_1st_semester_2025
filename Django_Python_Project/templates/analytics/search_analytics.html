@@ -1,10 +1,86 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}Search Analytics - ElectroShop{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3"><i class="bi bi-search me-2"></i>Search Analytics</h1>
+        <a href="{% url 'analytics:dashboard' %}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+        </a>
+    </div>
+    
+    <div class="row">
+        <!-- Top Searches -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">Top từ khóa tìm kiếm</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Từ khóa</th>
+                                    <th>Số lần tìm</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for search in top_searches %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ search.query }}</td>
+                                    <td><span class="badge bg-primary">{{ search.count }}</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">Chưa có dữ liệu</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- No Results Searches -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle text-warning me-2"></i>Tìm kiếm không có kết quả</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Từ khóa</th>
+                                    <th>Số lần</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for search in no_results %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ search.query }}</td>
+                                    <td><span class="badge bg-warning text-dark">{{ search.count }}</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">Chưa có dữ liệu</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

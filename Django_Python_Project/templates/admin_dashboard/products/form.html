@@ -3,175 +3,212 @@
 {% block title %}{% if object %}Sửa{% else %}Thêm{% endif %} sản phẩm{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-box-seam"></i> {% if object %}Sửa{% else %}Thêm{% endif %} sản phẩm</h2>
-    <a class="btn btn-outline-secondary" href="{% url 'admin_dashboard:product_list' %}">
-        <i class="bi bi-arrow-left"></i> Quay lại
-    </a>
-</div>
-
-<div class="card">
-    <div class="card-body">
-        <form enctype="multipart/form-data" method="post">
-            {% csrf_token %}
-
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="mb-3">
-                        <label class="form-label">Tên sản phẩm *</label>
-                        {{ form.name }}
-                        {% if form.name.errors %}
-                        <div class="text-danger">{{ form.name.errors }}</div>
+<div class="page-card">
+    <div class="page-header">
+        <h1><i class="bi bi-box-seam"></i> {% if object %}Sửa{% else %}Thêm{% endif %} sản phẩm</h1>
+        <a href="{% url 'admin_dashboard:product_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
+    </div>
+    
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+        {% for error in form.non_field_errors %}
+        <p class="mb-0">{{ error }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="mb-3">
+                    <label class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.name.errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+                    <small class="text-muted">5-200 ký tự. Cho phép: chữ, số, khoảng trắng, -, &, /</small>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Slug</label>
+                        {{ form.slug }}
+                        {% if form.slug.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.slug.errors %}{{ error }}{% endfor %}
+                        </div>
                         {% endif %}
+                        <small class="text-muted">Tự động tạo từ tên nếu để trống</small>
                     </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Slug</label>
-                            {{ form.slug }}
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Mã SKU</label>
+                        {{ form.sku }}
+                        {% if form.sku.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.sku.errors %}{{ error }}{% endfor %}
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">SKU</label>
-                            {{ form.sku }}
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Mô tả *</label>
-                        {{ form.description }}
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Danh mục</label>
-                            {{ form.category }}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Thương hiệu</label>
-                            {{ form.brand }}
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Giá gốc (VNĐ) *</label>
-                            {{ form.price }}
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Giá khuyến mãi</label>
-                            {{ form.sale_price }}
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Tồn kho</label>
-                            {{ form.stock }}
-                        </div>
+                        {% endif %}
+                        <small class="text-muted">Tự động tạo nếu để trống. VD: IP15PM256-BLK</small>
                     </div>
                 </div>
-
-                <div class="col-md-4">
-                    <div class="mb-3">
-                        <label class="form-label">Hình ảnh</label>
-                        {{ form.image }}
-                        {% if object.image %}
-                        <div class="mt-2">
-                            <img alt="{{ object.name }}" class="img-thumbnail" src="{{ object.image.url }}"
-                                 style="max-width: 200px;">
+                
+                <div class="mb-3">
+                    <label class="form-label">Mô tả <span class="text-danger">*</span></label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.description.errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+                    <small class="text-muted">Tối thiểu 20 ký tự, tối đa 5000 ký tự. Hỗ trợ HTML an toàn.</small>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Danh mục</label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.category.errors %}{{ error }}{% endfor %}
                         </div>
                         {% endif %}
+                        <small class="text-muted">Chỉ hiển thị danh mục đang hoạt động</small>
                     </div>
-
-                    <div class="card bg-light">
-                        <div class="card-body">
-                            <h6>Trạng thái</h6>
-                            <div class="form-check mb-2">
-                                {{ form.is_active }}
-                                <label class="form-check-label">Đang bán</label>
-                            </div>
-                            <div class="form-check mb-2">
-                                {{ form.is_featured }}
-                                <label class="form-check-label">Sản phẩm nổi bật</label>
-                            </div>
-                            <div class="form-check">
-                                {{ form.is_new }}
-                                <label class="form-check-label">Sản phẩm mới</label>
-                            </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Thương hiệu</label>
+                        {{ form.brand }}
+                        {% if form.brand.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.brand.errors %}{{ error }}{% endfor %}
                         </div>
+                        {% endif %}
+                        <small class="text-muted">Tùy chọn. Chỉ hiển thị thương hiệu đang hoạt động</small>
                     </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Giá gốc (VNĐ) <span class="text-danger">*</span></label>
+                        {{ form.price }}
+                        {% if form.price.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.price.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                        <small class="text-muted">Từ 1,000 VNĐ. Số nguyên.</small>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Giá khuyến mãi (VNĐ)</label>
+                        {{ form.sale_price }}
+                        {% if form.sale_price.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.sale_price.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                        <small class="text-muted">Để trống nếu không giảm giá. Phải < giá gốc.</small>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Tồn kho</label>
+                        {{ form.stock }}
+                        {% if form.stock.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.stock.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                        <small class="text-muted">Mặc định: 0. Tối đa: 999,999</small>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Thông số kỹ thuật (JSON)</label>
+                    {{ form.specifications }}
+                    {% if form.specifications.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.specifications.errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+                    <small class="text-muted">Định dạng JSON. VD: {"RAM": "8GB", "Storage": "256GB", "Màn hình": "6.7 inch"}</small>
                 </div>
             </div>
-
-            <hr>
-            <button class="btn btn-primary" type="submit">
-                <i class="bi bi-check-lg"></i> {% if object %}Cập nhật{% else %}Tạo mới{% endif %}
-            </button>
-        </form>
-    </div>
-</div>
-{% endblock %}
-</div>
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <label class="form-label">Slug</label>
-        {{ form.slug }}
-    </div>
-    <div class="col-md-6 mb-3">
-        <label class="form-label">SKU</label>
-        {{ form.sku }}
-    </div>
-</div>
-<div class="mb-3">
-    <label class="form-label">Mô tả *</label>
-    {{ form.description }}
-</div>
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <label class="form-label">Danh mục</label>
-        {{ form.category }}
-    </div>
-    <div class="col-md-6 mb-3">
-        <label class="form-label">Thương hiệu</label>
-        {{ form.brand }}
-    </div>
-</div>
-</div>
-<div class="col-md-4">
-    <div class="mb-3">
-        <label class="form-label">Giá gốc (VNĐ) *</label>
-        {{ form.price }}
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Giá khuyến mãi (VNĐ)</label>
-        {{ form.sale_price }}
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Số lượng tồn kho</label>
-        {{ form.stock }}
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Hình ảnh</label>
-        {{ form.image }}
-        {% if object.image %}
-        <img class="mt-2" src="{{ object.image.url }}" style="max-width: 100px;">
-        {% endif %}
-    </div>
-    <div class="mb-3">
-        <div class="form-check">
-            {{ form.is_active }} <label class="form-check-label">Đang bán</label>
+            
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label class="form-label">Hình ảnh sản phẩm</label>
+                    {% if object and object.image %}
+                    <div class="mb-2">
+                        <img src="{{ object.image.url }}" alt="{{ object.name }}" class="img-thumbnail" style="max-width: 200px;">
+                        <small class="d-block text-muted">Hình ảnh hiện tại</small>
+                    </div>
+                    {% endif %}
+                    {{ form.image }}
+                    {% if form.image.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.image.errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+                    <small class="text-muted">JPG, PNG, WebP. Tối đa 5MB. Đề xuất: 800x800px trở lên.</small>
+                </div>
+                
+                <div class="card bg-light mb-3">
+                    <div class="card-body">
+                        <h6><i class="bi bi-toggle-on"></i> Trạng thái</h6>
+                        
+                        <div class="form-check mb-2">
+                            {{ form.is_active }}
+                            <label class="form-check-label">Đang bán</label>
+                            {% if form.is_active.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.is_active.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <small class="text-muted d-block mb-3">Hiển thị sản phẩm trên website</small>
+                        
+                        <div class="form-check mb-2">
+                            {{ form.is_featured }}
+                            <label class="form-check-label">Nổi bật</label>
+                            {% if form.is_featured.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.is_featured.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <small class="text-muted d-block mb-3">Hiển thị ở vị trí nổi bật (tối đa 20 SP)</small>
+                        
+                        <div class="form-check">
+                            {{ form.is_new }}
+                            <label class="form-check-label">Sản phẩm mới</label>
+                        </div>
+                        <small class="text-muted d-block">Hiển thị nhãn "Mới" trên sản phẩm</small>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Lưu ý:</strong>
+                    <ul class="mb-0 mt-2 small">
+                        <li>Slug và SKU tự động tạo nếu để trống</li>
+                        <li>Giảm giá > 70% sẽ có cảnh báo</li>
+                        <li>Tồn kho = 0 sẽ hiển thị "Hết hàng"</li>
+                        <li>Khuyến khích có ít nhất 1 hình ảnh</li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <div class="form-check">
-            {{ form.is_featured }} <label class="form-check-label">Sản phẩm nổi bật</label>
-        </div>
-        <div class="form-check">
-            {{ form.is_new }} <label class="form-check-label">Sản phẩm mới</label>
-        </div>
-    </div>
-</div>
-</div>
-<hr>
-<button class="btn btn-primary" type="submit">
-    <i class="bi bi-check-lg"></i> {% if object %}Cập nhật{% else %}Tạo sản phẩm{% endif %}
-</button>
-</form>
-</div>
+        
+        <hr>
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="bi bi-check-lg"></i> {% if object %}Cập nhật sản phẩm{% else %}Tạo sản phẩm{% endif %}
+        </button>
+        <a href="{% url 'admin_dashboard:product_list' %}" class="btn btn-outline-secondary btn-lg ms-2">
+            <i class="bi bi-x-lg"></i> Hủy
+        </a>
+    </form>
 </div>
 {% endblock %}

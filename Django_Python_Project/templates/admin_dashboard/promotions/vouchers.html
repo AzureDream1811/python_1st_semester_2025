@@ -3,57 +3,56 @@
 {% block title %}Quản lý Voucher{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-ticket-perforated"></i> Quản lý Voucher</h2>
-    <a class="btn btn-primary" href="{% url 'admin_dashboard:voucher_create' %}">
-        <i class="bi bi-plus-lg"></i> Thêm voucher
-    </a>
-</div>
-
-<div class="card">
-    <div class="card-body">
+<div class="page-card">
+    <div class="page-header">
+        <h1><i class="bi bi-ticket-perforated"></i> Quản lý Voucher</h1>
+        <a href="{% url 'admin_dashboard:voucher_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Thêm voucher
+        </a>
+    </div>
+    <div class="table-responsive">
         <table class="table table-hover">
             <thead>
-            <tr>
-                <th>Mã</th>
-                <th>Tên</th>
-                <th>Loại</th>
-                <th>Giá trị</th>
-                <th>Đã dùng</th>
-                <th>Hiệu lực</th>
-                <th>Trạng thái</th>
-            </tr>
+                <tr>
+                    <th>Mã</th>
+                    <th>Tên</th>
+                    <th>Loại</th>
+                    <th>Giá trị</th>
+                    <th>Đã dùng</th>
+                    <th>Hiệu lực</th>
+                    <th>Trạng thái</th>
+                </tr>
             </thead>
             <tbody>
-            {% for voucher in vouchers %}
-            <tr>
-                <td><code>{{ voucher.code }}</code></td>
-                <td>{{ voucher.name }}</td>
-                <td>{{ voucher.get_discount_type_display }}</td>
-                <td>
-                    {% if voucher.discount_type == 'percentage' %}
-                    {{ voucher.discount_value }}%
-                    {% else %}
-                    {{ voucher.discount_value|floatformat:0 }}đ
-                    {% endif %}
-                </td>
-                <td>{{ voucher.used_count }}/{{ voucher.usage_limit|default:"∞" }}</td>
-                <td>{{ voucher.valid_from|date:"d/m/Y" }} - {{ voucher.valid_until|date:"d/m/Y" }}</td>
-                <td>
-                    {% if voucher.is_valid %}
-                    <span class="badge bg-success">Còn hiệu lực</span>
-                    {% else %}
-                    <span class="badge bg-secondary">Hết hạn</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td class="text-center text-muted" colspan="7">Chưa có voucher</td>
-            </tr>
-            {% endfor %}
+                {% for voucher in vouchers %}
+                <tr>
+                    <td><code>{{ voucher.code }}</code></td>
+                    <td>{{ voucher.name }}</td>
+                    <td>{{ voucher.get_discount_type_display }}</td>
+                    <td>
+                        {% if voucher.discount_type == 'percentage' %}
+                        {{ voucher.discount_value }}%
+                        {% else %}
+                        {{ voucher.discount_value|floatformat:0 }}₫
+                        {% endif %}
+                    </td>
+                    <td>{{ voucher.used_count }}/{{ voucher.usage_limit|default:"∞" }}</td>
+                    <td>{{ voucher.valid_from|date:"d/m/Y" }} - {{ voucher.valid_until|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if voucher.is_valid %}
+                        <span class="badge bg-success">Còn hiệu lực</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Hết hạn</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center text-muted">Chưa có voucher</td></tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
+    
+    {% include 'admin_dashboard/includes/pagination.html' %}
 </div>
 {% endblock %}

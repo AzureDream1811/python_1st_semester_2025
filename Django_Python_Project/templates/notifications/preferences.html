@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Cài đặt thông báo - ElectroShop{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1"><i class="bi bi-bell-fill me-2"></i>Cài đặt thông báo</h1>
+                    <p class="text-muted mb-0">Quản lý cách bạn nhận thông báo từ ElectroShop</p>
+                </div>
+                <a href="{% url 'notifications:list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Quay lại
+                </a>
+            </div>
+
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" id="preferences-form">
+                {% csrf_token %}
+
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold">Thao tác nhanh</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-outline-success btn-sm" onclick="enableEssentials()">
+                                <i class="bi bi-lightning"></i> Chỉ thiết yếu
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="disableMarketing()">
+                                <i class="bi bi-bell-slash"></i> Tắt khuyến mãi
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="enableAll()">
+                                <i class="bi bi-bell-fill"></i> Bật tất cả
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {% for group_key, group in preference_groups.items %}
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <div class="d-flex align-items-center">
+                            <i class="{{ group.icon }} me-2 fs-5"></i>
+                            <div>
+                                <span class="fw-semibold">{{ group.title }}</span>
+                                {% if group.required %}
+                                <span class="badge bg-warning text-dark ms-2">Bắt buộc</span>
+                                {% endif %}
+                                <p class="text-muted small mb-0">{{ group.description }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% for item in group.items %}
+                        <div class="d-flex justify-content-between align-items-start py-3 {% if not forloop.last %}border-bottom{% endif %}">
+                            <div class="me-3">
+                                <label for="{{ item.id }}" class="form-label mb-0 fw-medium" style="cursor: pointer;">
+                                    {{ item.label }}
+                                    {% if item.required %}
+                                    <span class="badge bg-secondary ms-1">Không thể tắt</span>
+                                    {% endif %}
+                                </label>
+                                <p class="text-muted small mb-0">{{ item.desc }}</p>
+                                {% if item.note %}
+                                <p class="text-warning small mb-0"><i class="bi bi-exclamation-triangle"></i> {{ item.note }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="form-check form-switch">
+                                <input type="checkbox" 
+                                       class="form-check-input" 
+                                       id="{{ item.id }}" 
+                                       name="{{ item.id }}"
+                                       {% if item.value %}checked{% endif %}
+                                       {% if item.required %}disabled checked{% endif %}
+                                       data-category="{{ group_key }}"
+                                       style="cursor: pointer; width: 3rem; height: 1.5rem;">
+                                {% if item.required %}
+                                <input type="hidden" name="{{ item.id }}" value="on">
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4">
+                    <a href="{% url 'notifications:list' %}" class="btn btn-outline-secondary">Hủy</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Lưu cài đặt
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function enableAll() {
+    document.querySelectorAll('input[type="checkbox"]:not([disabled])').forEach(cb => {
+        cb.checked = true;
+    });
+}
+
+function disableMarketing() {
+    document.querySelectorAll('input[data-category="marketing"]').forEach(cb => {
+        cb.checked = false;
+    });
+}
+
+function enableEssentials() {
+    document.querySelectorAll('input[type="checkbox"]:not([disabled])').forEach(cb => {
+        const category = cb.dataset.category;
+        if (category === 'transactional' || category === 'security' || category === 'communication') {
+            cb.checked = true;
+        } else {
+            cb.checked = false;
+        }
+    });
+}
+</script>
+{% endblock %}

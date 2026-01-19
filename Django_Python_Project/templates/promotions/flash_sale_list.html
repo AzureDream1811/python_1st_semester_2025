@@ -3,211 +3,579 @@
 
 {% block title %}Flash Sale - ElectroShop{% endblock %}
 
+{% block extra_css %}
+<!-- ==================== INLINE STYLES - Flash Sale ==================== -->
+<style>
+.flash-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--es-space-4);
+    padding: var(--es-space-1) 0 var(--es-space-4);
+}
+
+.flash-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 32px;
+    background: linear-gradient(130deg, #1e3a5f 0%, #2d5a87 45%, #0f172a 100%);
+    color: #fff;
+    padding: var(--es-space-4);
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: var(--es-space-3);
+    box-shadow: var(--es-shadow-xl);
+}
+
+.flash-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15), transparent 35%),
+                radial-gradient(circle at 80% 0%, rgba(96,165,250,0.3), transparent 32%),
+                radial-gradient(circle at 60% 90%, rgba(15,23,42,0.25), transparent 45%);
+    pointer-events: none;
+}
+
+.flash-hero__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--es-space-2);
+}
+
+.flash-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: var(--es-radius-full);
+    background: rgba(255, 255, 255, 0.12);
+    font-size: var(--es-text-sm);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.flash-hero__title {
+    font-size: clamp(2rem, 2.4vw, 2.8rem);
+    font-weight: var(--es-font-bold);
+    line-height: 1.15;
+}
+
+.flash-hero__lead {
+    max-width: 640px;
+    font-size: 1.05rem;
+    color: #fff;
+}
+
+.flash-hero__stats {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--es-space-2);
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: var(--es-radius-bento);
+    padding: var(--es-space-2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--es-shadow-sm);
+    transition: transform var(--es-transition-normal), box-shadow var(--es-transition-normal);
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--es-shadow-md);
+}
+
+.stat-label {
+    font-size: var(--es-text-sm);
+    color: #fff;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: var(--es-font-bold);
+}
+
+.stat-hint {
+    display: block;
+    margin-top: 6px;
+    font-size: var(--es-text-sm);
+    color: #fff;
+}
+
+.flash-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--es-space-3);
+}
+
+.flash-card {
+    position: relative;
+    border-radius: var(--es-radius-bento-lg);
+    border: 1px solid var(--es-border-light);
+    background: var(--es-white);
+    padding: var(--es-space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--es-space-2);
+    box-shadow: var(--es-shadow-card);
+    overflow: hidden;
+    transition: transform var(--es-transition-normal), box-shadow var(--es-transition-normal), border-color var(--es-transition-normal);
+}
+
+.flash-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 10% 10%, rgba(59,130,246,0.08), transparent 40%),
+                radial-gradient(circle at 90% 0%, rgba(249,115,22,0.08), transparent 35%);
+    pointer-events: none;
+}
+
+.flash-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--es-shadow-card-hover);
+    border-color: var(--es-primary-200);
+}
+
+.flash-card__top {
+    display: flex;
+    gap: var(--es-space-2);
+}
+
+.flash-card__media {
+    width: 96px;
+    height: 96px;
+    border-radius: var(--es-radius-md);
+    overflow: hidden;
+    background: var(--es-bg-secondary);
+    flex-shrink: 0;
+}
+
+.flash-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.flash-card__title {
+    font-size: 1rem;
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+    margin-bottom: 6px;
+}
+
+.flash-card__badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.flash-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: var(--es-radius-full);
+    background: var(--es-primary-50);
+    color: var(--es-primary-dark);
+    font-weight: var(--es-font-medium);
+    font-size: var(--es-text-sm);
+}
+
+.flash-chip--cta {
+    background: var(--es-cta-50);
+    color: var(--es-cta-dark);
+}
+
+.flash-price {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-weight: var(--es-font-semibold);
+}
+
+.flash-price__sale {
+    font-size: 1.4rem;
+    color: var(--es-primary-dark);
+}
+
+.flash-price__orig {
+    color: var(--es-text-muted);
+    text-decoration: line-through;
+}
+
+.flash-saving {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--es-primary-50);
+    border-radius: var(--es-radius-full);
+    color: var(--es-primary-dark);
+    font-size: var(--es-text-sm);
+}
+
+.flash-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.flash-progress__bar {
+    position: relative;
+    height: 8px;
+    border-radius: var(--es-radius-full);
+    background: var(--es-border-light);
+    overflow: hidden;
+}
+
+.flash-progress__bar span {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--es-cta), var(--es-primary));
+    width: var(--progress, 0%);
+    transition: width var(--es-transition-normal);
+}
+
+.flash-progress__meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--es-text-sm);
+    color: var(--es-text-secondary);
+}
+
+.flash-countdown {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--es-danger);
+    font-weight: var(--es-font-medium);
+}
+
+.flash-card__footer {
+    display: flex;
+    gap: var(--es-space-2);
+    flex-wrap: wrap;
+}
+
+.flash-empty {
+    padding: var(--es-space-4);
+    border-radius: var(--es-radius-bento);
+    border: 1px dashed var(--es-border-dark);
+    background: var(--es-bg-secondary);
+    text-align: center;
+    display: grid;
+    gap: var(--es-space-2);
+}
+
+.flash-empty__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--es-radius-full);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--es-primary-100);
+    color: var(--es-primary);
+    font-size: 1.6rem;
+}
+
+.upcoming-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--es-space-2);
+}
+
+.upcoming-card {
+    border-radius: var(--es-radius-bento);
+    border: 1px solid var(--es-border-light);
+    background: var(--es-white);
+    padding: var(--es-space-2);
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    box-shadow: var(--es-shadow-sm);
+}
+
+.upcoming-card__media {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--es-radius-md);
+    overflow: hidden;
+    background: var(--es-bg-secondary);
+    flex-shrink: 0;
+}
+
+.upcoming-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upcoming-card__title {
+    font-weight: var(--es-font-semibold);
+    margin-bottom: 4px;
+}
+
+.section-eyebrow {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.section-title {
+    font-size: 1.6rem;
+    font-weight: var(--es-font-bold);
+    margin: 4px 0;
+}
+
+.section-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.section-pill {
+    padding: 8px 12px;
+    border-radius: var(--es-radius-full);
+    border: 1px solid var(--es-border-light);
+    background: var(--es-bg-white);
+    color: var(--es-text-secondary);
+    font-size: var(--es-text-sm);
+}
+
+@media (max-width: 992px) {
+    .flash-hero {
+        grid-template-columns: 1fr;
+    }
+    .flash-hero__stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .flash-hero__stats {
+        grid-template-columns: 1fr;
+    }
+    .flash-card__top {
+        flex-direction: column;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .flash-card,
+    .stat-card,
+    .flash-progress__bar span {
+        transition: none;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<!-- Flash Sale Banner -->
-<div class="flash-sale-banner mb-5">
-    <div class="row align-items-center position-relative" style="z-index: 1;">
-        <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-            <h1 class="display-5 fw-bold mb-2">
-                <i class="bi bi-lightning-charge-fill me-2"></i>Flash Sale
-            </h1>
-            <p class="lead mb-0 opacity-90">Giảm giá sốc - Số lượng có hạn!</p>
+<div class="flash-page">
+    <section class="flash-hero" aria-labelledby="flash-hero-title">
+        <div class="flash-hero__content">
+            <span class="flash-hero__badge">
+                <i class="bi bi-lightning-charge-fill" aria-hidden="true"></i>
+                Flash Sale
+            </span>
+            <h1 class="flash-hero__title" id="flash-hero-title">Flash Sale đồ điện gia dụng</h1>
+            <p class="flash-hero__lead">Săn deal giá sốc, số lượng có hạn - Nhanh tay kẻo lỡ!</p>
         </div>
-        <div class="col-md-6">
-            {% if active_sale %}
-            <div class="d-flex justify-content-center justify-content-md-end">
-                <div class="countdown-timer" data-end="{{ active_sale.end_time|date:'c' }}" id="mainCountdown">
-                    <div class="countdown-item">
-                        <span class="countdown-value" id="hours">00</span>
-                        <span class="countdown-label">Giờ</span>
+        <div class="flash-hero__stats" role="list" aria-label="Tổng quan Flash Sale">
+            <div class="stat-card" role="listitem">
+                <span class="stat-label">Đang mở</span>
+                <div class="stat-value">{{ flash_sales|length|default:0 }}</div>
+                <span class="stat-hint">Tự động áp dụng giá flash</span>
+            </div>
+            <div class="stat-card" role="listitem">
+                <span class="stat-label">Sắp diễn ra</span>
+                <div class="stat-value">{{ upcoming_sales|length|default:0 }}</div>
+                <span class="stat-hint">Đặt nhắc nhở trước giờ mở</span>
+            </div>
+            <div class="stat-card" role="listitem">
+                <span class="stat-label">Trạng thái</span>
+                <div class="stat-value">
+                    {% if flash_sales %}Đang chạy{% else %}Tạm dừng{% endif %}
+                </div>
+                <span class="stat-hint">Đếm ngược tự động cập nhật</span>
+            </div>
+        </div>
+    </section>
+
+    {% if flash_sales %}
+    <section aria-labelledby="flash-active-title">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <div>
+                <div class="section-eyebrow">Ưu đãi đang chạy</div>
+                <h2 class="section-title" id="flash-active-title">Flash Sale đang diễn ra</h2>
+            </div>
+        </div>
+
+        <div class="flash-grid" role="list" aria-label="Danh sách Flash Sale đang mở">
+            {% for sale in flash_sales %}
+            <article class="flash-card" role="listitem" aria-labelledby="flash-card-{{ sale.id }}">
+                <div class="flash-card__top">
+                    <div class="flash-card__media" aria-hidden="true">
+                        {% if sale.product.image %}
+                        <img src="{{ sale.product.image.url }}" alt="">
+                        {% else %}
+                        <div class="d-flex align-items-center justify-content-center h-100 w-100 text-muted">
+                            <i class="bi bi-image"></i>
+                        </div>
+                        {% endif %}
                     </div>
-                    <div class="countdown-item">
-                        <span class="countdown-value" id="minutes">00</span>
-                        <span class="countdown-label">Phút</span>
-                    </div>
-                    <div class="countdown-item">
-                        <span class="countdown-value" id="seconds">00</span>
-                        <span class="countdown-label">Giây</span>
+                    <div class="flex-grow-1">
+                        <h3 class="flash-card__title" id="flash-card-{{ sale.id }}">
+                            <a class="combo-link" href="{{ sale.product.get_absolute_url }}">{{ sale.product.name }}</a>
+                        </h3>
+                        <div class="flash-card__badges">
+                            <span class="flash-chip flash-chip--cta">
+                                <i class="bi bi-lightning-charge-fill" aria-hidden="true"></i>
+                                -{{ sale.discount_percentage }}%
+                            </span>
+                            <span class="flash-chip">
+                                <i class="bi bi-clock" aria-hidden="true"></i>
+                                Đến {{ sale.end_time|date:"d/m H:i" }}
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
-            {% endif %}
+
+                <div class="flash-price" aria-label="Giá flash">
+                    <span class="flash-price__sale">{{ sale.sale_price|currency }}</span>
+                    <span class="flash-price__orig">{{ sale.product.price|currency }}</span>
+                </div>
+                <span class="flash-saving">
+                    <i class="bi bi-cash-coin" aria-hidden="true"></i>
+                    Giảm {{ sale.discount_percentage }}%
+                </span>
+
+                <div class="flash-progress" aria-label="Tiến độ bán">
+                    <div class="flash-progress__meta">
+                        <span>Đã bán {{ sale.sold_count }}</span>
+                        <span>Còn {{ sale.remaining_quantity }}</span>
+                    </div>
+                    <div class="flash-progress__bar">
+                        <span style="--progress: {% widthratio sale.sold_count sale.quantity_limit 100 %}%"></span>
+                    </div>
+                </div>
+
+                <div class="flash-countdown countdown-mini" data-end="{{ sale.end_time|date:'c' }}" aria-live="polite">
+                    <i class="bi bi-stopwatch" aria-hidden="true"></i>
+                    <span class="timer-text">Đang tính giờ...</span>
+                </div>
+
+                <div class="flash-card__footer">
+                    {% if sale.sold_count < sale.quantity_limit %}
+                    <form action="{% url 'cart:add' sale.product.pk %}" method="post" class="d-flex gap-2 flex-wrap">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-bag-plus" aria-hidden="true"></i> Mua ngay
+                        </button>
+                        <a class="btn btn-outline-primary" href="{{ sale.product.get_absolute_url }}">Xem chi tiết</a>
+                    </form>
+                    {% else %}
+                    <button class="btn btn-secondary" disabled aria-disabled="true">
+                        <i class="bi bi-x-circle" aria-hidden="true"></i> Đã hết hàng
+                    </button>
+                    {% endif %}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% else %}
+    <div class="flash-empty" role="status">
+        <div class="flash-empty__icon"><i class="bi bi-clock-history" aria-hidden="true"></i></div>
+        <div>
+            <h3>Chưa có Flash Sale đang mở</h3>
+            <p class="mb-0">Quay lại sau hoặc xem danh sách sản phẩm để săn ưu đãi khác.</p>
+        </div>
+        <div class="d-flex gap-2 justify-content-center flex-wrap">
+            <a class="btn btn-primary" href="{% url 'products:product_list' %}">
+                <i class="bi bi-grid" aria-hidden="true"></i> Xem sản phẩm
+            </a>
+            <a class="btn btn-outline-primary" href="{% url 'promotions:flash_sales' %}">
+                <i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Tải lại
+            </a>
         </div>
     </div>
-</div>
+    {% endif %}
 
-{% if flash_sales %}
-<!-- Flash Sale Products -->
-<div class="row g-4">
-    {% for sale in flash_sales %}
-    <div class="col-6 col-md-4 col-lg-3">
-        <div class="card product-card h-100">
-            <!-- Discount Badge -->
-            <span class="discount-badge">-{{ sale.discount_percent }}%</span>
-
-            <!-- Flash Badge -->
-            <span class="position-absolute top-0 end-0 m-2 badge bg-danger" style="z-index: 2;">
-                <i class="bi bi-lightning-charge-fill"></i> Flash
-            </span>
-
-            <!-- Product Image -->
-            <a href="{{ sale.product.get_absolute_url }}">
-                {% if sale.product.image %}
-                <img alt="{{ sale.product.name }}" class="card-img-top product-image"
-                     src="{{ sale.product.image.url }}">
-                {% else %}
-                <div class="product-image bg-light d-flex align-items-center justify-content-center">
-                    <i class="bi bi-image text-muted display-4"></i>
+    {% if upcoming_sales %}
+    <section aria-labelledby="flash-upcoming-title">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <div>
+                <div class="section-eyebrow">Flash Sale sắp diễn ra</div>
+                <h2 class="section-title" id="flash-upcoming-title">Chuẩn bị trước giờ mở</h2>
+            </div>
+        </div>
+        <div class="upcoming-grid" role="list" aria-label="Flash sắp tới">
+            {% for sale in upcoming_sales %}
+            <article class="upcoming-card" role="listitem">
+                <div class="upcoming-card__media" aria-hidden="true">
+                    {% if sale.product.image %}
+                    <img src="{{ sale.product.image.url }}" alt="">
+                    {% endif %}
                 </div>
-                {% endif %}
-            </a>
-
-            <div class="card-body">
-                <h6 class="card-title product-name">
-                    <a class="text-dark text-decoration-none" href="{{ sale.product.get_absolute_url }}">
-                        {{ sale.product.name }}
-                    </a>
-                </h6>
-
-                <!-- Price -->
-                <div class="price-section mb-3">
-                    <span class="current-price">{{ sale.sale_price|currency }}</span>
-                    <span class="original-price">{{ sale.product.price|currency }}</span>
-                </div>
-
-                <!-- Progress Bar -->
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                        <small class="text-muted">Đã bán {{ sale.sold_count }}</small>
-                        <small class="text-danger fw-semibold">Còn {{
-                            sale.quantity_limit|add:sale.sold_count|default:sale.quantity_limit }}</small>
+                <div class="flex-grow-1">
+                    <div class="upcoming-card__title">{{ sale.product.name }}</div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-danger">-{{ sale.discount_percentage }}%</span>
+                        <span class="text-danger fw-semibold">{{ sale.sale_price|currency }}</span>
                     </div>
-                    <div class="progress" style="height: 6px;">
-                        <div class="progress-bar bg-danger"
-                             style="width: {% widthratio sale.sold_count sale.quantity_limit 100 %}%;"></div>
-                    </div>
-                </div>
-
-                <!-- Mini Countdown -->
-                <div class="text-center">
-                    <small class="text-danger countdown-mini" data-end="{{ sale.end_time|date:'c' }}">
-                        <i class="bi bi-clock me-1"></i>
-                        <span class="timer-text">Đang tải...</span>
+                    <small class="text-muted d-block mt-1">
+                        <i class="bi bi-clock" aria-hidden="true"></i>
+                        Bắt đầu: {{ sale.start_time|date:"d/m H:i" }}
                     </small>
                 </div>
-            </div>
-
-            <div class="card-footer bg-white border-0 pt-0">
-                {% if sale.sold_count < sale.quantity_limit %}
-                <form action="{% url 'cart:add' sale.product.pk %}" class="d-grid" method="post">
-                    {% csrf_token %}
-                    <input name="quantity" type="hidden" value="1">
-                    <button class="btn btn-danger" type="submit">
-                        <i class="bi bi-lightning-charge-fill me-1"></i>Mua ngay
-                    </button>
-                </form>
-                {% else %}
-                <button class="btn btn-secondary w-100" disabled>
-                    <i class="bi bi-x-circle me-1"></i>Đã hết hàng
-                </button>
-                {% endif %}
-            </div>
+            </article>
+            {% endfor %}
         </div>
-    </div>
-    {% endfor %}
+    </section>
+    {% endif %}
 </div>
-
-{% else %}
-<!-- Empty State -->
-<div class="card">
-    <div class="card-body">
-        <div class="empty-state">
-            <i class="bi bi-clock-history"></i>
-            <h4>Không có Flash Sale nào đang diễn ra</h4>
-            <p>Hãy quay lại sau để không bỏ lỡ các ưu đãi hấp dẫn!</p>
-            <a class="btn btn-primary btn-lg" href="{% url 'products:product_list' %}">
-                <i class="bi bi-grid me-2"></i>Xem sản phẩm khác
-            </a>
-        </div>
-    </div>
-</div>
-{% endif %}
-
-<!-- Upcoming Flash Sales -->
-{% if upcoming_sales %}
-<div class="mt-5">
-    <h4 class="mb-4">
-        <i class="bi bi-calendar-event me-2 text-primary"></i>Flash Sale sắp diễn ra
-    </h4>
-    <div class="row g-4">
-        {% for sale in upcoming_sales %}
-        <div class="col-md-6 col-lg-4">
-            <div class="card">
-                <div class="card-body d-flex align-items-center">
-                    {% if sale.product.image %}
-                    <img class="rounded me-3" height="80" src="{{ sale.product.image.url }}"
-                         style="object-fit: contain;"
-                         width="80">
-                    {% endif %}
-                    <div class="flex-grow-1">
-                        <h6 class="mb-1">{{ sale.product.name }}</h6>
-                        <p class="text-danger fw-bold mb-1">{{ sale.sale_price|currency }}</p>
-                        <small class="text-muted">
-                            <i class="bi bi-clock me-1"></i>Bắt đầu: {{ sale.start_time|date:"d/m H:i" }}
-                        </small>
-                    </div>
-                    <span class="badge bg-warning text-dark">-{{ sale.discount_percent }}%</span>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    function updateCountdowns() {
-        // Main countdown
-        const mainEl = document.getElementById('mainCountdown');
-        if (mainEl) {
-            const endTime = new Date(mainEl.dataset.end);
-            const now = new Date();
-            const diff = endTime - now;
+function updateCountdowns() {
+    document.querySelectorAll('.countdown-mini').forEach(function(el) {
+        const endTime = new Date(el.dataset.end);
+        const now = new Date();
+        const diff = endTime - now;
 
-            if (diff > 0) {
-                const hours = Math.floor(diff / (1000 * 60 * 60));
-                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-                document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
-                document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
-                document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
-            }
+        if (Number.isNaN(endTime.getTime())) {
+            el.querySelector('.timer-text').textContent = 'Đang mở';
+            return;
         }
 
-        // Mini countdowns
-        document.querySelectorAll('.countdown-mini').forEach(function (el) {
-            const endTime = new Date(el.dataset.end);
-            const now = new Date();
-            const diff = endTime - now;
+        if (diff <= 0) {
+            el.querySelector('.timer-text').textContent = 'Đã kết thúc';
+            return;
+        }
+        
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        el.querySelector('.timer-text').textContent = 
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    });
+}
 
-            if (diff <= 0) {
-                el.querySelector('.timer-text').textContent = 'Đã kết thúc';
-                return;
-            }
-
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-            el.querySelector('.timer-text').textContent =
-                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        });
-    }
-
-    setInterval(updateCountdowns, 1000);
-    updateCountdowns();
+setInterval(updateCountdowns, 1000);
+updateCountdowns();
 </script>
 {% endblock %}

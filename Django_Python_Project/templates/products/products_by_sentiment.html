@@ -1,10 +1,173 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load product_tags %}
 
-</body>
-</html>
+{% block title %}Lọc sản phẩm theo đánh giá - ElectroShop{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'products:home' %}"><i class="bi bi-house me-1"></i>Trang chủ</a></li>
+        <li class="breadcrumb-item active">Lọc theo đánh giá</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <!-- Sidebar Filter -->
+    <div class="col-lg-3 mb-4">
+        <div class="card border-0 shadow-sm" style="border-radius: var(--radius-xl);">
+            <div class="card-header bg-transparent border-0 py-3">
+                <h5 class="mb-0"><i class="bi bi-funnel me-2"></i>Bộ lọc</h5>
+            </div>
+            <div class="card-body">
+                <!-- Sentiment Filter -->
+                <h6 class="text-muted small text-uppercase mb-3">Theo đánh giá AI</h6>
+                <div class="d-grid gap-2 mb-4">
+                    <a href="?sentiment=positive{% if current_category %}&category={{ current_category }}{% endif %}" 
+                       class="btn {% if current_sentiment == 'positive' %}btn-success{% else %}btn-outline-success{% endif %} text-start">
+                        <i class="bi bi-emoji-smile-fill me-2"></i>Đánh giá tích cực
+                    </a>
+                    <a href="?sentiment=neutral{% if current_category %}&category={{ current_category }}{% endif %}" 
+                       class="btn {% if current_sentiment == 'neutral' %}btn-secondary{% else %}btn-outline-secondary{% endif %} text-start">
+                        <i class="bi bi-emoji-neutral me-2"></i>Đánh giá trung lập
+                    </a>
+                    <a href="?sentiment=negative{% if current_category %}&category={{ current_category }}{% endif %}" 
+                       class="btn {% if current_sentiment == 'negative' %}btn-danger{% else %}btn-outline-danger{% endif %} text-start">
+                        <i class="bi bi-emoji-frown me-2"></i>Đánh giá tiêu cực
+                    </a>
+                    <a href="?sentiment=all{% if current_category %}&category={{ current_category }}{% endif %}" 
+                       class="btn {% if current_sentiment == 'all' or not current_sentiment %}btn-primary{% else %}btn-outline-primary{% endif %} text-start">
+                        <i class="bi bi-grid me-2"></i>Tất cả
+                    </a>
+                </div>
+                
+                <!-- Category Filter -->
+                <h6 class="text-muted small text-uppercase mb-3">Danh mục</h6>
+                <div class="list-group list-group-flush">
+                    <a href="?sentiment={{ current_sentiment|default:'all' }}" 
+                       class="list-group-item list-group-item-action border-0 {% if not current_category %}active{% endif %}">
+                        Tất cả danh mục
+                    </a>
+                    {% for category in categories %}
+                    <a href="?sentiment={{ current_sentiment|default:'all' }}&category={{ category.slug }}" 
+                       class="list-group-item list-group-item-action border-0 {% if current_category == category.slug %}active{% endif %}">
+                        {{ category.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Info Card -->
+        <div class="card border-0 shadow-sm mt-4" style="border-radius: var(--radius-xl); background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%);">
+            <div class="card-body">
+                <h6><i class="bi bi-lightbulb me-2 text-warning"></i>Mẹo mua hàng</h6>
+                <p class="small text-muted mb-0">
+                    Sản phẩm có đánh giá <strong class="text-success">tích cực</strong> được nhiều khách hàng hài lòng. 
+                    Hãy đọc kỹ các đánh giá <strong class="text-danger">tiêu cực</strong> để biết nhược điểm trước khi mua.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Product Grid -->
+    <div class="col-lg-9">
+        <!-- Current Filter Info -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="mb-1">
+                    {% if current_sentiment == 'positive' %}
+                    <i class="bi bi-emoji-smile-fill text-success me-2"></i>Sản phẩm đánh giá tích cực
+                    {% elif current_sentiment == 'negative' %}
+                    <i class="bi bi-emoji-frown-fill text-danger me-2"></i>Sản phẩm đánh giá tiêu cực
+                    {% elif current_sentiment == 'neutral' %}
+                    <i class="bi bi-emoji-neutral text-secondary me-2"></i>Sản phẩm đánh giá trung lập
+                    {% else %}
+                    <i class="bi bi-grid me-2"></i>Tất cả sản phẩm
+                    {% endif %}
+                </h4>
+                <small class="text-muted">{{ products.paginator.count }} sản phẩm</small>
+            </div>
+        </div>
+        
+        {% if products %}
+        <div class="row g-3 g-lg-4">
+            {% for product in products %}
+            <div class="col-6 col-md-4">
+                <div class="card h-100 border-0 shadow-sm product-card" style="border-radius: var(--radius-xl); overflow: hidden;">
+                    <!-- Sentiment Indicator -->
+                    <div class="position-absolute top-0 start-0 m-2 z-1">
+                        {% if product.sentiment_score > 0.3 %}
+                        <span class="badge bg-success"><i class="bi bi-emoji-smile"></i></span>
+                        {% elif product.sentiment_score < -0.3 %}
+                        <span class="badge bg-danger"><i class="bi bi-emoji-frown"></i></span>
+                        {% else %}
+                        <span class="badge bg-secondary"><i class="bi bi-emoji-neutral"></i></span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if product.discount_percent > 0 %}
+                    <span class="discount-badge">-{{ product.discount_percent }}%</span>
+                    {% endif %}
+                    
+                    <a href="{{ product.get_absolute_url }}" class="text-decoration-none">
+                        <div class="product-image" style="background: var(--gray-50); aspect-ratio: 1;">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" class="p-3" alt="{{ product.name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                            {% else %}
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <i class="bi bi-image display-4 text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </a>
+                    
+                    <div class="card-body p-3">
+                        <h6 class="card-title mb-2">
+                            <a href="{{ product.get_absolute_url }}" class="text-dark text-decoration-none" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                {{ product.name }}
+                            </a>
+                        </h6>
+                        
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            {{ product.average_rating|star_rating }}
+                            <small class="text-muted">({{ product.review_count }})</small>
+                        </div>
+                        
+                        <!-- Sentiment Stats -->
+                        <div class="d-flex gap-1 mb-2">
+                            <span class="badge bg-success-subtle text-success" style="font-size: 0.65rem;">
+                                <i class="bi bi-hand-thumbs-up"></i> {{ product.positive_reviews }}
+                            </span>
+                            <span class="badge bg-danger-subtle text-danger" style="font-size: 0.65rem;">
+                                <i class="bi bi-hand-thumbs-down"></i> {{ product.negative_reviews }}
+                            </span>
+                        </div>
+                        
+                        <div>
+                            {% if product.sale_price and product.sale_price < product.price %}
+                            <span class="text-danger fw-bold">{{ product.sale_price|currency }}</span>
+                            <small class="text-muted text-decoration-line-through">{{ product.price|currency }}</small>
+                            {% else %}
+                            <span class="fw-bold">{{ product.price|currency }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="mt-5">
+            {% include 'partials/_pagination.html' with page_obj=products %}
+        </div>
+        
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-search display-1 text-muted"></i>
+            <h4 class="mt-3">Không tìm thấy sản phẩm</h4>
+            <p class="text-muted">Thử thay đổi bộ lọc để xem thêm sản phẩm.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,385 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+{% if is_edit %}Sửa đánh giá{% else %}Thêm đánh giá{% endif %} - {{ product.name }}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .add-review-page {
+        padding: 3rem 0;
+        background: #f8f9fa;
+        min-height: calc(100vh - 200px);
+    }
+
+    .review-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .breadcrumb {
+        background: white;
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .breadcrumb-item a {
+        color: #667eea;
+        text-decoration: none;
+    }
+
+    .breadcrumb-item.active {
+        color: #6c757d;
+    }
+
+    .review-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .product-info {
+        display: flex;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+
+    .product-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    .product-details h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: #1a202c;
+    }
+
+    .product-details .price {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+
+    .review-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .review-header h2 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1a202c;
+        margin-bottom: 0.5rem;
+    }
+
+    .review-header p {
+        color: #6b7280;
+        font-size: 1.0625rem;
+    }
+
+    .form-group {
+        margin-bottom: 2rem;
+    }
+
+    .form-group label {
+        font-weight: 700;
+        color: #374151;
+        margin-bottom: 0.75rem;
+        display: block;
+        font-size: 1rem;
+    }
+
+    .required {
+        color: #ef4444;
+    }
+
+    /* Rating Stars Input */
+    .rating-input {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 3rem;
+    }
+
+    .rating-input input[type="radio"] {
+        display: none;
+    }
+
+    .rating-input label {
+        cursor: pointer;
+        color: #d1d5db;
+        transition: all 0.2s;
+        margin: 0;
+    }
+
+    .rating-input label:hover,
+    .rating-input label:hover ~ label,
+    .rating-input input[type="radio"]:checked ~ label {
+        color: #fbbf24;
+        transform: scale(1.1);
+    }
+
+    .rating-input label:hover {
+        transform: scale(1.2);
+    }
+
+    /* Textarea */
+    .form-control {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.2s;
+        font-family: inherit;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    .form-text {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    /* Image Upload */
+    .image-upload-group {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .image-upload-item input[type="file"] {
+        padding: 0.75rem;
+    }
+
+    /* Buttons */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 2px solid #e9ecef;
+    }
+
+    .btn {
+        padding: 1rem 2.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .btn-secondary:hover {
+        background: #e5e7eb;
+    }
+
+    /* Error messages */
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0 0;
+    }
+
+    .errorlist li {
+        color: #ef4444;
+        font-size: 0.875rem;
+        padding: 0.5rem;
+        background: #fef2f2;
+        border-radius: 6px;
+        margin-top: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .review-card {
+            padding: 1.5rem;
+        }
+
+        .product-info {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .product-image {
+            margin: 0 auto;
+        }
+
+        .rating-input {
+            font-size: 2.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="add-review-page">
+    <div class="container">
+        <div class="review-container">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'products:home' %}">
+                            <i class="bi bi-house-door"></i> Trang chủ
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'products:product_list' %}">Sản phẩm</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'products:detail' product.slug %}">{{ product.name|truncatewords:5 }}</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        {% if is_edit %}Sửa đánh giá{% else %}Thêm đánh giá{% endif %}
+                    </li>
+                </ol>
+            </nav>
+
+            <!-- Review Card -->
+            <div class="review-card">
+                <!-- Product Info -->
+                <div class="product-info">
+                    <img alt="{{ product.name }}" class="product-image" src="{{ product.image.url }}">
+                    <div class="product-details">
+                        <h3>{{ product.name }}</h3>
+                        <div class="price">{{ product.current_price|floatformat:0 }}₫</div>
+                    </div>
+                </div>
+
+                <!-- Review Header -->
+                <div class="review-header">
+                    <h2>
+                        {% if is_edit %}
+                        <i class="bi bi-pencil-square"></i> Sửa đánh giá
+                        {% else %}
+                        <i class="bi bi-star-fill"></i> Đánh giá sản phẩm
+                        {% endif %}
+                    </h2>
+                    <p>Chia sẻ trải nghiệm của bạn để giúp người khác lựa chọn tốt hơn</p>
+                </div>
+
+                <!-- Review Form -->
+                <form enctype="multipart/form-data" method="post" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Rating -->
+                    <div class="form-group">
+                        <label>
+                            Đánh giá sao <span class="required">*</span>
+                        </label>
+                        <div class="rating-input">
+                            {% for value in "54321" %}
+                            <input %} %}checked{% endif
+                                   form.rating.value==
+                                   id="rating{{ value }}" if name="rating" required type="radio" value="{{ value }}" value|add:0
+                                   {%>
+                            <label for="rating{{ value }}">
+                                <i class="bi bi-star-fill"></i>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        {{ form.rating.errors }}
+                    </div>
+
+                    <!-- Comment -->
+                    <div class="form-group">
+                        <label for="id_comment">
+                            Nội dung đánh giá <span class="required">*</span>
+                        </label>
+                        {{ form.comment }}
+                        <small class="form-text">
+                            Chia sẻ chi tiết về chất lượng sản phẩm, dịch vụ giao hàng, đóng gói... (Tối thiểu 10 ký tự)
+                        </small>
+                        {{ form.comment.errors }}
+                    </div>
+
+                    <!-- Images -->
+                    <div class="form-group">
+                        <label>
+                            Hình ảnh <small class="text-muted">(Tùy chọn, tối đa 3 ảnh)</small>
+                        </label>
+                        <div class="image-upload-group">
+                            <div class="image-upload-item">
+                                {{ form.image1 }}
+                                {{ form.image1.errors }}
+                            </div>
+                            <div class="image-upload-item">
+                                {{ form.image2 }}
+                                {{ form.image2.errors }}
+                            </div>
+                            <div class="image-upload-item">
+                                {{ form.image3 }}
+                                {{ form.image3.errors }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-send"></i>
+                            {% if is_edit %}Cập nhật đánh giá{% else %}Gửi đánh giá{% endif %}
+                        </button>
+                        <a class="btn btn-secondary" href="{% url 'products:detail' product.slug %}#reviews">
+                            <i class="bi bi-x-lg"></i> Hủy
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

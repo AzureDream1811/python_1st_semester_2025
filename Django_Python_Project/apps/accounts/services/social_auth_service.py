@@ -1,6 +1,6 @@
 """
 Social Authentication Service
-Xử lý đăng nhập/đăng ký qua Google và Facebook
+Xử lý đăng nhập/đăng ký qua Google
 """
 import secrets
 import string
@@ -13,9 +13,9 @@ from ..models import Profile, SocialAccount
 
 
 class SocialAuthService:
-    """Service xử lý social login/register"""
+    """Service xử lý Google login/register"""
 
-    VALID_PROVIDERS = ['google', 'facebook']
+    VALID_PROVIDERS = ['google']
 
     @staticmethod
     def check_email_exists(email: str) -> dict:

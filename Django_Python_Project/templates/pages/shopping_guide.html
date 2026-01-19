@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hướng dẫn mua hàng - ElectroShop{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'products:home' %}">Trang chủ</a></li>
+        <li class="breadcrumb-item active">Hướng dẫn mua hàng</li>
+    </ol>
+</nav>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h3 mb-0"><i class="bi bi-book me-2"></i>Hướng dẫn mua hàng</h1>
+                </div>
+                <div class="card-body">
+                    <h2 class="h5 text-primary mb-3">1. Tìm kiếm sản phẩm</h2>
+                    <p>Bạn có thể tìm kiếm sản phẩm bằng nhiều cách:</p>
+                    <ul>
+                        <li>Sử dụng thanh tìm kiếm ở đầu trang</li>
+                        <li>Duyệt theo danh mục sản phẩm</li>
+                        <li>Xem các sản phẩm Flash Sale để nhận ưu đãi tốt nhất</li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <h2 class="h5 text-primary mb-3">2. Thêm vào giỏ hàng</h2>
+                    <p>Khi đã chọn được sản phẩm ưng ý:</p>
+                    <ul>
+                        <li>Nhấn nút "Thêm vào giỏ" trên trang chi tiết sản phẩm</li>
+                        <li>Chọn số lượng bạn muốn mua</li>
+                        <li>Kiểm tra giỏ hàng và điều chỉnh nếu cần</li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <h2 class="h5 text-primary mb-3">3. Đặt hàng và thanh toán</h2>
+                    <p>Để hoàn tất đơn hàng:</p>
+                    <ul>
+                        <li>Đăng nhập hoặc tạo tài khoản mới</li>
+                        <li>Nhập địa chỉ giao hàng chính xác</li>
+                        <li>Chọn phương thức thanh toán (COD, VNPay, MoMo, Chuyển khoản)</li>
+                        <li>Áp dụng mã giảm giá nếu có</li>
+                        <li>Xác nhận đơn hàng</li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <h2 class="h5 text-primary mb-3">4. Theo dõi đơn hàng</h2>
+                    <p>Sau khi đặt hàng thành công:</p>
+                    <ul>
+                        <li>Bạn sẽ nhận được email xác nhận đơn hàng</li>
+                        <li>Theo dõi trạng thái đơn hàng trong mục "Đơn hàng của tôi"</li>
+                        <li>Liên hệ hotline nếu cần hỗ trợ: 1900 1234</li>
+                    </ul>
+                    
+                    <div class="alert alert-info mt-4">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Lưu ý:</strong> Thời gian giao hàng từ 2-5 ngày làm việc tùy theo khu vực.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

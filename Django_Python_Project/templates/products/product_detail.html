@@ -1,629 +1,1775 @@
-{% extends 'base.html' %} 
-{% load product_tags %} 
-{% block title %}{{product.name }} - ElectroShop{% endblock %} 
+{% extends 'base.html' %}
+{% load product_tags humanize %}
+
+{% block title %}{{ product.name }} - ElectroShop{% endblock %}
+
+{% block extra_css %}
+<style>
+p {
+    margin-bottom: var(--es-space-2);
+    color:#0f172a;
+}
+/* Breadcrumb */
+.pd-breadcrumb {
+    padding: 16px 0;
+    font-size: 14px;
+}
+
+.pd-breadcrumb ol {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-wrap: wrap;
+}
+
+.pd-breadcrumb a {
+    text-decoration: none;
+}
+
+.pd-breadcrumb a:hover {
+    color: var(--es-primary);
+}
+
+.pd-breadcrumb li:not(:last-child)::after {
+    content: '/';
+    margin-left: 8px;
+    color: var(--es-text-muted);
+}
+
+.pd-breadcrumb .active {
+    color: var(--es-text-primary);
+    font-weight: 500;
+}
+
+/* Main Product Section */
+.pd-main {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+    background: var(--es-white);
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid var(--es-border-light);
+}
+
+/* Gallery Section */
+.pd-gallery {
+    position: relative;
+}
+
+.pd-gallery__main {
+    position: relative;
+    background: #f8f9fa;
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 1;
+    cursor: zoom-in;
+    border: 1px solid var(--es-border-light);
+}
+
+.pd-gallery__main img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 20px;
+    transition: transform 0.3s ease;
+}
+
+.pd-gallery__main:hover img {
+    transform: scale(1.1);
+}
+
+.pd-gallery__badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pd-badge {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.pd-badge--sale {
+    background: #dc3545;
+    color: white;
+}
+
+.pd-badge--new {
+    background: #28a745;
+    color: white;
+}
+
+.pd-badge--hot {
+    background: #ff6b00;
+    color: white;
+}
+
+.pd-gallery__wishlist {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 44px;
+    height: 44px;
+    background: white;
+    border: 1px solid var(--es-border-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.2s ease;
+    font-size: 20px;
+    color: var(--es-text-secondary);
+}
+
+.pd-gallery__wishlist:hover {
+    background: #fff0f0;
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.pd-gallery__wishlist.active {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.pd-gallery__thumbs {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.pd-gallery__thumb {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    border: 2px solid var(--es-border-light);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+}
+
+.pd-gallery__thumb:hover,
+.pd-gallery__thumb.active {
+    border-color: var(--es-primary);
+}
+
+.pd-gallery__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 4px;
+}
+
+/* Product Info Section */
+.pd-info {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pd-info__category {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--es-primary);
+    text-decoration: none;
+}
+
+.pd-info__category:hover {
+    text-decoration: underline;
+}
+
+.pd-info__title {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.pd-info__rating {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 14px;
+}
+
+.pd-info__stars {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pd-info__stars i {
+    color: #ffc107;
+    font-size: 16px;
+}
+
+.pd-info__stars span {
+    font-weight: 600;
+    margin-left: 4px;
+}
+
+.pd-info__rating-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pd-info__rating-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pd-info__sku {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 14px;
+}
+
+/* Price Box */
+.pd-price {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+    border: 1px solid #ffcdd2;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.pd-price__current {
+    font-size: 32px;
+    font-weight: 700;
+    color: #dc3545;
+    margin: 0;
+}
+
+.pd-price__original {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.pd-price__old {
+    font-size: 18px;
+    color: var(--es-text-muted);
+    text-decoration: line-through;
+}
+
+.pd-price__discount {
+    background: #dc3545;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Highlights */
+.pd-highlights {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pd-highlights__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--es-text-primary);
+    margin: 0;
+}
+
+.pd-highlights__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pd-highlights__list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 14px;
+    color: #333;
+}
+
+.pd-highlights__list i {
+    color: #28a745;
+    font-size: 14px;
+    margin-top: 2px;
+}
+
+/* Quantity & Add to Cart */
+.pd-purchase {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--es-border-light);
+}
+
+.pd-quantity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pd-quantity__label {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.pd-quantity__input {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--es-border-light);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.pd-quantity__btn {
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: #f8f9fa;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.2s ease;
+}
+
+.pd-quantity__btn:hover:not(:disabled) {
+    background: #e9ecef;
+}
+
+.pd-quantity__btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pd-quantity__input input {
+    width: 60px;
+    height: 44px;
+    border: none;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.pd-quantity__input input::-webkit-inner-spin-button,
+.pd-quantity__input input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+.pd-stock {
+    font-size: 14px;
+    color: var(--es-text-muted);
+}
+
+.pd-stock--low {
+    color: #ff6b00;
+    font-weight: 500;
+}
+
+.pd-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.pd-btn {
+    flex: 1;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.pd-btn--primary {
+    background: var(--es-primary);
+    color: white;
+}
+
+.pd-btn--primary:hover:not(:disabled) {
+    background: var(--es-primary-dark);
+    transform: translateY(-2px);
+}
+
+.pd-btn--secondary {
+    background: #ff6b00;
+    color: white;
+}
+
+.pd-btn--secondary:hover:not(:disabled) {
+    background: #e55d00;
+    transform: translateY(-2px);
+}
+
+.pd-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Trust Badges */
+.pd-trust {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.pd-trust__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+}
+
+.pd-trust__item i {
+    font-size: 20px;
+    width: 24px;
+    text-align: center;
+}
+
+.pd-trust__item--shipping i { color: var(--es-primary); }
+.pd-trust__item--warranty i { color: #28a745; }
+.pd-trust__item--return i { color: #ff6b00; }
+.pd-trust__item--cod i { color: #6f42c1; }
+
+/* Product Tabs */
+.pd-tabs {
+    background: var(--es-white);
+    border-radius: 12px;
+    border: 1px solid var(--es-border-light);
+    overflow: hidden;
+    margin-bottom: 40px;
+}
+
+.pd-tabs__nav {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 1px solid var(--es-border-light);
+    overflow-x: auto;
+}
+
+.pd-tabs__btn {
+    flex: 1;
+    min-width: 150px;
+    padding: 16px 24px;
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.pd-tabs__btn:hover {
+    color: var(--es-primary);
+    background: white;
+}
+
+.pd-tabs__btn.active {
+    color: var(--es-primary);
+    background: white;
+}
+
+.pd-tabs__btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--es-primary);
+}
+
+.pd-tabs__content {
+    padding: 24px;
+}
+
+.pd-tabs__pane {
+    display: none;
+}
+
+.pd-tabs__pane.active {
+    display: block;
+}
+
+/* Description Tab */
+.pd-description {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #0f172a;
+}
+
+.pd-description h3,
+.pd-description h4 {
+    color: var(--es-text-primary);
+    margin: 24px 0 12px;
+}
+
+.pd-description ul {
+    padding-left: 20px;
+}
+
+.pd-description li {
+    margin-bottom: 8px;
+}
+
+/* Specs Tab */
+.pd-specs-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--es-border-light);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.pd-specs-table tr:nth-child(odd) th,
+.pd-specs-table tr:nth-child(odd) td {
+    background: #f8fafc;
+}
+
+.pd-specs-table tr:hover th,
+.pd-specs-table tr:hover td {
+    background: #f1f5f9;
+}
+
+.pd-specs-table th,
+.pd-specs-table td {
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 14px;
+    border-bottom: 1px solid var(--es-border-light);
+}
+
+.pd-specs-table tr:last-child th,
+.pd-specs-table tr:last-child td {
+    border-bottom: none;
+}
+
+.pd-specs-table th {
+    width: 35%;
+    font-weight: 600;
+    color: var(--es-text-primary);
+    background: linear-gradient(90deg, #f8fafc 0%, #ffffff 100%);
+    border-right: 2px solid var(--es-primary);
+}
+
+.pd-specs-table td {
+    font-weight: 500;
+}
+
+.pd-specs-table td strong {
+    color: var(--es-text-primary);
+}
+
+/* Reviews Tab */
+.pd-reviews {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.pd-reviews__summary {
+    display: flex;
+    gap: 40px;
+    padding: 24px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    align-items: center;
+}
+
+.pd-reviews__score {
+    text-align: center;
+    padding-right: 40px;
+    border-right: 1px solid var(--es-border-light);
+}
+
+.pd-reviews__score-value {
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--es-text-primary);
+    line-height: 1;
+}
+
+.pd-reviews__score-stars {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin: 8px 0;
+}
+
+.pd-reviews__score-stars i {
+    color: #ffc107;
+    font-size: 18px;
+}
+
+.pd-reviews__score-count {
+    font-size: 14px;
+    color: var(--es-text-muted);
+}
+
+.pd-reviews__bars {
+    flex: 1;
+}
+
+.pd-reviews__bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.pd-reviews__bar-label {
+    font-size: 14px;
+    color: var(--es-text-secondary);
+    width: 50px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pd-reviews__bar-track {
+    flex: 1;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.pd-reviews__bar-fill {
+    height: 100%;
+    background: #ffc107;
+    border-radius: 4px;
+}
+
+.pd-reviews__bar-count {
+    font-size: 14px;
+    color: var(--es-text-muted);
+    width: 30px;
+    text-align: right;
+}
+
+.pd-reviews__list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.pd-review {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.pd-review__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.pd-review__user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pd-review__avatar {
+    width: 44px;
+    height: 44px;
+    background: var(--es-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.pd-review__name {
+    font-weight: 600;
+    color: var(--es-text-primary);
+    margin: 0 0 4px;
+}
+
+.pd-review__verified {
+    font-size: 12px;
+    color: #28a745;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pd-review__date {
+    font-size: 13px;
+    color: var(--es-text-muted);
+}
+
+.pd-review__stars {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 12px;
+}
+
+.pd-review__stars i {
+    color: #ffc107;
+    font-size: 14px;
+}
+
+.pd-review__content {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--es-text-secondary);
+    margin: 0;
+}
+
+/* Review Form */
+.pd-review-form {
+    padding: 24px;
+    background: white;
+    border: 1px solid var(--es-border-light);
+    border-radius: 12px;
+}
+
+.pd-review-form h4 {
+    margin: 0 0 16px;
+    font-size: 18px;
+    color: var(--es-text-primary);
+}
+
+.pd-review-form .form-group {
+    margin-bottom: 16px;
+}
+
+.pd-review-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--es-text-secondary);
+}
+
+.pd-review-form .form-select,
+.pd-review-form .form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--es-border-light);
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.pd-review-form textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.pd-review-login {
+    text-align: center;
+    padding: 32px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.pd-review-login p {
+    margin-bottom: 16px;
+    color: var(--es-text-secondary);
+}
+
+/* Empty State */
+.pd-empty {
+    text-align: center;
+    padding: 48px;
+    color: var(--es-text-muted);
+}
+
+.pd-empty i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+}
+
+/* Related Products - Carousel */
+.pd-related {
+    margin-bottom: 40px;
+}
+
+.pd-related__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.pd-related__title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--es-text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pd-related__title i {
+    color: var(--es-primary);
+}
+
+.pd-related__nav {
+    display: flex;
+    gap: 8px;
+}
+
+.pd-related__nav-btn {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--es-border-light);
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.pd-related__nav-btn:hover:not(:disabled) {
+    border-color: var(--es-primary);
+    color: var(--es-primary);
+}
+
+.pd-related__nav-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pd-related__carousel {
+    position: relative;
+    overflow: hidden;
+}
+
+.pd-related__track {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 4px;
+}
+
+.pd-related__track::-webkit-scrollbar {
+    display: none;
+}
+
+.pd-related__track .product-card {
+    flex: 0 0 calc(25% - 15px);
+    min-width: 240px;
+}
+
+.pd-related__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .pd-main {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .pd-gallery__main {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    .pd-related__grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .pd-reviews__summary {
+        flex-direction: column;
+        gap: 24px;
+    }
+    
+    .pd-reviews__score {
+        padding-right: 0;
+        border-right: none;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--es-border-light);
+    }
+}
+
+@media (max-width: 768px) {
+    .pd-main {
+        padding: 16px;
+    }
+    
+    .pd-info__title {
+        font-size: 20px;
+    }
+    
+    .pd-price__current {
+        font-size: 26px;
+    }
+    
+    .pd-buttons {
+        flex-direction: column;
+    }
+    
+    .pd-trust {
+        grid-template-columns: 1fr;
+    }
+    
+    .pd-tabs__btn {
+        min-width: 120px;
+        padding: 14px 16px;
+        font-size: 14px;
+    }
+    
+    .pd-related__grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    .pd-info__rating {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .pd-gallery__thumbs {
+        justify-content: center;
+    }
+    
+    .pd-gallery__thumb {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* Sticky Add to Cart - Hidden by default */
+.pd-sticky-cart {
+    display: none;
+}
+
+/* Sticky Add to Cart - Mobile */
+@media (max-width: 768px) {
+    .pd-sticky-cart {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 12px 16px;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+        z-index: 1000;
+        display: none;
+    }
+    
+    .pd-sticky-cart.show {
+        display: flex;
+        gap: 12px;
+    }
+    
+    .pd-sticky-cart .pd-btn {
+        flex: 1;
+        padding: 14px;
+    }
+}
+
+/* Zoom Modal */
+.pd-zoom-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+}
+
+.pd-zoom-modal.show {
+    display: flex;
+}
+
+.pd-zoom-modal img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+.pd-zoom-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+/* AI Sentiment Badge */
+.pd-sentiment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.pd-sentiment--positive {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.pd-sentiment--negative {
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+}
+
+.pd-sentiment i {
+    font-size: 18px;
+}
+
+.pd-sentiment__badge {
+    margin-left: auto;
+    background: #333;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<!-- Redesigned product detail page with modern styling -->
-<nav aria-label="breadcrumb" class="mb-4">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item">
-      <a href="{% url 'products:home' %}"
-        ><i class="bi bi-house me-1"></i>Trang chủ</a
-      >
-    </li>
-    {% if product.category %}
-    <li class="breadcrumb-item">
-      <a href="{% url 'products:category' product.category.slug %}"
-        >{{ product.category.name }}</a
-      >
-    </li>
-    {% endif %}
-    <li class="breadcrumb-item active">{{ product.name|truncatewords:5 }}</li>
-  </ol>
-</nav>
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav class="pd-breadcrumb" aria-label="breadcrumb">
+        <ol>
+            <li><a href="{% url 'products:home' %}"><i class="bi bi-house-door"></i> Trang chủ</a></li>
+            {% if product.category %}
+            <li><a href="{% url 'products:category' product.category.slug %}">{{ product.category.name }}</a></li>
+            {% endif %}
+            <li class="active">{{ product.name|truncatewords:5 }}</li>
+        </ol>
+    </nav>
 
-<div class="row g-4 g-lg-5">
-  <!-- Product Images -->
-  <div class="col-lg-5">
-    <div class="product-gallery">
-      <div
-        class="card border-0"
-        style="border-radius: var(--radius-2xl); overflow: hidden"
-      >
-        {% if product.discount_percent > 0 %}
-        <span
-          class="discount-badge"
-          style="
-            top: 16px;
-            left: 16px;
-            font-size: 0.875rem;
-            padding: 0.5rem 1rem;
-          "
-          >-{{ product.discount_percent }}%</span
-        >
-        {% endif %} {% if product.image %}
-        <div
-          class="main-image"
-          style="
-            background: linear-gradient(
-              180deg,
-              var(--gray-50) 0%,
-              var(--white) 100%
-            );
-            aspect-ratio: 1;
-          "
-        >
-          <img
-            alt="{{ product.name }}"
-            class="p-4"
-            src="{{ product.image.url }}"
-            style="
-              max-width: 100%;
-              max-height: 100%;
-              object-fit: contain;
-              transition: transform 0.5s ease;
-            "
-          />
-        </div>
-        {% else %}
-        <div
-          class="d-flex align-items-center justify-content-center"
-          style="height: 400px; background: var(--gray-100)"
-        >
-          <i class="bi bi-image display-1 text-muted"></i>
-        </div>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
-  <!-- Product Info -->
-  <div class="col-lg-7">
-    <!-- Category Badge -->
-    {% if product.category %}
-    <a
-      class="badge bg-primary-subtle text-primary mb-3 text-decoration-none"
-      href="{% url 'products:category' product.category.slug %}"
-      style="font-size: 0.75rem; padding: 0.5rem 0.875rem"
-    >
-      {{ product.category.name }}
-    </a>
-    {% endif %}
-
-    <h1 class="h2 mb-3" style="font-weight: 700; line-height: 1.3">
-      {{ product.name }}
-    </h1>
-
-    <!-- Rating & Views -->
-    <div class="d-flex align-items-center flex-wrap gap-3 mb-4">
-      <div class="d-flex align-items-center">
-        <div class="rating-stars me-2">
-          {{ product.average_rating|star_rating }}
-        </div>
-        <span class="text-muted small"
-          >({{ product.review_count }} đánh giá)</span
-        >
-      </div>
-      <span class="text-muted">|</span>
-      <span class="text-muted small"
-        ><i class="bi bi-eye me-1"></i>{{ product.views }} lượt xem</span
-      >
-      {% if product.sold_count %}
-      <span class="text-muted">|</span>
-      <span class="text-muted small"
-        ><i class="bi bi-bag-check me-1"></i>Đã bán {{ product.sold_count
-        }}</span
-      >
-      {% endif %}
-    </div>
-
-    <!-- Sentiment Summary -->
-    {% if product.review_count > 0 %}
-    <div class="mb-4 d-flex gap-2">
-      <span
-        class="badge d-inline-flex align-items-center gap-1"
-        style="
-          background: var(--success-light);
-          color: var(--success);
-          padding: 0.5rem 0.875rem;
-        "
-      >
-        <i class="bi bi-emoji-smile"></i> {{ product.positive_reviews }} tích
-        cực
-      </span>
-      <span
-        class="badge d-inline-flex align-items-center gap-1"
-        style="
-          background: var(--danger-light);
-          color: var(--danger);
-          padding: 0.5rem 0.875rem;
-        "
-      >
-        <i class="bi bi-emoji-frown"></i> {{ product.negative_reviews }} tiêu
-        cực
-      </span>
-    </div>
-    {% endif %}
-
-    <!-- Price -->
-    <div
-      class="p-4 rounded-3 mb-4"
-      style="
-        background: linear-gradient(
-          135deg,
-          var(--primary-50) 0%,
-          var(--white) 100%
-        );
-        border: 1px solid var(--gray-200);
-      "
-    >
-      {% if product.sale_price and product.sale_price < product.price %}
-      <div class="d-flex align-items-baseline gap-3 flex-wrap">
-        <span class="h2 mb-0 fw-bold" style="color: var(--danger)"
-          >{{ product.sale_price|currency }}</span
-        >
-        <span class="text-muted text-decoration-line-through fs-5"
-          >{{ product.price|currency }}</span
-        >
-        <span class="badge bg-danger" style="font-size: 0.875rem"
-          >Tiết kiệm {{ product.discount_percent }}%</span
-        >
-      </div>
-      {% else %}
-      <span class="h2 mb-0 fw-bold" style="color: var(--gray-800)"
-        >{{ product.price|currency }}</span
-      >
-      {% endif %}
-    </div>
-
-    <!-- Stock Status -->
-    <div class="mb-4">
-      {{ product|stock_status }} {% if product.in_stock %}
-      <span class="text-muted ms-2"
-        >Còn {{ product.stock }} sản phẩm trong kho</span
-      >
-      {% endif %}
-    </div>
-
-    <!-- Add to Cart Form -->
-    <form action="{% url 'cart:add' product.pk %}" method="post" class="mb-4">
-      {% csrf_token %}
-      <div class="d-flex flex-wrap align-items-center gap-3">
-        <!-- Quantity -->
-        <div>
-          <label class="form-label small text-muted mb-1">Số lượng</label>
-          <div
-            class="d-flex align-items-center"
-            style="
-              border: 2px solid var(--gray-200);
-              border-radius: var(--radius-md);
-              overflow: hidden;
-            "
-          >
-            <!-- Minus -->
-            <button
-              type="button"
-              class="btn btn-link text-dark px-3 py-2"
-              onclick="changeQty(-1)"
-              {%
-              if
-              not
-              product.in_stock
-              %}disabled{%
-              endif
-              %}
-            >
-              <i class="bi bi-dash"></i>
-            </button>
-
-            <!-- Input -->
-            <input
-              type="number"
-              id="qty"
-              name="quantity"
-              class="form-control border-0 text-center"
-              value="1"
-              min="1"
-              max="{{ product.stock }}"
-              style="width: 60px; box-shadow: none"
-              {%
-              if
-              not
-              product.in_stock
-              %}disabled{%
-              endif
-              %}
-            />
-
-            <!-- Plus -->
-            <button
-              type="button"
-              class="btn btn-link text-dark px-3 py-2"
-              onclick="changeQty(1)"
-              {%
-              if
-              not
-              product.in_stock
-              %}disabled{%
-              endif
-              %}
-            >
-              <i class="bi bi-plus"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Buttons -->
-        <div class="flex-grow-1 d-flex gap-2">
-          <button
-            type="submit"
-            class="btn btn-primary btn-lg flex-grow-1"
-            {%
-            if
-            not
-            product.in_stock
-            %}disabled{%
-            endif
-            %}
-          >
-            <i class="bi bi-bag-plus me-2"></i>Thêm vào giỏ
-          </button>
-
-          <button
-            type="button"
-            class="btn btn-outline-danger btn-lg"
-            title="Thêm vào yêu thích"
-          >
-            <i class="bi bi-heart"></i>
-          </button>
-        </div>
-      </div>
-    </form>
-
-    <!-- Product Meta -->
-    <div class="p-3 rounded-3" style="background: var(--gray-50)">
-      {% if product.brand %}
-      <div
-        class="d-flex justify-content-between py-2 border-bottom"
-        style="border-color: var(--gray-200) !important"
-      >
-        <span class="text-muted">Thương hiệu</span>
-        <span class="fw-medium">{{ product.brand.name }}</span>
-      </div>
-      {% endif %}
-      <div class="d-flex justify-content-between py-2">
-        <span class="text-muted">SKU</span>
-        <span class="fw-medium">{{ product.sku }}</span>
-      </div>
-    </div>
-
-    <!-- Trust Badges -->
-    <div class="row g-3 mt-3">
-      <div class="col-4">
-        <div
-          class="text-center p-3 rounded-3"
-          style="background: var(--success-light)"
-        >
-          <i
-            class="bi bi-shield-check d-block mb-1"
-            style="font-size: 1.5rem; color: var(--success)"
-          ></i>
-          <small class="text-muted">Chính hãng 100%</small>
-        </div>
-      </div>
-      <div class="col-4">
-        <div
-          class="text-center p-3 rounded-3"
-          style="background: var(--primary-50)"
-        >
-          <i
-            class="bi bi-truck d-block mb-1"
-            style="font-size: 1.5rem; color: var(--primary)"
-          ></i>
-          <small class="text-muted">Miễn phí ship</small>
-        </div>
-      </div>
-      <div class="col-4">
-        <div
-          class="text-center p-3 rounded-3"
-          style="background: var(--warning-light)"
-        >
-          <i
-            class="bi bi-arrow-repeat d-block mb-1"
-            style="font-size: 1.5rem; color: var(--warning)"
-          ></i>
-          <small class="text-muted">Đổi trả 30 ngày</small>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Description & Specs Tabs -->
-<div class="row mt-5">
-  <div class="col-12">
-    <ul class="nav nav-tabs" id="productTabs" role="tablist">
-      <li class="nav-item">
-        <a class="nav-link active" data-bs-toggle="tab" href="#description">
-          <i class="bi bi-file-text me-2"></i>Mô tả sản phẩm
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" href="#specs">
-          <i class="bi bi-list-check me-2"></i>Thông số kỹ thuật
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" href="#reviews">
-          <i class="bi bi-chat-left-text me-2"></i>Đánh giá
-          ({{product.review_count }})
-        </a>
-      </li>
-    </ul>
-    <div class="tab-content">
-      <div class="tab-pane fade show active" id="description">
-        <div class="py-2">{{ product.description|linebreaks }}</div>
-      </div>
-      <div class="tab-pane fade" id="specs">
-        {% if product.specifications %}
-        <table class="table mb-0">
-          <tbody>
-            {% for key, value in product.specifications.items %}
-            <tr>
-              <th style="width: 30%; background: var(--gray-50)">{{ key }}</th>
-              <td>{{ value }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% else %}
-        <p class="text-muted py-4 text-center mb-0">
-          Chưa có thông số kỹ thuật.
-        </p>
-        {% endif %}
-      </div>
-      <div class="tab-pane fade" id="reviews">
-        {% if reviews %}
-        <div class="py-2">
-          {% for review in reviews %}
-          <div class="p-4 mb-3 rounded-3" style="background: var(--gray-50)">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <div class="d-flex align-items-center gap-2">
-                <div
-                  class="rounded-circle d-flex align-items-center justify-content-center"
-                  style="
-                    width: 40px;
-                    height: 40px;
-                    background: var(--primary);
-                    color: white;
-                    font-weight: 600;
-                  "
-                >
-                  <div class="review-user">
-                    {% if review.user.first_name %} {{ review.user.first_name }}
-                    {% else %} {{ review.user.username }} {% endif %}
-                  </div>
+    <!-- Main Product Section -->
+    <div class="pd-main">
+        <!-- Gallery -->
+        <div class="pd-gallery">
+            <div class="pd-gallery__main" id="mainImageContainer" onclick="openZoom()">
+                <!-- Badges -->
+                <div class="pd-gallery__badge">
+                    {% if product.discount_percent > 0 %}
+                    <span class="pd-badge pd-badge--sale">-{{ product.discount_percent }}%</span>
+                    {% endif %}
+                    {% if product.is_new %}
+                    <span class="pd-badge pd-badge--new">Mới</span>
+                    {% endif %}
+                    {% if product.sold > 100 %}
+                    <span class="pd-badge pd-badge--hot">Hot</span>
+                    {% endif %}
                 </div>
-                <div>
-                  <strong>
-                    {% if review.user.first_name %} {{ review.user.first_name }}
-                    {% else %} {{ review.user.username }} {% endif %}
-                  </strong>
-                  {% if review.is_verified_purchase %}
-                  <span
-                    class="badge bg-success-subtle text-success ms-2"
-                    style="font-size: 0.6875rem"
-                  >
-                    <i class="bi bi-patch-check-fill me-1"></i>Đã mua hàng
-                  </span>
-                  {% endif %}
-                </div>
-              </div>
-              <div class="d-flex align-items-center gap-2">
-                <small class="text-muted"
-                  >{{ review.created_at|date:"d/m/Y" }}</small
-                >
-
-                <!-- Nút sửa/xóa cho chủ review -->
-                {% if user.is_authenticated and review.user == user %}
-                <button
-                  type="button"
-                  class="btn btn-sm btn-link text-primary p-0"
-                  data-bs-toggle="modal"
-                  data-bs-target="#editModal{{ review.id }}"
-                  title="Sửa đánh giá"
-                >
-                  <i class="bi bi-pencil-square"></i>
+                
+                <!-- Wishlist Button -->
+                <button type="button" class="pd-gallery__wishlist {% if is_in_wishlist %}active{% endif %}" 
+                        onclick="toggleWishlist({{ product.id }})" 
+                        aria-label="Thêm vào yêu thích"
+                        id="wishlistBtn">
+                    <i class="bi bi-heart{% if is_in_wishlist %}-fill{% endif %}"></i>
                 </button>
-                <form
-                  method="post"
-                  action="{% url 'reviews:delete' review.id %}"
-                  class="d-inline"
-                  onsubmit="return confirm('Bạn có chắc muốn xóa đánh giá này?');"
-                >
-                  {% csrf_token %}
-                  <button
-                    type="submit"
-                    class="btn btn-sm btn-link text-danger p-0"
-                    title="Xóa đánh giá"
-                  >
-                    <i class="bi bi-trash3"></i>
-                  </button>
-                </form>
-                {% endif %}
-              </div>
-            </div>
-            <div class="mb-2 d-flex align-items-center gap-2">
-              <div class="d-flex align-items-center gap-2">
-                {{ review.rating|star_rating }} 
-                {{ review.sentiment|sentiment_badge }}
-              </div>
-            </div>
-            <p class="mb-0">{{ review.comment }}</p>
-          </div>
-
-          <!-- Modal sửa review -->
-          {% if user.is_authenticated and review.user == user %}
-          <div class="modal fade" id="editModal{{ review.id }}" tabindex="-1">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title">Sửa đánh giá</h5>
-                  <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                  ></button>
+                
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" id="mainImage">
+                {% else %}
+                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:64px;">
+                    <i class="bi bi-image"></i>
                 </div>
-                <form method="post" action="{% url 'reviews:edit' review.id %}">
-                  {% csrf_token %}
-                  <div class="modal-body">
-                    <div class="mb-3">
-                      <label class="form-label">Đánh giá sao</label>
-                      <select class="form-select" name="rating">
-                        {% if review.rating == 5 %}
-                        <option value="5" selected>⭐⭐⭐⭐⭐ Xuất sắc</option>
+                {% endif %}
+            </div>
+            
+            <!-- Thumbnails -->
+            {% if product.images.exists or product.image %}
+            <div class="pd-gallery__thumbs">
+                {% if product.image %}
+                <div class="pd-gallery__thumb active" onclick="changeImage('{{ product.image.url }}', this)">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                </div>
+                {% endif %}
+                {% for img in product.images.all %}
+                <div class="pd-gallery__thumb" onclick="changeImage('{{ img.image.url }}', this)">
+                    <img src="{{ img.image.url }}" alt="{{ product.name }}">
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Product Info -->
+        <div class="pd-info">
+            {% if product.category %}
+            <a href="{% url 'products:category' product.category.slug %}" class="pd-info__category">
+                <i class="bi bi-tag"></i> {{ product.category.name }}
+            </a>
+            {% endif %}
+            
+            <h1 class="pd-info__title">{{ product.name }}</h1>
+            
+            <!-- Rating & Stats -->
+            <div class="pd-info__rating">
+                <div class="pd-info__stars">
+                    {% for i in "12345" %}
+                    <i class="bi bi-star{% if forloop.counter <= product.average_rating %}-fill{% endif %}"></i>
+                    {% endfor %}
+                    <span>{{ product.average_rating|floatformat:1 }}</span>
+                </div>
+                <div class="pd-info__rating-meta">
+                    <span><i class="bi bi-chat-left-text"></i> {{ product.review_count }} đánh giá</span>
+                    <span><i class="bi bi-bag-check"></i> Đã bán {{ product.sold|default:0 }}</span>
+                </div>
+            </div>
+            
+            <!-- SKU & Brand -->
+            <div class="pd-info__sku">
+                <span>SKU: {{ product.sku }}</span>
+                {% if product.brand %}
+                <span>Thương hiệu: <strong>{{ product.brand.name }}</strong></span>
+                {% endif %}
+            </div>
+            
+            <!-- AI Sentiment -->
+            {% if product.sentiment_score > 0.3 and product.review_count >= 5 %}
+            <div class="pd-sentiment pd-sentiment--positive">
+                <i class="bi bi-hand-thumbs-up-fill"></i>
+                <span><strong>Đánh giá tốt</strong> - {{ product.positive_reviews }} đánh giá tích cực</span>
+                <span class="pd-sentiment__badge"><i class="bi bi-robot"></i> AI</span>
+            </div>
+            {% elif product.sentiment_score < -0.2 and product.review_count >= 3 %}
+            <div class="pd-sentiment pd-sentiment--negative">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span><strong>Cân nhắc</strong> - Có {{ product.negative_reviews }} đánh giá tiêu cực</span>
+                <span class="pd-sentiment__badge"><i class="bi bi-robot"></i> AI</span>
+            </div>
+            {% endif %}
+            
+            <!-- Price -->
+            <div class="pd-price">
+                {% if product.sale_price and product.sale_price < product.price %}
+                <p class="pd-price__current">{{ product.sale_price|currency }}</p>
+                <div class="pd-price__original">
+                    <span class="pd-price__old">{{ product.price|currency }}</span>
+                    <span class="pd-price__discount">GIẢM {{ product.discount_percent }}%</span>
+                </div>
+                {% else %}
+                <p class="pd-price__current" style="color: var(--es-text-primary);">{{ product.price|currency }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Highlights (if available) -->
+            {% if product.highlights %}
+            <div class="pd-highlights">
+                <h4 class="pd-highlights__title">Điểm nổi bật:</h4>
+                <ul class="pd-highlights__list">
+                    {% for highlight in product.highlights %}
+                    <li><i class="bi bi-check-circle-fill"></i> {{ highlight }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- Purchase Form -->
+            <form id="addToCartForm" class="pd-purchase" data-product-id="{{ product.id }}">
+                {% csrf_token %}
+                <div class="pd-quantity">
+                    <span class="pd-quantity__label">Số lượng:</span>
+                    <div class="pd-quantity__input">
+                        <button type="button" class="pd-quantity__btn" onclick="changeQty(-1)" {% if not product.in_stock %}disabled{% endif %}>
+                            <i class="bi bi-dash"></i>
+                        </button>
+                        <input type="number" name="quantity" id="qty" value="1" min="1" max="{{ product.stock }}" {% if not product.in_stock %}disabled{% endif %}>
+                        <button type="button" class="pd-quantity__btn" onclick="changeQty(1)" {% if not product.in_stock %}disabled{% endif %}>
+                            <i class="bi bi-plus"></i>
+                        </button>
+                    </div>
+                    {% if product.in_stock %}
+                        {% if product.stock <= 10 %}
+                        <span class="pd-stock pd-stock--low">Chỉ còn {{ product.stock }} sản phẩm!</span>
                         {% else %}
-                        <option value="5">⭐⭐⭐⭐⭐ Xuất sắc</option>
-                        {% endif %} {% if review.rating == 4 %}
-                        <option value="4" selected>⭐⭐⭐⭐ Tốt</option>
-                        {% else %}
-                        <option value="4">⭐⭐⭐⭐ Tốt</option>
-                        {% endif %} {% if review.rating == 3 %}
-                        <option value="3" selected>⭐⭐⭐ Bình thường</option>
-                        {% else %}
-                        <option value="3">⭐⭐⭐ Bình thường</option>
-                        {% endif %} {% if review.rating == 2 %}
-                        <option value="2" selected>⭐⭐ Kém</option>
-                        {% else %}
-                        <option value="2">⭐⭐ Kém</option>
-                        {% endif %} {% if review.rating == 1 %}
-                        <option value="1" selected>⭐ Rất tệ</option>
-                        {% else %}
-                        <option value="1">⭐ Rất tệ</option>
+                        <span class="pd-stock">Còn {{ product.stock }} sản phẩm</span>
                         {% endif %}
-                      </select>
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label">Nội dung đánh giá</label>
-                      <textarea
-                        class="form-control"
-                        name="comment"
-                        rows="4"
-                        required
-                      >
-{{ review.comment }}</textarea
-                      >
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button
-                      type="button"
-                      class="btn btn-secondary"
-                      data-bs-dismiss="modal"
-                    >
-                      Hủy
+                    {% else %}
+                    <span class="pd-stock" style="color:#dc3545;">Hết hàng</span>
+                    {% endif %}
+                </div>
+                
+                <div class="pd-buttons">
+                    <button type="button" class="pd-btn pd-btn--primary" onclick="addProductToCart()" {% if not product.in_stock %}disabled{% endif %}>
+                        <i class="bi bi-bag-plus"></i>
+                        <span>Thêm vào giỏ</span>
                     </button>
-                    <button type="submit" class="btn btn-primary">
-                      Lưu thay đổi
+                    <button type="button" class="pd-btn pd-btn--secondary" onclick="buyProductNow()" {% if not product.in_stock %}disabled{% endif %}>
+                        <i class="bi bi-lightning"></i>
+                        <span>Mua ngay</span>
                     </button>
-                  </div>
-                </form>
-              </div>
+                </div>
+            </form>
+            
+            <!-- Trust Badges -->
+            <div class="pd-trust">
+                <div class="pd-trust__item pd-trust__item--shipping">
+                    <i class="bi bi-truck"></i>
+                    <span>Giao hàng miễn phí</span>
+                </div>
+                <div class="pd-trust__item pd-trust__item--warranty">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Bảo hành 12 tháng</span>
+                </div>
+                <div class="pd-trust__item pd-trust__item--return">
+                    <i class="bi bi-arrow-repeat"></i>
+                    <span>Đổi trả trong 30 ngày</span>
+                </div>
+                <div class="pd-trust__item pd-trust__item--cod">
+                    <i class="bi bi-cash-coin"></i>
+                    <span>Thanh toán khi nhận hàng</span>
+                </div>
             </div>
-          </div>
-          {% endif %} {% endfor %}
         </div>
-        {% else %}
-        <p class="text-muted py-4 text-center mb-0">Chưa có đánh giá nào.</p>
-        {% endif %} {% if user.is_authenticated %}
-        <hr class="my-4" />
-        {% if not user_review %}
-        <h5 class="mb-3">Viết đánh giá của bạn</h5>
-        <form
-          action="{% url 'reviews:add' product.slug %}"
-          enctype="multipart/form-data"
-          method="post"
-        >
-          {% csrf_token %}
-          <div class="row g-3">
-            <div class="col-md-4">
-              <label class="form-label">Đánh giá sao</label>
-              <select class="form-select" name="rating">
-                <option value="5">⭐⭐⭐⭐⭐ Xuất sắc</option>
-                <option value="4">⭐⭐⭐⭐ Tốt</option>
-                <option value="3">⭐⭐⭐ Bình thường</option>
-                <option value="2">⭐⭐ Kém</option>
-                <option value="1">⭐ Rất tệ</option>
-              </select>
-            </div>
-            <div class="col-12">
-              <label class="form-label">Nội dung đánh giá</label>
-              <textarea
-                class="form-control"
-                name="comment"
-                placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."
-                required
-                rows="3"
-              ></textarea>
-            </div>
-            <div class="col-12">
-              <button class="btn btn-primary" type="submit">
-                <i class="bi bi-send me-2"></i>Gửi đánh giá
-              </button>
-            </div>
-          </div>
-        </form>
-        {% else %}
-        <div class="alert alert-info">
-          <i class="bi bi-info-circle me-2"></i>Bạn đã đánh giá sản phẩm này.
-          Bạn có thể sửa hoặc xóa ở trên.
+    </div>
+
+    <!-- Product Tabs -->
+    <div class="pd-tabs">
+        <div class="pd-tabs__nav" role="tablist">
+            <button class="pd-tabs__btn active" data-tab="description" role="tab">
+                <i class="bi bi-file-text"></i> Mô tả
+            </button>
+            <button class="pd-tabs__btn" data-tab="specs" role="tab">
+                <i class="bi bi-list-check"></i> Thông số kỹ thuật
+            </button>
+            <button class="pd-tabs__btn" data-tab="reviews" role="tab">
+                <i class="bi bi-chat-left-text"></i> Đánh giá ({{ product.review_count }})
+            </button>
         </div>
-        {% endif %} {% else %}
-        <div class="text-center py-4">
-          <p class="text-muted mb-3">Bạn cần đăng nhập để viết đánh giá</p>
-          <a class="btn btn-primary" href="{% url 'accounts:login' %}">
-            <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập
-          </a>
+        
+        <div class="pd-tabs__content">
+            <!-- Description -->
+            <div class="pd-tabs__pane active" id="description">
+                <div class="pd-description">
+                    {% if product.detailed_description %}
+                    {{ product.detailed_description|safe }}
+                    {% elif product.description %}
+                    {{ product.description|linebreaks }}
+                    {% else %}
+                    <div class="pd-empty">
+                        <i class="bi bi-file-text"></i>
+                        <p>Chưa có mô tả chi tiết cho sản phẩm này.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Specifications -->
+            <div class="pd-tabs__pane" id="specs">
+                {% if product.specifications %}
+                <table class="pd-specs-table">
+                    <tbody>
+                        {% for key, value in product.specifications.items %}
+                        <tr>
+                            <th>{{ key }}</th>
+                            <td>{{ value }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="pd-empty">
+                    <i class="bi bi-clipboard-x"></i>
+                    <p>Chưa có thông số kỹ thuật.</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Reviews -->
+            <div class="pd-tabs__pane" id="reviews">
+                <div class="pd-reviews">
+                    <!-- Reviews Summary -->
+                    {% if product.review_count > 0 %}
+                    <div class="pd-reviews__summary">
+                        <div class="pd-reviews__score">
+                            <div class="pd-reviews__score-value">{{ product.average_rating|floatformat:1 }}</div>
+                            <div class="pd-reviews__score-stars">
+                                {% for i in "12345" %}
+                                <i class="bi bi-star{% if forloop.counter <= product.average_rating %}-fill{% endif %}"></i>
+                                {% endfor %}
+                            </div>
+                            <div class="pd-reviews__score-count">{{ product.review_count }} đánh giá</div>
+                        </div>
+                        <div class="pd-reviews__bars">
+                            {% for i in "54321" %}
+                            <div class="pd-reviews__bar">
+                                <span class="pd-reviews__bar-label">{{ i }} <i class="bi bi-star-fill" style="color:#ffc107;font-size:12px;"></i></span>
+                                <div class="pd-reviews__bar-track">
+                                    <div class="pd-reviews__bar-fill" style="width: {% widthratio product|get_rating_count:i product.review_count 100 %}%;"></div>
+                                </div>
+                                <span class="pd-reviews__bar-count">{{ product|get_rating_count:i }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Reviews List -->
+                    {% if reviews %}
+                    <div class="pd-reviews__list">
+                        {% for review in reviews %}
+                        <div class="pd-review">
+                            <div class="pd-review__header">
+                                <div class="pd-review__user">
+                                    <div class="pd-review__avatar">{{ review.user.first_name|slice:":1"|default:review.user.username|slice:":1"|upper }}</div>
+                                    <div>
+                                        <p class="pd-review__name">{{ review.user.first_name|default:review.user.username }}</p>
+                                        {% if review.is_verified_purchase %}
+                                        <span class="pd-review__verified"><i class="bi bi-patch-check-fill"></i> Đã mua hàng</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <span class="pd-review__date">{{ review.created_at|date:"d/m/Y" }}</span>
+                            </div>
+                            <div class="pd-review__stars" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                <div>
+                                    {% for i in "12345" %}
+                                    <i class="bi bi-star{% if forloop.counter <= review.rating %}-fill{% endif %}"></i>
+                                    {% endfor %}
+                                </div>
+                                {% if review.sentiment %}
+                                <span class="badge bg-{{ review.sentiment_color }}" style="font-size: 11px; padding: 4px 8px;">
+                                    <i class="bi bi-robot me-1"></i>
+                                    {% if review.sentiment == 'positive' %}Tích cực{% elif review.sentiment == 'negative' %}Tiêu cực{% else %}Trung lập{% endif %}
+                                </span>
+                                {% endif %}
+                            </div>
+                            <p class="pd-review__content">{{ review.comment }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="pd-empty">
+                        <i class="bi bi-chat-left-text"></i>
+                        <p>Chưa có đánh giá nào cho sản phẩm này.</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Review Form -->
+                    {% if user.is_authenticated %}
+                        {% if has_reviewed %}
+                        <div class="pd-review-notice" style="background: var(--es-success-50); border: 1px solid var(--es-success); border-radius: 12px; padding: 20px; margin-top: 24px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="bi bi-check-circle-fill" style="font-size: 24px; color: var(--es-success);"></i>
+                                <div>
+                                    <strong style="color: var(--es-success-dark);">Bạn đã đánh giá sản phẩm này</strong>
+                                    <p style="margin: 4px 0 0 0; color: var(--es-text-secondary); font-size: 14px;">Cảm ơn bạn đã chia sẻ trải nghiệm!</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% elif can_review %}
+                        <div class="pd-review-form">
+                            <h4><i class="bi bi-pencil-square me-2"></i>Viết đánh giá của bạn</h4>
+                            <div class="ai-powered mb-3">
+                                <i class="bi bi-robot"></i> AI sẽ phân tích cảm xúc đánh giá của bạn
+                            </div>
+                            <form action="{% url 'reviews:add' product.slug %}" method="post">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label>Đánh giá sao</label>
+                                    <select name="rating" class="form-select" required>
+                                        <option value="5">5 sao - Xuất sắc</option>
+                                        <option value="4">4 sao - Tốt</option>
+                                        <option value="3">3 sao - Bình thường</option>
+                                        <option value="2">2 sao - Kém</option>
+                                        <option value="1">1 sao - Rất tệ</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Nội dung đánh giá</label>
+                                    <textarea name="comment" class="form-control" rows="4" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..." required></textarea>
+                                </div>
+                                <button type="submit" class="pd-btn pd-btn--primary" style="width:auto;">
+                                    <i class="bi bi-send"></i> Gửi đánh giá
+                                </button>
+                            </form>
+                        </div>
+                        {% else %}
+                        <div class="pd-review-notice" style="background: var(--es-warning-50); border: 1px solid var(--es-warning); border-radius: 12px; padding: 20px; margin-top: 24px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="bi bi-info-circle-fill" style="font-size: 24px; color: var(--es-warning);"></i>
+                                <div>
+                                    <strong style="color: var(--es-warning-dark);">Chỉ khách hàng đã mua mới có thể đánh giá</strong>
+                                    <p style="margin: 4px 0 0 0; font-size: 14px;">Bạn cần mua và hoàn thành thanh toán sản phẩm này để viết đánh giá.</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                    <div class="pd-review-login">
+                        <p>Bạn cần đăng nhập để viết đánh giá</p>
+                        <a href="{% url 'accounts:login' %}" class="pd-btn pd-btn--primary" style="display:inline-flex;width:auto;">
+                            <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <section class="pd-related">
+        <div class="pd-related__header">
+            <h2 class="pd-related__title">
+                <i class="bi bi-grid-3x3-gap"></i>
+                Sản phẩm liên quan
+            </h2>
+            <div class="pd-related__nav">
+                <button class="pd-related__nav-btn" id="carouselPrev" onclick="scrollCarousel(-1)" aria-label="Trước">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="pd-related__nav-btn" id="carouselNext" onclick="scrollCarousel(1)" aria-label="Sau">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+        <div class="pd-related__carousel">
+            <div class="pd-related__track" id="relatedTrack">
+                {% for item in related_products %}
+                {% include 'partials/_product_card.html' with product=item %}
+                {% endfor %}
+            </div>
+        </div>
+        {% if product.category %}
+        <div style="text-align:center;margin-top:20px;">
+            <a href="{% url 'products:category' product.category.slug %}" class="btn btn-outline-primary">
+                Xem tất cả sản phẩm liên quan <i class="bi bi-arrow-right"></i>
+            </a>
         </div>
         {% endif %}
-      </div>
-    </div>
-  </div>
+    </section>
+    {% endif %}
 </div>
 
-<!-- Related Products -->
-{% if related_products %}
-<section class="mt-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="mb-0">
-      <i class="bi bi-grid me-2 text-primary"></i>Sản phẩm liên quan
-    </h4>
-    <a
-      class="btn btn-outline-primary btn-sm"
-      href="{% url 'products:category' product.category.slug %}"
-    >
-      Xem thêm <i class="bi bi-arrow-right ms-1"></i>
-    </a>
-  </div>
-  <div class="row g-3 g-lg-4">
-    {% for product in related_products %}
-    <div class="col-6 col-md-3">
-      {% include 'partials/_product_card.html' %}
-    </div>
-    {% endfor %}
-  </div>
-</section>
-{% endif %}
+<!-- Zoom Modal -->
+<div class="pd-zoom-modal" id="zoomModal" onclick="closeZoom()">
+    <button class="pd-zoom-close" onclick="closeZoom()"><i class="bi bi-x-lg"></i></button>
+    <img src="" alt="Zoom" id="zoomImage">
+</div>
+
+<!-- Sticky Add to Cart (Mobile) -->
+<div class="pd-sticky-cart" id="stickyCart">
+    <button type="button" class="pd-btn pd-btn--primary" onclick="addProductToCart()" {% if not product.in_stock %}disabled{% endif %}>
+        <i class="bi bi-bag-plus"></i> Thêm giỏ
+    </button>
+    <button type="button" class="pd-btn pd-btn--secondary" onclick="buyProductNow()" {% if not product.in_stock %}disabled{% endif %}>
+        <i class="bi bi-lightning"></i> Mua ngay
+    </button>
+</div>
 
 <script>
-  function changeQty(delta) {
-    const input = document.getElementById("qty");
+// Quantity Control
+function changeQty(delta) {
+    const input = document.getElementById('qty');
     let val = parseInt(input.value) + delta;
-    const max = parseInt(input.max);
+    const max = parseInt(input.max) || 999;
     if (val >= 1 && val <= max) {
-      input.value = val;
+        input.value = val;
     }
-  }
+}
+
+// Image Gallery
+function changeImage(src, thumb) {
+    document.getElementById('mainImage').src = src;
+    document.querySelectorAll('.pd-gallery__thumb').forEach(t => t.classList.remove('active'));
+    thumb.classList.add('active');
+}
+
+// Zoom Modal
+function openZoom() {
+    const mainImg = document.getElementById('mainImage');
+    if (mainImg) {
+        document.getElementById('zoomImage').src = mainImg.src;
+        document.getElementById('zoomModal').classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeZoom() {
+    document.getElementById('zoomModal').classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+// Tab Switching
+document.querySelectorAll('.pd-tabs__btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const tabId = this.dataset.tab;
+        
+        document.querySelectorAll('.pd-tabs__btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        document.querySelectorAll('.pd-tabs__pane').forEach(p => p.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+    });
+});
+
+// AJAX Add to Cart
+function addProductToCart() {
+    const form = document.getElementById('addToCartForm');
+    const productId = form.dataset.productId;
+    const quantity = document.getElementById('qty').value;
+    const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    if (!productId) {
+        console.error('Product ID not found');
+        return;
+    }
+    
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        body: `quantity=${quantity}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update cart count in header
+            const cartCount = document.querySelector('.cart-count');
+            if (cartCount) {
+                cartCount.textContent = data.cart_count || parseInt(cartCount.textContent) + parseInt(quantity);
+            }
+            
+            // Show success toast
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm vào giỏ hàng!',
+                    text: data.message || 'Sản phẩm đã được thêm vào giỏ hàng.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    toast: true,
+                    position: 'top-end'
+                });
+            } else {
+                alert('Đã thêm vào giỏ hàng!');
+            }
+        } else {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: data.message || 'Không thể thêm sản phẩm vào giỏ hàng.',
+                    confirmButtonColor: 'var(--es-primary)'
+                });
+            } else {
+                alert(data.message || 'Có lỗi xảy ra!');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Có lỗi xảy ra. Vui lòng thử lại.',
+                confirmButtonColor: 'var(--es-primary)'
+            });
+        }
+    });
+}
+
+// Buy Now
+function buyProductNow() {
+    const form = document.getElementById('addToCartForm');
+    const productId = form.dataset.productId;
+    const quantity = document.getElementById('qty').value;
+    const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    if (!productId) {
+        console.error('Product ID not found');
+        return;
+    }
+    
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        body: `quantity=${quantity}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = '/orders/checkout/';
+        } else {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: data.message || 'Không thể thêm sản phẩm.',
+                    confirmButtonColor: 'var(--es-primary)'
+                });
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+// Sticky Cart on Mobile
+let lastScroll = 0;
+const stickyCart = document.getElementById('stickyCart');
+const purchaseForm = document.getElementById('addToCartForm');
+
+if (window.innerWidth <= 768 && stickyCart && purchaseForm) {
+    window.addEventListener('scroll', function() {
+        const formRect = purchaseForm.getBoundingClientRect();
+        if (formRect.bottom < 0) {
+            stickyCart.classList.add('show');
+        } else {
+            stickyCart.classList.remove('show');
+        }
+    });
+}
+
+// Escape to close zoom
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeZoom();
+    }
+});
+
+// Related Products Carousel
+function scrollCarousel(direction) {
+    const track = document.getElementById('relatedTrack');
+    if (!track) return;
+    
+    const cardWidth = track.querySelector('.product-card')?.offsetWidth || 260;
+    const scrollAmount = (cardWidth + 20) * direction;
+    
+    track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    
+    // Update button states after scroll
+    setTimeout(updateCarouselButtons, 350);
+}
+
+function updateCarouselButtons() {
+    const track = document.getElementById('relatedTrack');
+    const prevBtn = document.getElementById('carouselPrev');
+    const nextBtn = document.getElementById('carouselNext');
+    
+    if (!track || !prevBtn || !nextBtn) return;
+    
+    const isAtStart = track.scrollLeft <= 0;
+    const isAtEnd = track.scrollLeft >= track.scrollWidth - track.clientWidth - 10;
+    
+    prevBtn.disabled = isAtStart;
+    nextBtn.disabled = isAtEnd;
+}
+
+// Initialize carousel buttons on load
+document.addEventListener('DOMContentLoaded', updateCarouselButtons);
+
+// Image Magnifier (enhanced zoom on hover)
+const mainImageContainer = document.getElementById('mainImageContainer');
+if (mainImageContainer) {
+    mainImageContainer.addEventListener('mousemove', function(e) {
+        const img = this.querySelector('img');
+        if (!img) return;
+        
+        const rect = this.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width * 100;
+        const y = (e.clientY - rect.top) / rect.height * 100;
+        
+        img.style.transformOrigin = `${x}% ${y}%`;
+    });
+    
+    mainImageContainer.addEventListener('mouseleave', function() {
+        const img = this.querySelector('img');
+        if (img) {
+            img.style.transformOrigin = 'center center';
+        }
+    });
+}
 </script>
 {% endblock %}

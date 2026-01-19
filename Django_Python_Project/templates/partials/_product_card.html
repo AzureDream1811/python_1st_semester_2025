@@ -1,89 +1,423 @@
 {% load product_tags %}
 
-<!-- Enhanced Product Card - Modern E-commerce Design -->
-<div class="product-card card h-100 border">
-    {% if product.discount_percent > 0 %}
-    <span class="discount-badge">-{{ product.discount_percent }}%</span>
-    {% endif %}
+<!-- ==================== INLINE STYLES - Product Card Component ==================== -->
+<style>
+/* Product Card */
+.product-card {
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    overflow: hidden;
+    box-shadow: var(--es-shadow-card);
+    transition: all var(--es-transition-normal);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    cursor: pointer;
+}
 
-    {% if product.is_new %}
-    <span class="position-absolute badge bg-success"
-          style="top: 0.75rem; right: 0.75rem; z-index: 10; font-size: 0.625rem; padding: 0.25rem 0.5rem;">NEW</span>
-    {% endif %}
+.product-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: var(--es-shadow-card-hover);
+}
 
-    <a class="d-block overflow-hidden position-relative product-image-wrapper" href="{{ product.get_absolute_url }}">
-        {% if product.image %}
-        <img alt="{{ product.name }}" class="card-img-top product-image" loading="lazy" src="{{ product.image.url }}">
-        {% else %}
-        <div class="product-image bg-light d-flex align-items-center justify-content-center">
-            <i class="bi bi-image text-muted" style="font-size: 2.5rem;"></i>
-        </div>
-        {% endif %}
+/* Image Wrapper */
+.product-card__image-wrapper {
+    position: relative;
+    aspect-ratio: 1;
+    background: var(--es-bg-secondary);
+    overflow: hidden;
+}
 
-        <!-- Quick Actions Overlay -->
-        <div class="product-overlay position-absolute top-0 start-0 end-0 bottom-0 d-flex align-items-center justify-content-center"
-             style="background: rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s;">
-            <span class="btn btn-sm btn-light rounded-pill px-3">
-                <i class="bi bi-eye me-1"></i>Xem nhanh
-            </span>
-        </div>
-    </a>
+.product-card__image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
 
-    <div class="card-body d-flex flex-column p-3">
-        {% if product.category %}
-        <p class="text-muted mb-1" style="font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em;">{{
-            product.category.name }}</p>
-        {% endif %}
+.product-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: var(--es-space-2);
+    transition: transform var(--es-transition-slow);
+}
 
-        <h6 class="card-title product-name mb-2">
-            <a class="text-dark text-decoration-none" href="{{ product.get_absolute_url }}">
-                {{ product.name }}
-            </a>
-        </h6>
+.product-card:hover .product-card__image {
+    transform: scale(1.05);
+}
 
-        <div class="mt-auto">
-            <!-- Rating -->
-            <div class="d-flex align-items-center mb-2">
-                <div class="rating-stars">
-                    {{ product.average_rating|star_rating }}
-                </div>
-                <span class="text-muted ms-1" style="font-size: 0.6875rem;">({{ product.review_count }})</span>
-            </div>
+.product-card__image--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--es-text-muted);
+    font-size: 3rem;
+}
 
-            <!-- Price -->
-            <div class="price-section">
-                {% if product.sale_price and product.sale_price < product.price %}
-                <span class="current-price">{{ product.sale_price|currency }}</span>
-                <span class="original-price">{{ product.price|currency }}</span>
-                {% else %}
-                <span class="current-price" style="color: var(--gray-800);">{{ product.price|currency }}</span>
-                {% endif %}
-            </div>
+/* Badges */
+.product-card__badges {
+    position: absolute;
+    top: var(--es-space-1);
+    left: var(--es-space-1);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 10;
+}
 
-            <!-- Stock Status -->
-            <div class="mt-2">
-                {{ product|stock_status }}
-            </div>
-        </div>
-    </div>
+.product-badge {
+    padding: 4px var(--es-space-1);
+    border-radius: var(--es-radius-sm);
+    font-size: var(--es-text-xs);
+    font-weight: var(--es-font-bold);
+    text-transform: uppercase;
+}
 
-    <div class="card-footer bg-white border-0 pt-0 pb-3 px-3">
-        <form action="{% url 'cart:add' product.pk %}" class="d-grid" method="post">
-            {% csrf_token %}
-            <input name="quantity" type="hidden" value="1">
-            <button %} %}disabled{% class="btn btn-primary btn-sm" endif if not product.in_stock type="submit" {%>
-                {% if product.in_stock %}
-                <i class="bi bi-bag-plus me-1"></i>Thêm vào giỏ
-                {% else %}
-                <i class="bi bi-x-circle me-1"></i>Hết hàng
-                {% endif %}
-            </button>
-        </form>
-    </div>
-</div>
+.product-badge--sale {
+    background: var(--es-danger);
+    color: var(--es-white);
+}
+
+.product-badge--new {
+    background: var(--es-success);
+    color: var(--es-white);
+}
+
+/* Quick Actions */
+.product-card__actions {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    gap: var(--es-space-1);
+    opacity: 0;
+    transition: opacity var(--es-transition-normal);
+}
+
+.product-card:hover .product-card__actions {
+    opacity: 1;
+}
+
+.product-action-btn {
+    width: var(--es-touch-target);
+    height: var(--es-touch-target);
+    border-radius: var(--es-radius-full);
+    background: var(--es-white);
+    color: var(--es-text-primary);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--es-text-base);
+    transition: all var(--es-transition-fast);
+    box-shadow: var(--es-shadow-md);
+}
+
+.product-action-btn:hover {
+    background: var(--es-primary);
+    color: var(--es-white);
+    transform: scale(1.1);
+}
+
+.product-action-btn:focus-visible {
+    outline: var(--es-focus-ring-width) solid var(--es-primary);
+    outline-offset: var(--es-focus-ring-offset);
+}
+
+.wishlist-btn[aria-pressed="true"] {
+    color: var(--es-danger);
+}
+
+.wishlist-btn[aria-pressed="true"]:hover {
+    background: var(--es-danger);
+    color: var(--es-white);
+}
+</style>
 
 <style>
-    .product-card:hover .product-overlay {
-        opacity: 1 !important;
-    }
+/* Product Content */
+.product-card__content {
+    padding: var(--es-space-2);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card__category {
+    font-size: var(--es-text-xs);
+    color: var(--es-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.product-card__title {
+    font-size: var(--es-text-sm);
+    font-weight: var(--es-font-semibold);
+    line-height: var(--es-leading-snug);
+    margin-bottom: var(--es-space-1);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.product-card__title a {
+    color: var(--es-text-primary);
+    text-decoration: none;
+    transition: color var(--es-transition-fast);
+}
+
+.product-card__title a:hover {
+    color: var(--es-primary);
+}
+
+/* Rating */
+.product-card__rating {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-1);
+    margin-bottom: var(--es-space-1);
+}
+
+.rating-stars {
+    display: flex;
+    gap: 2px;
+    color: var(--es-warning);
+    font-size: var(--es-text-xs);
+}
+
+.rating-count {
+    font-size: var(--es-text-xs);
+    color: var(--es-text-muted);
+}
+
+/* Price */
+.product-card__price {
+    display: flex;
+    align-items: baseline;
+    gap: var(--es-space-1);
+    flex-wrap: wrap;
+    margin-bottom: var(--es-space-1);
+}
+
+.price-current {
+    font-size: var(--es-text-lg);
+    font-weight: var(--es-font-bold);
+    color: var(--es-danger);
+    text-decoration: none !important;
+}
+
+.price-current--normal {
+    color: #1e3a5f;
+    text-decoration: none !important;
+}
+
+.price-original {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+    text-decoration: line-through;
+}
+
+/* Stock Status */
+.product-card__stock {
+    margin-top: auto;
+}
+
+.stock-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--es-text-xs);
+    font-weight: var(--es-font-medium);
+}
+
+.stock-status--in {
+    color: var(--es-success);
+}
+
+.stock-status--out {
+    color: var(--es-danger);
+}
+
+/* Footer / Add to Cart */
+.product-card__footer {
+    padding: 0 var(--es-space-2) var(--es-space-2);
+}
+
+.btn-add-cart {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--es-space-1);
+    padding: var(--es-space-1) var(--es-space-2);
+    background: var(--es-primary);
+    color: var(--es-white);
+    border: none;
+    border-radius: var(--es-radius-md);
+    font-size: var(--es-text-sm);
+    font-weight: var(--es-font-semibold);
+    cursor: pointer;
+    transition: all var(--es-transition-normal);
+    min-height: var(--es-touch-target);
+}
+
+.btn-add-cart:hover {
+    background: var(--es-primary-dark);
+    transform: translateY(-2px);
+}
+
+.btn-add-cart:active {
+    transform: scale(0.98);
+}
+
+.btn-add-cart:focus-visible {
+    outline: var(--es-focus-ring-width) solid var(--es-primary);
+    outline-offset: var(--es-focus-ring-offset);
+}
+
+.btn-add-cart--disabled {
+    background: var(--es-gray-300);
+    color: var(--es-text-muted);
+    cursor: not-allowed;
+}
+
+.btn-add-cart--disabled:hover {
+    transform: none;
+}
+
+/* Text Truncate Utility */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 </style>
+
+<!-- Product Card HTML -->
+<article class="product-card" 
+         aria-label="Sản phẩm: {{ product.name }}"
+         itemscope 
+         itemtype="https://schema.org/Product">
+    
+    <!-- Image Container -->
+    <div class="product-card__image-wrapper">
+        <!-- Badges -->
+        <div class="product-card__badges" aria-hidden="true">
+            {% if product.discount_percent > 0 %}
+            <span class="product-badge product-badge--sale">-{{ product.discount_percent }}%</span>
+            {% endif %}
+            {% if product.is_new %}
+            <span class="product-badge product-badge--new">Mới</span>
+            {% endif %}
+        </div>
+        
+        <!-- Product Image -->
+        <a href="{{ product.get_absolute_url }}" class="product-card__image-link" aria-label="Xem chi tiết {{ product.name }}">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" 
+                 class="product-card__image" 
+                 alt="{{ product.name }}" 
+                 loading="lazy"
+                 itemprop="image">
+            {% else %}
+            <div class="product-card__image product-card__image--placeholder" role="img" aria-label="Không có hình ảnh">
+                <i class="bi bi-image" aria-hidden="true"></i>
+            </div>
+            {% endif %}
+        </a>
+        
+        <!-- Quick Actions -->
+        <div class="product-card__actions" role="group" aria-label="Thao tác nhanh">
+            <a href="{{ product.get_absolute_url }}" 
+               class="product-action-btn" 
+               title="Xem sản phẩm" 
+               aria-label="Xem sản phẩm {{ product.name }}">
+                <i class="bi bi-eye" aria-hidden="true"></i>
+            </a>
+            <button type="button" 
+                    class="product-action-btn wishlist-btn" 
+                    data-product-id="{{ product.id }}" 
+                    onclick="toggleWishlist({{ product.id }})" 
+                    title="Yêu thích" 
+                    aria-label="{% if product.id in wishlist_ids %}Bỏ yêu thích{% else %}Thêm vào yêu thích{% endif %} {{ product.name }}"
+                    aria-pressed="{% if product.id in wishlist_ids %}true{% else %}false{% endif %}">
+                <i class="bi bi-heart{% if product.id in wishlist_ids %}-fill{% endif %}" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Product Content -->
+    <div class="product-card__content">
+        {% if product.category %}
+        <span class="product-card__category" itemprop="category">{{ product.category.name }}</span>
+        {% endif %}
+        
+        <h3 class="product-card__title">
+            <a href="{{ product.get_absolute_url }}" itemprop="name">{{ product.name }}</a>
+        </h3>
+        
+        <!-- Rating -->
+        <div class="product-card__rating" aria-label="Đánh giá: {{ product.average_rating }} trên 5 sao, {{ product.review_count }} đánh giá">
+            <div class="rating-stars" aria-hidden="true">
+                {% for i in "12345" %}
+                <i class="bi bi-star{% if forloop.counter <= product.average_rating %}-fill{% endif %}"></i>
+                {% endfor %}
+            </div>
+            <span class="rating-count">({{ product.review_count }})</span>
+        </div>
+        
+        <!-- Price -->
+        <div class="product-card__price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+            {% if product.sale_price and product.sale_price < product.price %}
+            <span class="price-current" itemprop="price" content="{{ product.sale_price }}">{{ product.sale_price|currency }}</span>
+            <span class="price-original" aria-label="Giá gốc">{{ product.price|currency }}</span>
+            {% else %}
+            <span class="price-current price-current--normal" itemprop="price" content="{{ product.price }}">{{ product.price|currency }}</span>
+            {% endif %}
+            <meta itemprop="priceCurrency" content="VND">
+        </div>
+        
+        <!-- Stock Status -->
+        <div class="product-card__stock">
+            {% if product.in_stock %}
+            <span class="stock-status stock-status--in" itemprop="availability" content="https://schema.org/InStock">
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i> 
+                <span>Còn hàng</span>
+            </span>
+            {% else %}
+            <span class="stock-status stock-status--out" itemprop="availability" content="https://schema.org/OutOfStock">
+                <i class="bi bi-x-circle-fill" aria-hidden="true"></i> 
+                <span>Hết hàng</span>
+            </span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Add to Cart Button -->
+    <div class="product-card__footer">
+        {% if product.in_stock %}
+        <button type="button" 
+                class="btn-add-cart" 
+                onclick="addToCart({{ product.id }})"
+                aria-label="Thêm {{ product.name }} vào giỏ hàng">
+            <i class="bi bi-bag-plus" aria-hidden="true"></i>
+            <span>Thêm vào giỏ</span>
+        </button>
+        {% else %}
+        <button type="button" 
+                class="btn-add-cart btn-add-cart--disabled" 
+                disabled 
+                aria-disabled="true"
+                aria-label="{{ product.name }} đã hết hàng">
+            <i class="bi bi-x-circle" aria-hidden="true"></i>
+            <span>Hết hàng</span>
+        </button>
+        {% endif %}
+    </div>
+</article>

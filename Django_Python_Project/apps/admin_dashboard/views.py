@@ -1,3 +1,6 @@
+"""
+Views cho Admin Dashboard
+"""
 from django.views import View
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.http import JsonResponse
@@ -12,12 +15,13 @@ from .decorators import StaffRequiredMixin
 from .services.statistics import DashboardStatistics
 from .forms import (
     ProductForm, CategoryForm, BrandForm, OrderStatusForm,
-    UserEditForm, VoucherForm, FlashSaleForm
+    UserEditForm, VoucherForm, FlashSaleForm, NotificationForm
 )
 from apps.products.models import Product, Category, Brand
 from apps.orders.models import Order, OrderHistory
 from apps.reviews.models import Review
 from apps.promotions.models import Voucher, FlashSale
+from apps.notifications.models import Notification
 
 
 # ==================== Dashboard ====================
@@ -28,8 +32,28 @@ class DashboardView(StaffRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        period = self.request.GET.get('period', 'month')
+        custom_start = None
+        custom_end = None
+
+        if period == 'custom':
+            start_str = self.request.GET.get('start_date')
+            end_str = self.request.GET.get('end_date')
+            if start_str and end_str:
+                try:
+                    custom_start = datetime.strptime(start_str, '%Y-%m-%d').date()
+                    custom_end = datetime.strptime(end_str, '%Y-%m-%d').date()
+                    if custom_start > custom_end:
+                        custom_start, custom_end = custom_end, custom_start
+                except ValueError:
+                    period = 'month'
+            else:
+                period = 'month'
+
         stats = DashboardStatistics()
-        context['stats'] = stats.get_dashboard_summary()
+        context['stats'] = stats.get_dashboard_summary(period, custom_start, custom_end)
+        context['current_period'] = period
         context['recent_orders'] = Order.objects.select_related('user').order_by('-created_at')[:10]
         return context
 
@@ -122,7 +146,9 @@ class OrderDetailView(StaffRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['status_form'] = OrderStatusForm(initial={'status': self.object.status})
+        # Lấy danh sách trạng thái hợp lệ có thể chuyển đến
+        allowed_transitions = self.object.get_allowed_transitions()
+        context['allowed_transitions'] = allowed_transitions
         context['history'] = self.object.history.all()
         return context
 
@@ -134,17 +160,18 @@ class OrderStatusUpdateView(StaffRequiredMixin, View):
         order = get_object_or_404(Order, pk=pk)
         form = OrderStatusForm(request.POST)
         if form.is_valid():
-            old_status = order.status
             new_status = form.cleaned_data['status']
-            order.status = new_status
-            order.save()
+            note = form.cleaned_data.get('note', '')
 
-            # Tạo lịch sử
-            OrderHistory.objects.create(
-                order=order,
-                status=new_status
-            )
-            messages.success(request, f'Cập nhật trạng thái từ {old_status} sang {new_status}')
+            # Sử dụng method transition_to với validation
+            success, message = order.transition_to(new_status, note=note)
+
+            if success:
+                messages.success(request, message)
+            else:
+                messages.error(request, message)
+        else:
+            messages.error(request, 'Dữ liệu không hợp lệ')
         return redirect('admin_dashboard:order_detail', pk=pk)
 
 
@@ -296,7 +323,24 @@ class ReviewListView(StaffRequiredMixin, ListView):
         sentiment = self.request.GET.get('sentiment')
         if sentiment:
             queryset = queryset.filter(sentiment=sentiment)
+
+        ai_check = self.request.GET.get('ai_check')
+        if ai_check == 'mismatch':
+            from django.db.models import Q
+            queryset = queryset.filter(
+                Q(rating__gte=4, sentiment='negative') |
+                Q(rating__lte=2, sentiment='positive')
+            )
+
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['mismatch_count'] = Review.objects.filter(
+            Q(rating__gte=4, sentiment='negative') |
+            Q(rating__lte=2, sentiment='positive')
+        ).count()
+        return context
 
 
 class ReviewApproveView(StaffRequiredMixin, View):
@@ -365,6 +409,66 @@ class FlashSaleCreateView(StaffRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+class FlashSaleBatchCreateView(StaffRequiredMixin, TemplateView):
+    """Tạo flash sale hàng loạt với giao diện 2 cột"""
+    template_name = 'admin_dashboard/promotions/flash_sale_batch.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['products'] = Product.objects.filter(is_active=True).select_related('category', 'brand')
+        return context
+
+    def post(self, request):
+        import json
+        from decimal import Decimal
+
+        product_ids = request.POST.getlist('product_ids')
+        discount_percent = request.POST.get('discount_percent', 0)
+        quantity_limit = request.POST.get('quantity_limit', 10)
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
+
+        if not product_ids:
+            messages.error(request, 'Vui lòng chọn ít nhất 1 sản phẩm!')
+            return redirect('admin_dashboard:flash_sale_batch')
+
+        try:
+            discount_percent = int(discount_percent)
+            quantity_limit = int(quantity_limit)
+
+            from django.utils.dateparse import parse_datetime
+            start_dt = parse_datetime(start_time)
+            end_dt = parse_datetime(end_time)
+
+            if not start_dt or not end_dt:
+                messages.error(request, 'Thời gian không hợp lệ!')
+                return redirect('admin_dashboard:flash_sale_batch')
+
+            created_count = 0
+            for pid in product_ids:
+                try:
+                    product = Product.objects.get(pk=pid)
+                    FlashSale.objects.create(
+                        product=product,
+                        discount_type='percentage',
+                        discount_percent=discount_percent,
+                        quantity_limit=quantity_limit,
+                        start_time=start_dt,
+                        end_time=end_dt,
+                        is_active=True
+                    )
+                    created_count += 1
+                except Product.DoesNotExist:
+                    continue
+
+            messages.success(request, f'Tạo thành công {created_count} Flash Sale!')
+            return redirect('admin_dashboard:flash_sale_list')
+
+        except ValueError as e:
+            messages.error(request, f'Dữ liệu không hợp lệ: {str(e)}')
+            return redirect('admin_dashboard:flash_sale_batch')
+
+
 # ==================== API Endpoints ====================
 
 class ChartDataView(StaffRequiredMixin, View):
@@ -372,12 +476,39 @@ class ChartDataView(StaffRequiredMixin, View):
 
     def get(self, request):
         chart_type = request.GET.get('type', 'revenue')
+        period = request.GET.get('period', 'month')
         stats = DashboardStatistics()
 
+        today = datetime.now().date()
+        if period == 'today':
+            start_date = today
+            end_date = today
+        elif period == 'week':
+            start_date = today - timedelta(days=7)
+            end_date = today
+        elif period == 'month':
+            start_date = today.replace(day=1)
+            end_date = today
+        elif period == 'year':
+            start_date = today.replace(month=1, day=1)
+            end_date = today
+        elif period == 'custom':
+            start_str = request.GET.get('start_date')
+            end_str = request.GET.get('end_date')
+            try:
+                start_date = datetime.strptime(start_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_str, '%Y-%m-%d').date()
+            except (ValueError, TypeError):
+                start_date = today.replace(day=1)
+                end_date = today
+        else:
+            start_date = today.replace(day=1)
+            end_date = today
+
         if chart_type == 'revenue':
-            return JsonResponse(stats.get_daily_revenue_chart_data())
+            return JsonResponse(stats.get_daily_revenue_chart_data(start_date, end_date))
         elif chart_type == 'orders':
-            return JsonResponse(stats.get_order_status_chart_data())
+            return JsonResponse(stats.get_order_status_chart_data(start_date, end_date))
         elif chart_type == 'sentiment':
             return JsonResponse(stats.get_sentiment_chart_data())
         elif chart_type == 'category':
@@ -416,3 +547,117 @@ class RevenueReportView(StaffRequiredMixin, View):
 
         report = stats.get_revenue_report(start, end)
         return JsonResponse(report)
+
+
+# ==================== Notifications ====================
+
+class NotificationCreateView(StaffRequiredMixin, CreateView):
+    """Tạo thông báo mới cho người dùng"""
+    model = Notification
+    form_class = NotificationForm
+    template_name = 'admin_dashboard/notifications/form.html'
+    success_url = reverse_lazy('admin_dashboard:notification_list')
+
+    def form_valid(self, form):
+        send_to = form.cleaned_data.get('send_to')
+        users = form.cleaned_data.get('users')
+
+        notification_type = form.cleaned_data.get('notification_type')
+        title = form.cleaned_data.get('title')
+        message = form.cleaned_data.get('message')
+        url = form.cleaned_data.get('url', '')
+
+        if send_to == 'all':
+            target_users = User.objects.filter(is_active=True)
+        else:
+            target_users = users
+
+        created_count = 0
+        for user in target_users:
+            Notification.objects.create(
+                user=user,
+                notification_type=notification_type,
+                title=title,
+                message=message,
+                url=url
+            )
+            created_count += 1
+
+        messages.success(self.request, f'Đã tạo {created_count} thông báo thành công!')
+        return redirect(self.success_url)
+
+
+class NotificationListView(StaffRequiredMixin, ListView):
+    """Danh sách thông báo"""
+    model = Notification
+    template_name = 'admin_dashboard/notifications/list.html'
+    context_object_name = 'notifications'
+    paginate_by = 30
+
+    def get_queryset(self):
+        queryset = Notification.objects.select_related('user').order_by('-created_at')
+
+        notification_type = self.request.GET.get('type')
+        if notification_type:
+            queryset = queryset.filter(notification_type=notification_type)
+
+        is_read = self.request.GET.get('is_read')
+        if is_read == '1':
+            queryset = queryset.filter(is_read=True)
+        elif is_read == '0':
+            queryset = queryset.filter(is_read=False)
+
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) | Q(message__icontains=search) | Q(user__username__icontains=search)
+            )
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['notification_types'] = Notification.NOTIFICATION_TYPES
+        context['stats'] = {
+            'total': Notification.objects.count(),
+            'unread': Notification.objects.filter(is_read=False).count(),
+        }
+        return context
+
+
+class NotificationDeleteView(StaffRequiredMixin, View):
+    """Xóa thông báo"""
+
+    def post(self, request, pk):
+        notification = get_object_or_404(Notification, pk=pk)
+        notification.delete()
+        messages.success(request, 'Đã xóa thông báo.')
+        return redirect('admin_dashboard:notification_list')
+
+
+class NotificationBulkActionView(StaffRequiredMixin, View):
+    """Thao tác hàng loạt với thông báo"""
+
+    def post(self, request):
+        action = request.POST.get('action')
+        notification_ids = request.POST.getlist('notification_ids')
+
+        if not notification_ids:
+            messages.warning(request, 'Vui lòng chọn ít nhất một thông báo.')
+            return redirect('admin_dashboard:notification_list')
+
+        notifications = Notification.objects.filter(pk__in=notification_ids)
+
+        if action == 'mark_read':
+            from django.utils import timezone
+            notifications.update(is_read=True, read_at=timezone.now())
+            messages.success(request, f'Đã đánh dấu {notifications.count()} thông báo đã đọc.')
+        elif action == 'mark_unread':
+            notifications.update(is_read=False, read_at=None)
+            messages.success(request, f'Đã đánh dấu {notifications.count()} thông báo chưa đọc.')
+        elif action == 'delete':
+            count = notifications.count()
+            notifications.delete()
+            messages.success(request, f'Đã xóa {count} thông báo.')
+
+        return redirect('admin_dashboard:notification_list')

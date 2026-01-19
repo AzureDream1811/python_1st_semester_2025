@@ -3,108 +3,131 @@
 {% block title %}Quản lý đánh giá{% endblock %}
 
 {% block content %}
-<h2 class="mb-4"><i class="bi bi-star"></i> Quản lý đánh giá</h2>
-
-<!-- Filter -->
-<div class="card mb-4">
-    <div class="card-body">
-        <form class="row g-3" method="get">
-            <div class="col-md-10">
-                <select class="form-select" name="sentiment">
+<div class="page-card">
+    <div class="page-header">
+        <h1><i class="bi bi-star"></i> Quản lý đánh giá</h1>
+    </div>
+    <div class="mb-3">
+        <form method="get" class="row g-3">
+            <div class="col-md-5">
+                <select name="sentiment" class="form-select">
                     <option value="">-- Tất cả sentiment --</option>
                     <option value="positive" {% if request.GET.sentiment == 'positive' %}selected{% endif %}>Tích cực</option>
                     <option value="neutral" {% if request.GET.sentiment == 'neutral' %}selected{% endif %}>Trung lập</option>
                     <option value="negative" {% if request.GET.sentiment == 'negative' %}selected{% endif %}>Tiêu cực</option>
                 </select>
             </div>
+            <div class="col-md-5">
+                <select name="ai_check" class="form-select">
+                    <option value="">-- AI Check --</option>
+                    <option value="mismatch" {% if request.GET.ai_check == 'mismatch' %}selected{% endif %}>
+                        Sao không khớp sentiment ({{ mismatch_count }})
+                    </option>
+                </select>
+            </div>
             <div class="col-md-2">
-                <button class="btn btn-outline-primary w-100" type="submit">
+                <button type="submit" class="btn btn-outline-primary w-100">
                     <i class="bi bi-filter"></i> Lọc
                 </button>
             </div>
         </form>
     </div>
-</div>
+    
+    {% if mismatch_count > 0 %}
+    <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
+        <i class="bi bi-robot me-2"></i>
+        <div>
+            <strong>AI Sentiment Check:</strong> Có <strong>{{ mismatch_count }}</strong> đánh giá có số sao không khớp với nội dung.
+            <a href="?ai_check=mismatch" class="alert-link">Xem tất cả</a>
+        </div>
+    </div>
+    {% endif %}
 
-<div class="card">
-    <div class="card-body">
+    <div class="table-responsive">
         <table class="table table-hover">
             <thead>
-            <tr>
-                <th>Sản phẩm</th>
-                <th>Người đánh giá</th>
-                <th>Đánh giá</th>
-                <th>Sentiment</th>
-                <th>Trạng thái</th>
-                <th>Ngày tạo</th>
-                <th>Thao tác</th>
-            </tr>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Người đánh giá</th>
+                    <th>Đánh giá</th>
+                    <th>Sentiment / AI Check</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tạo</th>
+                    <th>Thao tác</th>
+                </tr>
             </thead>
             <tbody>
-            {% for review in reviews %}
-            <tr>
-                <td>{{ review.product.name|truncatechars:30 }}</td>
-                <td>{{ review.user.username }}</td>
-                <td>
-                    {% for i in "12345" %}
-                    <i class="bi bi-star{% if forloop.counter <= review.rating %}-fill text-warning{% endif %}"></i>
-                    {% endfor %}
-                </td>
-                <td>
-                    <span class="badge bg-{{ review.sentiment_color }}">
-                        {{ review.get_sentiment_display|default:"-" }}
-                    </span>
-                </td>
-                <td>
-                    {% if review.is_approved %}
-                    <span class="badge bg-success">Đã duyệt</span>
-                    {% else %}
-                    <span class="badge bg-warning">Chờ duyệt</span>
-                    {% endif %}
-                </td>
-                <td>{{ review.created_at|date:"d/m/Y" }}</td>
-                <td>
-                    {% if not review.is_approved %}
-                    <form action="{% url 'admin_dashboard:review_approve' review.pk %}" class="d-inline" method="post">
-                        {% csrf_token %}
-                        <button class="btn btn-sm btn-success" title="Duyệt" type="submit">
-                            <i class="bi bi-check-lg"></i>
-                        </button>
-                    </form>
-                    {% endif %}
-                    {% if review.is_approved %}
-                    <form action="{% url 'admin_dashboard:review_reject' review.pk %}" class="d-inline" method="post">
-                        {% csrf_token %}
-                        <button class="btn btn-sm btn-danger" title="Từ chối" type="submit">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-                    </form>
-                    {% endif %}
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td class="text-center text-muted" colspan="7">Chưa có đánh giá</td>
-            </tr>
-            {% endfor %}
+                {% for review in reviews %}
+                <tr{% if review.rating_sentiment_mismatch.severity == 'high' %} class="table-warning"{% endif %}>
+                    <td>{{ review.product.name|truncatechars:30 }}</td>
+                    <td>{{ review.user.username }}</td>
+                    <td>
+                        {% for i in "12345" %}
+                        <i class="bi bi-star{% if forloop.counter <= review.rating %}-fill text-warning{% endif %}"></i>
+                        {% endfor %}
+                        {% if review.rating_sentiment_mismatch.mismatch %}
+                        <br><small class="text-muted">AI gợi ý: {{ review.ai_suggested_rating }} sao</small>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-{{ review.sentiment_color }}">
+                            {{ review.get_sentiment_display|default:"-" }}
+                        </span>
+                        {% if review.rating_sentiment_mismatch.mismatch %}
+                        <br>
+                        <span class="badge bg-{% if review.rating_sentiment_mismatch.severity == 'high' %}danger{% else %}info{% endif %}" 
+                              title="{{ review.rating_sentiment_mismatch.message }}">
+                            <i class="bi bi-robot"></i> 
+                            {% if review.rating_sentiment_mismatch.severity == 'high' %}Không khớp{% else %}Gợi ý{% endif %}
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if review.is_approved %}
+                        <span class="badge bg-success">Đã duyệt</span>
+                        {% else %}
+                        <span class="badge bg-warning">Chờ duyệt</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ review.created_at|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if not review.is_approved %}
+                        <form method="post" action="{% url 'admin_dashboard:review_approve' review.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-success" title="Duyệt">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                        {% if review.is_approved %}
+                        <form method="post" action="{% url 'admin_dashboard:review_reject' review.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger" title="Từ chối">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center text-muted">Chưa có đánh giá</td></tr>
+                {% endfor %}
             </tbody>
         </table>
-
-        {% if page_obj.has_other_pages %}
-        <nav>
-            <ul class="pagination justify-content-center">
-                {% if page_obj.has_previous %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Trước</a>
-                </li>
-                {% endif %}
-                <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-                </li>
-                {% if page_obj.has_next %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Sau</a></li>
-                {% endif %}
-            </ul>
-        </nav>
-        {% endif %}
     </div>
+
+    {% if page_obj.has_other_pages %}
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Trước</a></li>
+            {% endif %}
+            <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Sau</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
 </div>
 {% endblock %}

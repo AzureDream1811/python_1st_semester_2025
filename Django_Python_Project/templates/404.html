@@ -1,24 +1,65 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block extra_css %}
-    <link href="{% static 'css/errors.css' %}" rel="stylesheet">
-{% endblock %}
-
-{% block title %}404 — Trang không tìm thấy{% endblock %}
+{% block title %}404 - Không tìm thấy trang | ElectroShop{% endblock %}
 
 {% block content %}
-    <div class="error-page-wrapper">
-        <div class="error-card">
-            <i class="bi bi-search error-icon text-muted"></i>
-            <h1 class="error-title">404 — Trang không tìm thấy</h1>
-            <p class="error-lead">Xin lỗi, chúng tôi không tìm thấy trang bạn đang tìm kiếm.</p>
+<div class="error-page">
+    <div class="error-container">
+        <div class="error-illustration">
+            <div class="error-icon error-icon--404">
+                <i class="bi bi-search"></i>
+            </div>
+            <div class="error-code">404</div>
+        </div>
 
-            <form action="{% url 'products:search' %}" method="get" class="error-search">
-                <input name="q" class="form-control" placeholder="Tìm kiếm sản phẩm..." value="{{ request.GET.q }}">
-                <button class="btn btn-primary">Tìm</button>
-            </form>
+        <div class="error-content">
+            <h1 class="error-title">Không tìm thấy trang</h1>
+            <p class="error-desc">
+                Xin lỗi, trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển.
+                Vui lòng kiểm tra lại đường dẫn hoặc quay về trang chủ.
+            </p>
 
-            <a href="{% url 'products:home' %}" class="btn btn-outline-primary mt-4">Quay về trang chủ</a>
+            <div class="error-actions">
+                <a class="btn btn-primary btn-lg" href="{% url 'products:home' %}">
+                    <i class="bi bi-house"></i>
+                    <span>Quay về trang chủ</span>
+                </a>
+                <a class="btn btn-outline-secondary btn-lg" href="{% url 'chat:home' %}">
+                    <i class="bi bi-headset"></i>
+                    <span>Liên hệ hỗ trợ</span>
+                </a>
+            </div>
+
+            <div class="error-search">
+                <p class="error-search__label">Hoặc thử tìm kiếm sản phẩm:</p>
+                <form action="{% url 'search:search' %}" class="error-search__form" method="GET">
+                    <div class="error-search__input-wrapper">
+                        <i class="bi bi-search"></i>
+                        <input name="q" placeholder="Tìm kiếm sản phẩm..." type="search">
+                    </div>
+                    <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+                </form>
+            </div>
+
+            <div class="error-links">
+                <p class="error-links__label">Có thể bạn quan tâm:</p>
+                <div class="error-links__list">
+                    <a class="error-link" href="{% url 'products:product_list' %}">
+                        <i class="bi bi-grid"></i>
+                        <span>Sản phẩm</span>
+                    </a>
+                    <a class="error-link error-link--danger" href="{% url 'promotions:flash_sales' %}">
+                        <i class="bi bi-lightning-charge"></i>
+                        <span>Flash Sale</span>
+                    </a>
+                    <a class="error-link error-link--success" href="{% url 'promotions:combo_deals' %}">
+                        <i class="bi bi-gift"></i>
+                        <span>Combo Deal</span>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 {% endblock %}

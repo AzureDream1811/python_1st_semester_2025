@@ -6,11 +6,11 @@ register = template.Library()
 
 @register.filter
 def currency(value):
-    """Format số tiền theo định dạng VNĐ"""
+    """Format số tiền theo định dạng VNĐ: 3.500.000₫"""
     try:
         value = int(value)
         formatted = "{:,.0f}".format(value).replace(",", ".")
-        return f"{formatted} ₫"
+        return f"{formatted}₫"
     except (ValueError, TypeError):
         return value
 
@@ -29,32 +29,25 @@ def currency_plain(value):
 def price_display(product):
     """Hiển thị giá sản phẩm với giá gốc và giá sale"""
     if product.sale_price and product.sale_price < product.price:
-        return mark_safe(f"""
+        return mark_safe(f'''
             <span class="text-danger fw-bold">{currency(product.sale_price)}</span>
             <span class="text-muted text-decoration-line-through small">{currency(product.price)}</span>
             <span class="badge bg-danger">-{product.discount_percent}%</span>
-        """)
+        ''')
     return mark_safe(f'<span class="fw-bold">{currency(product.price)}</span>')
 
 
 @register.filter
 def star_rating(rating):
     """Hiển thị rating bằng sao"""
-    try:
-        rating = float(rating)
-    except (TypeError, ValueError):
-        return ""
-
     full_stars = int(rating)
     half_star = 1 if rating - full_stars >= 0.5 else 0
     empty_stars = 5 - full_stars - half_star
 
-    html = ""
+    html = ''
     html += '<i class="bi bi-star-fill text-warning"></i>' * full_stars
-
     if half_star:
         html += '<i class="bi bi-star-half text-warning"></i>'
-
     html += '<i class="bi bi-star text-warning"></i>' * empty_stars
 
     return mark_safe(html)
@@ -64,11 +57,11 @@ def star_rating(rating):
 def sentiment_badge(sentiment):
     """Hiển thị badge sentiment"""
     badges = {
-        "positive": '<span class="badge bg-success"><i class="bi bi-emoji-smile"></i> Tích cực</span>',
-        "negative": '<span class="badge bg-danger"><i class="bi bi-emoji-frown"></i> Tiêu cực</span>',
-        "neutral": '<span class="badge bg-secondary"><i class="bi bi-emoji-neutral"></i> Trung lập</span>',
+        'positive': '<span class="badge bg-success"><i class="bi bi-emoji-smile"></i> Tích cực</span>',
+        'negative': '<span class="badge bg-danger"><i class="bi bi-emoji-frown"></i> Tiêu cực</span>',
+        'neutral': '<span class="badge bg-secondary"><i class="bi bi-emoji-neutral"></i> Trung lập</span>',
     }
-    return mark_safe(badges.get(sentiment, badges["neutral"]))
+    return mark_safe(badges.get(sentiment, badges['neutral']))
 
 
 @register.filter
@@ -77,7 +70,27 @@ def stock_status(product):
     if product.stock <= 0:
         return mark_safe('<span class="badge bg-danger">Hết hàng</span>')
     elif product.stock <= 5:
-        return mark_safe(
-            f'<span class="badge bg-warning">Còn {product.stock} sản phẩm</span>'
-        )
+        return mark_safe(f'<span class="badge bg-warning">Còn {product.stock} sản phẩm</span>')
     return mark_safe('<span class="badge bg-success">Còn hàng</span>')
+
+
+@register.filter
+def get_item(dictionary, key):
+    """Lấy giá trị từ dictionary theo key"""
+    if dictionary is None:
+        return ''
+    if isinstance(dictionary, dict):
+        return dictionary.get(key, '')
+    return ''
+
+
+@register.filter
+def get_rating_count(product, rating):
+    """Get the count of reviews with a specific rating"""
+    try:
+        rating = int(rating)
+        if hasattr(product, 'reviews'):
+            return product.reviews.filter(rating=rating, is_approved=True).count()
+        return 0
+    except (ValueError, TypeError):
+        return 0

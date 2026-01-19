@@ -1,19 +1,203 @@
 {% if messages %}
-<div class="messages-container">
+<!-- ==================== INLINE STYLES - Messages/Toast Component ==================== -->
+<style>
+/* Toast Container */
+.toast-container {
+    position: fixed;
+    top: var(--es-space-2);
+    right: var(--es-space-2);
+    z-index: var(--es-z-toast);
+    display: flex;
+    flex-direction: column;
+    gap: var(--es-space-1);
+    max-width: 400px;
+    width: calc(100% - var(--es-space-4));
+}
+
+/* Toast Base */
+.toast {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--es-space-2);
+    padding: var(--es-space-2);
+    background: var(--es-white);
+    border-radius: var(--es-radius-lg);
+    box-shadow: var(--es-shadow-xl);
+    border-left: 4px solid var(--es-info);
+    position: relative;
+    overflow: hidden;
+    animation: toastSlideIn 300ms ease-out;
+}
+
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.toast--hiding {
+    animation: toastSlideOut 300ms ease-out forwards;
+}
+
+@keyframes toastSlideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* Toast Variants */
+.toast--success {
+    border-left-color: var(--es-success);
+}
+
+.toast--success .toast__icon {
+    color: var(--es-success);
+}
+
+.toast--error,
+.toast--danger {
+    border-left-color: var(--es-danger);
+}
+
+.toast--error .toast__icon,
+.toast--danger .toast__icon {
+    color: var(--es-danger);
+}
+
+.toast--warning {
+    border-left-color: var(--es-warning);
+}
+
+.toast--warning .toast__icon {
+    color: var(--es-warning);
+}
+
+.toast--info {
+    border-left-color: var(--es-info);
+}
+
+.toast--info .toast__icon {
+    color: var(--es-info);
+}
+
+/* Toast Icon */
+.toast__icon {
+    font-size: var(--es-text-xl);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Toast Content */
+.toast__content {
+    flex: 1;
+    min-width: 0;
+}
+
+.toast__message {
+    margin: 0;
+    font-size: var(--es-text-sm);
+    color: var(--es-text-primary);
+    line-height: var(--es-leading-normal);
+}
+
+/* Toast Close Button */
+.toast__close {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: var(--es-radius-md);
+    color: var(--es-text-muted);
+    cursor: pointer;
+    transition: all var(--es-transition-fast);
+    flex-shrink: 0;
+}
+
+.toast__close:hover {
+    background: var(--es-bg-secondary);
+    color: var(--es-text-primary);
+}
+
+.toast__close:focus-visible {
+    outline: var(--es-focus-ring-width) solid var(--es-primary);
+    outline-offset: var(--es-focus-ring-offset);
+}
+
+/* Toast Progress Bar */
+.toast__progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: currentColor;
+    opacity: 0.3;
+    animation: toastProgress 5s linear forwards;
+}
+
+@keyframes toastProgress {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .toast-container {
+        left: var(--es-space-1);
+        right: var(--es-space-1);
+        max-width: none;
+        width: auto;
+    }
+}
+</style>
+
+<div class="toast-container" role="region" aria-label="Thông báo" aria-live="polite">
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-        {% if message.tags == 'success' %}
-        <i class="bi bi-check-circle-fill me-2"></i>
-        {% elif message.tags == 'error' or message.tags == 'danger' %}
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        {% elif message.tags == 'warning' %}
-        <i class="bi bi-exclamation-circle-fill me-2"></i>
-        {% else %}
-        <i class="bi bi-info-circle-fill me-2"></i>
-        {% endif %}
-        {{ message }}
-        <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+    <div class="toast toast--{{ message.tags }}" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast__icon" aria-hidden="true">
+            {% if message.tags == 'success' %}
+            <i class="bi bi-check-circle-fill"></i>
+            {% elif message.tags == 'error' or message.tags == 'danger' %}
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            {% elif message.tags == 'warning' %}
+            <i class="bi bi-exclamation-circle-fill"></i>
+            {% else %}
+            <i class="bi bi-info-circle-fill"></i>
+            {% endif %}
+        </div>
+        <div class="toast__content">
+            <p class="toast__message">{{ message }}</p>
+        </div>
+        <button type="button" class="toast__close" onclick="this.parentElement.remove()" aria-label="Đóng thông báo">
+            <i class="bi bi-x" aria-hidden="true"></i>
+        </button>
+        <div class="toast__progress"></div>
     </div>
     {% endfor %}
 </div>
+
+<script>
+// Auto dismiss toasts after 5 seconds
+document.querySelectorAll('.toast').forEach(toast => {
+    setTimeout(() => {
+        toast.classList.add('toast--hiding');
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+});
+</script>
 {% endif %}

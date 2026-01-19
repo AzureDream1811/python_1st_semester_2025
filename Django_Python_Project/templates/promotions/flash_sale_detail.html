@@ -1,154 +1,172 @@
 {% extends 'base.html' %}
 {% load product_tags %}
 
-{% block title %}{{ flash_sale.product.name }} - Flash Sale{% endblock %}
-
-{% block extra_css %}
-    <link href="{% static 'css/promotions.css' %}" rel="stylesheet">
-{% endblock %}
+{% block title %}Flash Sale - {{ flash_sale.product.name }} - ElectroShop{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row g-4">
-        <div class="col-md-6">
-            <div class="card">
-                {% if flash_sale.product.image %}
-                <img class="card-img-top p-4" style="object-fit:contain; max-height:420px;" src="{{ flash_sale.product.image.url }}" alt="{{ flash_sale.product.name }}">
-                {% else %}
-                <div class="p-5 d-flex align-items-center justify-content-center bg-light">
-                    <i class="bi bi-image display-2 text-muted"></i>
-                </div>
-                {% endif %}
-                <div class="card-body">
-                    <h3 class="fw-bold">{{ flash_sale.product.name }}</h3>
-                    <p class="text-muted mb-2">SKU: {{ flash_sale.product.sku }}</p>
-                    <div class="mb-3">
-                        <span class="h4 text-danger me-2">{{ flash_sale.sale_price|currency }}</span>
-                        <span class="text-muted text-decoration-line-through">{{ flash_sale.product.price|currency }}</span>
-                        <span class="badge bg-warning text-dark ms-2">-{{ flash_sale.discount_percentage }}%</span>
-                    </div>
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'products:home' %}"><i class="bi bi-house me-1"></i>Trang chủ</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'promotions:flash_sales' %}">Flash Sale</a></li>
+        <li class="breadcrumb-item active">{{ flash_sale.product.name|truncatewords:5 }}</li>
+    </ol>
+</nav>
 
-                    <div class="mb-3">
-                        <small class="text-muted">Thời gian còn lại:</small>
-                        <div class="d-flex align-items-center mt-1">
-                            <div class="countdown-item me-3">
-                                <span class="countdown-value h4" id="detail_hours">00</span>
-                                <div class="small text-muted">Giờ</div>
-                            </div>
-                            <div class="countdown-item me-3">
-                                <span class="countdown-value h4" id="detail_minutes">00</span>
-                                <div class="small text-muted">Phút</div>
-                            </div>
-                            <div class="countdown-item">
-                                <span class="countdown-value h4" id="detail_seconds">00</span>
-                                <div class="small text-muted">Giây</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-1">
-                            <small class="text-muted">Đã bán: {{ flash_sale.sold_count }}</small>
-                            <small class="text-danger">Còn lại: {{ flash_sale.remaining_quantity }}</small>
-                        </div>
-                        <div class="progress" style="height:8px;">
-                            <div class="progress-bar bg-danger" role="progressbar" style="width: {% widthratio flash_sale.sold_count flash_sale.quantity_limit 100 %|default:0}%;"></div>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        {% if flash_sale.is_available %}
-                        <form method="post" action="{% url 'cart:add' flash_sale.product.pk %}" class="d-flex gap-2">
-                            {% csrf_token %}
-                            <input type="number" name="quantity" min="1" max="{{ flash_sale.remaining_quantity }}" value="1" class="form-control w-auto">
-                            <button class="btn btn-danger" type="submit"><i class="bi bi-lightning-charge-fill me-1"></i>Mua ngay</button>
-                        </form>
-                        {% else %}
-                        <div>
-                            {% if not flash_sale.is_active or now > flash_sale.end_time %}
-                            <button class="btn btn-secondary" disabled><i class="bi bi-x-circle me-1"></i>Đã kết thúc</button>
-                            {% elif flash_sale.sold_count >= flash_sale.quantity_limit %}
-                            <button class="btn btn-secondary" disabled><i class="bi bi-x-circle me-1"></i>Hết hàng</button>
-                            {% else %}
-                            <button class="btn btn-secondary" disabled>Không khả dụng</button>
-                            {% endif %}
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <div>
-                        <h6>Mô tả sản phẩm</h6>
-                        <div class="text-muted">{{ flash_sale.product.short_description|default:flash_sale.product.description|linebreaksbr }}</div>
-                    </div>
-                </div>
+<div class="row g-4">
+    <!-- Product Image -->
+    <div class="col-lg-5">
+        <div class="card border-0" style="border-radius: var(--radius-2xl); overflow: hidden;">
+            <span class="discount-badge" style="top: 16px; left: 16px; font-size: 1rem; padding: 0.625rem 1.25rem;">
+                <i class="bi bi-lightning-charge-fill me-1"></i>-{{ flash_sale.discount_percentage }}%
+            </span>
+            {% if flash_sale.product.image %}
+            <div class="main-image" style="background: linear-gradient(180deg, var(--gray-50) 0%, var(--white) 100%); aspect-ratio: 1;">
+                <img src="{{ flash_sale.product.image.url }}" class="p-4" alt="{{ flash_sale.product.name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
             </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="mb-3">Thông tin Flash Sale</h5>
-                    <ul class="list-unstyled">
-                        <li><strong>Bắt đầu:</strong> {{ flash_sale.start_time|date:"d/m/Y H:i" }}</li>
-                        <li><strong>Kết thúc:</strong> {{ flash_sale.end_time|date:"d/m/Y H:i" }}</li>
-                        <li><strong>Tổng lượng:</strong> {{ flash_sale.quantity_limit }}</li>
-                        <li><strong>Đã bán:</strong> {{ flash_sale.sold_count }}</li>
-                    </ul>
-                </div>
+            {% else %}
+            <div class="d-flex align-items-center justify-content-center" style="height: 400px; background: var(--gray-100);">
+                <i class="bi bi-image display-1 text-muted"></i>
             </div>
-
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="mb-3">Sản phẩm liên quan</h5>
-                    {% comment %} Simple related products: show product's category top 3 {% endcomment %}
-                    <div class="row g-3">
-                        {% for item in flash_sale.product.category.products.all|slice:":3" %}
-                        <div class="col-4">
-                            <a href="{{ item.get_absolute_url }}" class="text-decoration-none text-dark">
-                                {% if item.image %}
-                                <img src="{{ item.image.url }}" class="img-fluid rounded" style="height:60px;object-fit:contain;" alt="{{ item.name }}">
-                                {% else %}
-                                <div class="bg-light d-flex align-items-center justify-content-center" style="height:60px;"><i class="bi bi-image text-muted"></i></div>
-                                {% endif %}
-                                <div class="small mt-1">{{ item.name|truncatechars:30 }}</div>
-                            </a>
-                        </div>
-                        {% empty %}
-                        <div class="col-12 text-muted">Không có sản phẩm liên quan</div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
+            {% endif %}
         </div>
     </div>
+    
+    <!-- Product Info -->
+    <div class="col-lg-7">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-danger"><i class="bi bi-lightning-charge-fill me-1"></i>Flash Sale</span>
+            {% if flash_sale.is_active %}
+            <span class="badge bg-success">Đang diễn ra</span>
+            {% else %}
+            <span class="badge bg-secondary">Đã kết thúc</span>
+            {% endif %}
+        </div>
+        
+        <h1 class="h2 mb-3" style="font-weight: 700;">{{ flash_sale.product.name }}</h1>
+        
+        <!-- Countdown Timer -->
+        {% if flash_sale.is_active %}
+        <div class="card mb-4" style="background: linear-gradient(135deg, var(--danger-light) 0%, var(--white) 100%); border: 1px solid var(--danger);">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <span class="text-danger fw-semibold"><i class="bi bi-clock me-1"></i>Kết thúc sau:</span>
+                    </div>
+                    <div class="countdown-timer d-flex gap-2">
+                        <div class="countdown-item text-center">
+                            <div class="number bg-danger text-white rounded px-3 py-2" id="hours">00</div>
+                            <small class="text-muted">Giờ</small>
+                        </div>
+                        <div class="countdown-item text-center">
+                            <div class="number bg-danger text-white rounded px-3 py-2" id="minutes">00</div>
+                            <small class="text-muted">Phút</small>
+                        </div>
+                        <div class="countdown-item text-center">
+                            <div class="number bg-danger text-white rounded px-3 py-2" id="seconds">00</div>
+                            <small class="text-muted">Giây</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Price -->
+        <div class="p-4 rounded-3 mb-4" style="background: linear-gradient(135deg, var(--danger-light) 0%, var(--white) 100%); border: 2px solid var(--danger);">
+            <div class="d-flex align-items-baseline gap-3 flex-wrap">
+                <span class="h2 mb-0 fw-bold" style="color: var(--danger);">{{ flash_sale.sale_price|currency }}</span>
+                <span class="text-muted text-decoration-line-through fs-5">{{ flash_sale.product.price|currency }}</span>
+                <span class="badge bg-danger fs-6">Tiết kiệm {{ flash_sale.discount_percentage }}%</span>
+            </div>
+        </div>
+        
+        <!-- Stock Progress -->
+        <div class="mb-4">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Đã bán: {{ flash_sale.sold_count }}/{{ flash_sale.quantity_limit }}</span>
+                <span class="fw-semibold" style="color: var(--danger);">Còn {{ flash_sale.remaining_quantity }} sản phẩm</span>
+            </div>
+            <div class="progress" style="height: 10px; border-radius: 5px;">
+                <div class="progress-bar bg-danger" style="width: {% widthratio flash_sale.sold_count flash_sale.quantity_limit 100 %}%"></div>
+            </div>
+        </div>
+        
+        <!-- Add to Cart -->
+        {% if flash_sale.is_active and flash_sale.remaining_quantity > 0 %}
+        <form action="{% url 'cart:add' flash_sale.product.pk %}" method="post" class="mb-4">
+            {% csrf_token %}
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <div>
+                    <label class="form-label small text-muted mb-1">Số lượng</label>
+                    <div class="d-flex align-items-center" style="border: 2px solid var(--gray-200); border-radius: var(--radius-md); overflow: hidden;">
+                        <button type="button" class="btn btn-link text-dark px-3 py-2" onclick="changeQty(-1)">
+                            <i class="bi bi-dash"></i>
+                        </button>
+                        <input type="number" name="quantity" id="qty" value="1" min="1" max="{{ flash_sale.remaining_quantity }}" class="form-control border-0 text-center" style="width: 60px; box-shadow: none;">
+                        <button type="button" class="btn btn-link text-dark px-3 py-2" onclick="changeQty(1)">
+                            <i class="bi bi-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-grow-1">
+                    <button type="submit" class="btn btn-danger btn-lg w-100">
+                        <i class="bi bi-lightning-charge-fill me-2"></i>Mua ngay với giá Flash Sale
+                    </button>
+                </div>
+            </div>
+        </form>
+        {% else %}
+        <div class="alert alert-secondary">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            {% if not flash_sale.is_active %}
+            Flash Sale đã kết thúc.
+            {% else %}
+            Sản phẩm đã hết hàng.
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <!-- Product Link -->
+        <a href="{{ flash_sale.product.get_absolute_url }}" class="btn btn-outline-primary">
+            <i class="bi bi-box-seam me-2"></i>Xem chi tiết sản phẩm
+        </a>
+    </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-    (function () {
-        const end = new Date("{{ flash_sale.end_time|date:'c' }}");
+function changeQty(delta) {
+    const input = document.getElementById('qty');
+    let val = parseInt(input.value) + delta;
+    const max = parseInt(input.max);
+    if (val >= 1 && val <= max) {
+        input.value = val;
+    }
+}
 
-        function update() {
-            const now = new Date();
-            const diff = end - now;
-            if (diff <= 0) {
-                document.getElementById('detail_hours').textContent = '00';
-                document.getElementById('detail_minutes').textContent = '00';
-                document.getElementById('detail_seconds').textContent = '00';
-                return;
-            }
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+// Countdown Timer
+{% if flash_sale.is_active %}
+const endTime = new Date('{{ flash_sale.end_time|date:"c" }}').getTime();
 
-            document.getElementById('detail_hours').textContent = String(hours).padStart(2, '0');
-            document.getElementById('detail_minutes').textContent = String(minutes).padStart(2, '0');
-            document.getElementById('detail_seconds').textContent = String(seconds).padStart(2, '0');
-        }
+function updateCountdown() {
+    const now = new Date().getTime();
+    const diff = endTime - now;
+    
+    if (diff <= 0) {
+        location.reload();
+        return;
+    }
+    
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+    document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+    document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+}
 
-        setInterval(update, 1000);
-        update();
-    })();
+updateCountdown();
+setInterval(updateCountdown, 1000);
+{% endif %}
 </script>
 {% endblock %}

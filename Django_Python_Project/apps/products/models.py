@@ -77,7 +77,7 @@ class Product(models.Model):
 
     # Thông tin cơ bản
     name = models.CharField(max_length=255, verbose_name='Tên sản phẩm')
-    slug = models.SlugField(max_length=190, unique=True, blank=True)
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
     sku = models.CharField(max_length=50, unique=True, blank=True, verbose_name='Mã SKU')
     description = models.TextField(verbose_name='Mô tả')
 
@@ -168,16 +168,40 @@ class Product(models.Model):
     def get_absolute_url(self):
         return reverse('products:detail', kwargs={'slug': self.slug})
 
+    def get_active_flash_sale(self):
+        """Lấy Flash Sale đang hoạt động của sản phẩm này"""
+        from apps.promotions.models import FlashSale
+        from django.utils import timezone
+        now = timezone.now()
+        return FlashSale.objects.filter(
+            product=self,
+            is_active=True,
+            start_time__lte=now,
+            end_time__gte=now,
+            sold_count__lt=models.F('quantity_limit')
+        ).first()
+
     @property
     def current_price(self):
-        """Lấy giá hiện tại (giá sale nếu có)"""
+        """Lấy giá hiện tại (giá flash sale > giá sale > giá gốc)"""
+        flash_sale = self.get_active_flash_sale()
+        if flash_sale:
+            return flash_sale.get_effective_sale_price()
         if self.sale_price and self.sale_price < self.price:
             return self.sale_price
         return self.price
 
     @property
+    def is_on_flash_sale(self):
+        """Kiểm tra sản phẩm có đang flash sale không"""
+        return self.get_active_flash_sale() is not None
+
+    @property
     def discount_percent(self):
         """Tính % giảm giá"""
+        flash_sale = self.get_active_flash_sale()
+        if flash_sale:
+            return flash_sale.discount_percentage
         if self.sale_price and self.sale_price < self.price:
             return int(((self.price - self.sale_price) / self.price) * 100)
         return 0
@@ -279,7 +303,7 @@ class FlashSale(models.Model):
     """Model cho sản phẩm Flash Sale"""
 
     name = models.CharField(max_length=200, verbose_name='Tên Flash Sale')
-    products = models.ManyToManyField(Product, related_name='products_flash_sales', verbose_name='Sản phẩm')
+    products = models.ManyToManyField(Product, related_name='product_flash_sales', verbose_name='Sản phẩm')
     discount_percent = models.PositiveIntegerField(verbose_name='Phần trăm giảm giá')
     start_time = models.DateTimeField(verbose_name='Thời gian bắt đầu')
     end_time = models.DateTimeField(verbose_name='Thời gian kết thúc')

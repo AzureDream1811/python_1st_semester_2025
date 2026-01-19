@@ -3,177 +3,758 @@
 
 {% block title %}Sản phẩm - ElectroShop{% endblock %}
 
+{% block extra_css %}
+<!-- ==================== INLINE STYLES - Product List Page ==================== -->
+<style>
+/* === Style Overrides === */
+.catalog-shell { display:flex; flex-direction:column; gap:var(--es-space-3); padding:var(--es-space-1) 0 var(--es-space-4); }
+.catalog-hero { position:relative; overflow:hidden; border-radius:32px; background:linear-gradient(125deg, #1e3a5f 0%, #2d5a87 45%, #0f172a 100%); color:#fff; padding:var(--es-space-4); display:grid; grid-template-columns:1.1fr 0.9fr; gap:var(--es-space-3); box-shadow:var(--es-shadow-xl); }
+.catalog-hero::after { content:''; position:absolute; inset:0; background:radial-gradient(circle at 18% 15%,rgba(255,255,255,0.18),transparent 40%), radial-gradient(circle at 80% 0%,rgba(96,165,250,0.28),transparent 32%), radial-gradient(circle at 65% 90%,rgba(15,23,42,0.25),transparent 45%); pointer-events:none; }
+.catalog-hero__content { position:relative; z-index:1; display:flex; flex-direction:column; gap:var(--es-space-2); }
+.catalog-hero__badge { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:var(--es-radius-full); background:rgba(255,255,255,0.12); font-size:var(--es-text-sm); }
+.catalog-hero__title { font-size:clamp(2rem,2.6vw,2.8rem); font-weight:var(--es-font-bold); line-height:1.1; }
+.catalog-hero__lead { max-width:640px; font-size:1.1rem; color:#fff; line-height:1.6; }
+.catalog-hero__stats { position:relative; z-index:1; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--es-space-2); }
+.hero-stat { background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25); border-radius:var(--es-radius-bento); padding:var(--es-space-2); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); box-shadow:var(--es-shadow-sm); }
+.hero-stat__label { font-size:var(--es-text-sm); color:#fff; }
+.hero-stat__value { font-size:1.5rem; font-weight:var(--es-font-bold); }
+.catalog-layout { display:grid; grid-template-columns:280px 1fr; gap:var(--es-space-3); }
+.filter-card,.product-grid { background:var(--es-white); border:1px solid var(--es-border-light); border-radius:var(--es-radius-bento-lg); box-shadow:var(--es-shadow-card); }
+.product-grid { padding:var(--es-space-3); }
+.product-grid__header { display:flex; align-items:center; justify-content:space-between; gap:var(--es-space-2); margin-bottom:var(--es-space-2); }
+.product-grid__items { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:var(--es-space-2); }
+.product-card { position:relative; border:1px solid var(--es-border-light); border-radius:var(--es-radius-bento); padding:var(--es-space-2); box-shadow:var(--es-shadow-sm); transition:transform var(--es-transition-normal), box-shadow var(--es-transition-normal), border-color var(--es-transition-normal); background:var(--es-white); }
+.product-card:hover { transform:translateY(-6px); box-shadow:var(--es-shadow-card-hover); border-color:var(--es-primary-200); }
+.product-card__media { width:100%; aspect-ratio:1; border-radius:var(--es-radius-md); overflow:hidden; background:var(--es-bg-secondary); margin-bottom:var(--es-space-1); }
+.product-card__media img { width:100%; height:100%; object-fit:cover; display:block; }
+.product-card__title { font-weight:var(--es-font-semibold); color:var(--es-text-primary); margin:0 0 6px 0; }
+.product-card__meta { display:flex; gap:8px; flex-wrap:wrap; color:var(--es-text-muted); font-size:var(--es-text-sm); }
+.product-card__price { display:flex; align-items:center; gap:8px; font-weight:var(--es-font-bold); color:var(--es-primary-dark); }
+.product-card__price span { color:var(--es-text-muted); font-weight:var(--es-font-medium); text-decoration:line-through; }
+.product-card__actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:var(--es-space-1); }
+.filter-card { padding:var(--es-space-3); }
+.filter-card h5 { margin:0 0 var(--es-space-2) 0; }
+.filter-section { border-bottom:1px solid var(--es-border-light); padding:var(--es-space-2) 0; }
+.filter-section:last-child { border-bottom:none; }
+.chip { display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:var(--es-radius-full); border:1px solid var(--es-border-light); background:var(--es-bg-secondary); font-size:var(--es-text-sm); }
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0; }
+@media (max-width:1100px){ .catalog-layout { grid-template-columns:1fr; } .catalog-hero { grid-template-columns:1fr; } .catalog-hero__stats { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:768px){ .catalog-hero__stats { grid-template-columns:1fr; } .product-grid__items { grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); } }
+
+/* ========== Breadcrumb ========== */
+.breadcrumb-nav {
+    margin-bottom: var(--es-space-3);
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-1);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: var(--es-text-sm);
+}
+
+.breadcrumb-item a {
+    color: var(--es-text-secondary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color var(--es-transition-fast);
+}
+
+.breadcrumb-item a:hover {
+    color: var(--es-primary);
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: '/';
+    color: var(--es-text-muted);
+    margin-right: var(--es-space-1);
+}
+
+.breadcrumb-item.active {
+    color: var(--es-text-primary);
+    font-weight: var(--es-font-medium);
+}
+
+/* ========== Product List Layout ========== */
+.product-list-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: var(--es-space-3);
+}
+
+/* ========== Filter Sidebar ========== */
+.filter-sidebar {
+    position: sticky;
+    top: calc(var(--es-space-8) + var(--es-space-2));
+    height: fit-content;
+}
+
+.filter-card {
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    border: 1px solid var(--es-border-light);
+    box-shadow: var(--es-shadow-card);
+    overflow: hidden;
+}
+
+.filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--es-space-2);
+    border-bottom: 1px solid var(--es-border-light);
+    background: var(--es-bg-secondary);
+}
+
+.filter-main-title {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-1);
+    font-size: var(--es-text-base);
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+    margin: 0;
+}
+
+.filter-clear {
+    font-size: var(--es-text-xs);
+    color: var(--es-danger);
+    text-decoration: none;
+}
+
+.filter-clear:hover {
+    text-decoration: underline;
+}
+
+.filter-form {
+    padding: var(--es-space-2);
+}
+
+/* Active Filters */
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--es-space-1);
+    margin-bottom: var(--es-space-2);
+    padding-bottom: var(--es-space-2);
+    border-bottom: 1px solid var(--es-border-light);
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px var(--es-space-1);
+    background: var(--es-primary-100);
+    color: var(--es-primary-dark);
+    border-radius: var(--es-radius-full);
+    font-size: var(--es-text-xs);
+    font-weight: var(--es-font-medium);
+}
+
+.filter-chip button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: inherit;
+    display: flex;
+}
+
+/* Filter Sections */
+.filter-section {
+    border-bottom: 1px solid var(--es-border-light);
+    padding-bottom: var(--es-space-2);
+    margin-bottom: var(--es-space-2);
+}
+
+.filter-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.filter-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--es-space-1) 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: var(--es-text-sm);
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+}
+
+.filter-toggle i {
+    transition: transform var(--es-transition-fast);
+}
+
+.filter-content {
+    padding-top: var(--es-space-1);
+}
+
+.filter-content.collapsed {
+    display: none;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-1);
+    padding: var(--es-space-1) 0;
+    cursor: pointer;
+    font-size: var(--es-text-sm);
+    color: var(--es-text-secondary);
+    transition: color var(--es-transition-fast);
+}
+
+.filter-option:hover {
+    color: var(--es-text-primary);
+}
+
+.filter-option input {
+    accent-color: var(--es-primary);
+}
+
+.filter-option-text {
+    flex: 1;
+}
+
+.filter-option-count {
+    font-size: var(--es-text-xs);
+    color: var(--es-text-muted);
+}
+
+/* Price Range */
+.price-range-inputs {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-1);
+    margin-bottom: var(--es-space-1);
+}
+
+.price-input {
+    flex: 1;
+    padding: var(--es-space-1);
+    border: 1px solid var(--es-border-light);
+    border-radius: var(--es-radius-sm);
+    font-size: var(--es-text-sm);
+    min-height: 36px;
+}
+
+.price-separator {
+    color: var(--es-text-muted);
+}
+
+.price-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.price-preset {
+    padding: 4px var(--es-space-1);
+    background: var(--es-bg-secondary);
+    border: 1px solid var(--es-border-light);
+    border-radius: var(--es-radius-sm);
+    font-size: var(--es-text-xs);
+    cursor: pointer;
+    transition: all var(--es-transition-fast);
+}
+
+.price-preset:hover {
+    background: var(--es-primary-100);
+    border-color: var(--es-primary);
+    color: var(--es-primary);
+}
+
+/* Rating Filter */
+.filter-option--rating .rating-stars {
+    display: flex;
+    gap: 2px;
+    color: var(--es-warning);
+}
+
+.rating-text {
+    font-size: var(--es-text-xs);
+    color: var(--es-text-muted);
+}
+
+.filter-apply-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--es-space-1);
+    padding: var(--es-space-1) var(--es-space-2);
+    background: var(--es-primary);
+    color: var(--es-white);
+    border: none;
+    border-radius: var(--es-radius-md);
+    font-weight: var(--es-font-semibold);
+    cursor: pointer;
+    transition: all var(--es-transition-normal);
+    min-height: var(--es-touch-target);
+    margin-top: var(--es-space-2);
+}
+
+.filter-apply-btn:hover {
+    background: var(--es-primary-dark);
+}
+</style>
+
+<style>
+/* ========== Product Content ========== */
+.product-list-content {
+    min-width: 0;
+}
+
+/* Toolbar */
+.product-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--es-space-2);
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    border: 1px solid var(--es-border-light);
+    margin-bottom: var(--es-space-3);
+}
+
+.toolbar-info {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-secondary);
+}
+
+.toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+}
+
+.sort-select {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-1);
+}
+
+.sort-select label {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-secondary);
+}
+
+.sort-select select {
+    padding: var(--es-space-1) var(--es-space-2);
+    border: 1px solid var(--es-border-light);
+    border-radius: var(--es-radius-md);
+    font-size: var(--es-text-sm);
+    background: var(--es-white);
+    cursor: pointer;
+    min-height: 36px;
+}
+
+/* Product Grid */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--es-space-3);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: var(--es-space-8) var(--es-space-4);
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    border: 1px solid var(--es-border-light);
+}
+
+.empty-state__icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--es-space-3);
+    background: var(--es-bg-secondary);
+    border-radius: var(--es-radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--es-text-3xl);
+    color: var(--es-text-muted);
+}
+
+.empty-state__title {
+    font-size: var(--es-text-lg);
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+    margin: 0 0 var(--es-space-1) 0;
+}
+
+.empty-state__desc {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+    margin-bottom: var(--es-space-3);
+}
+
+/* Mobile Filter Button */
+.mobile-filter-btn {
+    display: none;
+    position: fixed;
+    bottom: var(--es-space-3);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--es-space-1) var(--es-space-3);
+    background: var(--es-primary);
+    color: var(--es-white);
+    border: none;
+    border-radius: var(--es-radius-full);
+    font-weight: var(--es-font-semibold);
+    box-shadow: var(--es-shadow-lg);
+    cursor: pointer;
+    z-index: var(--es-z-fixed);
+    min-height: var(--es-touch-target);
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 1200px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .product-list-layout {
+        grid-template-columns: 240px 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .product-list-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: var(--es-z-modal);
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        padding: var(--es-space-2);
+    }
+    
+    .filter-sidebar.active {
+        display: block;
+    }
+    
+    .filter-sidebar .filter-card {
+        max-width: 320px;
+        max-height: 90vh;
+        overflow-y: auto;
+        margin: var(--es-space-4) auto;
+    }
+    
+    .mobile-filter-btn {
+        display: flex;
+        align-items: center;
+        gap: var(--es-space-1);
+    }
+    
+    .product-toolbar {
+        flex-direction: column;
+        gap: var(--es-space-2);
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 576px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<nav aria-label="breadcrumb" class="mb-4">
+<div class="catalog-shell">
+<!-- Breadcrumb -->
+<nav class="breadcrumb-nav" aria-label="Đường dẫn breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'products:home' %}">Trang chủ</a></li>
-        <li class="breadcrumb-item active">Sản phẩm</li>
+        <li class="breadcrumb-item"><a href="{% url 'products:home' %}"><i class="bi bi-house" aria-hidden="true"></i> Trang chủ</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Sản phẩm</li>
     </ol>
 </nav>
 
-<div class="row">
+<section class="catalog-hero" aria-label="Danh sách sản phẩm">
+    <div class="catalog-hero__content">
+        
+        <h1 class="catalog-hero__title">Sản phẩm điện gia dụng</h1>
+        <p class="catalog-hero__lead">Khám phá sản phẩm đa dạng với chất lượng cao.</p>
+    </div>
+    <div class="catalog-hero__stats" role="list" aria-label="Tổng quan sản phẩm">
+        <div class="hero-stat" role="listitem"><span class="hero-stat__label">Tổng sản phẩm</span><div class="hero-stat__value">{{ products.paginator.count }}</div><span class="hero-stat__hint">Sản phẩm hiện có</span></div>
+        <div class="hero-stat" role="listitem"><span class="hero-stat__label">Danh mục</span><div class="hero-stat__value">{{ categories|length }}</div><span class="hero-stat__hint">Phân loại sản phẩm</span></div>
+        <div class="hero-stat" role="listitem"><span class="hero-stat__label">Thương hiệu</span><div class="hero-stat__value">{{ brands|length }}</div><span class="hero-stat__hint">Nhà sản xuất</span></div>
+        <div class="hero-stat" role="listitem"><span class="hero-stat__label">Giảm giá</span><div class="hero-stat__value">{{ discounted_count }}</div><span class="hero-stat__hint">Sản phẩm ưu đãi</span></div>
+    </div>
+</section>
+
+<div class="product-list-layout catalog-layout">
     <!-- Sidebar Filters -->
-    <div class="col-lg-3 mb-4">
-        <div class="card search-filters">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0"><i class="bi bi-funnel me-2 text-primary"></i>Bộ lọc</h5>
-                <a class="btn btn-sm btn-link text-muted p-0" href="{% url 'products:product_list' %}">Xóa tất cả</a>
+    <aside class="filter-sidebar" role="complementary" aria-label="Bộ lọc sản phẩm">
+        <div class="filter-card">
+            <div class="filter-header">
+                <h2 class="filter-main-title">
+                    <i class="bi bi-funnel" aria-hidden="true"></i>
+                    <span>Bộ lọc</span>
+                </h2>
+                <a href="{% url 'products:product_list' %}" class="filter-clear" aria-label="Xóa tất cả bộ lọc">Xóa tất cả</a>
             </div>
-
-            <form action="" method="GET">
-                <!-- Categories -->
-                <div class="filter-section">
-                    <h6 class="filter-title">Danh mục</h6>
-                    {% for category in categories %}
-                    <div class="form-check mb-2">
-                        <input %} %}checked{% category.slug class="form-check-input"
-                               current_category== endif id="cat_{{ category.pk }}" if name="category" type="radio" value="{{ category.slug }}" {%>
-                        <label class="form-check-label d-flex justify-content-between" for="cat_{{ category.pk }}">
-                            {{ category.name }}
-                            <span class="badge bg-light text-muted">{{ category.product_count }}</span>
-                        </label>
-                    </div>
+            
+            <form method="GET" action="" class="filter-form" id="filterForm" role="search" aria-label="Lọc sản phẩm">
+                <!-- Active Filters -->
+                {% if selected_categories or selected_brands or request.GET.min_price or request.GET.max_price or request.GET.rating %}
+                <!-- Active Filters - showing active filter chips -->
+                <div class="active-filters">
+                    {% for cat in categories %}
+                        {% if cat.slug in selected_categories %}
+                        <span class="filter-chip">
+                            {{ cat.name }}
+                            <button type="button" onclick="removeFilterValue('category', '{{ cat.slug }}')"><i class="bi bi-x"></i></button>
+                        </span>
+                        {% endif %}
                     {% endfor %}
-                </div>
-
-                <!-- Brands -->
-                {% if brands %}
-                <div class="filter-section">
-                    <h6 class="filter-title">Thương hiệu</h6>
                     {% for brand in brands %}
-                    <div class="form-check mb-2">
-                        <input %} %}checked{% brand.slug class="form-check-input"
-                               current_brand== endif id="brand_{{ brand.pk }}" if name="brand" type="radio" value="{{ brand.slug }}" {%>
-                        <label class="form-check-label" for="brand_{{ brand.pk }}">{{ brand.name }}</label>
-                    </div>
+                        {% if brand.slug in selected_brands %}
+                        <span class="filter-chip">
+                            {{ brand.name }}
+                            <button type="button" onclick="removeFilterValue('brand', '{{ brand.slug }}')"><i class="bi bi-x"></i></button>
+                        </span>
+                        {% endif %}
                     {% endfor %}
+                    {% if request.GET.min_price or request.GET.max_price %}
+                    <span class="filter-chip">
+                        {{ request.GET.min_price|default:"0" }} - {{ request.GET.max_price|default:"∞" }}
+                        <button type="button" onclick="removeFilter('price')"><i class="bi bi-x"></i></button>
+                    </span>
+                    {% endif %}
+                    {% if request.GET.rating %}
+                    <span class="filter-chip">
+                        <span class="rating-stars" style="display:inline-flex;gap:2px;color:var(--es-warning);">
+                            {% for i in "12345" %}
+                                <i class="bi bi-star{% if forloop.counter <= request.GET.rating|add:0 %}-fill{% endif %}" style="font-size:10px;"></i>
+                            {% endfor %}
+                        </span>
+                        trở lên
+                        <button type="button" onclick="removeFilter('rating')"><i class="bi bi-x"></i></button>
+                    </span>
+                    {% endif %}
                 </div>
                 {% endif %}
-
+                
+                <!-- Categories (Multi-select) -->
+                <div class="filter-section">
+                    <button type="button" class="filter-toggle" data-target="filter-categories">
+                        <span>Danh mục</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                    <div class="filter-content" id="filter-categories">
+                        {% for category in categories %}
+                        <label class="filter-option">
+                            <input type="checkbox" name="category" value="{{ category.slug }}" 
+                                   {% if category.slug in selected_categories %}checked{% endif %}
+                                   onchange="document.getElementById('filterForm').submit()">
+                            <span class="filter-option-text">{{ category.name }}</span>
+                            <span class="filter-option-count">{{ category.product_count }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Brands (Multi-select) -->
+                {% if brands %}
+                <div class="filter-section">
+                    <button type="button" class="filter-toggle" data-target="filter-brands">
+                        <span>Thương hiệu</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                    <div class="filter-content" id="filter-brands">
+                        {% for brand in brands %}
+                        <label class="filter-option">
+                            <input type="checkbox" name="brand" value="{{ brand.slug }}" 
+                                   {% if brand.slug in selected_brands %}checked{% endif %}
+                                   onchange="document.getElementById('filterForm').submit()">
+                            <span class="filter-option-text">{{ brand.name }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
                 <!-- Price Range -->
                 <div class="filter-section">
-                    <h6 class="filter-title">Khoảng giá</h6>
-                    <div class="price-range">
-                        <input class="form-control form-control-sm" name="min_price" placeholder="Từ"
-                               type="number" value="{{ request.GET.min_price }}">
-                        <span class="text-muted">-</span>
-                        <input class="form-control form-control-sm" name="max_price" placeholder="Đến"
-                               type="number" value="{{ request.GET.max_price }}">
-                    </div>
-                    <div class="mt-2">
-                        <button class="btn btn-outline-secondary btn-sm w-100" onclick="setPrice(0, 1000000)"
-                                type="button">Dưới 1 triệu
-                        </button>
-                    </div>
-                    <div class="mt-2">
-                        <button class="btn btn-outline-secondary btn-sm w-100" onclick="setPrice(1000000, 5000000)"
-                                type="button">1 - 5 triệu
-                        </button>
-                    </div>
-                    <div class="mt-2">
-                        <button class="btn btn-outline-secondary btn-sm w-100" onclick="setPrice(5000000, 10000000)"
-                                type="button">5 - 10 triệu
-                        </button>
-                    </div>
-                    <div class="mt-2">
-                        <button class="btn btn-outline-secondary btn-sm w-100" onclick="setPrice(10000000, '')"
-                                type="button">Trên 10 triệu
-                        </button>
+                    <button type="button" class="filter-toggle" data-target="filter-price">
+                        <span>Khoảng giá</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                    <div class="filter-content" id="filter-price">
+                        <div class="price-range-inputs">
+                            <input type="number" name="min_price" class="price-input" placeholder="Từ" 
+                                   value="{{ request.GET.min_price }}"
+                                   onchange="document.getElementById('filterForm').submit()">
+                            <span class="price-separator">-</span>
+                            <input type="number" name="max_price" class="price-input" placeholder="Đến" 
+                                   value="{{ request.GET.max_price }}"
+                                   onchange="document.getElementById('filterForm').submit()">
+                        </div>
+                        <div class="price-presets">
+                            <button type="button" class="price-preset" onclick="setPrice(0, 1000000)">Dưới 1 triệu</button>
+                            <button type="button" class="price-preset" onclick="setPrice(1000000, 5000000)">1 - 5 triệu</button>
+                            <button type="button" class="price-preset" onclick="setPrice(5000000, 10000000)">5 - 10 triệu</button>
+                            <button type="button" class="price-preset" onclick="setPrice(10000000, '')">Trên 10 triệu</button>
+                        </div>
                     </div>
                 </div>
-
+                
                 <!-- Rating -->
-                <div class="filter-section" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">
-                    <h6 class="filter-title">Đánh giá</h6>
-                    {% for i in "54321" %}
-                    <div class="form-check mb-2">
-                        <input %} %}checked{% class="form-check-input" endif
-                               i id="rating_{{ i }}" if name="rating" request.GET.rating== type="radio" value="{{ i }}" {%>
-                        <label class="form-check-label" for="rating_{{ i }}">
-                            {% for j in i|ljust:5 %}
-                            {% if forloop.counter <= i|add:0 %}
-                            <i class="bi bi-star-fill text-warning"></i>
-                            {% else %}
-                            <i class="bi bi-star text-muted"></i>
-                            {% endif %}
-                            {% endfor %}
-                            <span class="text-muted ms-1">trở lên</span>
+                <div class="filter-section">
+                    <button type="button" class="filter-toggle" data-target="filter-rating">
+                        <span>Đánh giá</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                    <div class="filter-content" id="filter-rating">
+                        {% for i in "54321" %}
+                        <label class="filter-option filter-option--rating">
+                            <input type="radio" name="rating" value="{{ i }}" 
+                                   {% if request.GET.rating == i %}checked{% endif %}
+                                   onchange="document.getElementById('filterForm').submit()">
+                            <span class="rating-stars">
+                                {% for j in "12345" %}
+                                <i class="bi bi-star{% if forloop.counter <= i|add:0 %}-fill{% endif %}"></i>
+                                {% endfor %}
+                            </span>
+                            <span class="rating-text">trở lên</span>
                         </label>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                 </div>
-
-                <button class="btn btn-primary w-100 mt-3" type="submit">
-                    <i class="bi bi-search me-1"></i>Áp dụng bộ lọc
-                </button>
             </form>
         </div>
-    </div>
-
-    <!-- Products Grid -->
-    <div class="col-lg-9">
-        <!-- Sort & View Options -->
-        <div class="card mb-4">
-            <div class="card-body py-3">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                    <div class="search-results-count">
-                        <span class="fw-semibold">{{ products.paginator.count }}</span> sản phẩm
-                        {% if current_category %}
-                        trong <span class="text-primary">{{ current_category_name }}</span>
-                        {% endif %}
-                    </div>
-                    <div class="search-sort">
-                        <label class="text-muted me-2">Sắp xếp:</label>
-                        <select class="form-select form-select-sm" onchange="location = this.value;"
-                                style="width: auto;">
-                            <option value="?sort=-created_at{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == '-created_at' or not current_sort %}selected{% endif %}>Mới nhất</option>
-                            <option value="?sort=price{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == 'price' %}selected{% endif %}>Giá thấp → cao</option>
-                            <option value="?sort=-price{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == '-price' %}selected{% endif %}>Giá cao → thấp</option>
-                            <option value="?sort=-sold{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == '-sold' %}selected{% endif %}>Bán chạy nhất</option>
-                            <option value="?sort=-average_rating{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == '-average_rating' %}selected{% endif %}>Đánh giá cao</option>
-                            <option value="?sort=name{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == 'name' %}selected{% endif %}>Tên A-Z</option>
-                        </select>
-                    </div>
+    </aside>
+    
+    <!-- Products Content -->
+    <main class="product-list-content" aria-label="Danh sách sản phẩm">
+        <!-- Toolbar -->
+        <div class="product-toolbar">
+            <div class="toolbar-info">
+                <span class="product-count"><strong>{{ products.paginator.count }}</strong> sản phẩm</span>
+                {% if current_category %}
+                <span class="product-category">trong <strong>{{ current_category_name }}</strong></span>
+                {% endif %}
+            </div>
+            <div class="toolbar-actions">
+                <div class="sort-select">
+                    <label for="sort-select">Sắp xếp:</label>
+                    <select id="sort-select" onchange="location = this.value;" aria-label="Sắp xếp sản phẩm">
+                        <option value="?sort=-created_at{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == '-created_at' or not current_sort %}selected{% endif %}>Mới nhất</option>
+                        <option value="?sort=price{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == 'price' %}selected{% endif %}>Giá thấp → cao</option>
+                        <option value="?sort=-price{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == '-price' %}selected{% endif %}>Giá cao → thấp</option>
+                        <option value="?sort=-sold{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == '-sold' %}selected{% endif %}>Bán chạy nhất</option>
+                        <option value="?sort=-average_rating{% if current_category %}&category={{ current_category }}{% endif %}" {% if current_sort == '-average_rating' %}selected{% endif %}>Đánh giá cao</option>
+                    </select>
                 </div>
             </div>
         </div>
-
+        
         {% if products %}
         <!-- Products Grid -->
-        <div class="row g-4">
+        <div class="product-grid bento-grid" role="list" aria-label="Danh sách sản phẩm">
             {% for product in products %}
-            <div class="col-6 col-md-4">
-                {% include 'partials/_product_card.html' %}
-            </div>
+            {% include 'partials/_product_card.html' %}
             {% endfor %}
         </div>
-
+        
         <!-- Pagination -->
-        <div class="mt-4">
+        <nav class="pagination-wrapper" aria-label="Phân trang">
             {% include 'partials/_pagination.html' with page_obj=products %}
-        </div>
+        </nav>
         {% else %}
         <!-- Empty State -->
-        <div class="card">
-            <div class="card-body">
-                <div class="empty-state">
-                    <i class="bi bi-search"></i>
-                    <h4>Không tìm thấy sản phẩm</h4>
-                    <p>Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
-                    <a class="btn btn-primary" href="{% url 'products:product_list' %}">
-                        <i class="bi bi-arrow-left me-1"></i>Xem tất cả sản phẩm
-                    </a>
-                </div>
+        <div class="empty-state" role="status" aria-live="polite">
+            <div class="empty-state__icon" aria-hidden="true">
+                <i class="bi bi-search"></i>
             </div>
+            <h3 class="empty-state__title">Không tìm thấy sản phẩm</h3>
+            <p class="empty-state__desc">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
+            <a href="{% url 'products:product_list' %}" class="btn btn-primary touch-target">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                <span>Xem tất cả sản phẩm</span>
+            </a>
         </div>
         {% endif %}
-    </div>
+    </main>
 </div>
 
+<!-- Mobile Filter Button -->
+<button class="mobile-filter-btn touch-target" id="mobileFilterBtn" aria-label="Mở bộ lọc" aria-expanded="false" aria-controls="filter-sidebar">
+    <i class="bi bi-funnel" aria-hidden="true"></i>
+    <span>Bộ lọc</span>
+</button>
+
 <script>
-    function setPrice(min, max) {
-        document.querySelector('input[name="min_price"]').value = min || '';
-        document.querySelector('input[name="max_price"]').value = max || '';
+function setPrice(min, max) {
+    document.querySelector('input[name="min_price"]').value = min || '';
+    document.querySelector('input[name="max_price"]').value = max || '';
+    document.getElementById('filterForm').submit();
+}
+
+function removeFilter(type) {
+    const url = new URL(window.location.href);
+    if (type === 'category') url.searchParams.delete('category');
+    if (type === 'brand') url.searchParams.delete('brand');
+    if (type === 'price') {
+        url.searchParams.delete('min_price');
+        url.searchParams.delete('max_price');
     }
+    if (type === 'rating') url.searchParams.delete('rating');
+    window.location.href = url.toString();
+}
+
+function removeFilterValue(type, value) {
+    const url = new URL(window.location.href);
+    const params = url.searchParams.getAll(type);
+    url.searchParams.delete(type);
+    params.filter(p => p !== value).forEach(p => url.searchParams.append(type, p));
+    window.location.href = url.toString();
+}
+
+// Filter toggle
+document.querySelectorAll('.filter-toggle').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const target = document.getElementById(this.dataset.target);
+        const icon = this.querySelector('i');
+        target.classList.toggle('collapsed');
+        icon.classList.toggle('bi-chevron-down');
+        icon.classList.toggle('bi-chevron-up');
+    });
+});
+
+// Mobile filter
+const mobileFilterBtn = document.getElementById('mobileFilterBtn');
+const filterSidebar = document.querySelector('.filter-sidebar');
+
+mobileFilterBtn?.addEventListener('click', function() {
+    filterSidebar.classList.toggle('active');
+    document.body.style.overflow = filterSidebar.classList.contains('active') ? 'hidden' : '';
+});
 </script>
+</div>
 {% endblock %}

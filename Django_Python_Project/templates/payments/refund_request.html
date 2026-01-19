@@ -1,97 +1,99 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load product_tags %}
-{% load widget_tweaks %}
 
-{% block title %}Yêu cầu hoàn tiền - ElectroShop{% endblock %}
-
-{% block extra_css %}
-<link href="{% static 'css/refund_request.css' %}" rel="stylesheet">
-{% endblock %}
+{% block title %}Yêu cầu hoàn tiền | ElectroShop{% endblock %}
 
 {% block content %}
-<div class="refund-container">
+<div class="container py-4">
+    <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb shadow-sm">
-            <li class="breadcrumb-item"><a href="{% url 'products:home' %}"><i class="bi bi-house me-1"></i>Trang chủ</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'orders:list' %}">Đơn hàng</a></li>
-            <li class="breadcrumb-item active">Yêu cầu hoàn tiền</li>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'products:home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'accounts:profile' %}">Tài khoản</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'payments:refund_list' %}">Hoàn tiền</a></li>
+            <li class="breadcrumb-item active">Yêu cầu mới</li>
         </ol>
     </nav>
 
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="card header-card mb-4 border-0">
-                <div class="card-body text-white py-4 px-4">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="icon-circle shadow">
-                            <i class="bi bi-arrow-return-left"></i>
-                        </div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h4 class="mb-0">
+                        <i class="bi bi-arrow-counterclockwise text-primary me-2"></i>
+                        Yêu cầu hoàn tiền
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Info Alert -->
+                    <div class="alert alert-info d-flex align-items-start mb-4">
+                        <i class="bi bi-info-circle-fill me-2 mt-1"></i>
                         <div>
-                            <h2 class="mb-1 fw-bold">Yêu cầu hoàn tiền</h2>
-                            <p class="mb-0 text-white-50">Vui lòng cung cấp chính xác thông tin giao dịch và lý do</p>
+                            <strong>Lưu ý:</strong>
+                            <ul class="mb-0 ps-3 mt-1">
+                                <li>Chỉ có thể hoàn tiền cho các giao dịch đã thanh toán thành công</li>
+                                <li>Số tiền hoàn không được vượt quá số tiền giao dịch</li>
+                                <li>Yêu cầu sẽ được xử lý trong vòng 3-5 ngày làm việc</li>
+                            </ul>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="card main-form-card shadow-sm border-0">
-                <div class="card-header bg-white py-3 border-bottom-0">
-                    <h5 class="mb-0 fw-bold d-flex align-items-center">
-                        <i class="bi bi-pencil-square text-primary me-2"></i>
-                        Chi tiết yêu cầu
-                    </h5>
-                </div>
-                <div class="card-body p-4">
-                    <form method="post" enctype="multipart/form-data" novalidate>
+                    <form method="POST" id="refundForm">
                         {% csrf_token %}
-
+                        
+                        <!-- Payment Selection -->
                         <div class="mb-4">
-                            <label class="form-label fw-bold small text-uppercase text-muted">{{ form.payment.label }}</label>
-{#                            {% render_field form.payment class="form-select custom-input" %}#} xử lí
+                            <label for="{{ form.payment.id_for_label }}" class="form-label fw-semibold">
+                                {{ form.payment.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.payment }}
                             {% if form.payment.errors %}
-                                <div class="invalid-feedback d-block">{{ form.payment.errors }}</div>
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.payment.errors %}{{ error }}{% endfor %}
+                            </div>
                             {% endif %}
+                            <div class="form-text">Chọn giao dịch bạn muốn yêu cầu hoàn tiền</div>
                         </div>
-
+                        
+                        <!-- Amount -->
                         <div class="mb-4">
-                            <label class="form-label fw-bold small text-uppercase text-muted">{{ form.amount.label }}</label>
+                            <label for="{{ form.amount.id_for_label }}" class="form-label fw-semibold">
+                                {{ form.amount.label }} <span class="text-danger">*</span>
+                            </label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light border-2">₫</span>
-                                {% render_field form.amount class="form-control custom-input border-start-0" %}
+                                {{ form.amount }}
+                                <span class="input-group-text">₫</span>
                             </div>
                             {% if form.amount.errors %}
-                                <div class="invalid-feedback d-block">{{ form.amount.errors }}</div>
-                            {% endif %}
-                            <small class="text-muted mt-1 d-block"><i class="bi bi-info-circle me-1"></i>Vui lòng nhập số tiền hợp lệ</small>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label fw-bold small text-uppercase text-muted">{{ form.reason.label }}</label>
-                            {% render_field form.reason class="form-control custom-input" rows="4" %}
-                            {% if form.reason.errors %}
-                                <div class="invalid-feedback d-block">{{ form.reason.errors }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="alert alert-custom d-flex align-items-start border-0 mb-4">
-                            <i class="bi bi-info-circle-fill text-primary me-3 mt-1 fs-5"></i>
-                            <div>
-                                <strong class="text-primary">Lưu ý quan trọng:</strong>
-                                <ul class="mb-0 mt-1 ps-3 small text-secondary">
-                                    <li>Yêu cầu sẽ được phản hồi trong vòng 3-5 ngày làm việc.</li>
-                                    <li>Số tiền sẽ được hoàn trả theo phương thức thanh toán ban đầu.</li>
-                                </ul>
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.amount.errors %}{{ error }}{% endfor %}
                             </div>
+                            {% endif %}
+                            <div class="form-text" id="amountHelp">Nhập số tiền bạn muốn hoàn</div>
                         </div>
-
-                        <div class="d-flex gap-2 justify-content-end pt-3 border-top">
-                            <a href="{% url 'orders:list' %}" class="btn btn-outline-custom">
-                                <i class="bi bi-x-lg me-1"></i>Hủy bỏ
-                            </a>
-                            <button type="submit" class="btn btn-primary-custom shadow">
-                                <i class="bi bi-send me-1"></i>Gửi yêu cầu ngay
+                        
+                        <!-- Reason -->
+                        <div class="mb-4">
+                            <label for="{{ form.reason.id_for_label }}" class="form-label fw-semibold">
+                                {{ form.reason.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.reason }}
+                            {% if form.reason.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.reason.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">Mô tả chi tiết lý do bạn muốn hoàn tiền (tối thiểu 10 ký tự)</div>
+                        </div>
+                        
+                        <!-- Submit Buttons -->
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send me-2"></i>Gửi yêu cầu
                             </button>
+                            <a href="{% url 'payments:refund_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Hủy
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -99,4 +101,55 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentSelect = document.getElementById('id_payment');
+    const amountInput = document.getElementById('id_amount');
+    const amountHelp = document.getElementById('amountHelp');
+    
+    // Update max amount when payment is selected
+    paymentSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.value) {
+            // Extract amount from option text (format: "#ORDER - 1,000,000₫ (Method)")
+            const text = selectedOption.text;
+            const match = text.match(/- ([\d,]+)₫/);
+            if (match) {
+                const maxAmount = parseInt(match[1].replace(/,/g, ''));
+                amountInput.max = maxAmount;
+                amountHelp.textContent = `Số tiền tối đa có thể hoàn: ${maxAmount.toLocaleString('vi-VN')}₫`;
+            }
+        } else {
+            amountHelp.textContent = 'Nhập số tiền bạn muốn hoàn';
+        }
+    });
+    
+    // Client-side validation
+    document.getElementById('refundForm').addEventListener('submit', function(e) {
+        const amount = parseInt(amountInput.value);
+        const reason = document.getElementById('id_reason').value.trim();
+        
+        if (!paymentSelect.value) {
+            e.preventDefault();
+            Swal.fire('Lỗi', 'Vui lòng chọn giao dịch cần hoàn', 'error');
+            return;
+        }
+        
+        if (!amount || amount <= 0) {
+            e.preventDefault();
+            Swal.fire('Lỗi', 'Vui lòng nhập số tiền hợp lệ', 'error');
+            return;
+        }
+        
+        if (reason.length < 10) {
+            e.preventDefault();
+            Swal.fire('Lỗi', 'Lý do hoàn tiền phải có ít nhất 10 ký tự', 'error');
+            return;
+        }
+    });
+});
+</script>
 {% endblock %}

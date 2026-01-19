@@ -24,6 +24,10 @@ urlpatterns = [
     path('cart/', include('apps.cart.urls', namespace='cart')),
     path('orders/', include('apps.orders.urls', namespace='orders')),
     path('reviews/', include('apps.reviews.urls', namespace='reviews')),
+
+    # Advanced Features
+    path('notifications/', include('apps.notifications.urls', namespace='notifications')),
+
     path('promotions/', include('apps.promotions.urls', namespace='promotions')),
     path('payments/', include('apps.payments.urls', namespace='payments')),
     path('search/', include('apps.search.urls', namespace='search')),

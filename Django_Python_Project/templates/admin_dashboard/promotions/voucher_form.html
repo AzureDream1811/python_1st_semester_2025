@@ -1,79 +1,163 @@
 {% extends 'admin_dashboard/base.html' %}
 
-{% block title %}Thêm Voucher{% endblock %}
+{% block title %}{% if form.instance.pk %}Sửa{% else %}Thêm{% endif %} Voucher{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-ticket-perforated"></i> Thêm Voucher</h2>
-    <a class="btn btn-outline-secondary" href="{% url 'admin_dashboard:voucher_list' %}">
-        <i class="bi bi-arrow-left"></i> Quay lại
-    </a>
-</div>
-
-<div class="card">
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %}
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Mã voucher *</label>
-                    {{ form.code }}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Tên voucher *</label>
-                    {{ form.name }}
-                </div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Mô tả</label>
-                {{ form.description }}
-            </div>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Loại giảm giá</label>
-                    {{ form.discount_type }}
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Giá trị giảm</label>
-                    {{ form.discount_value }}
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Giảm tối đa</label>
-                    {{ form.max_discount }}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Đơn tối thiểu</label>
-                    {{ form.min_order_value }}
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Giới hạn sử dụng</label>
-                    {{ form.usage_limit }}
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Giới hạn/người</label>
-                    {{ form.usage_limit_per_user }}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Bắt đầu</label>
-                    {{ form.valid_from }}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Kết thúc</label>
-                    {{ form.valid_until }}
-                </div>
-            </div>
-            <div class="form-check mb-3">
-                {{ form.is_active }}
-                <label class="form-check-label">Kích hoạt</label>
-            </div>
-            <button class="btn btn-primary" type="submit">
-                <i class="bi bi-check-lg"></i> Tạo voucher
-            </button>
-        </form>
+<div class="page-card">
+    <div class="page-header">
+        <h1><i class="bi bi-ticket-perforated"></i> {% if form.instance.pk %}Sửa{% else %}Thêm{% endif %} Voucher</h1>
+        <a href="{% url 'admin_dashboard:voucher_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
     </div>
+    
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+        {% for error in form.non_field_errors %}
+        <p class="mb-0">{{ error }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Mã voucher <span class="text-danger">*</span></label>
+                {{ form.code }}
+                {% if form.code.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.code.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+                <small class="text-muted">4-20 ký tự, chỉ chữ cái, số và dấu gạch dưới</small>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Tên voucher <span class="text-danger">*</span></label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.name.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+                <small class="text-muted">5-100 ký tự</small>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Mô tả</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.description.errors %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Loại giảm giá <span class="text-danger">*</span></label>
+                {{ form.discount_type }}
+                {% if form.discount_type.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.discount_type.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Giá trị giảm <span class="text-danger">*</span></label>
+                {{ form.discount_value }}
+                {% if form.discount_value.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.discount_value.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+                <small class="text-muted">% hoặc VNĐ tùy loại</small>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Giảm tối đa</label>
+                {{ form.max_discount }}
+                {% if form.max_discount.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.max_discount.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+                <small class="text-muted">Bắt buộc khi giảm theo %</small>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Đơn tối thiểu</label>
+                {{ form.min_order_value }}
+                {% if form.min_order_value.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.min_order_value.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+                <small class="text-muted">0 = không giới hạn</small>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Giới hạn sử dụng</label>
+                {{ form.usage_limit }}
+                {% if form.usage_limit.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.usage_limit.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+                <small class="text-muted">0 = không giới hạn</small>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Giới hạn/người</label>
+                {{ form.usage_limit_per_user }}
+                {% if form.usage_limit_per_user.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.usage_limit_per_user.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+                <small class="text-muted">0 = không giới hạn</small>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Bắt đầu <span class="text-danger">*</span></label>
+                {{ form.valid_from }}
+                {% if form.valid_from.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.valid_from.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Kết thúc <span class="text-danger">*</span></label>
+                {{ form.valid_until }}
+                {% if form.valid_until.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.valid_until.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="form-check mb-3">
+            {{ form.is_active }}
+            <label class="form-check-label">Kích hoạt ngay</label>
+            {% if form.is_active.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.is_active.errors %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            <strong>Lưu ý:</strong>
+            <ul class="mb-0 mt-2">
+                <li>Mã voucher sẽ được tự động chuyển thành chữ IN HOA</li>
+                <li>Nếu chọn "Phần trăm", bạn phải nhập "Giảm tối đa"</li>
+                <li>Thời hạn voucher tối thiểu 1 ngày, tối đa 1 năm</li>
+            </ul>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg"></i> {% if form.instance.pk %}Cập nhật{% else %}Tạo{% endif %} voucher
+        </button>
+    </form>
 </div>
 {% endblock %}

@@ -3,48 +3,159 @@
 
 {% block title %}{{ category.name }} - ElectroShop{% endblock %}
 
+{% block extra_css %}
+<!-- ==================== INLINE STYLES - Category Products Page ==================== -->
+<style>
+/* ========== Category Header ========== */
+.category-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--es-space-3);
+    padding: var(--es-space-3);
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    border: 1px solid var(--es-border-light);
+}
+
+.category-title {
+    font-size: var(--es-text-xl);
+    font-weight: var(--es-font-bold);
+    color: var(--es-text-primary);
+    margin: 0;
+}
+
+.category-desc {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+    margin: var(--es-space-1) 0 0 0;
+}
+
+.sort-select {
+    padding: var(--es-space-1) var(--es-space-2);
+    border: 1px solid var(--es-border-light);
+    border-radius: var(--es-radius-md);
+    font-size: var(--es-text-sm);
+    background: var(--es-white);
+    cursor: pointer;
+    min-height: var(--es-touch-target);
+}
+
+/* ========== Product Grid ========== */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--es-space-3);
+}
+
+/* ========== Empty State ========== */
+.empty-state {
+    text-align: center;
+    padding: var(--es-space-8);
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    border: 1px solid var(--es-border-light);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: var(--es-text-muted);
+    margin-bottom: var(--es-space-2);
+}
+
+.empty-state p {
+    color: var(--es-text-muted);
+    margin: 0;
+}
+
+/* ========== Breadcrumb ========== */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-1);
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--es-space-3) 0;
+    font-size: var(--es-text-sm);
+}
+
+.breadcrumb-item a {
+    color: var(--es-text-secondary);
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--es-primary);
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: '/';
+    color: var(--es-text-muted);
+    margin-right: var(--es-space-1);
+}
+
+.breadcrumb-item.active {
+    color: var(--es-text-primary);
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 1200px) {
+    .product-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .product-grid { grid-template-columns: repeat(2, 1fr); }
+    
+    .category-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--es-space-2);
+    }
+}
+
+@media (max-width: 576px) {
+    .product-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<nav aria-label="breadcrumb" class="mb-4">
+<nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'products:home' %}">Trang chủ</a></li>
-        <li class="breadcrumb-item active">{{ category.name }}</li>
+        <li class="breadcrumb-item"><a href="{% url 'products:home' %}"><i class="bi bi-house" aria-hidden="true"></i> Trang chủ</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
     </ol>
 </nav>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="h4 mb-0">{{ category.name }}</h2>
-    <select class="form-select form-select-sm w-auto" onchange="location = this.value;">
-        <option current_sort== if value="?sort=-created_at" {%
-        '-created_at' %}selected{% endif %}>Mới nhất</option>
-        <option current_sort== if value="?sort=price" {%
-        'price' %}selected{% endif %}>Giá thấp đến cao</option>
-        <option current_sort== if value="?sort=-price" {%
-        '-price' %}selected{% endif %}>Giá cao đến thấp</option>
-        <option current_sort== if value="?sort=-sold" {%
-        '-sold' %}selected{% endif %}>Bán chạy</option>
+<div class="category-header">
+    <div>
+        <h1 class="category-title">{{ category.name }}</h1>
+        {% if category.description %}
+        <p class="category-desc">{{ category.description }}</p>
+        {% endif %}
+    </div>
+    <select class="sort-select" onchange="location = this.value;" aria-label="Sắp xếp sản phẩm">
+        <option value="?sort=-created_at" {% if current_sort == '-created_at' %}selected{% endif %}>Mới nhất</option>
+        <option value="?sort=price" {% if current_sort == 'price' %}selected{% endif %}>Giá thấp đến cao</option>
+        <option value="?sort=-price" {% if current_sort == '-price' %}selected{% endif %}>Giá cao đến thấp</option>
+        <option value="?sort=-sold" {% if current_sort == '-sold' %}selected{% endif %}>Bán chạy</option>
     </select>
 </div>
 
-{% if category.description %}
-<p class="text-muted mb-4">{{ category.description }}</p>
-{% endif %}
-
 {% if products %}
-<div class="row g-4">
+<div class="product-grid" role="list" aria-label="Danh sách sản phẩm">
     {% for product in products %}
-    <div class="col-6 col-md-4 col-lg-3">
-        {% include 'partials/_product_card.html' %}
-    </div>
+    {% include 'partials/_product_card.html' %}
     {% endfor %}
 </div>
 
-<div class="mt-4">
+<nav class="mt-4" aria-label="Phân trang">
     {% include 'partials/_pagination.html' with page_obj=products %}
-</div>
+</nav>
 {% else %}
-<div class="text-center py-5">
-    <i class="bi bi-inbox display-1 text-muted"></i>
-    <p class="text-muted mt-3">Chưa có sản phẩm trong danh mục này.</p>
+<div class="empty-state" role="status">
+    <i class="bi bi-inbox" aria-hidden="true"></i>
+    <p>Chưa có sản phẩm trong danh mục này.</p>
 </div>
 {% endif %}
 {% endblock %}

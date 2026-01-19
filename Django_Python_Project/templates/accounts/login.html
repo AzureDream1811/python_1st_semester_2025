@@ -4,154 +4,618 @@
 {% block title %}Đăng nhập - ElectroShop{% endblock %}
 
 {% block extra_css %}
-<!-- Link to separate CSS files instead of inline styles -->
-<link href="{% static 'css/accounts/auth-common.css' %}" rel="stylesheet">
-<link href="{% static 'css/accounts/login.css' %}" rel="stylesheet">
+<style>
+.auth-shell {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+    padding: 2rem;
+}
+
+.auth-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    max-width: 1100px;
+    min-height: 650px;
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.12), 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.auth-form-side {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem;
+    background: #fff;
+}
+
+.auth-form-wrapper {
+    max-width: 420px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.auth-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    text-decoration: none;
+}
+
+.auth-logo i {
+    color: var(--es-primary);
+}
+
+.auth-header {
+    margin-bottom: 1.5rem;
+}
+
+.auth-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.2;
+}
+
+.auth-subtitle {
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.auth-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.auth-label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.9rem;
+}
+
+.auth-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.auth-input-icon {
+    position: absolute;
+    left: 14px;
+    color: #9ca3af;
+    font-size: 1.1rem;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 14px 14px 14px 44px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: #fff;
+}
+
+.auth-input:focus {
+    border-color: #14b8a6;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1);
+    outline: none;
+}
+
+.auth-input.is-invalid {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggle-password:hover {
+    color: #6b7280;
+}
+
+.auth-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.auth-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #374151;
+}
+
+.auth-checkbox input {
+    width: 18px;
+    height: 18px;
+    accent-color: #14b8a6;
+}
+
+.auth-link {
+    color: #14b8a6;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.auth-link:hover {
+    text-decoration: underline;
+}
+
+.auth-submit {
+    width: 100%;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.auth-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(20, 184, 166, 0.35);
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    color: #9ca3af;
+    font-size: 0.9rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e5e7eb;
+}
+
+.social-login {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 12px 24px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-social:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+}
+
+.btn-social img {
+    width: 20px;
+    height: 20px;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.auth-footer a {
+    color: #14b8a6;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+.auth-testimonial {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.testimonial-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.testimonial-users {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-avatars {
+    display: flex;
+}
+
+.user-avatars span {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 2px solid #fff;
+    margin-left: -8px;
+}
+
+.user-avatars span:first-child {
+    margin-left: 0;
+}
+
+.testimonial-text strong {
+    display: block;
+    color: #111827;
+    font-size: 0.95rem;
+}
+
+.testimonial-text span {
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.testimonial-link {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #374151;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.testimonial-link:hover {
+    border-color: #14b8a6;
+    color: #14b8a6;
+}
+
+.auth-hero-side {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem;
+    background: linear-gradient(145deg, #1e3a5f 0%, #2d5a87 50%, #1e3a5f 100%);
+    overflow: hidden;
+}
+
+.auth-hero-side::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 80%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: #fff;
+    max-width: 480px;
+}
+
+.hero-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    line-height: 1.3;
+}
+
+.hero-visual {
+    margin: 2rem 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-3d-shape {
+    width: 280px;
+    height: 280px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.hero-3d-shape i {
+    font-size: 6rem;
+    color: rgba(255,255,255,0.9);
+}
+
+.hero-features {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.hero-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50px;
+    color: #fff;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.hero-description {
+    margin-top: 2rem;
+    font-size: 1rem;
+    color: rgba(255,255,255,0.9);
+    line-height: 1.6;
+}
+
+.auth-alert {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 12px 16px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    color: #dc2626;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.form-field__error {
+    color: #dc2626;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+@media (max-width: 1024px) {
+    .auth-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .auth-hero-side {
+        display: none;
+    }
+    
+    .auth-form-side {
+        padding: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .auth-form-side {
+        padding: 1.5rem;
+    }
+    
+    .auth-title {
+        font-size: 1.5rem;
+    }
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<!-- Removed </div></main> to fix white space gap -->
-<div class="auth-container login-page">
-    <!-- Left Side - Branding -->
-    <div class="auth-branding">
-        <div class="auth-branding-content">
-            <div class="auth-logo">
-                <i class="bi bi-lightning-charge-fill"></i>
-            </div>
-            <h1>ElectroShop</h1>
-            <p>Khám phá thế giới công nghệ với hàng ngàn sản phẩm chính hãng và ưu đãi hấp dẫn</p>
+<div class="auth-shell">
+    <div class="auth-container">
+        <div class="auth-form-side">
+            <div class="auth-form-wrapper">
+                <a href="{% url 'products:home' %}" class="auth-logo">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                    ElectroShop
+                </a>
+                
+                <div class="auth-header">
+                    <h1 class="auth-title">Chào mừng trở lại</h1>
+                    <p class="auth-subtitle">Đăng nhập để tiếp tục mua sắm thiết bị điện gia dụng chính hãng.</p>
+                </div>
 
-            <div class="auth-features">
-                <div class="auth-feature">
-                    <i class="bi bi-shield-check"></i>
-                    <div>
-                        <strong>Bảo mật tuyệt đối</strong>
-                        <small class="d-block opacity-75">Thông tin được mã hóa 256-bit</small>
-                    </div>
+                {% if form.non_field_errors %}
+                <div class="auth-alert" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span>{% for error in form.non_field_errors %}{{ error }}{% endfor %}</span>
                 </div>
-                <div class="auth-feature">
-                    <i class="bi bi-truck"></i>
-                    <div>
-                        <strong>Giao hàng nhanh</strong>
-                        <small class="d-block opacity-75">Miễn phí ship đơn từ 500K</small>
+                {% endif %}
+
+                <form method="post" class="auth-form" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="auth-input-group">
+                        <label for="username" class="auth-label">Email hoặc tên đăng nhập</label>
+                        <div class="auth-input-wrapper">
+                            <i class="bi bi-envelope auth-input-icon"></i>
+                            <input type="text" id="username" name="username" 
+                                   class="auth-input {% if form.username.errors %}is-invalid{% endif %}" 
+                                   placeholder="hello@example.com" 
+                                   value="{{ form.username.value|default:'' }}" 
+                                   autocomplete="username" required>
+                        </div>
+                        {% if form.username.errors %}
+                        <span class="form-field__error"><i class="bi bi-exclamation-circle"></i> {{ form.username.errors.0 }}</span>
+                        {% endif %}
                     </div>
+
+                    <div class="auth-input-group">
+                        <label for="password" class="auth-label">Mật khẩu</label>
+                        <div class="auth-input-wrapper">
+                            <i class="bi bi-lock auth-input-icon"></i>
+                            <input type="password" id="password" name="password" 
+                                   class="auth-input {% if form.password.errors %}is-invalid{% endif %}" 
+                                   placeholder="Mật khẩu" 
+                                   autocomplete="current-password" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword()">
+                                <i class="bi bi-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                        {% if form.password.errors %}
+                        <span class="form-field__error"><i class="bi bi-exclamation-circle"></i> {{ form.password.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="auth-options">
+                        <label class="auth-checkbox">
+                            <input type="checkbox" name="remember_me">
+                            Ghi nhớ đăng nhập
+                        </label>
+                        <a href="{% url 'accounts:forgot_password' %}" class="auth-link">Quên mật khẩu?</a>
+                    </div>
+
+                    <button type="submit" class="auth-submit">
+                        Đăng nhập
+                    </button>
+                </form>
+
+                <div class="auth-divider">hoặc</div>
+
+                <div class="social-login">
+                    <a href="{% url 'accounts:google_login' %}" class="btn-social">
+                        <svg width="20" height="20" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Đăng nhập bằng Google
+                    </a>
                 </div>
-                <div class="auth-feature">
-                    <i class="bi bi-gift"></i>
-                    <div>
-                        <strong>Ưu đãi độc quyền</strong>
-                        <small class="d-block opacity-75">Tích điểm đổi quà hấp dẫn</small>
+
+                <div class="auth-footer">
+                    Chưa có tài khoản? <a href="{% url 'accounts:register' %}">Đăng ký</a>
+                </div>
+
+                <div class="auth-testimonial">
+                    <div class="testimonial-content">
+                        <div class="testimonial-users">
+                            <div class="user-avatars">
+                                <span>NT</span>
+                                <span>HV</span>
+                                <span>TL</span>
+                            </div>
+                            <div class="testimonial-text">
+                                <strong>20k+ khách hàng tin dùng</strong>
+                                <span>Xem đánh giá từ khách hàng</span>
+                            </div>
+                        </div>
+                        <a href="{% url 'products:home' %}" class="testimonial-link">
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Right Side - Form -->
-    <div class="auth-form-side">
-        <div class="auth-form-card">
-            <div class="auth-form-header">
-                <h2>Chào mừng trở lại!</h2>
-                <p>Đăng nhập để tiếp tục mua sắm</p>
-            </div>
-
-            {% if form.non_field_errors %}
-            <div class="auth-alert error">
-                <i class="bi bi-exclamation-circle"></i>
-                <span>{% for error in form.non_field_errors %}{{ error }}{% endfor %}</span>
-            </div>
-            {% endif %}
-
-            <form method="post" novalidate>
-                {% csrf_token %}
-
-                <div class="form-floating-custom">
-                    <input autofocus class="{% if form.username.errors %}is-invalid{% endif %}" id="username"
-                           name="username"
-                           placeholder="Email hoặc tên đăng nhập"
-                           type="text" value="{{ form.username.value|default:'' }}">
-                    <i class="bi bi-envelope input-icon"></i>
-                    {% if form.username.errors %}
-                    <small class="text-danger">{{ form.username.errors.0 }}</small>
-                    {% endif %}
+        <div class="auth-hero-side">
+            <div class="hero-content">
+                <h2 class="hero-title">Thiết bị điện gia dụng chính hãng, giao nhanh toàn quốc</h2>
+                
+                <div class="hero-visual">
+                    <div class="hero-3d-shape">
+                        <i class="bi bi-cpu"></i>
+                    </div>
                 </div>
 
-                <div class="form-floating-custom">
-                    <input class="{% if form.password.errors %}is-invalid{% endif %}" id="password" name="password"
-                           placeholder="Mật khẩu"
-                           type="password">
-                    <i class="bi bi-lock input-icon"></i>
-                    <button class="toggle-password" onclick="togglePassword()" type="button">
-                        <i class="bi bi-eye" id="toggleIcon"></i>
-                    </button>
-                    {% if form.password.errors %}
-                    <small class="text-danger">{{ form.password.errors.0 }}</small>
-                    {% endif %}
+                <div class="hero-features">
+                    <span class="hero-feature">
+                        <i class="bi bi-shield-check"></i>
+                        Bảo hành chính hãng
+                    </span>
+                    <span class="hero-feature">
+                        <i class="bi bi-truck"></i>
+                        Giao hàng nhanh
+                    </span>
                 </div>
 
-                <div class="auth-options">
-                    <label class="custom-checkbox">
-                        <input name="remember_me" type="checkbox">
-                        <span>Ghi nhớ đăng nhập</span>
-                    </label>
-                    <a class="forgot-link" href="{% url 'accounts:forgot_password' %}">Quên mật khẩu?</a>
-                </div>
-
-                <button class="btn-auth-submit" type="submit">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập
-                </button>
-            </form>
-
-            <div class="auth-divider">
-                <span>hoặc đăng nhập với</span>
-            </div>
-
-            <div class="social-buttons">
-                <button class="btn-social" onclick="openGoogleModal()" type="button">
-                    <svg height="20" viewBox="0 0 24 24" width="20">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                              fill="#4285F4"/>
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                              fill="#34A853"/>
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                              fill="#FBBC05"/>
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                              fill="#EA4335"/>
-                    </svg>
-                    Google
-                </button>
-                <button class="btn-social" onclick="openFacebookModal()" type="button">
-                    <svg fill="#1877F2" height="20" viewBox="0 0 24 24" width="20">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                    Facebook
-                </button>
-            </div>
-
-            <div class="auth-footer">
-                Chưa có tài khoản? <a href="{% url 'accounts:register' %}">Đăng ký ngay</a>
+                <p class="hero-description">
+                    Mua sắm thiết bị điện gia dụng với gợi ý AI thông minh, đánh giá chân thực từ cộng đồng.
+                </p>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
-<!-- Social Login Modals will be created dynamically by JavaScript -->
-
-<!-- Load Social Login Scripts -->
-<script src="{% static 'js/accounts/form-validator.js' %}"></script>
-<script src="{% static 'js/accounts/social-login-modal.js' %}"></script>
-
+{% block extra_js %}
 <script>
-    function togglePassword() {
-        const password = document.getElementById('password');
-        const icon = document.getElementById('toggleIcon');
-        if (password.type === 'password') {
-            password.type = 'text';
-            icon.classList.replace('bi-eye', 'bi-eye-slash');
-        } else {
-            password.type = 'password';
-            icon.classList.replace('bi-eye-slash', 'bi-eye');
-        }
-    }
+function togglePassword() {
+    const input = document.getElementById('password');
+    const icon = document.getElementById('toggleIcon');
+    if (!input || !icon) return;
+    
+    const isText = input.type === 'text';
+    input.type = isText ? 'password' : 'text';
+    icon.classList.toggle('bi-eye');
+    icon.classList.toggle('bi-eye-slash');
+}
 </script>
 {% endblock %}

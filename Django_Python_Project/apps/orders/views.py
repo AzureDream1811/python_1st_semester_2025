@@ -1,10 +1,13 @@
 import uuid
+import json
 from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db import transaction
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
 from .models import Order, OrderItem, OrderHistory
 from apps.cart.views import get_or_create_cart
@@ -15,29 +18,75 @@ from apps.cart.models import Cart
 def checkout(request):
     """Trang thanh toán"""
     cart = get_or_create_cart(request)
-    items = cart.items.select_related('product').all()
+    # Chỉ lấy items chưa được đánh dấu "thanh toán sau"
+    items = cart.items.filter(saved_for_later=False).select_related('product')
 
     if not items.exists():
         messages.warning(request, 'Giỏ hàng trống. Vui lòng thêm sản phẩm.')
         return redirect('cart:detail')
 
+    # Kiểm tra tồn kho trước khi cho phép checkout
+    stock_errors = []
+    for item in items:
+        if item.quantity > item.product.stock:
+            stock_errors.append({
+                'product': item.product,
+                'requested': item.quantity,
+                'available': item.product.stock
+            })
+
+    if stock_errors:
+        for error in stock_errors:
+            if error['available'] == 0:
+                messages.error(request, f'Sản phẩm "{error["product"].name}" đã hết hàng.')
+            else:
+                messages.error(request,
+                               f'Sản phẩm "{error["product"].name}" chỉ còn {error["available"]} trong kho (bạn đang đặt {error["requested"]}).')
+        return render(request, 'orders/checkout.html', {
+            'cart': cart,
+            'items': items,
+            'stock_errors': stock_errors,
+        })
+
     if request.method == 'POST':
-        # Validate và tạo đơn hàng
-        full_name = request.POST.get('full_name', '').strip()
-        email = request.POST.get('email', '').strip()
-        phone = request.POST.get('phone', '').strip()
-        address = request.POST.get('address', '').strip()
-        district = request.POST.get('district', '').strip()
-        city = request.POST.get('city', '').strip()
-        ward = request.POST.get('ward', '').strip()
-        city_code = request.POST.get('city_code', '').strip()
-        district_code = request.POST.get('district_code', '').strip()
-        ward_code = request.POST.get('ward_code', '').strip()
+        # Kiểm tra có chọn địa chỉ đã lưu không
+        selected_address_id = request.POST.get('selected_address', '')
+
+        if selected_address_id:
+            # Sử dụng địa chỉ đã lưu
+            from apps.accounts.models import Address
+            try:
+                saved_addr = Address.objects.get(pk=selected_address_id, user=request.user)
+                full_name = saved_addr.full_name
+                phone = saved_addr.phone
+                address = saved_addr.address
+                city = saved_addr.province
+                city_code = saved_addr.province_code
+                district = saved_addr.district
+                district_code = saved_addr.district_code
+                ward = saved_addr.ward
+                ward_code = saved_addr.ward_code
+                email = request.POST.get('email', request.user.email).strip()
+            except Address.DoesNotExist:
+                messages.error(request, 'Địa chỉ không tồn tại.')
+                return redirect('orders:checkout')
+        else:
+            # Nhập địa chỉ mới
+            full_name = request.POST.get('full_name', '').strip()
+            email = request.POST.get('email', '').strip()
+            phone = request.POST.get('phone', '').strip()
+            address = request.POST.get('address', '').strip()
+            district = request.POST.get('district', '').strip()
+            city = request.POST.get('city', '').strip()
+            ward = request.POST.get('ward', '').strip()
+            city_code = request.POST.get('city_code', '').strip()
+            district_code = request.POST.get('district_code', '').strip()
+            ward_code = request.POST.get('ward_code', '').strip()
+
         note = request.POST.get('note', '').strip()
         payment_method = request.POST.get('payment_method', 'cod')
         save_address = request.POST.get('save_address') == '1'
 
-        # Basic validation
         if not all([full_name, email, phone, address, district, city]):
             messages.error(request, 'Vui lòng điền đầy đủ thông tin giao hàng.')
             return render(request, 'orders/checkout.html', {
@@ -46,9 +95,12 @@ def checkout(request):
             })
 
         with transaction.atomic():
-            # Lưu địa chỉ vào profile nếu được chọn
-            if save_address:
+            # Lưu địa chỉ mới vào sổ địa chỉ nếu được chọn (và set làm mặc định)
+            if save_address and not selected_address_id:
                 from apps.accounts.models import Address
+                # Bỏ mặc định các địa chỉ cũ
+                Address.objects.filter(user=request.user, is_default=True).update(is_default=False)
+                # Tạo địa chỉ mới làm mặc định
                 Address.objects.create(
                     user=request.user,
                     full_name=full_name,
@@ -60,6 +112,7 @@ def checkout(request):
                     district_code=district_code,
                     ward=ward,
                     ward_code=ward_code,
+                    is_default=True
                 )
 
             # Tạo Order
@@ -98,6 +151,14 @@ def checkout(request):
             # Tạo order history
             OrderHistory.objects.create(order=order, status='pending')
 
+            # Gửi thông báo đặt hàng thành công
+            try:
+                from apps.notifications.services.notification_service import NotificationService
+                notification_service = NotificationService()
+                notification_service.notify_order_status_change(order)
+            except Exception:
+                pass
+
             # Clear cart
             cart.clear()
 
@@ -118,9 +179,59 @@ def checkout(request):
 
     # Lấy địa chỉ và thẻ đã lưu
     from apps.accounts.models import Address, SavedCard
-    saved_addresses = Address.objects.filter(user=request.user)
+    saved_addresses = Address.objects.filter(user=request.user).order_by('-is_default', '-created_at')
     saved_cards = SavedCard.objects.filter(user=request.user, is_expired=False)
     default_address = saved_addresses.filter(is_default=True).first()
+
+    # Tạo QR codes cho các phương thức thanh toán
+    from apps.payments.models import BankAccount, EWalletAccount
+    from apps.payments.services.qr_service import QRService
+
+    # QR Bank Transfer
+    bank_qr_url = None
+    bank_account = BankAccount.objects.filter(is_active=True, is_default=True).first()
+    if not bank_account:
+        bank_account = BankAccount.objects.filter(is_active=True).first()
+
+    if bank_account:
+        temp_content = f"DH{request.user.id}{cart.id}"
+        bank_qr_url = QRService.generate_vietqr_url(
+            bank_code=bank_account.bank_code,
+            account_number=bank_account.account_number,
+            amount=cart.total,
+            content=temp_content,
+            account_name=bank_account.account_name
+        )
+
+    # QR MoMo
+    momo_qr_base64 = None
+    momo_account = EWalletAccount.objects.filter(wallet_type='momo', is_active=True, is_default=True).first()
+    if not momo_account:
+        momo_account = EWalletAccount.objects.filter(wallet_type='momo', is_active=True).first()
+
+    if momo_account:
+        temp_content = f"DH{request.user.id}{cart.id}"
+        momo_data = QRService.generate_momo_qr(
+            phone=momo_account.wallet_id,
+            amount=cart.total,
+            content=temp_content
+        )
+        momo_qr_base64 = momo_data.get('qr_base64')
+
+    # QR ZaloPay
+    zalopay_qr_base64 = None
+    zalopay_account = EWalletAccount.objects.filter(wallet_type='zalopay', is_active=True, is_default=True).first()
+    if not zalopay_account:
+        zalopay_account = EWalletAccount.objects.filter(wallet_type='zalopay', is_active=True).first()
+
+    if zalopay_account:
+        temp_content = f"DH{request.user.id}{cart.id}"
+        zalopay_data = QRService.generate_zalopay_qr(
+            wallet_id=zalopay_account.wallet_id,
+            amount=cart.total,
+            content=temp_content
+        )
+        zalopay_qr_base64 = zalopay_data.get('qr_base64')
 
     context = {
         'cart': cart,
@@ -129,6 +240,12 @@ def checkout(request):
         'saved_addresses': saved_addresses,
         'saved_cards': saved_cards,
         'default_address': default_address,
+        'bank_account': bank_account,
+        'bank_qr_url': bank_qr_url,
+        'momo_account': momo_account,
+        'momo_qr_base64': momo_qr_base64,
+        'zalopay_account': zalopay_account,
+        'zalopay_qr_base64': zalopay_qr_base64,
     }
     return render(request, 'orders/checkout.html', context)
 
@@ -194,3 +311,119 @@ def cancel_order(request, order_number):
 
     messages.success(request, f'Đã hủy đơn hàng {order_number}.')
     return redirect('orders:detail', order_number=order_number)
+
+
+@require_POST
+def check_payment_status(request):
+    """API endpoint để kiểm tra trạng thái thanh toán (polling)"""
+    try:
+        data = json.loads(request.body)
+        payment_method = data.get('payment_method')
+        cart_id = data.get('cart_id')
+
+        # Placeholder logic - trong thực tế sẽ kiểm tra với payment gateway
+        # Hiện tại trả về pending để simulate chờ thanh toán
+
+        # Có thể check trong database xem payment đã được xác nhận chưa
+        # Ví dụ: Check với MoMo API, VNPay API, etc.
+
+        return JsonResponse({
+            'status': 'pending',
+            'message': 'Đang chờ thanh toán...'
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Invalid request'
+        }, status=400)
+
+
+@login_required
+@require_POST
+def rebuy_order(request, order_number):
+    """Mua lại tất cả sản phẩm trong đơn hàng"""
+    order = get_object_or_404(
+        Order,
+        order_number=order_number,
+        user=request.user
+    )
+
+    # Chỉ cho phép mua lại với đơn hàng đã hoàn thành hoặc đã giao
+    if order.status not in ['completed', 'delivered']:
+        messages.error(request, 'Chỉ có thể mua lại với đơn hàng đã hoàn thành.')
+        return redirect('orders:detail', order_number=order_number)
+
+    cart = get_or_create_cart(request)
+    added_count = 0
+    out_of_stock = []
+
+    for item in order.items.all():
+        if item.product and item.product.is_active:
+            if item.product.stock > 0:
+                # Thêm vào giỏ hàng
+                from apps.cart.models import CartItem
+                cart_item, created = CartItem.objects.get_or_create(
+                    cart=cart,
+                    product=item.product,
+                    defaults={'quantity': item.quantity}
+                )
+                if not created:
+                    # Nếu đã có trong giỏ, tăng số lượng
+                    cart_item.quantity += item.quantity
+                    # Không vượt quá tồn kho
+                    if cart_item.quantity > item.product.stock:
+                        cart_item.quantity = item.product.stock
+                    cart_item.save()
+                added_count += 1
+            else:
+                out_of_stock.append(item.product_name)
+        else:
+            out_of_stock.append(item.product_name)
+
+    if added_count > 0:
+        messages.success(request, f'Đã thêm {added_count} sản phẩm vào giỏ hàng.')
+
+    if out_of_stock:
+        messages.warning(request,
+                         f'Một số sản phẩm đã hết hàng: {", ".join(out_of_stock[:3])}{"..." if len(out_of_stock) > 3 else ""}')
+
+    return redirect('cart:detail')
+
+
+@login_required
+@require_POST
+def rebuy_item(request, order_number, item_id):
+    """Mua lại một sản phẩm cụ thể trong đơn hàng"""
+    order = get_object_or_404(
+        Order,
+        order_number=order_number,
+        user=request.user
+    )
+
+    item = get_object_or_404(OrderItem, pk=item_id, order=order)
+
+    if not item.product or not item.product.is_active:
+        messages.error(request, 'Sản phẩm này không còn khả dụng.')
+        return redirect('orders:detail', order_number=order_number)
+
+    if item.product.stock <= 0:
+        messages.error(request, f'Sản phẩm "{item.product_name}" đã hết hàng.')
+        return redirect('orders:detail', order_number=order_number)
+
+    cart = get_or_create_cart(request)
+
+    from apps.cart.models import CartItem
+    cart_item, created = CartItem.objects.get_or_create(
+        cart=cart,
+        product=item.product,
+        defaults={'quantity': 1}
+    )
+    if not created:
+        cart_item.quantity += 1
+        if cart_item.quantity > item.product.stock:
+            cart_item.quantity = item.product.stock
+        cart_item.save()
+
+    messages.success(request, f'Đã thêm "{item.product_name}" vào giỏ hàng.')
+    return redirect('cart:detail')

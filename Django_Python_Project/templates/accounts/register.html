@@ -4,206 +4,573 @@
 {% block title %}Đăng ký - ElectroShop{% endblock %}
 
 {% block extra_css %}
-<!-- Link to separate CSS files instead of inline styles -->
-<link href="{% static 'css/accounts/auth-common.css' %}" rel="stylesheet">
-<link href="{% static 'css/accounts/register.css' %}" rel="stylesheet">
+<style>
+.auth-shell {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+    padding: 2rem;
+}
+
+.auth-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    max-width: 1100px;
+    min-height: 700px;
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.12), 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.auth-form-side {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem;
+    background: #fff;
+    overflow-y: auto;
+}
+
+.auth-form-wrapper {
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.auth-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    text-decoration: none;
+}
+
+.auth-logo i {
+    color: var(--es-primary);
+}
+
+.auth-header {
+    margin-bottom: 1.5rem;
+}
+
+.auth-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.2;
+}
+
+.auth-subtitle {
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.auth-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.auth-input-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.auth-label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.9rem;
+}
+
+.auth-label .required {
+    color: #ef4444;
+}
+
+.auth-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.auth-input-icon {
+    position: absolute;
+    left: 14px;
+    color: #9ca3af;
+    font-size: 1.1rem;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 14px 14px 14px 44px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: #fff;
+}
+
+.auth-input:focus {
+    border-color: #14b8a6;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1);
+    outline: none;
+}
+
+.auth-input.is-invalid {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggle-password:hover {
+    color: #6b7280;
+}
+
+.auth-submit {
+    width: 100%;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.auth-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(20, 184, 166, 0.35);
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.25rem 0;
+    color: #9ca3af;
+    font-size: 0.9rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e5e7eb;
+}
+
+.social-login {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 12px 24px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-social:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+}
+
+.btn-social img {
+    width: 20px;
+    height: 20px;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 1.25rem;
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.auth-footer a {
+    color: #14b8a6;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+.auth-hero-side {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem;
+    background: linear-gradient(145deg, #1e3a5f 0%, #2d5a87 50%, #1e3a5f 100%);
+    overflow: hidden;
+}
+
+.auth-hero-side::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 80%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: #fff;
+    max-width: 480px;
+}
+
+.hero-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    line-height: 1.3;
+}
+
+.hero-visual {
+    margin: 2rem 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-3d-shape {
+    width: 260px;
+    height: 260px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.hero-3d-shape i {
+    font-size: 5rem;
+    color: rgba(255,255,255,0.9);
+}
+
+.hero-features {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.hero-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50px;
+    color: #fff;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.hero-description {
+    margin-top: 2rem;
+    font-size: 1rem;
+    color: rgba(255,255,255,0.9);
+    line-height: 1.6;
+}
+
+.auth-alert {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 12px 16px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    color: #dc2626;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.form-field__error {
+    color: #dc2626;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+@media (max-width: 1024px) {
+    .auth-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .auth-hero-side {
+        display: none;
+    }
+    
+    .auth-form-side {
+        padding: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .auth-form-side {
+        padding: 1.5rem;
+    }
+    
+    .auth-title {
+        font-size: 1.5rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<!-- Removed </div></main> to fix white space gap -->
-<div class="auth-container register-page">
-    <!-- Left Side - Branding -->
-    <div class="auth-branding">
-        <div class="auth-branding-content">
-            <div class="auth-logo">
-                <i class="bi bi-person-plus-fill"></i>
-            </div>
-            <h1>Tham gia ngay!</h1>
-            <p>Tạo tài khoản miễn phí và nhận ngay voucher giảm giá 50K cho đơn hàng đầu tiên</p>
+<div class="auth-shell">
+    <div class="auth-container">
+        <div class="auth-form-side">
+            <div class="auth-form-wrapper">
+                <a href="{% url 'products:home' %}" class="auth-logo">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                    ElectroShop
+                </a>
+                
+                <div class="auth-header">
+                    <h1 class="auth-title">Tạo tài khoản mới</h1>
+                    <p class="auth-subtitle">Đăng ký để nhận ưu đãi độc quyền và theo dõi đơn hàng dễ dàng.</p>
+                </div>
 
-            <div class="register-benefits">
-                <div class="benefit-item">
-                    <i class="bi bi-gift"></i>
-                    <span>Voucher 50K</span>
+                {% if form.non_field_errors %}
+                <div class="auth-alert" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span>{% for error in form.non_field_errors %}{{ error }}{% endfor %}</span>
                 </div>
-                <div class="benefit-item">
-                    <i class="bi bi-star"></i>
-                    <span>Tích điểm</span>
+                {% endif %}
+
+                <form method="post" class="auth-form" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="form-row">
+                        <div class="auth-input-group">
+                            <label for="last_name" class="auth-label">Họ <span class="required">*</span></label>
+                            <div class="auth-input-wrapper">
+                                <i class="bi bi-person auth-input-icon"></i>
+                                <input type="text" id="last_name" name="last_name" 
+                                       class="auth-input {% if form.last_name.errors %}is-invalid{% endif %}" 
+                                       placeholder="Nguyễn"
+                                       value="{{ form.last_name.value|default:'' }}" required>
+                            </div>
+                            {% if form.last_name.errors %}
+                            <span class="form-field__error"><i class="bi bi-exclamation-circle"></i> {{ form.last_name.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="auth-input-group">
+                            <label for="first_name" class="auth-label">Tên <span class="required">*</span></label>
+                            <div class="auth-input-wrapper">
+                                <i class="bi bi-person auth-input-icon"></i>
+                                <input type="text" id="first_name" name="first_name" 
+                                       class="auth-input {% if form.first_name.errors %}is-invalid{% endif %}" 
+                                       placeholder="Văn A"
+                                       value="{{ form.first_name.value|default:'' }}" required>
+                            </div>
+                            {% if form.first_name.errors %}
+                            <span class="form-field__error"><i class="bi bi-exclamation-circle"></i> {{ form.first_name.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="auth-input-group">
+                        <label for="email" class="auth-label">Email <span class="required">*</span></label>
+                        <div class="auth-input-wrapper">
+                            <i class="bi bi-envelope auth-input-icon"></i>
+                            <input type="email" id="email" name="email" 
+                                   class="auth-input {% if form.email.errors %}is-invalid{% endif %}" 
+                                   placeholder="hello@example.com"
+                                   value="{{ form.email.value|default:'' }}" 
+                                   autocomplete="email" required>
+                        </div>
+                        {% if form.email.errors %}
+                        <span class="form-field__error"><i class="bi bi-exclamation-circle"></i> {{ form.email.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="auth-input-group">
+                        <label for="phone" class="auth-label">Số điện thoại</label>
+                        <div class="auth-input-wrapper">
+                            <i class="bi bi-phone auth-input-icon"></i>
+                            <input type="text" id="phone" name="phone" 
+                                   class="auth-input {% if form.phone.errors %}is-invalid{% endif %}" 
+                                   placeholder="0901234567"
+                                   value="{{ form.phone.value|default:'' }}">
+                        </div>
+                        {% if form.phone.errors %}
+                        <span class="form-field__error"><i class="bi bi-exclamation-circle"></i> {{ form.phone.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="auth-input-group">
+                            <label for="password1" class="auth-label">Mật khẩu <span class="required">*</span></label>
+                            <div class="auth-input-wrapper">
+                                <i class="bi bi-lock auth-input-icon"></i>
+                                <input type="password" id="password1" name="password1" 
+                                       class="auth-input {% if form.password1.errors %}is-invalid{% endif %}" 
+                                       placeholder="Mật khẩu"
+                                       autocomplete="new-password" required>
+                                <button type="button" class="toggle-password" onclick="toggleField('password1','toggleIcon1')">
+                                    <i class="bi bi-eye" id="toggleIcon1"></i>
+                                </button>
+                            </div>
+                            {% if form.password1.errors %}
+                            <span class="form-field__error"><i class="bi bi-exclamation-circle"></i> {{ form.password1.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="auth-input-group">
+                            <label for="password2" class="auth-label">Xác nhận <span class="required">*</span></label>
+                            <div class="auth-input-wrapper">
+                                <i class="bi bi-lock auth-input-icon"></i>
+                                <input type="password" id="password2" name="password2" 
+                                       class="auth-input {% if form.password2.errors %}is-invalid{% endif %}" 
+                                       placeholder="Nhập lại"
+                                       autocomplete="new-password" required>
+                                <button type="button" class="toggle-password" onclick="toggleField('password2','toggleIcon2')">
+                                    <i class="bi bi-eye" id="toggleIcon2"></i>
+                                </button>
+                            </div>
+                            {% if form.password2.errors %}
+                            <span class="form-field__error"><i class="bi bi-exclamation-circle"></i> {{ form.password2.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-submit">
+                        Đăng ký
+                    </button>
+                </form>
+
+                <div class="auth-divider">hoặc</div>
+
+                <div class="social-login">
+                    <a href="{% url 'accounts:google_login' %}" class="btn-social">
+                        <svg width="20" height="20" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Đăng ký bằng Google
+                    </a>
                 </div>
-                <div class="benefit-item">
-                    <i class="bi bi-lightning"></i>
-                    <span>Flash Sale</span>
-                </div>
-                <div class="benefit-item">
-                    <i class="bi bi-truck"></i>
-                    <span>Free Ship</span>
+
+                <div class="auth-footer">
+                    Đã có tài khoản? <a href="{% url 'accounts:login' %}">Đăng nhập</a>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Right Side - Form -->
-    <div class="auth-form-side">
-        <div class="auth-form-card">
-            <div class="auth-form-header">
-                <h2>Tạo tài khoản mới</h2>
-                <p>Đăng ký để nhận nhiều ưu đãi hấp dẫn</p>
-            </div>
-
-            <form method="post" novalidate>
-                {% csrf_token %}
-
-                <!-- form-row now has margin-bottom for spacing -->
-                <div class="form-row">
-                    <div class="form-floating-custom">
-                        <input class="{% if form.last_name.errors %}is-invalid{% endif %}" id="last_name"
-                               name="last_name"
-                               placeholder="Họ"
-                               type="text" value="{{ form.last_name.value|default:'' }}">
-                        <i class="bi bi-person input-icon"></i>
-                    </div>
-                    <div class="form-floating-custom">
-                        <input class="{% if form.first_name.errors %}is-invalid{% endif %}" id="first_name"
-                               name="first_name"
-                               placeholder="Tên"
-                               type="text" value="{{ form.first_name.value|default:'' }}">
-                        <i class="bi bi-person input-icon"></i>
+        <div class="auth-hero-side">
+            <div class="hero-content">
+                <h2 class="hero-title">Gia nhập cộng đồng 20,000+ khách hàng tin dùng</h2>
+                
+                <div class="hero-visual">
+                    <div class="hero-3d-shape">
+                        <i class="bi bi-person-plus"></i>
                     </div>
                 </div>
 
-                <div class="form-floating-custom">
-                    <input class="{% if form.email.errors %}is-invalid{% endif %}" id="email" name="email"
-                           placeholder="Email *"
-                           required type="email" value="{{ form.email.value|default:'' }}">
-                    <i class="bi bi-envelope input-icon"></i>
-                    {% if form.email.errors %}
-                    <small class="text-danger">{{ form.email.errors.0 }}</small>
-                    {% endif %}
+                <div class="hero-features">
+                    <span class="hero-feature">
+                        <i class="bi bi-gift"></i>
+                        Ưu đãi thành viên
+                    </span>
+                    <span class="hero-feature">
+                        <i class="bi bi-star"></i>
+                        Tích điểm đổi quà
+                    </span>
                 </div>
 
-                <div class="form-floating-custom">
-                    <input class="{% if form.phone.errors %}is-invalid{% endif %}" id="phone" name="phone"
-                           placeholder="Số điện thoại"
-                           type="tel" value="{{ form.phone.value|default:'' }}">
-                    <i class="bi bi-telephone input-icon"></i>
-                </div>
-
-                <div class="form-floating-custom">
-                    <input class="{% if form.password1.errors %}is-invalid{% endif %}" id="password1" name="password1"
-                           onkeyup="checkPasswordStrength()"
-                           placeholder="Mật khẩu *" required type="password">
-                    <i class="bi bi-lock input-icon"></i>
-                    <button class="toggle-password" onclick="togglePassword('password1', 'icon1')" type="button">
-                        <i class="bi bi-eye" id="icon1"></i>
-                    </button>
-                    {% if form.password1.errors %}
-                    <small class="text-danger">{{ form.password1.errors.0 }}</small>
-                    {% endif %}
-                    <div class="password-strength" id="passwordStrength">
-                        <div class="strength-bar" id="str1"></div>
-                        <div class="strength-bar" id="str2"></div>
-                        <div class="strength-bar" id="str3"></div>
-                        <div class="strength-bar" id="str4"></div>
-                    </div>
-                </div>
-
-                <div class="form-floating-custom">
-                    <input class="{% if form.password2.errors %}is-invalid{% endif %}" id="password2" name="password2"
-                           placeholder="Xác nhận mật khẩu *"
-                           required type="password">
-                    <i class="bi bi-lock-fill input-icon"></i>
-                    <button class="toggle-password" onclick="togglePassword('password2', 'icon2')" type="button">
-                        <i class="bi bi-eye" id="icon2"></i>
-                    </button>
-                    {% if form.password2.errors %}
-                    <small class="text-danger">{{ form.password2.errors.0 }}</small>
-                    {% endif %}
-                </div>
-
-                <div class="terms-checkbox">
-                    <input id="terms" required type="checkbox">
-                    <label for="terms">
-                        Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a> và <a href="#">Chính sách bảo mật</a> của
-                        ElectroShop
-                    </label>
-                </div>
-
-                <button class="btn-auth-submit" type="submit">
-                    <i class="bi bi-person-plus me-2"></i>Đăng ký ngay
-                </button>
-            </form>
-
-            <div class="auth-divider">
-                <span>hoặc đăng ký với</span>
-            </div>
-
-            <div class="social-buttons">
-                <button class="btn-social" onclick="openGoogleModal()" type="button">
-                    <svg height="20" viewBox="0 0 24 24" width="20">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                              fill="#4285F4"/>
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                              fill="#34A853"/>
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                              fill="#FBBC05"/>
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                              fill="#EA4335"/>
-                    </svg>
-                    Google
-                </button>
-                <button class="btn-social" onclick="openFacebookModal()" type="button">
-                    <svg fill="#1877F2" height="20" viewBox="0 0 24 24" width="20">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                    Facebook
-                </button>
-            </div>
-
-            <div class="auth-footer">
-                Đã có tài khoản? <a href="{% url 'accounts:login' %}">Đăng nhập ngay</a>
+                <p class="hero-description">
+                    Tạo tài khoản để nhận ưu đãi độc quyền, theo dõi đơn hàng và tích điểm với mỗi lần mua sắm.
+                </p>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
-<!-- Social Login Modals will be created dynamically by JavaScript -->
-
-<!-- Load Social Login Scripts -->
-<script src="{% static 'js/accounts/form-validator.js' %}"></script>
-<script src="{% static 'js/accounts/social-login-modal.js' %}"></script>
-
+{% block extra_js %}
 <script>
-    function togglePassword(inputId, iconId) {
-        const input = document.getElementById(inputId);
-        const icon = document.getElementById(iconId);
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.replace('bi-eye', 'bi-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.replace('bi-eye-slash', 'bi-eye');
-        }
-    }
-
-    function checkPasswordStrength() {
-        const password = document.getElementById('password1').value;
-        const bars = ['str1', 'str2', 'str3', 'str4'];
-        let strength = 0;
-
-        if (password.length >= 8) strength++;
-        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-        if (/\d/.test(password)) strength++;
-        if (/[^a-zA-Z0-9]/.test(password)) strength++;
-
-        bars.forEach((bar, index) => {
-            const el = document.getElementById(bar);
-            el.className = 'strength-bar';
-            if (index < strength) {
-                if (strength <= 1) el.classList.add('weak');
-                else if (strength <= 2) el.classList.add('medium');
-                else el.classList.add('strong');
-            }
-        });
-    }
+function toggleField(id, iconId) {
+    const input = document.getElementById(id);
+    const icon = document.getElementById(iconId);
+    if (!input || !icon) return;
+    
+    const isText = input.type === 'text';
+    input.type = isText ? 'password' : 'text';
+    icon.classList.toggle('bi-eye');
+    icon.classList.toggle('bi-eye-slash');
+}
 </script>
 {% endblock %}

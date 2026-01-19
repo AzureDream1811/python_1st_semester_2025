@@ -1,5 +1,11 @@
 """
 Admin Configuration cho Payments App - ElectroShop
+
+Quản lý các models thanh toán:
+- PaymentTransaction: Giao dịch thanh toán
+- Refund: Hoàn tiền
+- BankAccount: Tài khoản ngân hàng nhận thanh toán
+- EWalletAccount: Ví điện tử (MoMo, ZaloPay)
 """
 from django.contrib import admin
 from django.utils.html import format_html
@@ -10,6 +16,7 @@ from apps.payments.models import PaymentTransaction, Refund, BankAccount, EWalle
 class PaymentTransactionAdmin(admin.ModelAdmin):
     """
     Quản lý giao dịch thanh toán trong Admin
+    
     Theo dõi tất cả giao dịch từ các phương thức: COD, VNPay, MoMo, ZaloPay, chuyển khoản
     """
     # Các cột hiển thị
@@ -62,6 +69,7 @@ class PaymentTransactionAdmin(admin.ModelAdmin):
 class RefundAdmin(admin.ModelAdmin):
     """
     Quản lý yêu cầu hoàn tiền trong Admin
+    
     Theo dõi các yêu cầu hoàn tiền từ khách hàng
     """
     # Các cột hiển thị
@@ -106,6 +114,7 @@ class RefundAdmin(admin.ModelAdmin):
 class BankAccountAdmin(admin.ModelAdmin):
     """
     Quản lý tài khoản ngân hàng nhận thanh toán trong Admin
+    
     Cấu hình các tài khoản ngân hàng để khách hàng chuyển khoản
     """
     # Các cột hiển thị

@@ -11,6 +11,14 @@ from django.apps import AppConfig
 
 
 class SearchConfig(AppConfig):
+    """
+    Cấu hình cho Search App
+    
+    Attributes:
+        default_auto_field: Kiểu field mặc định cho primary key
+        name: Tên đầy đủ của app (dùng trong INSTALLED_APPS)
+        verbose_name: Tên hiển thị trong admin
+    """
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'apps.search'
     verbose_name = 'Tìm kiếm'

@@ -1,45 +1,567 @@
-{% extends "base.html" %}
-{% load static %}
-{% load product_tags %}
-{% block content %}
-<link href="{% static 'css/orders/orderlist.css' %}" rel="stylesheet">
+{% extends 'base.html' %}
+{% load product_tags humanize %}
 
-<div class="orderlist-container">
-    <h1>Đơn hàng của bạn</h1>
+{% block title %}Đơn hàng của tôi - ElectroShop{% endblock %}
+
+{% block extra_css %}
+<style>
+.orders-page {
+    padding: var(--es-space-4) 0;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--es-space-3);
+    flex-wrap: wrap;
+    gap: var(--es-space-2);
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    font-size: var(--es-text-2xl);
+    font-weight: var(--es-font-bold);
+    color: var(--es-text-primary);
+    margin: 0;
+}
+
+.page-title i {
+    color: var(--es-primary);
+}
+
+.order-count {
+    background: var(--es-primary);
+    color: var(--es-white);
+    padding: 6px 16px;
+    border-radius: var(--es-radius-full);
+    font-size: var(--es-text-sm);
+    font-weight: var(--es-font-semibold);
+}
+
+.filter-tabs {
+    display: flex;
+    gap: var(--es-space-1);
+    padding: var(--es-space-2);
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    box-shadow: var(--es-shadow-card);
+    margin-bottom: var(--es-space-3);
+    overflow-x: auto;
+}
+
+.filter-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: var(--es-radius-md);
+    font-size: var(--es-text-sm);
+    font-weight: var(--es-font-medium);
+    color: var(--es-text-secondary);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all var(--es-transition-fast);
+}
+
+.filter-tab:hover {
+    background: var(--es-bg-secondary);
+    color: var(--es-text-primary);
+}
+
+.filter-tab.active {
+    background: var(--es-primary);
+    color: var(--es-white);
+}
+
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--es-space-3);
+}
+
+.order-card {
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    box-shadow: var(--es-shadow-card);
+    overflow: hidden;
+    transition: all var(--es-transition-normal);
+}
+
+.order-card:hover {
+    box-shadow: var(--es-shadow-card-hover);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--es-space-2) var(--es-space-3);
+    background: var(--es-bg-secondary);
+    border-bottom: 1px solid var(--es-border-light);
+    flex-wrap: wrap;
+    gap: var(--es-space-2);
+}
+
+.order-info {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    flex-wrap: wrap;
+}
+
+.order-number {
+    font-weight: var(--es-font-bold);
+    color: var(--es-primary);
+    font-size: var(--es-text-base);
+}
+
+.order-date {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+}
+
+.order-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: var(--es-radius-full);
+    font-size: var(--es-text-sm);
+    font-weight: var(--es-font-semibold);
+}
+
+.status-pending {
+    background: var(--es-gray-100);
+    color: var(--es-gray-700);
+}
+
+.status-processing {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-shipping {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.status-completed, .status-delivered {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.order-body {
+    padding: var(--es-space-3);
+}
+
+.order-items {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    margin-bottom: var(--es-space-2);
+    flex-wrap: wrap;
+}
+
+.order-item-img {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--es-radius-md);
+    border: 1px solid var(--es-border-light);
+    object-fit: contain;
+    background: var(--es-bg-secondary);
+    padding: 4px;
+}
+
+.order-item-placeholder {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--es-radius-md);
+    border: 1px solid var(--es-border-light);
+    background: var(--es-bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--es-text-muted);
+}
+
+.order-item-more {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--es-radius-md);
+    background: var(--es-primary-100);
+    color: var(--es-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--es-font-bold);
+    font-size: var(--es-text-lg);
+}
+
+.order-item-count {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+    margin-left: var(--es-space-1);
+}
+
+.order-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--es-space-2);
+    padding-top: var(--es-space-2);
+    border-top: 1px dashed var(--es-border-light);
+}
+
+.order-total {
+    display: flex;
+    align-items: baseline;
+    gap: var(--es-space-1);
+}
+
+.order-total__label {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+}
+
+.order-total__value {
+    font-size: var(--es-text-xl);
+    font-weight: var(--es-font-bold);
+    color: var(--es-danger);
+}
+
+.order-actions {
+    display: flex;
+    gap: var(--es-space-1);
+    flex-wrap: wrap;
+}
+
+.btn-order {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--es-radius-md);
+    font-size: var(--es-text-sm);
+    font-weight: var(--es-font-medium);
+    text-decoration: none;
+    transition: all var(--es-transition-fast);
+    border: none;
+    cursor: pointer;
+}
+
+.btn-order--primary {
+    background: var(--es-primary);
+    color: var(--es-white);
+}
+
+.btn-order--primary:hover {
+    background: var(--es-primary-dark);
+    color: var(--es-white);
+}
+
+.btn-order--outline {
+    background: transparent;
+    color: var(--es-primary);
+    border: 1px solid var(--es-primary);
+}
+
+.btn-order--outline:hover {
+    background: var(--es-primary);
+    color: var(--es-white);
+}
+
+.btn-order--success {
+    background: var(--es-success);
+    color: var(--es-white);
+}
+
+.btn-order--success:hover {
+    background: #1e7e34;
+    color: var(--es-white);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--es-space-8);
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    box-shadow: var(--es-shadow-card);
+}
+
+.empty-state__icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--es-bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--es-space-3);
+}
+
+.empty-state__icon i {
+    font-size: 3rem;
+    color: var(--es-text-muted);
+}
+
+.empty-state__title {
+    font-size: var(--es-text-xl);
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+    margin: 0 0 var(--es-space-1) 0;
+}
+
+.empty-state__desc {
+    color: var(--es-text-muted);
+    margin-bottom: var(--es-space-3);
+}
+
+.payment-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: var(--es-radius-sm);
+    font-size: var(--es-text-xs);
+    font-weight: var(--es-font-medium);
+}
+
+.payment-badge--paid {
+    background: #d4edda;
+    color: #155724;
+}
+
+.payment-badge--unpaid {
+    background: #fff3cd;
+    color: #856404;
+}
+
+@media (max-width: 768px) {
+    .filter-tabs {
+        padding: var(--es-space-1);
+    }
+    
+    .filter-tab {
+        padding: 8px 12px;
+        font-size: var(--es-text-xs);
+    }
+    
+    .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .order-item-img,
+    .order-item-placeholder,
+    .order-item-more {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .order-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .order-actions {
+        justify-content: stretch;
+    }
+    
+    .btn-order {
+        flex: 1;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container orders-page">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol style="display:flex;gap:var(--es-space-1);list-style:none;padding:0;margin:0;font-size:var(--es-text-sm);">
+            <li><a href="{% url 'products:home' %}" style="color:var(--es-text-secondary);text-decoration:none;">Trang chủ</a></li>
+            <li style="color:var(--es-text-muted);">/</li>
+            <li><a href="{% url 'accounts:profile' %}" style="color:var(--es-text-secondary);text-decoration:none;">Tài khoản</a></li>
+            <li style="color:var(--es-text-muted);">/</li>
+            <li style="color:var(--es-text-primary);">Đơn hàng</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="bi bi-box-seam"></i>
+            Đơn hàng của tôi
+        </h1>
+        {% if orders %}
+        <span class="order-count">{{ orders.paginator.count }} đơn hàng</span>
+        {% endif %}
+    </div>
+
+    {% if orders or request.GET.status %}
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+        <a href="{% url 'orders:list' %}" class="filter-tab {% if not request.GET.status %}active{% endif %}">
+            <i class="bi bi-grid-3x3"></i>
+            <span>Tất cả</span>
+        </a>
+        <a href="?status=pending" class="filter-tab {% if request.GET.status == 'pending' %}active{% endif %}">
+            <i class="bi bi-clock"></i>
+            <span>Chờ xác nhận</span>
+        </a>
+        <a href="?status=processing" class="filter-tab {% if request.GET.status == 'processing' %}active{% endif %}">
+            <i class="bi bi-gear"></i>
+            <span>Đang xử lý</span>
+        </a>
+        <a href="?status=shipping" class="filter-tab {% if request.GET.status == 'shipping' %}active{% endif %}">
+            <i class="bi bi-truck"></i>
+            <span>Đang giao</span>
+        </a>
+        <a href="?status=completed" class="filter-tab {% if request.GET.status == 'completed' or request.GET.status == 'delivered' %}active{% endif %}">
+            <i class="bi bi-check-circle"></i>
+            <span>Hoàn thành</span>
+        </a>
+        <a href="?status=cancelled" class="filter-tab {% if request.GET.status == 'cancelled' %}active{% endif %}">
+            <i class="bi bi-x-circle"></i>
+            <span>Đã hủy</span>
+        </a>
+    </div>
+    {% endif %}
 
     {% if orders %}
-    <table class="orders-table">
-        <thead>
-        <tr>
-            <th>Mã đơn</th>
-            <th>Ngày đặt</th>
-            <th>Số sản phẩm</th>
-            <th>Tổng tiền</th>
-            <th>Trạng thái thanh toán</th>
-            <th>Thao tác</th>
-        </tr>
-        </thead>
-        <tbody>
+    <!-- Order Cards -->
+    <div class="orders-list">
         {% for order in orders %}
-        <tr>
-            <td>{{ order.order_number }}</td>
-            <td>{{ order.created_at|date:"d/m/Y" }}</td>
-            <td>{{ order.orderitem_set.count }} sản phẩm</td>
-            <td>{{ order.total|currency }}</td>
-            <td><span
-                    class="status-badge status-{{ order.payment_status }}">{{ order.get_payment_status_display }}</span>
-            </td>
-            <td>
-                <a class="btn-view" href="{% url 'orders:detail' order.order_number %}">Xem chi tiết</a>
-            </td>
-        </tr>
+        <div class="order-card">
+            <!-- Header -->
+            <div class="order-header">
+                <div class="order-info">
+                    <span class="order-number">#{{ order.order_number }}</span>
+                    <span class="order-date">
+                        <i class="bi bi-calendar3"></i>
+                        {{ order.created_at|date:"d/m/Y H:i" }}
+                    </span>
+                    {% if order.payment_status == 'paid' %}
+                    <span class="payment-badge payment-badge--paid">
+                        <i class="bi bi-check-circle-fill"></i> Đã thanh toán
+                    </span>
+                    {% elif order.payment_status == 'pending' %}
+                    <span class="payment-badge payment-badge--unpaid">
+                        <i class="bi bi-clock-fill"></i> Chưa thanh toán
+                    </span>
+                    {% endif %}
+                </div>
+                <span class="order-status status-{{ order.status }}">
+                    {% if order.status == 'completed' or order.status == 'delivered' %}
+                    <i class="bi bi-check-circle-fill"></i>
+                    {% elif order.status == 'cancelled' %}
+                    <i class="bi bi-x-circle-fill"></i>
+                    {% elif order.status == 'shipping' %}
+                    <i class="bi bi-truck"></i>
+                    {% elif order.status == 'processing' %}
+                    <i class="bi bi-gear-fill"></i>
+                    {% else %}
+                    <i class="bi bi-clock-fill"></i>
+                    {% endif %}
+                    {{ order.get_status_display }}
+                </span>
+            </div>
+            
+            <!-- Body -->
+            <div class="order-body">
+                <!-- Product Images -->
+                <div class="order-items">
+                    {% for item in order.items.all|slice:":4" %}
+                    {% if item.product.image %}
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="order-item-img">
+                    {% else %}
+                    <div class="order-item-placeholder">
+                        <i class="bi bi-image"></i>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if order.items.count > 4 %}
+                    <div class="order-item-more">+{{ order.items.count|add:"-4" }}</div>
+                    {% endif %}
+                    
+                    <span class="order-item-count">{{ order.items.count }} sản phẩm</span>
+                </div>
+                
+                <!-- Footer -->
+                <div class="order-footer">
+                    <div class="order-total">
+                        <span class="order-total__label">Tổng tiền:</span>
+                        <span class="order-total__value">{{ order.total|currency }}</span>
+                    </div>
+                    
+                    <div class="order-actions">
+                        {% if order.status == 'shipping' and order.shipment %}
+                        <a href="{% url 'shipping:track' order.shipment.tracking_code %}" class="btn-order btn-order--outline">
+                            <i class="bi bi-geo-alt"></i>
+                            <span>Theo dõi</span>
+                        </a>
+                        {% endif %}
+                        
+                        <a href="{% url 'orders:detail' order.order_number %}" class="btn-order btn-order--primary">
+                            <i class="bi bi-eye"></i>
+                            <span>Chi tiết</span>
+                        </a>
+                        
+                        {% if order.status == 'completed' or order.status == 'delivered' %}
+                        <a href="{% url 'orders:rebuy' order.order_number %}" class="btn-order btn-order--success">
+                            <i class="bi bi-arrow-repeat"></i>
+                            <span>Mua lại</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
         {% endfor %}
-        </tbody>
-    </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if orders.has_other_pages %}
+    <div class="mt-4">
+        {% include 'partials/_pagination.html' with page_obj=orders %}
+    </div>
+    {% endif %}
+
     {% else %}
+    <!-- Empty State -->
     <div class="empty-state">
-        <p>Bạn chưa có đơn hàng nào.</p>
-        <a class="btn-primary" href="{% url 'products:product_list' %}">Mua sắm ngay</a>
+        <div class="empty-state__icon">
+            <i class="bi bi-box-seam"></i>
+        </div>
+        {% if request.GET.status %}
+        <h3 class="empty-state__title">Không có đơn hàng nào</h3>
+        <p class="empty-state__desc">Không tìm thấy đơn hàng với trạng thái này.</p>
+        <a href="{% url 'orders:list' %}" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:8px;">
+            <i class="bi bi-arrow-left"></i>
+            <span>Xem tất cả đơn hàng</span>
+        </a>
+        {% else %}
+        <h3 class="empty-state__title">Chưa có đơn hàng</h3>
+        <p class="empty-state__desc">Bạn chưa có đơn hàng nào. Hãy bắt đầu mua sắm ngay!</p>
+        <a href="{% url 'products:product_list' %}" class="btn btn-primary btn-lg" style="display:inline-flex;align-items:center;gap:8px;">
+            <i class="bi bi-grid"></i>
+            <span>Khám phá sản phẩm</span>
+        </a>
+        {% endif %}
     </div>
     {% endif %}
 </div>

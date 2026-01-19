@@ -1,0 +1,166 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block title %}Tạo thông báo{% endblock %}
+
+{% block content %}
+<div class="page-card">
+    <div class="page-header">
+        <h1><i class="bi bi-bell-fill"></i> Tạo thông báo mới</h1>
+        <a href="{% url 'admin_dashboard:notification_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Nội dung thông báo</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="id_notification_type" class="form-label">Loại thông báo <span class="text-danger">*</span></label>
+                            {{ form.notification_type }}
+                            {% if form.notification_type.errors %}
+                            <div class="invalid-feedback d-block">{{ form.notification_type.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_title" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                            <div class="invalid-feedback d-block">{{ form.title.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text d-flex justify-content-between">
+                                <span>Tiêu đề ngắn gọn, từ 5-200 ký tự</span>
+                                <span id="title-counter">0/200</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_message" class="form-label">Nội dung <span class="text-danger">*</span></label>
+                            {{ form.message }}
+                            {% if form.message.errors %}
+                            <div class="invalid-feedback d-block">{{ form.message.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text d-flex justify-content-between">
+                                <span>Nội dung chi tiết, từ 10-1000 ký tự</span>
+                                <span id="message-counter">0/1000</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_url" class="form-label">Đường dẫn (tùy chọn)</label>
+                            {{ form.url }}
+                            {% if form.url.errors %}
+                            <div class="invalid-feedback d-block">{{ form.url.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">Đường dẫn khi người dùng click vào thông báo (VD: /products hoặc https://...)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Người nhận</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Gửi đến <span class="text-danger">*</span></label>
+                            <div class="form-check">
+                                <input type="radio" name="send_to" value="all" id="send_to_all" class="form-check-input" checked onchange="toggleUserSelect()">
+                                <label for="send_to_all" class="form-check-label">Tất cả người dùng</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="send_to" value="selected" id="send_to_selected" class="form-check-input" onchange="toggleUserSelect()">
+                                <label for="send_to_selected" class="form-check-label">Người dùng được chọn</label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3" id="user-select-container" style="display: none;">
+                            <label for="id_users" class="form-label">Chọn người dùng</label>
+                            {{ form.users }}
+                            {% if form.users.errors %}
+                            <div class="invalid-feedback d-block">{{ form.users.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">Giữ Ctrl để chọn nhiều người</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-send"></i> Gửi thông báo
+                            </button>
+                            <a href="{% url 'admin_dashboard:notification_list' %}" class="btn btn-outline-secondary">
+                                Hủy
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleUserSelect() {
+    const selectedRadio = document.getElementById('send_to_selected');
+    const userContainer = document.getElementById('user-select-container');
+    
+    if (selectedRadio.checked) {
+        userContainer.style.display = 'block';
+    } else {
+        userContainer.style.display = 'none';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const titleInput = document.getElementById('id_title');
+    const messageInput = document.getElementById('id_message');
+    const titleCounter = document.getElementById('title-counter');
+    const messageCounter = document.getElementById('message-counter');
+    
+    function updateCounter(input, counter, max) {
+        const len = input.value.length;
+        counter.textContent = len + '/' + max;
+        if (len > max) {
+            counter.classList.add('text-danger');
+        } else if (len >= max * 0.9) {
+            counter.classList.remove('text-danger');
+            counter.classList.add('text-warning');
+        } else {
+            counter.classList.remove('text-danger', 'text-warning');
+        }
+    }
+    
+    if (titleInput && titleCounter) {
+        updateCounter(titleInput, titleCounter, 200);
+        titleInput.addEventListener('input', function() {
+            updateCounter(this, titleCounter, 200);
+        });
+    }
+    
+    if (messageInput && messageCounter) {
+        updateCounter(messageInput, messageCounter, 1000);
+        messageInput.addEventListener('input', function() {
+            updateCounter(this, messageCounter, 1000);
+        });
+    }
+    
+    // Preserve user selection visibility on page load with errors
+    const sendToSelected = document.getElementById('send_to_selected');
+    if (sendToSelected && sendToSelected.checked) {
+        document.getElementById('user-select-container').style.display = 'block';
+    }
+});
+</script>
+{% endblock %}

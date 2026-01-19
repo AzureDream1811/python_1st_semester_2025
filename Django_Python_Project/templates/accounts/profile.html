@@ -1,365 +1,1312 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static humanize %}
 
 {% block title %}Tài khoản của tôi - ElectroShop{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/accounts/auth-common.css' %}" rel="stylesheet">
-<link href="{% static 'css/accounts/profile.css' %}" rel="stylesheet">
+<style>
+.profile-page {
+    padding: var(--es-space-4) 0;
+    min-height: calc(100vh - 200px);
+}
+
+.profile-hero {
+    background: linear-gradient(135deg, var(--es-primary) 0%, var(--es-primary-dark) 100%);
+    border-radius: var(--es-radius-bento);
+    padding: var(--es-space-4);
+    margin-bottom: var(--es-space-4);
+    color: var(--es-white);
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-3);
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+}
+
+.profile-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: 20%;
+    width: 200px;
+    height: 200px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+}
+
+.avatar-wrapper {
+    position: relative;
+    z-index: 1;
+}
+
+.avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: var(--es-font-bold);
+    color: var(--es-white);
+    border: 4px solid rgba(255,255,255,0.3);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all var(--es-transition-normal);
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar:hover {
+    transform: scale(1.05);
+    border-color: rgba(255,255,255,0.5);
+}
+
+.avatar-edit {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    background: var(--es-white);
+    color: var(--es-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--es-shadow-card);
+}
+
+.hero-info {
+    flex: 1;
+    z-index: 1;
+}
+
+.hero-info h1 {
+    font-size: var(--es-text-2xl);
+    font-weight: var(--es-font-bold);
+    margin: 0 0 var(--es-space-1) 0;
+}
+
+.hero-info p {
+    margin: 0;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    flex-wrap: wrap;
+    font-size: var(--es-text-sm);
+}
+
+.hero-badges {
+    display: flex;
+    gap: var(--es-space-1);
+    margin-top: var(--es-space-2);
+    flex-wrap: wrap;
+}
+
+.hero-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 6px 12px;
+    border-radius: var(--es-radius-full);
+    font-size: var(--es-text-xs);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.profile-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: var(--es-space-3);
+}
+
+.profile-sidebar {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.sidebar-card {
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    box-shadow: var(--es-shadow-card);
+    overflow: hidden;
+}
+
+.sidebar-nav {
+    padding: var(--es-space-2);
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    padding: 12px 16px;
+    border-radius: var(--es-radius-md);
+    color: var(--es-text-secondary);
+    text-decoration: none;
+    font-weight: var(--es-font-medium);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    transition: all var(--es-transition-fast);
+}
+
+.nav-item i {
+    font-size: 1.1rem;
+    width: 24px;
+    text-align: center;
+}
+
+.nav-item:hover {
+    background: var(--es-bg-secondary);
+    color: var(--es-text-primary);
+}
+
+.nav-item.active {
+    background: var(--es-primary);
+    color: var(--es-white);
+}
+
+.nav-item--logout {
+    color: var(--es-danger);
+    margin-top: var(--es-space-1);
+    border-top: 1px solid var(--es-border-light);
+    padding-top: var(--es-space-2);
+}
+
+.nav-item--logout:hover {
+    background: #fee2e2;
+    color: var(--es-danger);
+}
+
+.profile-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--es-space-3);
+}
+
+.content-panel {
+    background: var(--es-white);
+    border-radius: var(--es-radius-bento);
+    box-shadow: var(--es-shadow-card);
+    display: none;
+}
+
+.content-panel.active {
+    display: block;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--es-space-3);
+    border-bottom: 1px solid var(--es-border-light);
+}
+
+.panel-title {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    font-size: var(--es-text-lg);
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+    margin: 0;
+}
+
+.panel-title i {
+    color: var(--es-primary);
+}
+
+.panel-body {
+    padding: var(--es-space-3);
+}
+
+.form-grid {
+    display: grid;
+    gap: var(--es-space-3);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--es-space-3);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+    font-size: var(--es-text-sm);
+}
+
+.form-control {
+    padding: 12px 16px;
+    border: 1px solid var(--es-border-light);
+    border-radius: var(--es-radius-md);
+    font-size: var(--es-text-base);
+    transition: all var(--es-transition-fast);
+    background: var(--es-bg-secondary);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--es-primary);
+    background: var(--es-white);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-control:disabled {
+    background: var(--es-gray-100);
+    color: var(--es-text-muted);
+    cursor: not-allowed;
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--es-space-2);
+    padding-top: var(--es-space-2);
+}
+
+.btn-profile {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: var(--es-radius-md);
+    font-weight: var(--es-font-semibold);
+    font-size: var(--es-text-sm);
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: all var(--es-transition-fast);
+}
+
+.btn-profile--primary {
+    background: var(--es-primary);
+    color: var(--es-white);
+}
+
+.btn-profile--primary:hover {
+    background: var(--es-primary-dark);
+}
+
+.btn-profile--secondary {
+    background: var(--es-bg-secondary);
+    color: var(--es-text-primary);
+    border: 1px solid var(--es-border-light);
+}
+
+.btn-profile--secondary:hover {
+    background: var(--es-gray-200);
+}
+
+.btn-profile--ghost {
+    background: transparent;
+    color: var(--es-primary);
+}
+
+.btn-profile--ghost:hover {
+    background: var(--es-primary-100);
+}
+
+.btn-profile--danger {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.btn-profile--danger:hover {
+    background: #fecaca;
+}
+
+.quick-link-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--es-space-2);
+}
+
+.quick-link {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+    padding: var(--es-space-2);
+    background: var(--es-bg-secondary);
+    border-radius: var(--es-radius-md);
+    text-decoration: none;
+    color: var(--es-text-primary);
+    transition: all var(--es-transition-fast);
+}
+
+.quick-link:hover {
+    background: var(--es-primary-100);
+    color: var(--es-primary);
+    transform: translateX(4px);
+}
+
+.quick-link i {
+    font-size: 1.5rem;
+    color: var(--es-primary);
+}
+
+.quick-link span {
+    font-weight: var(--es-font-medium);
+}
+
+.order-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--es-space-2);
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--es-space-2);
+    border: 1px solid var(--es-border-light);
+    border-radius: var(--es-radius-md);
+    transition: all var(--es-transition-fast);
+}
+
+.order-item:hover {
+    border-color: var(--es-primary);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+}
+
+.order-item__info h4 {
+    margin: 0;
+    font-size: var(--es-text-base);
+    color: var(--es-primary);
+}
+
+.order-item__info p {
+    margin: 4px 0 0;
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+}
+
+.item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--es-space-2);
+}
+
+.item-card {
+    display: flex;
+    gap: var(--es-space-2);
+    padding: var(--es-space-2);
+    border: 1px solid var(--es-border-light);
+    border-radius: var(--es-radius-md);
+    transition: all var(--es-transition-fast);
+}
+
+.item-card:hover {
+    box-shadow: var(--es-shadow-card);
+}
+
+.item-card img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: var(--es-radius-sm);
+    background: var(--es-bg-secondary);
+}
+
+.item-card__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.item-card__content h4 {
+    margin: 0;
+    font-size: var(--es-text-sm);
+    color: var(--es-text-primary);
+    line-height: 1.3;
+}
+
+.item-card__rating {
+    color: #f59e0b;
+    font-size: var(--es-text-sm);
+}
+
+.item-card__price {
+    color: var(--es-danger);
+    font-weight: var(--es-font-semibold);
+}
+
+.item-card__date {
+    font-size: var(--es-text-xs);
+    color: var(--es-text-muted);
+}
+
+.voucher-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--es-space-2);
+}
+
+.voucher-item {
+    display: flex;
+    gap: var(--es-space-2);
+    padding: var(--es-space-2);
+    border: 1px solid var(--es-border-light);
+    border-radius: var(--es-radius-md);
+    border-left: 4px solid var(--es-primary);
+    background: linear-gradient(135deg, var(--es-white) 0%, var(--es-bg-secondary) 100%);
+}
+
+.voucher-item__icon {
+    width: 48px;
+    height: 48px;
+    background: var(--es-primary);
+    border-radius: var(--es-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--es-white);
+    font-size: 1.25rem;
+}
+
+.voucher-item__content {
+    flex: 1;
+}
+
+.voucher-item__code {
+    font-family: monospace;
+    font-weight: var(--es-font-bold);
+    color: var(--es-primary);
+    margin-bottom: 2px;
+}
+
+.voucher-item__value {
+    font-size: var(--es-text-sm);
+    color: var(--es-success);
+    font-weight: var(--es-font-semibold);
+}
+
+.voucher-item__expiry {
+    font-size: var(--es-text-xs);
+    color: var(--es-text-muted);
+}
+
+.address-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--es-space-2);
+}
+
+.address-card {
+    padding: var(--es-space-2);
+    border: 1px solid var(--es-border-light);
+    border-radius: var(--es-radius-md);
+    position: relative;
+    transition: all var(--es-transition-fast);
+}
+
+.address-card:hover {
+    border-color: var(--es-primary);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+}
+
+.address-card--default {
+    border-color: var(--es-primary);
+    background: var(--es-primary-100);
+}
+
+.address-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--es-primary);
+    color: var(--es-white);
+    padding: 2px 8px;
+    border-radius: var(--es-radius-full);
+    font-size: var(--es-text-xs);
+    font-weight: var(--es-font-semibold);
+}
+
+.address-card__name {
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+    margin-bottom: 4px;
+}
+
+.address-card__phone {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-muted);
+    margin-bottom: 4px;
+}
+
+.address-card__address {
+    font-size: var(--es-text-sm);
+    color: var(--es-text-secondary);
+    line-height: 1.4;
+}
+
+.address-card__actions {
+    display: flex;
+    gap: var(--es-space-1);
+    margin-top: var(--es-space-2);
+    padding-top: var(--es-space-2);
+    border-top: 1px dashed var(--es-border-light);
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--es-space-2);
+}
+
+.payment-card {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: var(--es-white);
+    padding: var(--es-space-3);
+    border-radius: var(--es-radius-bento);
+    position: relative;
+    overflow: hidden;
+}
+
+.payment-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 150px;
+    height: 150px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+}
+
+.payment-card__badges {
+    display: flex;
+    gap: var(--es-space-1);
+    margin-bottom: var(--es-space-2);
+}
+
+.payment-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 2px 8px;
+    border-radius: var(--es-radius-full);
+    font-size: var(--es-text-xs);
+}
+
+.payment-card__number {
+    font-size: var(--es-text-xl);
+    font-family: monospace;
+    letter-spacing: 2px;
+    margin-bottom: var(--es-space-2);
+}
+
+.payment-card__info {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--es-text-sm);
+    opacity: 0.8;
+    margin-bottom: var(--es-space-2);
+}
+
+.payment-card__actions {
+    display: flex;
+    gap: var(--es-space-1);
+}
+
+.security-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--es-space-3);
+}
+
+.security-block {
+    padding: var(--es-space-3);
+    border: 1px solid var(--es-border-light);
+    border-radius: var(--es-radius-md);
+    background: var(--es-bg-secondary);
+}
+
+.security-block h4 {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-1);
+    margin: 0 0 var(--es-space-2) 0;
+    font-size: var(--es-text-base);
+    color: var(--es-text-primary);
+}
+
+.security-block h4 i {
+    color: var(--es-primary);
+}
+
+.session-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--es-space-2);
+}
+
+.session-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--es-space-2);
+    background: var(--es-white);
+    border-radius: var(--es-radius-md);
+    border: 1px solid var(--es-border-light);
+}
+
+.session-item--current {
+    border-color: var(--es-success);
+    background: #f0fdf4;
+}
+
+.session-item__info {
+    display: flex;
+    align-items: center;
+    gap: var(--es-space-2);
+}
+
+.session-item__icon {
+    font-size: 1.5rem;
+    color: var(--es-primary);
+}
+
+.session-item__device {
+    font-weight: var(--es-font-semibold);
+    color: var(--es-text-primary);
+}
+
+.session-item__meta {
+    font-size: var(--es-text-xs);
+    color: var(--es-text-muted);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--es-space-6);
+    color: var(--es-text-muted);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    opacity: 0.3;
+    margin-bottom: var(--es-space-2);
+}
+
+.empty-state p {
+    margin: 0 0 var(--es-space-2) 0;
+}
+
+@media (max-width: 992px) {
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-sidebar {
+        position: relative;
+        top: auto;
+    }
+    
+    .sidebar-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--es-space-1);
+    }
+    
+    .nav-item {
+        flex: 0 0 auto;
+        padding: 8px 12px;
+    }
+    
+    .nav-item--logout {
+        margin-top: 0;
+        border-top: none;
+        padding-top: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-hero {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .hero-info p {
+        justify-content: center;
+    }
+    
+    .hero-badges {
+        justify-content: center;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-link-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="profile-page">
-    <!-- Profile Header -->
-    <div class="profile-header">
-        <div class="container">
-            <div class="profile-header-content">
-                <div class="profile-avatar-wrapper">
-                    <div class="profile-avatar">
-                        {% if user.first_name %}
-                        {{ user.first_name|slice:":1"|upper }}
-                        {% else %}
-                        {{ user.username|slice:":1"|upper }}
-                        {% endif %}
-                    </div>
-                    <button class="profile-avatar-edit" title="Thay đổi ảnh đại diện">
-                        <i class="bi bi-camera"></i>
-                    </button>
+<div class="container profile-page">
+    <!-- Hero Section -->
+    <section class="profile-hero">
+        <form id="avatarForm" method="post" enctype="multipart/form-data" style="display: contents;">
+            {% csrf_token %}
+            <input type="hidden" name="avatar_upload" value="1">
+            <label class="avatar-wrapper" for="avatarInput">
+                <div class="avatar">
+                    {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" alt="Avatar" id="avatarPreview">
+                    {% else %}
+                    <span id="avatarInitial">{% if user.first_name %}{{ user.first_name|slice:":1"|upper }}{% else %}{{ user.username|slice:":1"|upper }}{% endif %}</span>
+                    <img src="" alt="" id="avatarPreview" style="display: none;">
+                    {% endif %}
                 </div>
-
-                <div class="profile-user-info">
-                    <h1>{{ user.get_full_name|default:user.username }}</h1>
-                    <p class="email">
-                        <i class="bi bi-envelope"></i>
-                        {{ user.email }}
-                    </p>
-                    <p class="member-since">
-                        <i class="bi bi-calendar3"></i>
-                        Thành viên từ {{ user.date_joined|date:"d/m/Y" }}
-                    </p>
-                </div>
-
-                <div class="profile-stats">
-                    <div class="profile-stat">
-                        <span class="stat-value">0</span>
-                        <span class="stat-label">Đơn hàng</span>
-                    </div>
-                    <div class="profile-stat">
-                        <span class="stat-value">0</span>
-                        <span class="stat-label">Yêu thích</span>
-                    </div>
-                    <div class="profile-stat">
-                        <span class="stat-value">0</span>
-                        <span class="stat-label">Voucher</span>
-                    </div>
-                </div>
+                <span class="avatar-edit"><i class="bi bi-camera"></i></span>
+                <input type="file" id="avatarInput" name="avatar" accept="image/*" style="display: none;">
+            </label>
+        </form>
+        
+        <div class="hero-info">
+            <h1>{{ user.get_full_name|default:user.username }}</h1>
+            <p>
+                <span><i class="bi bi-envelope"></i> {{ user.email }}</span>
+                <span><i class="bi bi-calendar3"></i> Thành viên từ {{ user.date_joined|date:"d/m/Y" }}</span>
+            </p>
+            <div class="hero-badges">
+                <span class="hero-badge"><i class="bi bi-shield-check"></i> Tài khoản đã xác thực</span>
+                {% if user.profile.phone %}
+                <span class="hero-badge"><i class="bi bi-phone"></i> {{ user.profile.phone }}</span>
+                {% endif %}
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Profile Content -->
-    <div class="profile-content">
-        <div class="profile-grid">
-            <!-- Sidebar Navigation -->
-            <div class="profile-sidebar">
-                <nav class="profile-nav">
-                    <button class="profile-nav-item active" data-tab="info">
-                        <i class="bi bi-person"></i>
-                        <span>Thông tin cá nhân</span>
-                    </button>
-                    <button class="profile-nav-item" data-tab="orders">
-                        <i class="bi bi-box-seam"></i>
-                        <span>Đơn hàng của tôi</span>
-                    </button>
-                    <button class="profile-nav-item" data-tab="addresses">
-                        <i class="bi bi-geo-alt"></i>
-                        <span>Sổ địa chỉ</span>
-                    </button>
-                    <div class="profile-nav-divider"></div>
-                    <button class="profile-nav-item" data-tab="security">
-                        <i class="bi bi-shield-lock"></i>
-                        <span>Bảo mật</span>
-                    </button>
-                    <button class="profile-nav-item" data-tab="notifications">
-                        <i class="bi bi-bell"></i>
-                        <span>Thông báo</span>
-                    </button>
-                    <div class="profile-nav-divider"></div>
-                    <a class="profile-nav-item logout" href="{% url 'accounts:logout' %}">
-                        <i class="bi bi-box-arrow-right"></i>
-                        <span>Đăng xuất</span>
-                    </a>
+    <div class="profile-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="profile-sidebar">
+            <div class="sidebar-card">
+                <nav class="sidebar-nav">
+                    <button class="nav-item active" data-tab="info"><i class="bi bi-person"></i> Thông tin cá nhân</button>
+                    <button class="nav-item" data-tab="orders"><i class="bi bi-box-seam"></i> Đơn hàng</button>
+                    <button class="nav-item" data-tab="reviews"><i class="bi bi-star"></i> Đánh giá</button>
+                    <button class="nav-item" data-tab="wishlist"><i class="bi bi-heart"></i> Yêu thích</button>
+                    <button class="nav-item" data-tab="vouchers"><i class="bi bi-ticket-perforated"></i> Voucher</button>
+                    <button class="nav-item" data-tab="addresses"><i class="bi bi-geo-alt"></i> Địa chỉ</button>
+                    <button class="nav-item" data-tab="payments"><i class="bi bi-credit-card"></i> Thanh toán</button>
+                    <button class="nav-item" data-tab="security"><i class="bi bi-shield-lock"></i> Bảo mật</button>
+                    <a class="nav-item nav-item--logout" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
                 </nav>
             </div>
+        </aside>
 
-            <!-- Main Content Area -->
-            <div class="profile-main">
-                {% if messages %}
-                {% for message in messages %}
-                <div class="profile-alert {{ message.tags }}">
-                    <i class="bi bi-{% if 'success' in message.tags %}check-circle{% elif 'error' in message.tags %}exclamation-circle{% else %}info-circle{% endif %}"></i>
-                    {{ message }}
+        <!-- Main Content -->
+        <main class="profile-content">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" style="border-radius: var(--es-radius-md);">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <!-- Tab: Thông tin cá nhân -->
+            <section class="content-panel active" id="tab-info">
+                <div class="panel-header">
+                    <h3 class="panel-title"><i class="bi bi-person-circle"></i> Thông tin cá nhân</h3>
+                    <button class="btn-profile btn-profile--secondary" id="editInfoBtn"><i class="bi bi-pencil"></i> Chỉnh sửa</button>
                 </div>
-                {% endfor %}
-                {% endif %}
-
-                <!-- Tab: Personal Info -->
-                <div class="profile-tab-content active" id="tab-info">
-                    <div class="profile-card">
-                        <div class="profile-card-header">
-                            <h3><i class="bi bi-person-circle"></i> Thông tin cá nhân</h3>
-                            <button class="profile-btn profile-btn-sm profile-btn-secondary" id="editInfoBtn">
-                                <i class="bi bi-pencil"></i> Chỉnh sửa
-                            </button>
+                <div class="panel-body">
+                    <form class="form-grid" id="profileForm" method="post">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="last_name">Họ</label>
+                                <input class="form-control" disabled id="last_name" name="last_name" type="text" value="{{ user.last_name }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="first_name">Tên</label>
+                                <input class="form-control" disabled id="first_name" name="first_name" type="text" value="{{ user.first_name }}">
+                            </div>
                         </div>
-                        <div class="profile-card-body">
-                            <form class="profile-form" id="profileForm" method="post">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input class="form-control" disabled id="email" name="email" type="email" value="{{ user.email }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Số điện thoại</label>
+                            <input class="form-control" disabled id="phone" name="phone" placeholder="Chưa cập nhật" type="tel" value="{{ user.profile.phone|default:'' }}">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="birthday">Ngày sinh</label>
+                                <input class="form-control" disabled id="birthday" name="birthday" type="date" value="{{ user.profile.date_of_birth|date:'Y-m-d'|default:'' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="gender">Giới tính</label>
+                                <select class="form-control" disabled id="gender" name="gender">
+                                    <option value="">Chọn giới tính</option>
+                                    <option value="male" {% if user.profile.gender == 'male' %}selected{% endif %}>Nam</option>
+                                    <option value="female" {% if user.profile.gender == 'female' %}selected{% endif %}>Nữ</option>
+                                    <option value="other" {% if user.profile.gender == 'other' %}selected{% endif %}>Khác</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions" id="formActions" style="display: none;">
+                            <button class="btn-profile btn-profile--secondary" id="cancelEditBtn" type="button">Hủy</button>
+                            <button class="btn-profile btn-profile--primary" type="submit"><i class="bi bi-check-lg"></i> Lưu thay đổi</button>
+                        </div>
+                    </form>
+
+                    <hr style="margin: var(--es-space-3) 0; border-color: var(--es-border-light);">
+
+                    <h4 style="margin: 0 0 var(--es-space-2) 0; font-size: var(--es-text-base);">Truy cập nhanh</h4>
+                    <div class="quick-link-grid">
+                        <a href="{% url 'orders:list' %}" class="quick-link">
+                            <i class="bi bi-box-seam"></i>
+                            <span>Đơn hàng của tôi</span>
+                        </a>
+                        <a href="{% url 'products:wishlist' %}" class="quick-link">
+                            <i class="bi bi-heart"></i>
+                            <span>Sản phẩm yêu thích</span>
+                        </a>
+                        <a href="{% url 'promotions:my_vouchers' %}" class="quick-link">
+                            <i class="bi bi-ticket-perforated"></i>
+                            <span>Voucher của tôi</span>
+                        </a>
+                        <a href="{% url 'accounts:address_list' %}" class="quick-link">
+                            <i class="bi bi-geo-alt"></i>
+                            <span>Sổ địa chỉ</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Đơn hàng -->
+            <section class="content-panel" id="tab-orders">
+                <div class="panel-header">
+                    <h3 class="panel-title"><i class="bi bi-box-seam"></i> Đơn hàng của tôi</h3>
+                    <a class="btn-profile btn-profile--ghost" href="{% url 'orders:list' %}">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+                </div>
+                <div class="panel-body">
+                    {% if orders %}
+                    <div class="order-list">
+                        {% for order in orders %}
+                        <div class="order-item">
+                            <div class="order-item__info">
+                                <h4>#{{ order.order_number }}</h4>
+                                <p>{{ order.items.count }} sản phẩm - {{ order.total|floatformat:0|intcomma }}đ | {{ order.created_at|date:"d/m/Y" }} - {{ order.get_status_display }}</p>
+                            </div>
+                            <a class="btn-profile btn-profile--secondary" href="{% url 'orders:detail' order.order_number %}">Chi tiết</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-bag-x"></i>
+                        <p>Chưa có đơn hàng nào</p>
+                        <a class="btn-profile btn-profile--primary" href="{% url 'products:product_list' %}"><i class="bi bi-grid"></i> Mua sắm ngay</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Tab: Đánh giá -->
+            <section class="content-panel" id="tab-reviews">
+                <div class="panel-header">
+                    <h3 class="panel-title"><i class="bi bi-star"></i> Đánh giá của tôi</h3>
+                </div>
+                <div class="panel-body">
+                    {% if reviews %}
+                    <div class="item-grid">
+                        {% for review in reviews %}
+                        <div class="item-card">
+                            {% if review.product.image %}
+                            <img src="{{ review.product.image.url }}" alt="{{ review.product.name }}">
+                            {% else %}
+                            <div style="width:80px;height:80px;background:var(--es-bg-secondary);border-radius:var(--es-radius-sm);display:flex;align-items:center;justify-content:center;">
+                                <i class="bi bi-image text-muted"></i>
+                            </div>
+                            {% endif %}
+                            <div class="item-card__content">
+                                <h4>{{ review.product.name|truncatewords:8 }}</h4>
+                                <div class="item-card__rating">
+                                    {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                    <i class="bi bi-star-fill"></i>
+                                    {% else %}
+                                    <i class="bi bi-star"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <p style="font-size:var(--es-text-sm);color:var(--es-text-secondary);margin:0;">{{ review.comment|truncatewords:15 }}</p>
+                                <span class="item-card__date">{{ review.created_at|date:"d/m/Y" }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-star"></i>
+                        <p>Bạn chưa đánh giá sản phẩm nào</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Tab: Yêu thích -->
+            <section class="content-panel" id="tab-wishlist">
+                <div class="panel-header">
+                    <h3 class="panel-title"><i class="bi bi-heart"></i> Sản phẩm yêu thích</h3>
+                    <a class="btn-profile btn-profile--ghost" href="{% url 'products:wishlist' %}">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+                </div>
+                <div class="panel-body">
+                    {% if wishlist_items %}
+                    <div class="item-grid">
+                        {% for item in wishlist_items %}
+                        <div class="item-card">
+                            {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                            {% else %}
+                            <div style="width:80px;height:80px;background:var(--es-bg-secondary);border-radius:var(--es-radius-sm);display:flex;align-items:center;justify-content:center;">
+                                <i class="bi bi-image text-muted"></i>
+                            </div>
+                            {% endif %}
+                            <div class="item-card__content">
+                                <h4>{{ item.product.name|truncatewords:8 }}</h4>
+                                <span class="item-card__price">{{ item.product.current_price|floatformat:0|intcomma }}đ</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-heart"></i>
+                        <p>Chưa có sản phẩm yêu thích</p>
+                        <a class="btn-profile btn-profile--primary" href="{% url 'products:product_list' %}"><i class="bi bi-grid"></i> Khám phá sản phẩm</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Tab: Voucher -->
+            <section class="content-panel" id="tab-vouchers">
+                <div class="panel-header">
+                    <h3 class="panel-title"><i class="bi bi-ticket-perforated"></i> Voucher của tôi</h3>
+                    <a class="btn-profile btn-profile--ghost" href="{% url 'promotions:my_vouchers' %}">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+                </div>
+                <div class="panel-body">
+                    {% if vouchers %}
+                    <div class="voucher-list">
+                        {% for voucher in vouchers %}
+                        <div class="voucher-item">
+                            <div class="voucher-item__icon"><i class="bi bi-ticket-perforated"></i></div>
+                            <div class="voucher-item__content">
+                                <div class="voucher-item__code">{{ voucher.code }}</div>
+                                <div class="voucher-item__value">
+                                    {% if voucher.discount_type == 'percentage' %}
+                                    Giảm {{ voucher.discount_value|floatformat:0 }}%
+                                    {% else %}
+                                    Giảm {{ voucher.discount_value|floatformat:0|intcomma }}đ
+                                    {% endif %}
+                                </div>
+                                <div class="voucher-item__expiry">HSD: {{ voucher.valid_until|date:"d/m/Y" }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-ticket-perforated"></i>
+                        <p>Chưa có voucher nào</p>
+                        <a class="btn-profile btn-profile--primary" href="{% url 'promotions:flash_sales' %}"><i class="bi bi-lightning"></i> Xem Flash Sale</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Tab: Địa chỉ -->
+            <section class="content-panel" id="tab-addresses">
+                <div class="panel-header">
+                    <h3 class="panel-title"><i class="bi bi-geo-alt"></i> Sổ địa chỉ</h3>
+                    <a class="btn-profile btn-profile--primary" href="{% url 'accounts:address_create' %}"><i class="bi bi-plus-lg"></i> Thêm địa chỉ</a>
+                </div>
+                <div class="panel-body">
+                    {% if addresses %}
+                    <div class="address-grid">
+                        {% for address in addresses %}
+                        <div class="address-card {% if address.is_default %}address-card--default{% endif %}">
+                            {% if address.is_default %}
+                            <span class="address-badge">Mặc định</span>
+                            {% endif %}
+                            <div class="address-card__name">{{ address.full_name }}</div>
+                            <div class="address-card__phone"><i class="bi bi-telephone"></i> {{ address.phone }}</div>
+                            <div class="address-card__address">
+                                {{ address.address }}{% if address.ward %}, {{ address.ward }}{% endif %}, {{ address.district }}, {{ address.province }}
+                            </div>
+                            <div class="address-card__actions">
+                                <a class="btn-profile btn-profile--secondary" href="{% url 'accounts:address_edit' address.id %}" style="padding:6px 12px;font-size:var(--es-text-xs);"><i class="bi bi-pencil"></i> Sửa</a>
+                                {% if not address.is_default %}
+                                <form action="{% url 'accounts:address_set_default' address.id %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-profile btn-profile--ghost" style="padding:6px 12px;font-size:var(--es-text-xs);"><i class="bi bi-star"></i> Mặc định</button>
+                                </form>
+                                {% endif %}
+                                <form action="{% url 'accounts:address_delete' address.id %}" method="post" style="display:inline;" onsubmit="return confirm('Xóa địa chỉ này?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-profile btn-profile--danger" style="padding:6px 12px;font-size:var(--es-text-xs);"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-geo-alt"></i>
+                        <p>Chưa có địa chỉ nào</p>
+                        <a class="btn-profile btn-profile--primary" href="{% url 'accounts:address_create' %}"><i class="bi bi-plus-lg"></i> Thêm địa chỉ</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Tab: Thanh toán -->
+            <section class="content-panel" id="tab-payments">
+                <div class="panel-header">
+                    <h3 class="panel-title"><i class="bi bi-credit-card"></i> Phương thức thanh toán</h3>
+                    <a class="btn-profile btn-profile--primary" href="{% url 'accounts:card_create' %}"><i class="bi bi-plus-lg"></i> Thêm thẻ</a>
+                </div>
+                <div class="panel-body">
+                    {% if cards %}
+                    <div class="card-grid">
+                        {% for card in cards %}
+                        <div class="payment-card">
+                            <div class="payment-card__badges">
+                                {% if card.is_default %}<span class="payment-badge">Mặc định</span>{% endif %}
+                                {% if card.is_expired %}<span class="payment-badge" style="background:#fee2e2;color:#b91c1c;">Hết hạn</span>{% endif %}
+                            </div>
+                            <div class="payment-card__number">{{ card.masked_number }}</div>
+                            <div class="payment-card__info">
+                                <span>{{ card.cardholder_name }}</span>
+                                <span>{{ card.get_expiry_display }}</span>
+                            </div>
+                            <div class="payment-card__actions">
+                                {% if not card.is_default and not card.is_expired %}
+                                <form action="{% url 'accounts:card_set_default' card.id %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-profile btn-profile--primary" style="padding:6px 12px;font-size:var(--es-text-xs);"><i class="bi bi-star"></i> Mặc định</button>
+                                </form>
+                                {% endif %}
+                                <form action="{% url 'accounts:card_delete' card.id %}" method="post" style="display:inline;" onsubmit="return confirm('Xóa thẻ này?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-profile btn-profile--danger" style="padding:6px 12px;font-size:var(--es-text-xs);"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <p style="margin-top:var(--es-space-2);font-size:var(--es-text-sm);color:var(--es-text-muted);">
+                        <i class="bi bi-shield-check"></i> Chúng tôi chỉ lưu 4 số cuối của thẻ để bảo mật.
+                    </p>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-credit-card"></i>
+                        <p>Chưa có thẻ thanh toán nào</p>
+                        <a class="btn-profile btn-profile--primary" href="{% url 'accounts:card_create' %}"><i class="bi bi-plus-lg"></i> Thêm thẻ mới</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Tab: Bảo mật -->
+            <section class="content-panel" id="tab-security">
+                <div class="panel-header">
+                    <h3 class="panel-title"><i class="bi bi-shield-lock"></i> Bảo mật</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="security-section">
+                        <div class="security-block">
+                            <h4><i class="bi bi-key"></i> Đổi mật khẩu</h4>
+                            
+                            {% if user.profile.is_social_account %}
+                            <div style="padding:var(--es-space-2);background:#fef3c7;border-radius:var(--es-radius-md);display:flex;align-items:center;gap:var(--es-space-2);">
+                                <i class="bi bi-google" style="color:#4285f4;font-size:1.5rem;"></i>
+                                <div>
+                                    <strong>Tài khoản Google</strong>
+                                    <p style="margin:0;font-size:var(--es-text-sm);color:var(--es-text-muted);">Bạn đăng nhập bằng Google, không cần mật khẩu.</p>
+                                </div>
+                            </div>
+                            {% else %}
+                            <form method="post" action="{% url 'accounts:change_password' %}" class="form-grid">
                                 {% csrf_token %}
-                                <div class="profile-form-row">
-                                    <div class="profile-form-group">
-                                        <label for="last_name">Họ</label>
-                                        <input disabled id="last_name" name="last_name"
-                                               type="text" value="{{ user.last_name }}">
-                                    </div>
-                                    <div class="profile-form-group">
-                                        <label for="first_name">Tên</label>
-                                        <input disabled id="first_name" name="first_name"
-                                               type="text" value="{{ user.first_name }}">
-                                    </div>
+                                <div class="form-group">
+                                    <label for="old_password">Mật khẩu hiện tại</label>
+                                    <input type="password" class="form-control" id="old_password" name="old_password" required>
                                 </div>
-
-                                <div class="profile-form-group">
-                                    <label for="email">Email</label>
-                                    <input disabled id="email" name="email"
-                                           type="email" value="{{ user.email }}">
+                                <div class="form-group">
+                                    <label for="new_password1">Mật khẩu mới</label>
+                                    <input type="password" class="form-control" id="new_password1" name="new_password1" required>
                                 </div>
-
-                                <div class="profile-form-group">
-                                    <label for="phone">Số điện thoại</label>
-                                    <input disabled id="phone" name="phone"
-                                           placeholder="Chưa cập nhật"
-                                           type="tel" value="{{ user.profile.phone|default:'' }}">
+                                <div class="form-group">
+                                    <label for="new_password2">Xác nhận mật khẩu mới</label>
+                                    <input type="password" class="form-control" id="new_password2" name="new_password2" required>
                                 </div>
-
-                                <div class="profile-form-row">
-                                    <div class="profile-form-group">
-                                        <label for="birthday">Ngày sinh</label>
-                                        <input disabled id="birthday" name="birthday"
-                                               type="date" value="{{ user.profile.birthday|date:'Y-m-d'|default:'' }}">
-                                    </div>
-                                    <div class="profile-form-group">
-                                        <label for="gender">Giới tính</label>
-                                        <select disabled id="gender" name="gender">
-                                            <option value="">Chọn giới tính</option>
-                                            <option value="male" {% if user.profile.gender == 'male' %}selected{% endif %}>Nam</option>
-                                            <option value="female" {% if user.profile.gender == 'female' %}selected{% endif %}>Nữ</option>
-                                            <option value="other" {% if user.profile.gender == 'other' %}selected{% endif %}>Khác</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="profile-form-actions" id="formActions" style="display: none;">
-                                    <button class="profile-btn profile-btn-secondary" id="cancelEditBtn" type="button">
-                                        Hủy
-                                    </button>
-                                    <button class="profile-btn profile-btn-primary" type="submit">
-                                        <i class="bi bi-check-lg"></i> Lưu thay đổi
-                                    </button>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-profile btn-profile--primary"><i class="bi bi-check-lg"></i> Đổi mật khẩu</button>
                                 </div>
                             </form>
+                            {% endif %}
                         </div>
-                    </div>
-                </div>
 
-                <!-- Tab: Orders -->
-                <div class="profile-tab-content" id="tab-orders">
-                    <div class="profile-card">
-                        <div class="profile-card-header">
-                            <h3><i class="bi bi-box-seam"></i> Đơn hàng của tôi</h3>
+                        <div class="security-block">
+                            <h4><i class="bi bi-laptop"></i> Phiên đăng nhập</h4>
+                            
+                            {% if sessions %}
+                            <div class="session-list">
+                                {% for session in sessions %}
+                                <div class="session-item {% if session.is_current %}session-item--current{% endif %}">
+                                    <div class="session-item__info">
+                                        <i class="session-item__icon bi {% if 'Mobile' in session.device or 'Android' in session.os or 'iOS' in session.os %}bi-phone{% else %}bi-laptop{% endif %}"></i>
+                                        <div>
+                                            <div class="session-item__device">
+                                                {{ session.browser|default:"Trình duyệt" }} - {{ session.os|default:"Không xác định" }}
+                                                {% if session.is_current %}<span class="badge bg-success ms-1">Hiện tại</span>{% endif %}
+                                            </div>
+                                            <div class="session-item__meta">
+                                                <i class="bi bi-geo-alt"></i> {{ session.location|default:"Không xác định" }} - {{ session.last_activity|timesince }} trước
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% if not session.is_current %}
+                                    <form method="post" action="{% url 'accounts:terminate_session' session.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-profile btn-profile--danger" style="padding:6px 12px;font-size:var(--es-text-xs);">Đăng xuất</button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            {% if sessions|length > 1 %}
+                            <form method="post" action="{% url 'accounts:terminate_all_sessions' %}" style="margin-top:var(--es-space-2);">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-profile btn-profile--danger"><i class="bi bi-box-arrow-right"></i> Đăng xuất tất cả thiết bị khác</button>
+                            </form>
+                            {% endif %}
+                            {% else %}
+                            <p style="color:var(--es-text-muted);">Không có phiên đăng nhập nào khác.</p>
+                            {% endif %}
                         </div>
-                        <div class="profile-card-body">
-                            <div class="empty-state">
-                                <i class="bi bi-bag-x"></i>
-                                <h4>Chưa có đơn hàng nào</h4>
-                                <p>Bạn chưa thực hiện đơn hàng nào. Hãy bắt đầu mua sắm ngay!</p>
-                                <a class="profile-btn profile-btn-primary" href="{% url 'products:product_list' %}"
-                                   style="margin-top: 1rem;">
-                                    <i class="bi bi-shop"></i> Mua sắm ngay
-                                </a>
+
+                        <div class="security-block">
+                            <h4><i class="bi bi-shield-check"></i> Xác thực 2 lớp (2FA)</h4>
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <p style="margin:0;color:var(--es-text-muted);">Thêm một lớp bảo vệ cho tài khoản của bạn.</p>
+                                <span class="btn-profile btn-profile--secondary" style="opacity:0.6;cursor:not-allowed;">Sắp ra mắt</span>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Tab: Addresses -->
-                <div class="profile-tab-content" id="tab-addresses">
-                    <div class="profile-card">
-                        <div class="profile-card-header">
-                            <h3><i class="bi bi-geo-alt"></i> Sổ địa chỉ</h3>
-                            <button class="profile-btn profile-btn-sm profile-btn-primary">
-                                <i class="bi bi-plus-lg"></i> Thêm địa chỉ
-                            </button>
-                        </div>
-                        <div class="profile-card-body">
-                            <div class="address-list">
-                                <div class="add-address-card">
-                                    <i class="bi bi-plus-circle"></i>
-                                    <span>Thêm địa chỉ mới</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab: Security -->
-                <div class="profile-tab-content" id="tab-security">
-                    <div class="profile-card">
-                        <div class="profile-card-header">
-                            <h3><i class="bi bi-shield-lock"></i> Bảo mật tài khoản</h3>
-                        </div>
-                        <div class="profile-card-body">
-                            <div class="security-item">
-                                <div class="security-icon">
-                                    <i class="bi bi-key"></i>
-                                </div>
-                                <div class="security-info">
-                                    <h4>Mật khẩu</h4>
-                                    <p>Thay đổi mật khẩu để bảo vệ tài khoản của bạn</p>
-                                </div>
-                                <a class="profile-btn profile-btn-secondary profile-btn-sm"
-                                   href="{% url 'accounts:forgot_password' %}">
-                                    Đổi mật khẩu
-                                </a>
-                            </div>
-
-                            <div class="security-item">
-                                <div class="security-icon warning">
-                                    <i class="bi bi-phone"></i>
-                                </div>
-                                <div class="security-info">
-                                    <h4>Xác thực 2 lớp</h4>
-                                    <p>Thêm một lớp bảo mật cho tài khoản của bạn</p>
-                                </div>
-                                <button class="profile-btn profile-btn-secondary profile-btn-sm">
-                                    Thiết lập
-                                </button>
-                            </div>
-
-                            <div class="security-item">
-                                <div class="security-icon">
-                                    <i class="bi bi-laptop"></i>
-                                </div>
-                                <div class="security-info">
-                                    <h4>Thiết bị đăng nhập</h4>
-                                    <p>Quản lý các thiết bị đã đăng nhập vào tài khoản</p>
-                                </div>
-                                <button class="profile-btn profile-btn-secondary profile-btn-sm">
-                                    Xem chi tiết
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab: Notifications -->
-                <div class="profile-tab-content" id="tab-notifications">
-                    <div class="profile-card">
-                        <div class="profile-card-header">
-                            <h3><i class="bi bi-bell"></i> Cài đặt thông báo</h3>
-                        </div>
-                        <div class="profile-card-body">
-                            <div class="profile-form">
-                                <div class="security-item">
-                                    <div class="security-icon">
-                                        <i class="bi bi-envelope"></i>
-                                    </div>
-                                    <div class="security-info">
-                                        <h4>Thông báo qua Email</h4>
-                                        <p>Nhận thông báo về đơn hàng, khuyến mãi qua email</p>
-                                    </div>
-                                    <div class="form-check form-switch">
-                                        <input checked class="form-check-input" id="emailNotify" type="checkbox">
-                                    </div>
-                                </div>
-
-                                <div class="security-item">
-                                    <div class="security-icon">
-                                        <i class="bi bi-phone-vibrate"></i>
-                                    </div>
-                                    <div class="security-info">
-                                        <h4>Thông báo qua SMS</h4>
-                                        <p>Nhận thông báo về đơn hàng qua tin nhắn SMS</p>
-                                    </div>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" id="smsNotify" type="checkbox">
-                                    </div>
-                                </div>
-
-                                <div class="security-item">
-                                    <div class="security-icon">
-                                        <i class="bi bi-percent"></i>
-                                    </div>
-                                    <div class="security-info">
-                                        <h4>Khuyến mãi & Ưu đãi</h4>
-                                        <p>Nhận thông tin về chương trình khuyến mãi mới nhất</p>
-                                    </div>
-                                    <div class="form-check form-switch">
-                                        <input checked class="form-check-input" id="promoNotify" type="checkbox">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+            </section>
+        </main>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-    // Tab Navigation
-    document.querySelectorAll('.profile-nav-item[data-tab]').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const tabId = this.dataset.tab;
+function selectTab(tabId) {
+    document.querySelectorAll('.nav-item[data-tab]').forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.content-panel').forEach(content => content.classList.remove('active'));
+    
+    const tabBtn = document.querySelector(`.nav-item[data-tab="${tabId}"]`);
+    const tabContent = document.getElementById('tab-' + tabId);
+    
+    if (tabBtn && tabContent) {
+        tabBtn.classList.add('active');
+        tabContent.classList.add('active');
+    }
+}
 
-            // Update active nav item
-            document.querySelectorAll('.profile-nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            this.classList.add('active');
+const urlParams = new URLSearchParams(window.location.search);
+const tabParam = urlParams.get('tab');
+if (tabParam) {
+    selectTab(tabParam);
+}
 
-            // Show corresponding tab content
-            document.querySelectorAll('.profile-tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById('tab-' + tabId).classList.add('active');
-        });
+document.querySelectorAll('.nav-item[data-tab]').forEach(btn => {
+    btn.addEventListener('click', function() {
+        selectTab(this.dataset.tab);
     });
+});
 
-    // Edit Profile Form Toggle
-    const editBtn = document.getElementById('editInfoBtn');
-    const cancelBtn = document.getElementById('cancelEditBtn');
-    const formActions = document.getElementById('formActions');
-    const formInputs = document.querySelectorAll('#profileForm input, #profileForm select');
+const editBtn = document.getElementById('editInfoBtn');
+const cancelBtn = document.getElementById('cancelEditBtn');
+const formActions = document.getElementById('formActions');
+const formInputs = document.querySelectorAll('#profileForm input, #profileForm select');
 
-    if (editBtn) {
-        editBtn.addEventListener('click', function () {
-            formInputs.forEach(input => {
-                input.disabled = false;
-            });
-            formActions.style.display = 'flex';
-            this.style.display = 'none';
-        });
-    }
+if (editBtn) {
+    editBtn.addEventListener('click', function() {
+        formInputs.forEach(input => input.disabled = false);
+        formActions.style.display = 'flex';
+        this.style.display = 'none';
+    });
+}
 
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', function () {
-            formInputs.forEach(input => {
-                input.disabled = true;
-            });
-            formActions.style.display = 'none';
-            editBtn.style.display = 'inline-flex';
-        });
-    }
+if (cancelBtn) {
+    cancelBtn.addEventListener('click', function() {
+        formInputs.forEach(input => input.disabled = true);
+        formActions.style.display = 'none';
+        editBtn.style.display = 'inline-flex';
+    });
+}
+
+const avatarInput = document.getElementById('avatarInput');
+const avatarPreview = document.getElementById('avatarPreview');
+const avatarInitial = document.getElementById('avatarInitial');
+const avatarForm = document.getElementById('avatarForm');
+
+if (avatarInput) {
+    avatarInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                avatarPreview.src = e.target.result;
+                avatarPreview.style.display = 'block';
+                if (avatarInitial) avatarInitial.style.display = 'none';
+                avatarForm.submit();
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+}
 </script>
 {% endblock %}

@@ -1,314 +1,586 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load product_tags %}
+{% load humanize %}
 
-{% block title %}ElectroShop - Điện gia dụng Chính hãng{% endblock %}
+{% block title %}ElectroShop - Trang chủ{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/products/home.css' %}" rel="stylesheet">
+<style>
+.home-hero {
+    position: relative;
+    min-height: 500px;
+    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #3b82f6 100%);
+    overflow: hidden;
+}
+
+.home-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('https://images.unsplash.com/photo-1498049794561-7780e7231661?w=1600&q=80') center/cover no-repeat;
+    opacity: 0.3;
+    z-index: 0;
+}
+
+.home-hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: linear-gradient(to top, rgba(248, 250, 252, 1), transparent);
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 80px 24px 140px;
+    text-align: center;
+    color: #fff;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    color: #fff;
+}
+
+.hero-title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    margin: 0 0 16px;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    margin: 0 0 32px;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #14b8a6, #0d9488);
+    color: #fff;
+    padding: 16px 36px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 8px 30px rgba(20, 184, 166, 0.4);
+    transition: all 0.3s ease;
+}
+
+.hero-cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(20, 184, 166, 0.5);
+    color: #fff;
+}
+
+.hero-cta i {
+    font-size: 1.2rem;
+}
+
+.info-bar {
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 16px 0;
+}
+
+.info-bar-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    transition: background 0.2s;
+}
+
+.info-item:hover {
+    background: #f8fafc;
+}
+
+.info-icon {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #14b8a6, #0d9488);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.25rem;
+}
+
+.info-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.home-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.section-title i {
+    color: #14b8a6;
+}
+
+.section-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #14b8a6;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.section-link:hover {
+    color: #0d9488;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+}
+
+.category-card {
+    position: relative;
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.category-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.category-image {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+}
+
+.category-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.category-card:hover .category-image img {
+    transform: scale(1.08);
+}
+
+.category-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 40%, rgba(0, 0, 0, 0.6));
+}
+
+.category-body {
+    padding: 20px;
+}
+
+.category-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 8px;
+}
+
+.category-desc {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0 0 16px;
+}
+
+.category-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #14b8a6, #0d9488);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.category-btn:hover {
+    background: linear-gradient(135deg, #0d9488, #0f766e);
+    color: #fff;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 48px;
+}
+
+.product-card {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.flash-section {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    border-radius: 24px;
+    padding: 32px;
+    margin-bottom: 48px;
+    color: #fff;
+}
+
+.flash-section .section-title {
+    color: #fff;
+}
+
+.flash-section .section-title i {
+    color: #fbbf24;
+}
+
+.flash-grid {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    scroll-snap-type: x mandatory;
+}
+
+.flash-grid::-webkit-scrollbar {
+    height: 6px;
+}
+
+.flash-grid::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.flash-grid::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 3px;
+}
+
+.newsletter-section {
+    background: linear-gradient(135deg, #1e3a5f 0%, #3b82f6 100%);
+    border-radius: 24px;
+    padding: 48px;
+    text-align: center;
+    color: #fff;
+}
+
+.newsletter-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 12px;
+}
+
+.newsletter-desc {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 24px;
+}
+
+.newsletter-form {
+    display: flex;
+    gap: 12px;
+    max-width: 480px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.newsletter-input {
+    flex: 1;
+    min-width: 240px;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+}
+
+.newsletter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #14b8a6, #0d9488);
+    color: #fff;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.newsletter-btn:hover {
+    background: linear-gradient(135deg, #0d9488, #0f766e);
+    transform: translateY(-2px);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: #6b7280;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: #d1d5db;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+    .home-hero {
+        min-height: 400px;
+    }
+    
+    .hero-content {
+        padding: 60px 20px 100px;
+    }
+    
+    .info-bar-inner {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .category-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .newsletter-section {
+        padding: 32px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .info-bar-inner {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<!-- Hero Banner - Enhanced -->
-<section class="hero-banner mb-5">
-    <div class="row align-items-center position-relative" style="z-index: 1;">
-        <div class="col-lg-7 text-center text-lg-start mb-4 mb-lg-0">
-            <span class="badge bg-white text-primary mb-3 px-3 py-2 fw-semibold">
-                <i class="bi bi-lightning-charge-fill me-1"></i>Ưu đãi đặc biệt
-            </span>
-            <h1 class="display-5 fw-bold mb-3">Điện gia dụng<br><span class="opacity-90">Chính hãng 100%</span></h1>
-            <p class="lead mb-4 opacity-90" style="max-width: 480px;">
-                Khám phá hàng ngàn sản phẩm điện tử với giá tốt nhất. Bảo hành chính hãng, miễn phí giao hàng.
-            </p>
-            <div class="d-flex gap-3 justify-content-center justify-content-lg-start flex-wrap">
-                <a class="btn btn-light btn-lg px-4" href="{% url 'products:product_list' %}">
-                    <i class="bi bi-grid me-2"></i>Khám phá ngay
-                </a>
-                <a class="btn btn-outline-light btn-lg px-4" href="{% url 'promotions:flash_sales' %}">
-                    <i class="bi bi-lightning-charge me-2"></i>Flash Sale
-                </a>
-            </div>
+<section class="home-hero">
+    <div class="hero-content">
+        <div class="hero-badge">
+            <i class="bi bi-lightning-charge-fill"></i>
+            <span>Điện tử & Gia dụng chính hãng</span>
         </div>
-        <div class="col-lg-5 text-center d-none d-lg-block">
-            <div class="position-relative">
-                <i class="bi bi-cpu display-1 opacity-20" style="font-size: 14rem;"></i>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Trust Badges - Enhanced -->
-<section class="mb-5">
-    <div class="row g-3">
-        <div class="col-6 col-lg-3">
-            <div class="card h-100 trust-badge-card bg-primary-subtle border-0">
-                <div class="card-body text-center py-4">
-                    <i class="bi bi-truck text-primary"></i>
-                    <h6 class="mb-1">Giao hàng nhanh</h6>
-                    <small class="text-muted">Miễn phí từ 500K</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-lg-3">
-            <div class="card h-100 trust-badge-card bg-success-subtle border-0">
-                <div class="card-body text-center py-4">
-                    <i class="bi bi-shield-check text-success"></i>
-                    <h6 class="mb-1">Chính hãng 100%</h6>
-                    <small class="text-muted">Bảo hành toàn quốc</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-lg-3">
-            <div class="card h-100 trust-badge-card bg-warning-subtle border-0">
-                <div class="card-body text-center py-4">
-                    <i class="bi bi-arrow-repeat text-warning"></i>
-                    <h6 class="mb-1">Đổi trả dễ dàng</h6>
-                    <small class="text-muted">Trong 30 ngày</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-lg-3">
-            <div class="card h-100 trust-badge-card bg-info-subtle border-0">
-                <div class="card-body text-center py-4">
-                    <i class="bi bi-headset text-info"></i>
-                    <h6 class="mb-1">Hỗ trợ 24/7</h6>
-                    <small class="text-muted">Hotline: 1900 1234</small>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Categories - Enhanced -->
-{% if categories %}
-<section class="mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="h4 mb-1 fw-bold">Danh mục sản phẩm</h2>
-            <p class="text-muted mb-0 small">Khám phá theo danh mục yêu thích</p>
-        </div>
-        <a class="btn btn-outline-primary btn-sm" href="{% url 'products:product_list' %}">
-            Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
+        <h1 class="hero-title">SẢN PHẨM CÔNG NGHỆ<br>CHẤT LƯỢNG HÀNG ĐẦU</h1>
+        <p class="hero-subtitle">Khám phá bộ sưu tập thiết bị điện tử hiện đại, đáng tin cậy với AI Sentiment phân tích đánh giá</p>
+        <a href="{% url 'products:product_list' %}" class="hero-cta">
+            MUA NGAY <i class="bi bi-arrow-right-circle-fill"></i>
         </a>
     </div>
-    <div class="row g-3">
-        {% for category in categories %}
-        <div class="col-6 col-md-4 col-lg-2">
-            <a class="text-decoration-none" href="{% url 'products:category' category.slug %}">
-                <div class="card h-100 text-center category-card border-0">
-                    <div class="card-body py-4">
-                        {% if category.image %}
-                        <img alt="{{ category.name }}" class="mb-3" src="{{ category.image.url }}"
-                             style="height: 48px; object-fit: contain;">
-                        {% else %}
-                        <i class="bi bi-box-seam display-5 text-primary mb-3 d-block"></i>
-                        {% endif %}
-                        <h6 class="card-title mb-1 small fw-semibold">{{ category.name }}</h6>
-                        <small class="text-muted" style="font-size: 0.6875rem;">{{ category.product_count }} sản
-                            phẩm</small>
-                    </div>
-                </div>
+</section>
+
+<div class="info-bar">
+    <div class="info-bar-inner">
+        <div class="info-item">
+            <div class="info-icon"><i class="bi bi-truck"></i></div>
+            <span class="info-text">Miễn phí vận chuyển<br>Đơn từ 500K</span>
+        </div>
+        <div class="info-item">
+            <div class="info-icon"><i class="bi bi-gift"></i></div>
+            <span class="info-text">Chương trình khách hàng thân thiết</span>
+        </div>
+        <div class="info-item">
+            <div class="info-icon"><i class="bi bi-percent"></i></div>
+            <span class="info-text">Giảm giá đặc biệt<br>Flash Sale mỗi ngày</span>
+        </div>
+        <div class="info-item">
+            <div class="info-icon"><i class="bi bi-headset"></i></div>
+            <span class="info-text">Hỗ trợ trực tuyến<br>24/7</span>
+        </div>
+    </div>
+</div>
+
+<div class="home-container">
+    <section class="category-section">
+        <div class="section-header">
+            <h2 class="section-title"><i class="bi bi-collection"></i> Danh mục sản phẩm</h2>
+            <a href="{% url 'products:product_list' %}" class="section-link">
+                Xem tất cả <i class="bi bi-arrow-right"></i>
             </a>
         </div>
-        {% endfor %}
-    </div>
-</section>
-{% endif %}
-
-<!-- Flash Sale -->
-{% if flash_sale_products %}
-<section class="mb-5">
-    <div class="flash-sale-banner">
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 position-relative"
-             style="z-index: 1;">
-            <div>
-                <h3 class="mb-1 d-flex align-items-center gap-2 fw-bold">
-                    <i class="bi bi-lightning-charge-fill"></i>Flash Sale
-                    <span class="badge bg-white text-danger ms-2 small">HOT</span>
-                </h3>
-                <p class="mb-0 opacity-90 small">Giảm giá sốc - Số lượng có hạn!</p>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-                <div class="countdown-timer d-none d-md-flex">
-                    <div class="countdown-item">
-                        <div class="number" id="hours">00</div>
-                        <div class="label">Giờ</div>
-                    </div>
-                    <div class="countdown-item">
-                        <div class="number" id="minutes">00</div>
-                        <div class="label">Phút</div>
-                    </div>
-                    <div class="countdown-item">
-                        <div class="number" id="seconds">00</div>
-                        <div class="label">Giây</div>
-                    </div>
+        
+        {% if categories %}
+        <div class="category-grid">
+            {% for cat in categories %}
+            <a href="{% url 'products:category' cat.slug %}" class="category-card">
+                <div class="category-image">
+                    {% if cat.image %}
+                    <img src="{{ cat.image.url }}" alt="{{ cat.name }}">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80" alt="{{ cat.name }}">
+                    {% endif %}
                 </div>
-                <a class="btn btn-light btn-sm" href="{% url 'promotions:flash_sales' %}">
-                    Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
-                </a>
-            </div>
-        </div>
-        <div class="row g-3 position-relative" style="z-index: 1;">
-            {% for item in flash_sale_products|slice:":4" %}
-            <div class="col-6 col-md-3">
-                <div class="card h-100 product-card">
-                    <span class="discount-badge">-{{ item.discount_percent }}%</span>
-                    <a class="d-block overflow-hidden" >
-                        {% if item.product.image %}
-                        <img alt="{{ item.product.name }}" class="card-img-top product-image"
-                             src="{{ item.product.image.url }}">
-                        {% else %}
-                        <div class="product-image bg-light d-flex align-items-center justify-content-center">
-                            <i class="bi bi-image text-muted display-4"></i>
-                        </div>
-                        {% endif %}
-                    </a>
-                    <div class="card-body">
-                        <h6 class="product-name mb-2">
-                            <a class="text-dark text-decoration-none" href="{{ item.product.get_absolute_url }}">{{
-                                item.product.name }}</a>
-                        </h6>
-                        <div class="price-section mt-2">
-                            <span class="current-price">{{ item.sale_price|currency }}</span>
-                            <span class="original-price">{{ item.product.price|currency }}</span>
-                        </div>
-                        <div class="mt-2">
-                            <div class="progress" style="height: 5px; border-radius: 10px;">
-                                <div class="progress-bar bg-warning"></div>
-                            </div>
-                            <small class="text-muted" style="font-size: 0.6875rem;">Đã bán {{ item.sold_count }}/{{
-                                item.quantity_limit }}</small>
-                        </div>
-                    </div>
+                <div class="category-body">
+                    <h3 class="category-name">{{ cat.name }}</h3>
+                    <p class="category-desc">{{ cat.description|default:"Khám phá các sản phẩm trong danh mục này"|truncatechars:60 }}</p>
+                    <span class="category-btn">
+                        MUA NGAY <i class="bi bi-arrow-right"></i>
+                    </span>
                 </div>
-            </div>
+            </a>
             {% endfor %}
         </div>
-    </div>
-</section>
-{% endif %}
-
-<!-- Featured Products  -->
-{% if featured_products %}
-<section class="mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="h4 mb-1 fw-bold">
-                <i class="bi bi-star-fill text-warning me-2"></i>Sản phẩm nổi bật
-            </h2>
-            <p class="text-muted mb-0 small">Được yêu thích nhất tuần này</p>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <p>Chưa có danh mục sản phẩm</p>
         </div>
-        <a class="btn btn-outline-primary btn-sm" href="{% url 'products:product_list' %}?featured=1">
-            Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
-        </a>
-    </div>
-    <div class="row g-3 g-lg-4">
-        {% for product in featured_products %}
-        <div class="col-6 col-md-4 col-lg-3">
-            {% include 'partials/_product_card.html' %}
+        {% endif %}
+    </section>
+
+    {% if flash_sale_products %}
+    <section class="flash-section">
+        <div class="section-header">
+            <h2 class="section-title"><i class="bi bi-lightning-fill"></i> Flash Sale</h2>
+            <a href="{% url 'promotions:flash_sales' %}" class="section-link" style="color: #fff;">
+                Xem tất cả <i class="bi bi-arrow-right"></i>
+            </a>
         </div>
-        {% endfor %}
-    </div>
-</section>
-{% endif %}
-
-<!-- New Products  -->
-{% if new_products %}
-<section class="mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="h4 mb-1 fw-bold">
-                <i class="bi bi-box-seam text-primary me-2"></i>Sản phẩm mới
-            </h2>
-            <p class="text-muted mb-0 small">Mới nhất, chất lượng nhất</p>
+        <div class="flash-grid">
+            {% for sale in flash_sale_products %}
+                {% include 'partials/_flash_sale_card.html' %}
+            {% endfor %}
         </div>
-        <a class="btn btn-outline-primary btn-sm" href="{% url 'products:product_list' %}?new=1">
-            Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
-        </a>
-    </div>
-    <div class="row g-3 g-lg-4">
-        {% for product in new_products %}
-        <div class="col-6 col-md-4 col-lg-3">
-            {% include 'partials/_product_card.html' %}
+    </section>
+    {% endif %}
+
+    {% if featured_products %}
+    <section>
+        <div class="section-header">
+            <h2 class="section-title"><i class="bi bi-star-fill"></i> Sản phẩm nổi bật</h2>
+            <a href="{% url 'products:product_list' %}" class="section-link">
+                Xem tất cả <i class="bi bi-arrow-right"></i>
+            </a>
         </div>
-        {% endfor %}
-    </div>
-</section>
-{% endif %}
-
-<!-- Best Sellers  -->
-{% if best_sellers %}
-<section class="mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="h4 mb-1 fw-bold">
-                <i class="bi bi-trophy text-success me-2"></i>Bán chạy nhất
-            </h2>
-            <p class="text-muted mb-0 small">Top sản phẩm được mua nhiều</p>
+        <div class="product-grid">
+            {% for product in featured_products %}
+                {% include 'partials/_product_card.html' %}
+            {% endfor %}
         </div>
-        <a class="btn btn-outline-primary btn-sm" href="{% url 'products:product_list' %}?sort=-sold">
-            Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
-        </a>
-    </div>
-    <div class="row g-3 g-lg-4">
-        {% for product in best_sellers %}
-        <div class="col-6 col-md-4 col-lg-3">
-            {% include 'partials/_product_card.html' %}
+    </section>
+    {% endif %}
+
+    {% if new_products %}
+    <section>
+        <div class="section-header">
+            <h2 class="section-title"><i class="bi bi-sparkles"></i> Hàng mới về</h2>
         </div>
-        {% endfor %}
-    </div>
-</section>
-{% endif %}
-
-<!-- Newsletter  -->
-<section class="mb-5">
-    <div class="card newsletter-section border-0">
-        <div class="card-body py-5 text-center position-relative" style="z-index: 1;">
-            <span class="badge bg-white text-primary mb-3 px-3 py-2 fw-semibold">
-                <i class="bi bi-envelope-heart me-1"></i>Đăng ký nhận tin
-            </span>
-            <h3 class="mb-2 text-white fw-bold">Nhận ưu đãi độc quyền!</h3>
-            <p class="mb-4 opacity-90 mx-auto" style="max-width: 460px; color: rgba(255,255,255,0.9);">Đăng ký ngay để
-                nhận voucher giảm 10% cho đơn hàng đầu tiên</p>
-            <form class="row g-2 justify-content-center">
-                <div class="col-12 col-md-5">
-                    <input class="form-control form-control-lg border-0" placeholder="Nhập email của bạn" style="border-radius: 50px; padding: 0.875rem 1.5rem;"
-                           type="email">
-                </div>
-                <div class="col-auto">
-                    <button class="btn btn-light btn-lg fw-semibold" style="border-radius: 50px; padding: 0.875rem 1.75rem;"
-                            type="submit">
-                        <i class="bi bi-send me-2"></i>Đăng ký
-                    </button>
-                </div>
-            </form>
+        <div class="product-grid">
+            {% for product in new_products %}
+                {% include 'partials/_product_card.html' %}
+            {% endfor %}
         </div>
-    </div>
-</section>
+    </section>
+    {% endif %}
 
-<script>
-    // Countdown Timer
-    function updateCountdown() {
-        const now = new Date();
-        const endOfDay = new Date();
-        endOfDay.setHours(23, 59, 59, 999);
+    {% if best_sellers %}
+    <section>
+        <div class="section-header">
+            <h2 class="section-title"><i class="bi bi-graph-up-arrow"></i> Bán chạy nhất</h2>
+        </div>
+        <div class="product-grid">
+            {% for product in best_sellers %}
+                {% include 'partials/_product_card.html' %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
 
-        const diff = endOfDay - now;
+    {% if recommended_products %}
+    <section>
+        <div class="section-header">
+            <h2 class="section-title"><i class="bi bi-robot"></i> Gợi ý bởi AI</h2>
+        </div>
+        <div class="product-grid">
+            {% for product in recommended_products %}
+                {% include 'partials/_product_card.html' %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
 
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-        const hoursEl = document.getElementById('hours');
-        const minutesEl = document.getElementById('minutes');
-        const secondsEl = document.getElementById('seconds');
-
-        if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
-        if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
-        if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
-    }
-
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-</script>
+    <section class="newsletter-section">
+        <h3 class="newsletter-title">Nhận ưu đãi mới nhất</h3>
+        <p class="newsletter-desc">Đăng ký để không bỏ lỡ flash sale và sản phẩm mới</p>
+        <form class="newsletter-form">
+            <input type="email" class="newsletter-input" placeholder="Nhập email của bạn...">
+            <button type="button" class="newsletter-btn">
+                <i class="bi bi-send"></i> Đăng ký
+            </button>
+        </form>
+    </section>
+</div>
 {% endblock %}
