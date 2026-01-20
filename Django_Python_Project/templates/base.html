@@ -284,6 +284,7 @@
         /* User Dropdown */
         .nav-user {
             position: relative;
+            overflow: visible; /* allow dropdown to escape parent bounds */
         }
 
         .nav-user__toggle {
@@ -303,6 +304,10 @@
             background: var(--es-bg-secondary);
         }
 
+        .nav-user__toggle:hover .nav-user__name {
+            color: #14b8a6;
+        }
+
         .nav-user__avatar {
             width: 36px;
             height: 36px;
@@ -318,8 +323,9 @@
 
         .nav-user__name {
             font-weight: 500;
-            color: #fff;
+            color: #14b8a6;
             font-size: 0.9rem;
+            transition: color 0.2s ease;
         }
 
         /* Dropdown Menu */
@@ -329,25 +335,30 @@
             border-radius: 20px;
             padding: 0;
             min-width: 260px;
-            animation: dropdownFade 200ms ease-out;
+            z-index: 2000;
             overflow: hidden;
             background: #fff;
+        }
+
+        /* Right-aligned dropdown specifics */
+        .dropdown-menu.dropdown-menu-end {
+            right: 0; left: auto; transform-origin: top right;
         }
 
         @keyframes dropdownFade {
             from {
                 opacity: 0;
-                transform: translateY(-10px) scale(0.95);
+                transform: translateY(-8px);
             }
             to {
                 opacity: 1;
-                transform: translateY(0) scale(1);
+                transform: translateY(0);
             }
         }
 
         .dropdown-header {
             background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
-            padding: 1.25rem 1rem;
+            padding: 1.25rem 1rem 0.9rem 1rem;
             color: #fff;
             margin: 0;
         }
@@ -360,8 +371,18 @@
         }
 
         .dropdown-header small {
-            color: rgba(255, 255, 255, 0.7) !important;
-            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.65) !important;
+            font-size: 0.78rem;
+            display: block;
+            margin-top: 6px;
+            opacity: 0.85;
+            font-weight: 400;
+            letter-spacing: 0.2px;
+        }
+
+        /* Hint browser for smoother opening */
+        .dropdown-menu {
+            will-change: transform, opacity;
         }
 
         .dropdown-menu .dropdown-divider {
@@ -550,7 +571,8 @@
         }
 
         .mobile-user__info strong {
-            color: var(--es-text-primary);
+            color: #14b8a6;
+            font-weight: 600;
         }
 
         .mobile-user__info small {
@@ -919,7 +941,7 @@
                     <span aria-hidden="true" class="notification-badge" style="display:none;">0</span>
                 </a>
                 <div class="nav-user dropdown">
-                    <button aria-expanded="false" aria-haspopup="true"
+                    <button type="button" aria-expanded="false" aria-haspopup="true"
                             class="nav-user__toggle dropdown-toggle" data-bs-toggle="dropdown">
                         <div aria-hidden="true" class="nav-user__avatar">
                             {{ user.first_name|slice:":1"|default:user.username|slice:":1"|upper }}
