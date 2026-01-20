@@ -7,9 +7,10 @@ from .models import Profile
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        # Initialize the profile with the user's email to avoid creating
-        # multiple profiles with an empty-string email (unique constraint).
-        Profile.objects.create(user=instance, email=getattr(instance, 'email', ''))
+        email_value = (instance.email or instance.username or '').strip().lower()
+        if not email_value:
+            email_value = f'user-{instance.pk}@example.invalid'
+        Profile.objects.create(user=instance, email=email_value)
 
 
 @receiver(post_save, sender=User)

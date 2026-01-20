@@ -31,10 +31,15 @@ class QRService:
             Nội dung chuyển khoản: "DH{order_number} {4_số_cuối_phone}"
         """
         # Lấy 4 số cuối của số điện thoại
-        phone_clean = ''.join(filter(str.isdigit, phone))
+        phone_clean = ''.join(filter(str.isdigit, phone or ''))
         last_four = phone_clean[-4:] if len(phone_clean) >= 4 else phone_clean
 
-        return f"DH{order_number} {last_four}"
+        order_number = (order_number or '').strip()
+        prefix = '' if order_number.upper().startswith('DH') else 'DH'
+        content = f"{prefix}{order_number}"
+        if last_four:
+            content = f"{content} {last_four}"
+        return content
 
     @classmethod
     def generate_vietqr_url(

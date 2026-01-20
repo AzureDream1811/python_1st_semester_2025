@@ -3,9 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.urls import reverse
+from django.utils import timezone
 from apps.orders.models import Order
 from .models import PaymentTransaction
 from .services.payment_service import PaymentService
+import uuid
 
 
 @login_required
@@ -124,6 +128,7 @@ def zalopay_callback(request):
 def payment_status(request, order_id):
     """Kiểm tra trạng thái thanh toán"""
     order = get_object_or_404(Order, pk=order_id, user=request.user)
+
     transaction = PaymentTransaction.objects.filter(order=order).last()
 
     context = {
@@ -149,15 +154,56 @@ from .models import BankAccount, EWalletAccount
 from .services.qr_service import QRService
 
 
+ALLOWED_QR_METHODS = {'bank_transfer', 'momo', 'zalopay'}
+
+
+def _get_or_create_qr_transaction(order):
+    transaction = PaymentTransaction.objects.filter(
+        order=order,
+        payment_method=order.payment_method
+    ).order_by('-created_at').first()
+
+    if transaction:
+        return transaction
+
+    transaction_id = f"QR-{order.id}-{order.payment_method}-{uuid.uuid4().hex[:8].upper()}"
+    return PaymentTransaction.objects.create(
+        order=order,
+        payment_method=order.payment_method,
+        transaction_id=transaction_id,
+        amount=order.total,
+        status='pending'
+    )
+
+
 @login_required
 def bank_transfer_payment(request, order_id):
     """Hiển thị thông tin chuyển khoản ngân hàng với QR"""
     order = get_object_or_404(Order, pk=order_id, user=request.user)
 
+    if order.payment_method not in ALLOWED_QR_METHODS:
+        messages.error(request, 'Invalid payment method for QR.')
+        return redirect('orders:detail', order_number=order.order_number)
+
     # Lấy tài khoản ngân hàng mặc định
-    bank_account = BankAccount.objects.filter(is_active=True, is_default=True).first()
+    bank_account = BankAccount.objects.filter(
+        is_active=True,
+        bank_code='MB'
+    ).order_by('-is_default').first()
+    if not bank_account:
+        bank_account = BankAccount.objects.filter(is_active=True, is_default=True).first()
     if not bank_account:
         bank_account = BankAccount.objects.filter(is_active=True).first()
+
+    if not bank_account:
+        bank_account = BankAccount(
+            bank_code='MB',
+            bank_name='MB Bank',
+            account_number='123456789',
+            account_name='DEMO PROJECT',
+            is_active=True,
+            is_default=True
+        )
 
     if not bank_account:
         messages.error(request, 'Chưa cấu hình tài khoản ngân hàng. Vui lòng chọn phương thức khác.')
@@ -180,6 +226,7 @@ def bank_transfer_payment(request, order_id):
         'bank_account': bank_account,
         'transfer_content': transfer_content,
         'qr_url': qr_data['qr_url'],
+        'transaction': _get_or_create_qr_transaction(order),
     }
     return render(request, 'payments/bank_transfer.html', context)
 
@@ -189,12 +236,25 @@ def momo_payment(request, order_id):
     """Hiển thị QR MoMo"""
     order = get_object_or_404(Order, pk=order_id, user=request.user)
 
+    if order.payment_method not in ALLOWED_QR_METHODS:
+        messages.error(request, 'Invalid payment method for QR.')
+        return redirect('orders:detail', order_number=order.order_number)
+
     # Lấy tài khoản MoMo
     momo_account = EWalletAccount.objects.filter(
         wallet_type='momo', is_active=True, is_default=True
     ).first()
     if not momo_account:
         momo_account = EWalletAccount.objects.filter(wallet_type='momo', is_active=True).first()
+
+    if not momo_account:
+        momo_account = EWalletAccount(
+            wallet_type='momo',
+            wallet_id='0900000000',
+            wallet_name='DEMO MOMO',
+            is_active=True,
+            is_default=True
+        )
 
     if not momo_account:
         messages.error(request, 'Chưa cấu hình tài khoản MoMo. Vui lòng chọn phương thức khác.')
@@ -216,6 +276,7 @@ def momo_payment(request, order_id):
         'wallet_type': 'MoMo',
         'transfer_content': transfer_content,
         'qr_base64': qr_data['qr_base64'],
+        'transaction': _get_or_create_qr_transaction(order),
     }
     return render(request, 'payments/ewallet.html', context)
 
@@ -225,12 +286,25 @@ def zalopay_payment(request, order_id):
     """Hiển thị QR ZaloPay"""
     order = get_object_or_404(Order, pk=order_id, user=request.user)
 
+    if order.payment_method not in ALLOWED_QR_METHODS:
+        messages.error(request, 'Invalid payment method for QR.')
+        return redirect('orders:detail', order_number=order.order_number)
+
     # Lấy tài khoản ZaloPay
     zalopay_account = EWalletAccount.objects.filter(
         wallet_type='zalopay', is_active=True, is_default=True
     ).first()
     if not zalopay_account:
         zalopay_account = EWalletAccount.objects.filter(wallet_type='zalopay', is_active=True).first()
+
+    if not zalopay_account:
+        zalopay_account = EWalletAccount(
+            wallet_type='zalopay',
+            wallet_id='0900000000',
+            wallet_name='DEMO ZALOPAY',
+            is_active=True,
+            is_default=True
+        )
 
     if not zalopay_account:
         messages.error(request, 'Chưa cấu hình tài khoản ZaloPay. Vui lòng chọn phương thức khác.')
@@ -252,8 +326,62 @@ def zalopay_payment(request, order_id):
         'wallet_type': 'ZaloPay',
         'transfer_content': transfer_content,
         'qr_base64': qr_data['qr_base64'],
+        'transaction': _get_or_create_qr_transaction(order),
     }
     return render(request, 'payments/ewallet.html', context)
+
+
+@login_required
+@require_POST
+def mark_qr_scanned(request, order_id):
+    order = get_object_or_404(Order, pk=order_id, user=request.user)
+    if order.payment_method not in ALLOWED_QR_METHODS:
+        return JsonResponse({'success': False, 'message': 'Invalid payment method.'}, status=400)
+
+    transaction = _get_or_create_qr_transaction(order)
+    if transaction.status == 'pending':
+        transaction.status = 'processing'
+        transaction.response_message = 'qr_scanned'
+        transaction.response_data = {
+            'qr_scanned': True,
+            'scanned_at': timezone.now().isoformat()
+        }
+        transaction.save(update_fields=['status', 'response_message', 'response_data', 'updated_at'])
+
+    return JsonResponse({
+        'success': True,
+        'status': transaction.status
+    })
+
+
+@login_required
+@require_POST
+def confirm_manual_payment(request, order_id):
+    order = get_object_or_404(Order, pk=order_id, user=request.user)
+    if order.payment_method not in ALLOWED_QR_METHODS:
+        return JsonResponse({'success': False, 'message': 'Invalid payment method.'}, status=400)
+
+    transaction = _get_or_create_qr_transaction(order)
+    if transaction.status != 'success':
+        transaction.status = 'success'
+        transaction.response_message = 'user_confirmed'
+        transaction.response_data = {
+            'confirmed_by_user': True,
+            'confirmed_at': timezone.now().isoformat()
+        }
+        transaction.save(update_fields=['status', 'response_message', 'response_data', 'updated_at'])
+
+    if order.payment_status != 'paid':
+        order.payment_status = 'paid'
+        order.save(update_fields=['payment_status'])
+
+    if order.status == 'pending' and order.can_transition_to('confirmed'):
+        order.transition_to('confirmed', note='User confirmed payment')
+
+    return JsonResponse({
+        'success': True,
+        'redirect_url': reverse('orders:detail', args=[order.order_number])
+    })
 
 
 # ============== TRANSACTION HISTORY VIEWS ==============

@@ -669,6 +669,89 @@
             border: none;
             border-top: 1px solid var(--es-border-light);
         }
+        /* static/css/support.css */
+:root{
+  --support-radius: 1.25rem;
+}
+
+.support-hero{
+  background:
+    radial-gradient(1200px 400px at 10% 0%, rgba(13,110,253,.18), transparent 60%),
+    radial-gradient(900px 300px at 90% 10%, rgba(32,201,151,.16), transparent 55%),
+    linear-gradient(180deg, rgba(13,110,253,.08), rgba(255,255,255,0));
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+
+.support-hero .support-kicker{
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: .8rem;
+  opacity: .8;
+}
+
+.support-card{
+  border-radius: var(--support-radius);
+  overflow: hidden;
+}
+
+.support-card .card-body{
+  line-height: 1.75;
+}
+
+.support-sidebar{
+  border-radius: var(--support-radius);
+}
+
+.support-sidebar .list-group-item{
+  border: 0;
+  border-radius: .9rem;
+  margin-bottom: .35rem;
+  padding: .75rem .85rem;
+}
+
+.support-sidebar .list-group-item .bi{
+  width: 1.25rem;
+}
+
+.support-sidebar .list-group-item.active{
+  box-shadow: 0 10px 25px rgba(13,110,253,.15);
+}
+
+.support-section-title{
+  font-weight: 800;
+  font-size: 1.05rem;
+  margin-top: 1.25rem;
+}
+
+.support-muted{
+  color: rgba(0,0,0,.6);
+}
+
+.support-badge{
+  font-weight: 700;
+  border-radius: 999px;
+  padding: .35rem .6rem;
+}
+
+.accordion-button{
+  border-radius: .9rem !important;
+}
+
+.accordion-item{
+  border: 0;
+  margin-bottom: .6rem;
+}
+
+.accordion-item .accordion-collapse{
+  border-radius: .9rem;
+  overflow: hidden;
+}
+
+.table thead th{
+  white-space: nowrap;
+}
+
     </style>
 
     <style>
@@ -856,7 +939,6 @@
             filter: grayscale(0%);
         }
 
-        /* ========== Main Content ========== */
         .main-content {
             min-height: calc(100vh - 200px);
             padding: 0;
@@ -864,7 +946,6 @@
     </style>
 
     <style>
-        /* ========== Responsive Design ========== */
         @media (max-width: 1200px) {
             .footer__grid {
                 grid-template-columns: 1fr 1fr;
@@ -1170,6 +1251,8 @@
                      src="{% static 'images/payment/visa.svg' %}">
                 <img alt="Mastercard" height="24" onerror="this.style.display='none'"
                      src="{% static 'images/payment/mastercard.svg' %}">
+                <img alt="JCB" height="24" onerror="this.style.display='none'"
+                     src="{% static 'images/payment/jcb.svg' %}">
                 <img alt="MoMo" height="24" onerror="this.style.display='none'"
                      src="{% static 'images/payment/momo.svg' %}">
                 <img alt="VNPay" height="24" onerror="this.style.display='none'"
@@ -1290,6 +1373,170 @@
     updateNotificationCount();
     setInterval(updateNotificationCount, 60000);
     {%endif %}
+
+    function getCsrfToken() {
+        const metaToken = document.querySelector('meta[name="csrf-token"]')?.content;
+        if (metaToken) {
+            return metaToken;
+        }
+        const match = document.cookie.match(/csrftoken=([^;]+)/);
+        return match ? match[1] : '';
+    }
+
+    function showInlineNotification(message, type = 'success') {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: type,
+                title: message,
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        } else {
+            alert(message);
+        }
+    }
+
+    function updateCartBadge(count) {
+        if (typeof count !== 'number') {
+            return;
+        }
+        const badges = document.querySelectorAll('.cart-badge, .mobile-badge');
+        badges.forEach(badge => {
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : String(count);
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        });
+    }
+
+    function addToCart(productId, quantity = 1) {
+        const csrfToken = getCsrfToken();
+        const buttons = document.querySelectorAll(`[onclick="addToCart(${productId})"]`);
+
+        buttons.forEach(button => {
+            if (!button.dataset.originalHtml) {
+                button.dataset.originalHtml = button.innerHTML;
+            }
+            button.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> <span>Dang them...</span>';
+            button.disabled = true;
+        });
+
+        fetch(`/cart/add/${productId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ quantity: quantity })
+        })
+        .then(response => response.json().then(data => ({ ok: response.ok, data })))
+        .then(result => {
+            if (result.ok && result.data?.success) {
+                showInlineNotification('Da them vao gio hang', 'success');
+                updateCartBadge(result.data.cart_count);
+            } else {
+                const message = result.data?.message || 'Khong the them vao gio hang';
+                showInlineNotification(message, 'error');
+            }
+        })
+        .catch(() => {
+            showInlineNotification('Co loi xay ra', 'error');
+        })
+        .finally(() => {
+            buttons.forEach(button => {
+                if (button.dataset.originalHtml) {
+                    button.innerHTML = button.dataset.originalHtml;
+                }
+                button.disabled = false;
+            });
+        });
+    }
+
+    function toggleWishlist(productId) {
+        const csrfToken = getCsrfToken();
+
+        fetch(`/wishlist/toggle/${productId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.status === 401) {
+                return response.json().then(data => {
+                    showInlineNotification(
+                        data.message || 'Vui long dang nhap de dung tinh nang yeu thich',
+                        'warning'
+                    );
+                    setTimeout(() => {
+                        const nextUrl = window.location.pathname + window.location.search;
+                        window.location.href = '/accounts/login/?next=' + encodeURIComponent(nextUrl);
+                    }, 1500);
+                    throw new Error('require_login');
+                });
+            }
+            return response.json().then(data => ({ ok: response.ok, data }));
+        })
+        .then(result => {
+            if (!result) {
+                return;
+            }
+            const data = result.data || {};
+            if (result.ok && data.success) {
+                const buttons = document.querySelectorAll(`.wishlist-btn[data-product-id="${productId}"]`);
+                buttons.forEach(button => {
+                    const icon = button.querySelector('i');
+                    if (data.action === 'added') {
+                        icon?.classList.remove('bi-heart');
+                        icon?.classList.add('bi-heart-fill');
+                        button.setAttribute('aria-pressed', 'true');
+                    } else {
+                        icon?.classList.remove('bi-heart-fill');
+                        icon?.classList.add('bi-heart');
+                        button.setAttribute('aria-pressed', 'false');
+                    }
+                });
+
+                const pdWishlistBtn = document.getElementById('wishlistBtn');
+                if (pdWishlistBtn) {
+                    const icon = pdWishlistBtn.querySelector('i');
+                    if (data.action === 'added') {
+                        pdWishlistBtn.classList.add('active');
+                        icon?.classList.remove('bi-heart');
+                        icon?.classList.add('bi-heart-fill');
+                    } else {
+                        pdWishlistBtn.classList.remove('active');
+                        icon?.classList.remove('bi-heart-fill');
+                        icon?.classList.add('bi-heart');
+                    }
+                }
+
+                showInlineNotification(data.message || 'Da cap nhat yeu thich', 'success');
+            } else {
+                showInlineNotification(data.message || 'Co loi xay ra', 'error');
+            }
+        })
+        .catch(error => {
+            if (error.message !== 'require_login') {
+                console.error('Wishlist error:', error);
+                showInlineNotification('Co loi xay ra', 'error');
+            }
+        });
+    }
+
+    function quickView(productSlug) {
+        window.location.href = `/product/${productSlug}/`;
+    }
 </script>
 
 {% block extra_js %}{% endblock %}

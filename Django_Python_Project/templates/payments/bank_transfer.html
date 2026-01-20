@@ -57,17 +57,36 @@
                                     </td>
                                 </tr>
                             </table>
-                            
+
                             <div class="alert alert-warning mt-3">
                                 <i class="bi bi-exclamation-triangle me-2"></i>
                                 <strong>Lưu ý:</strong> Vui lòng nhập đúng nội dung chuyển khoản để đơn hàng được xác nhận tự động.
                             </div>
                         </div>
                     </div>
-                    
+
                     <hr>
-                    
-                    <div class="d-flex justify-content-between">
+
+                    <div id="qr-scan-status" class="alert alert-info mb-3">
+                        <i class="bi bi-qr-code-scan me-2"></i>
+                        <strong>Status:</strong> Waiting for QR scan.
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <a href="{% url 'orders:detail' order.order_number %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Quay lại
+                        </a>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-primary" id="mark-scanned-btn" onclick="markQrScanned()">
+                                <i class="bi bi-camera me-2"></i>I scanned QR
+                            </button>
+                            <button type="button" class="btn btn-success d-none" id="confirm-paid-btn" onclick="confirmPayment()">
+                                <i class="bi bi-check-lg me-2"></i>Confirm paid
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between d-none">
                         <a href="{% url 'orders:detail' order.order_number %}" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Xem đơn hàng
                         </a>
@@ -92,5 +111,129 @@ function confirmPayment() {
     alert('Cảm ơn bạn! Chúng tôi sẽ xác nhận thanh toán trong vòng 5-10 phút.');
     window.location.href = "{% url 'orders:detail' order.order_number %}";
 }
+</script>
+
+<script>
+const orderId = {{ order.id }};
+let currentStatus = '{{ transaction.status|default:"pending" }}';
+let scanRequested = false;
+
+function getCsrfToken() {
+    const metaToken = document.querySelector('meta[name="csrf-token"]');
+    if (metaToken && metaToken.content) {
+        return metaToken.content;
+    }
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    return match ? match[1] : '';
+}
+
+function updateScanUi(status) {
+    currentStatus = status || 'pending';
+    const statusEl = document.getElementById('qr-scan-status');
+    const markBtn = document.getElementById('mark-scanned-btn');
+    const confirmBtn = document.getElementById('confirm-paid-btn');
+
+    if (!statusEl || !markBtn || !confirmBtn) {
+        return;
+    }
+
+    if (currentStatus === 'success') {
+        statusEl.className = 'alert alert-success mb-3';
+        statusEl.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i><strong>Status:</strong> Payment confirmed.';
+        markBtn.classList.add('d-none');
+        confirmBtn.classList.add('d-none');
+        return;
+    }
+
+    if (currentStatus === 'processing') {
+        statusEl.className = 'alert alert-warning mb-3';
+        statusEl.innerHTML = '<i class="bi bi-clock-history me-2"></i><strong>Status:</strong> QR scanned. Please confirm payment.';
+        markBtn.classList.add('d-none');
+        confirmBtn.classList.remove('d-none');
+        return;
+    }
+
+    statusEl.className = 'alert alert-info mb-3';
+    statusEl.innerHTML = '<i class="bi bi-qr-code-scan me-2"></i><strong>Status:</strong> Waiting for QR scan.';
+    markBtn.classList.remove('d-none');
+    confirmBtn.classList.add('d-none');
+}
+
+function markQrScanned() {
+    if (scanRequested) {
+        return;
+    }
+    scanRequested = true;
+    fetch(`/payments/qr-scan/${orderId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateScanUi(data.status || 'processing');
+        } else {
+            scanRequested = false;
+            alert(data.message || 'QR scan update failed.');
+        }
+    })
+    .catch(() => {
+        scanRequested = false;
+        alert('QR scan update failed.');
+    });
+}
+
+function confirmPayment() {
+    const confirmBtn = document.getElementById('confirm-paid-btn');
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+    }
+    fetch(`/payments/confirm/${orderId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateScanUi('success');
+            if (data.redirect_url) {
+                window.location.href = data.redirect_url;
+            }
+        } else {
+            alert(data.message || 'Payment confirmation failed.');
+        }
+    })
+    .catch(() => {
+        alert('Payment confirmation failed.');
+    })
+    .finally(() => {
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateScanUi(currentStatus);
+    setTimeout(function() {
+        if (currentStatus === 'pending' && !scanRequested) {
+            markQrScanned();
+        }
+    }, 2000);
+});
+
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible' && currentStatus === 'pending' && !scanRequested) {
+        markQrScanned();
+    }
+});
 </script>
 {% endblock %}
