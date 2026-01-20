@@ -118,7 +118,8 @@ class Product(models.Model):
     # Hình ảnh
     image = models.ImageField(
         upload_to='products/',
-        verbose_name='Hình ảnh chính'
+        verbose_name='Hình ảnh chính',
+        max_length=255,
     )
 
     # Thông số kỹ thuật (JSON field)
@@ -259,7 +260,7 @@ class ProductImage(models.Model):
         related_name='images',
         verbose_name='Sản phẩm'
     )
-    image = models.ImageField(upload_to='products/', verbose_name='Hình ảnh')
+    image = models.ImageField(upload_to='products/', verbose_name='Hình ảnh', max_length=255)
     alt_text = models.CharField(max_length=255, blank=True, verbose_name='Alt text')
     is_primary = models.BooleanField(default=False, verbose_name='Ảnh chính')
     order = models.PositiveIntegerField(default=0, verbose_name='Thứ tự')

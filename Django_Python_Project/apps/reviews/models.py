@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
+from typing import TYPE_CHECKING, Tuple, Dict
 from apps.products.models import Product
 from apps.orders.models import OrderItem
 
@@ -98,6 +99,12 @@ class Review(models.Model):
         verbose_name='Lượt hữu ích'
     )
 
+    if TYPE_CHECKING:
+        # Help static type checkers know that `Review` has a related manager `helpful_votes`
+        from django.db.models.manager import Manager
+
+        helpful_votes: 'Manager["ReviewHelpful"]'
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Ngày cập nhật')
@@ -126,15 +133,26 @@ class Review(models.Model):
         self.product.update_sentiment_stats()
 
     def analyze_sentiment(self):
-        """Phân tích sentiment cho review"""
+        """
+        Phân tích sentiment cho review.
+
+        Kết hợp text sentiment với star rating sử dụng weighted average:
+        - Text sentiment chiếm 60%
+        - Star rating chiếm 40%
+
+        Điều này giúp:
+        - Giảm thiểu mâu thuẫn giữa nội dung và số sao
+        - Tạo ra sentiment score phản ánh cả hai yếu tố
+        """
         from .sentiment import SentimentAnalyzer
 
         analyzer = SentimentAnalyzer()
-        result = analyzer.analyze(self.comment)
+        # Truyền cả comment và rating để kết hợp
+        result = analyzer.analyze(self.comment, rating=self.rating)
 
         self.sentiment = result['sentiment']
         self.sentiment_score = result['score']
-        # processed_text được sử dụng nội bộ, không lưu vào DB
+        # text_score và rating_score có thể được log/debug nếu cần
 
     def get_images(self):
         """Lấy danh sách hình ảnh"""
@@ -188,13 +206,13 @@ class Review(models.Model):
             if self.sentiment == 'positive' and self.sentiment_score > 0.7:
                 return {
                     'mismatch': True,
-                    'message': f'Gợi ý: Nội dung rất tích cực, có thể xem xét nâng sao',
+                    'message': 'Gợi ý: Nội dung rất tích cực, có thể xem xét nâng sao',
                     'severity': 'low'
                 }
             if self.sentiment == 'negative' and self.sentiment_score < -0.7:
                 return {
                     'mismatch': True,
-                    'message': f'Gợi ý: Nội dung tiêu cực mạnh, có thể xem xét giảm sao',
+                    'message': 'Gợi ý: Nội dung tiêu cực mạnh, có thể xem xét giảm sao',
                     'severity': 'low'
                 }
 
@@ -256,7 +274,8 @@ class ReviewHelpful(models.Model):
 
     def delete(self, *args, **kwargs):
         review = self.review
-        super().delete(*args, **kwargs)
+        result: Tuple[int, Dict[str, int]] = super().delete(*args, **kwargs)
         # Cập nhật số lượt hữu ích
         review.helpful_count = review.helpful_votes.count()
         review.save(update_fields=['helpful_count'])
+        return result

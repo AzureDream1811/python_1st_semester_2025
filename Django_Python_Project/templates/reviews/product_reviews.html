@@ -54,7 +54,7 @@
                     <div>
                         <strong>{{ review.user.first_name|default:review.user.username }}</strong>
                         {% if review.is_verified_purchase %}
-                        <span class="badge bg-success ms-2"><i class="bi bi-patch-check"></i> Đã mua hàng</span>
+                        <span class="badge ms-2" style="background-color: #198754; color: #fff;"><i class="bi bi-patch-check"></i> Đã mua hàng</span>
                         {% endif %}
                     </div>
                     <small class="text-muted">{{ review.created_at|date:"d/m/Y" }}</small>
@@ -75,13 +75,18 @@
                 </div>
                 {% endif %}
                 
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center gap-2">
                     <form action="{% url 'reviews:helpful' review.pk %}" method="post" class="d-inline">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-sm btn-outline-secondary">
                             <i class="bi bi-hand-thumbs-up"></i> Hữu ích ({{ review.helpful_count }})
                         </button>
                     </form>
+                    {% if request.user == review.user %}
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="openEditModal({{ review.pk }})">
+                        <i class="bi bi-pencil"></i> Chỉnh sửa
+                    </button>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -99,4 +104,68 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Edit Review Modal -->
+<div class="modal fade" id="editReviewModal" tabindex="-1" aria-labelledby="editReviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editReviewModalLabel"><i class="bi bi-pencil-square me-2"></i>Chỉnh sửa đánh giá</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editReviewForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editRating" class="form-label">Đánh giá sao</label>
+                        <select name="rating" id="editRating" class="form-select" required>
+                            <option value="5">5 sao - Xuất sắc</option>
+                            <option value="4">4 sao - Tốt</option>
+                            <option value="3">3 sao - Bình thường</option>
+                            <option value="2">2 sao - Kém</option>
+                            <option value="1">1 sao - Rất tệ</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editComment" class="form-label">Nội dung đánh giá</label>
+                        <textarea name="comment" id="editComment" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="alert alert-info small">
+                        <i class="bi bi-robot me-1"></i> AI sẽ phân tích lại cảm xúc sau khi cập nhật
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openEditModal(reviewId) {
+    // Fetch review data
+    fetch(`/reviews/get/${reviewId}/`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('editRating').value = data.review.rating;
+            document.getElementById('editComment').value = data.review.comment;
+            document.getElementById('editReviewForm').action = `/reviews/edit/${reviewId}/`;
+            new bootstrap.Modal(document.getElementById('editReviewModal')).show();
+        } else {
+            alert(data.error || 'Không thể tải thông tin đánh giá');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Đã xảy ra lỗi');
+    });
+}
+</script>
 {% endblock %}

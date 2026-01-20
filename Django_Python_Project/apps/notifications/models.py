@@ -71,7 +71,7 @@ class PushSubscription(models.Model):
         verbose_name='Người dùng'
     )
 
-    endpoint = models.CharField(max_length=500, verbose_name='Endpoint')
+    endpoint = models.CharField(max_length=190, verbose_name='Endpoint')
     p256dh = models.CharField(max_length=200, verbose_name='P256DH Key')
     auth = models.CharField(max_length=100, verbose_name='Auth Key')
 

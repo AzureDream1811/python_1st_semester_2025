@@ -5,6 +5,7 @@ Cung cấp các hàm tính toán thống kê cho Admin Dashboard
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Dict, List, Any
+from django.db.models.query import QuerySet
 from django.db.models import Sum, Count, Avg, Q
 from django.db.models.functions import TruncDate
 from django.utils import timezone
@@ -151,7 +152,7 @@ class DashboardStatistics:
             'backgroundColor': bg_colors
         }
 
-    def get_recent_orders(self, limit: int = 10) -> List[Order]:
+    def get_recent_orders(self, limit: int = 10) -> QuerySet:
         """Lấy đơn hàng gần đây"""
         return Order.objects.select_related('user').order_by('-created_at')[:limit]
 
@@ -233,7 +234,7 @@ class DashboardStatistics:
 
     # === PRODUCT STATISTICS ===
 
-    def get_top_products(self, limit: int = 10) -> List[Product]:
+    def get_top_products(self, limit: int = 10) -> QuerySet:
         """
         Lấy sản phẩm bán chạy nhất
         Property 4: Sản phẩm đầu tiên có sold >= tất cả sản phẩm khác
@@ -530,12 +531,120 @@ class DashboardStatistics:
 
     # === DASHBOARD SUMMARY ===
 
+    def _calculate_percentage_change(self, current: float, previous: float) -> float:
+        """Tính phần trăm thay đổi so với kỳ trước"""
+        if previous > 0:
+            return round(((current - previous) / previous) * 100, 1)
+        return 100.0 if current > 0 else 0.0
+
+    def _get_previous_period_dates(self, period: str, custom_start=None, custom_end=None):
+        """Tính khoảng thời gian kỳ trước để so sánh"""
+        today = timezone.now().date()
+
+        if period == 'today':
+            # So sánh với hôm qua
+            prev_start = today - timedelta(days=1)
+            prev_end = today - timedelta(days=1)
+        elif period == 'week':
+            # So sánh với 7 ngày trước đó
+            prev_start = today - timedelta(days=14)
+            prev_end = today - timedelta(days=8)
+        elif period == 'month':
+            # So sánh với tháng trước
+            first_day = today.replace(day=1)
+            prev_end = first_day - timedelta(days=1)
+            prev_start = prev_end.replace(day=1)
+        elif period == 'year':
+            # So sánh với năm trước
+            prev_start = today.replace(year=today.year - 1, month=1, day=1)
+            prev_end = today.replace(year=today.year - 1, month=12, day=31)
+        elif period == 'custom' and custom_start and custom_end:
+            # So sánh với khoảng thời gian tương đương trước đó
+            days_diff = (custom_end - custom_start).days + 1
+            prev_end = custom_start - timedelta(days=1)
+            prev_start = prev_end - timedelta(days=days_diff - 1)
+        else:
+            # Mặc định so sánh với tháng trước
+            first_day = today.replace(day=1)
+            prev_end = first_day - timedelta(days=1)
+            prev_start = prev_end.replace(day=1)
+
+        return prev_start, prev_end
+
+    def _get_period_order_count(self, start_date, end_date) -> int:
+        """Đếm số đơn hàng trong khoảng thời gian"""
+        return Order.objects.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date
+        ).count()
+
+    def _get_period_customer_count(self, start_date, end_date) -> int:
+        """Đếm số khách hàng mới trong khoảng thời gian"""
+        return User.objects.filter(
+            is_active=True,
+            is_staff=False,
+            date_joined__date__gte=start_date,
+            date_joined__date__lte=end_date
+        ).count()
+
+    def _get_period_product_count(self, start_date, end_date) -> int:
+        """Đếm số sản phẩm mới trong khoảng thời gian"""
+        return Product.objects.filter(
+            is_active=True,
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date
+        ).count()
+
     def get_dashboard_summary(self, period: str = 'month', custom_start=None, custom_end=None) -> Dict[str, Any]:
         """Lấy tất cả thống kê cho dashboard"""
         time_stats = self.get_time_based_stats(period, custom_start, custom_end)
         order_stats = self.get_order_stats()
         sentiment_stats = self.get_sentiment_stats()
         promotion_stats = self.get_promotion_stats()
+
+        # Lấy thông tin kỳ trước để so sánh
+        prev_start, prev_end = self._get_previous_period_dates(period, custom_start, custom_end)
+
+        # Lấy khoảng thời gian hiện tại từ time_stats
+        today = timezone.now().date()
+        if period == 'today':
+            current_start = today
+            current_end = today
+        elif period == 'week':
+            current_start = today - timedelta(days=7)
+            current_end = today
+        elif period == 'month':
+            current_start = today.replace(day=1)
+            current_end = today
+        elif period == 'year':
+            current_start = today.replace(month=1, day=1)
+            current_end = today
+        elif period == 'custom' and custom_start and custom_end:
+            current_start = custom_start
+            current_end = custom_end
+        else:
+            current_start = today.replace(day=1)
+            current_end = today
+
+        # Tính toán số liệu kỳ trước
+        prev_revenue_stats = self.get_revenue_stats(prev_start, prev_end)
+        prev_orders = self._get_period_order_count(prev_start, prev_end)
+        prev_customers = self._get_period_customer_count(prev_start, prev_end)
+        prev_products = self._get_period_product_count(prev_start, prev_end)
+
+        # Tính toán số liệu kỳ hiện tại
+        current_orders = self._get_period_order_count(current_start, current_end)
+        current_customers = self._get_period_customer_count(current_start, current_end)
+        current_products = self._get_period_product_count(current_start, current_end)
+
+        # Tính phần trăm thay đổi
+        revenue_change = self._calculate_percentage_change(
+            float(time_stats['total_revenue']),
+            float(prev_revenue_stats['total_revenue'])
+        )
+        orders_change = self._calculate_percentage_change(current_orders, prev_orders)
+        customers_change = self._calculate_percentage_change(current_customers, prev_customers)
+        products_change = self._calculate_percentage_change(current_products, prev_products)
 
         return {
             'monthly_revenue': time_stats['total_revenue'],
@@ -553,4 +662,27 @@ class DashboardStatistics:
             'promotion': promotion_stats,
             'top_products': list(self.get_top_products(5).values('name', 'sold')),
             'monthly_comparison': self.get_monthly_comparison(6),
+            # Thêm các chỉ số so sánh phần trăm
+            'revenue_change': revenue_change,
+            'orders_change': orders_change,
+            'customers_change': customers_change,
+            'products_change': products_change,
+            # Thêm thông tin chi tiết so sánh
+            'comparison': {
+                'previous_period': {
+                    'start': prev_start.isoformat(),
+                    'end': prev_end.isoformat(),
+                    'revenue': float(prev_revenue_stats['total_revenue']),
+                    'orders': prev_orders,
+                    'customers': prev_customers,
+                    'products': prev_products
+                },
+                'current_period': {
+                    'start': current_start.isoformat(),
+                    'end': current_end.isoformat(),
+                    'orders': current_orders,
+                    'customers': current_customers,
+                    'products': current_products
+                }
+            }
         }

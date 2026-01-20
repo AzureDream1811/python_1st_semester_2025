@@ -200,18 +200,18 @@
 }
 
 .sentiment-badge.sentiment-positive {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: #198754;
+  color: #ffffff;
 }
 
 .sentiment-badge.sentiment-negative {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: #dc3545;
+  color: #ffffff;
 }
 
 .sentiment-badge.sentiment-neutral {
-  background-color: #e2e3e5;
-  color: #383d41;
+  background-color: #6c757d;
+  color: #ffffff;
 }
 
 .review-comment {

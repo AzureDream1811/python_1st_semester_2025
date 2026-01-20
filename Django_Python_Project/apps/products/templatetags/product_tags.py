@@ -55,11 +55,11 @@ def star_rating(rating):
 
 @register.filter
 def sentiment_badge(sentiment):
-    """Hiển thị badge sentiment"""
+    """Hiển thị badge sentiment với màu sắc dễ đọc"""
     badges = {
-        'positive': '<span class="badge bg-success"><i class="bi bi-emoji-smile"></i> Tích cực</span>',
-        'negative': '<span class="badge bg-danger"><i class="bi bi-emoji-frown"></i> Tiêu cực</span>',
-        'neutral': '<span class="badge bg-secondary"><i class="bi bi-emoji-neutral"></i> Trung lập</span>',
+        'positive': '<span class="badge" style="background-color: #198754; color: #fff;"><i class="bi bi-emoji-smile"></i> Tích cực</span>',
+        'negative': '<span class="badge" style="background-color: #dc3545; color: #fff;"><i class="bi bi-emoji-frown"></i> Tiêu cực</span>',
+        'neutral': '<span class="badge" style="background-color: #6c757d; color: #fff;"><i class="bi bi-emoji-neutral"></i> Trung lập</span>',
     }
     return mark_safe(badges.get(sentiment, badges['neutral']))
 
