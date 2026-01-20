@@ -140,7 +140,10 @@ def forgot_password(request):
             form.save(
                 request=request,
                 from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
-                email_template_name='accounts/password_reset_email.html',
+                domain_override=request.get_host(),
+                use_https=request.is_secure(),
+                email_template_name='accounts/password_reset_email.txt',
+                html_email_template_name='accounts/password_reset_email.html',
                 subject_template_name='accounts/password_reset_subject.txt',
             )
             messages.success(request, 'Chúng tôi đã gửi liên kết đặt lại mật khẩu đến email của bạn.')
