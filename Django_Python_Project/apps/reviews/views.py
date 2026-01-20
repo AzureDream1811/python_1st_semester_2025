@@ -144,3 +144,73 @@ def mark_helpful(request, review_id):
         })
 
     return redirect('products:detail', slug=review.product.slug)
+
+
+@login_required
+@require_POST
+def edit_review(request, review_id):
+    """Chỉnh sửa đánh giá - chỉ cho phép chủ sở hữu"""
+    review = get_object_or_404(Review, pk=review_id)
+
+    # Chỉ cho phép chủ sở hữu chỉnh sửa
+    if review.user != request.user:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': 'Không có quyền chỉnh sửa'}, status=403)
+        messages.error(request, 'Bạn không có quyền chỉnh sửa đánh giá này.')
+        return redirect('products:detail', slug=review.product.slug)
+
+    # Lấy dữ liệu từ form
+    rating = request.POST.get('rating')
+    comment = request.POST.get('comment', '').strip()
+
+    if not comment:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': 'Vui lòng nhập nội dung đánh giá'}, status=400)
+        messages.error(request, 'Vui lòng nhập nội dung đánh giá.')
+        return redirect('products:detail', slug=review.product.slug)
+
+    if rating:
+        rating = int(rating)
+        if rating < 1 or rating > 5:
+            rating = review.rating
+        review.rating = rating
+
+    review.comment = comment
+
+    # Phân tích lại sentiment
+    review.analyze_sentiment()
+    review.save()
+
+    # Cập nhật stats của product
+    review.product.update_sentiment_stats()
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': True,
+            'message': 'Đã cập nhật đánh giá',
+            'rating': review.rating,
+            'comment': review.comment,
+            'sentiment': review.sentiment,
+        })
+
+    messages.success(request, 'Đã cập nhật đánh giá của bạn!')
+    return redirect('products:detail', slug=review.product.slug)
+
+
+@login_required
+def get_review(request, review_id):
+    """API lấy thông tin review để edit"""
+    review = get_object_or_404(Review, pk=review_id)
+
+    # Chỉ cho phép chủ sở hữu
+    if review.user != request.user:
+        return JsonResponse({'success': False, 'error': 'Không có quyền'}, status=403)
+
+    return JsonResponse({
+        'success': True,
+        'review': {
+            'id': review.id,
+            'rating': review.rating,
+            'comment': review.comment,
+        }
+    })
