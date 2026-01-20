@@ -88,6 +88,36 @@ class DashboardStatistics:
 
         daily_data = self.get_daily_revenue(start_date, end_date)
 
+        # Nếu không có data trong khoảng, thử lấy tất cả paid orders
+        if not daily_data:
+            # Lấy tất cả paid orders và group theo ngày
+            all_paid = list(Order.objects.filter(
+                payment_status=self.PAID_STATUS
+            ).exclude(
+                status__in=['cancelled', 'refunded']
+            ).annotate(
+                date=TruncDate('created_at')
+            ).values('date').annotate(
+                revenue=Sum('total')
+            ).order_by('date'))
+
+            if all_paid:
+                # Tìm min/max date
+                dates = [d['date'] for d in all_paid if d['date']]
+                if dates:
+                    start_date = min(dates)
+                    end_date = max(dates)
+                    daily_data = all_paid
+
+        # Đảm bảo start_date và end_date không None
+        if not start_date or not end_date:
+            # Không có data nào - trả về empty
+            return {
+                'labels': [],
+                'data': [],
+                'total': 0
+            }
+
         # Tạo dict để tra cứu nhanh
         revenue_by_date = {d['date']: float(d['revenue'] or 0) for d in daily_data}
 
@@ -100,9 +130,13 @@ class DashboardStatistics:
             values.append(revenue_by_date.get(current_date, 0))
             current_date += timedelta(days=1)
 
+        # Thêm total revenue để hiển thị
+        total_revenue = sum(values)
+
         return {
             'labels': labels,
-            'data': values
+            'data': values,
+            'total': total_revenue
         }
 
     # === ORDER STATISTICS ===
@@ -132,7 +166,13 @@ class DashboardStatistics:
                 created_at__date__lte=end_date
             )
             status_counts = orders.values('status').annotate(count=Count('id'))
-            stats = {'by_status': {item['status']: item['count'] for item in status_counts}}
+            by_status = {item['status']: item['count'] for item in status_counts}
+
+            # Nếu không có data trong period, sử dụng all orders
+            if not by_status:
+                stats = self.get_order_stats()
+            else:
+                stats = {'by_status': by_status}
         else:
             stats = self.get_order_stats()
 

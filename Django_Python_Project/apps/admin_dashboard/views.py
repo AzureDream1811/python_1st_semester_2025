@@ -9,6 +9,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.db.models import Q
+from django.utils import timezone
 from datetime import datetime, timedelta
 
 from .decorators import StaffRequiredMixin
@@ -564,7 +565,8 @@ class ChartDataView(StaffRequiredMixin, View):
         period = request.GET.get('period', 'month')
         stats = DashboardStatistics()
 
-        today = datetime.now().date()
+        # Sử dụng timezone.now() để đồng bộ với created_at của orders
+        today = timezone.now().date()
         if period == 'today':
             start_date = today
             end_date = today

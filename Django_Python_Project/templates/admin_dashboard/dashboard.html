@@ -269,7 +269,7 @@
             <input type="radio" class="btn-check" name="period" id="periodMonth" value="month" {% if current_period == 'month' %}checked{% endif %} onchange="toggleCustomDates('month')">
             <label class="btn btn-outline-primary btn-sm" for="periodMonth">Tháng này</label>
             
-            <input type="radio" class="btn-check" name="period" id="periodYear" value="year" {% if current_period == 'year' %}checked{% endif %} onchange="toggleCustomDates('year')">
+            <input type="radio" class="btn-check" name="period" id="periodYear" value="year" {% if current_period == 'year' or not current_period %}checked{% endif %} onchange="toggleCustomDates('year')">
             <label class="btn btn-outline-primary btn-sm" for="periodYear">Năm nay</label>
             
             <input type="radio" class="btn-check" name="period" id="periodCustom" value="custom" {% if current_period == 'custom' %}checked{% endif %} onchange="toggleCustomDates('custom')">
@@ -457,7 +457,7 @@ document.addEventListener('DOMContentLoaded', function() {
     Chart.defaults.color = '#64748B';
     
     const urlParams = new URLSearchParams(window.location.search);
-    const period = urlParams.get('period') || 'month';
+    const period = urlParams.get('period') || 'year';  // Default to year to show more data
     const startDate = urlParams.get('start_date') || '';
     const endDate = urlParams.get('end_date') || '';
     
@@ -469,8 +469,24 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch(`{% url "admin_dashboard:chart_data" %}?type=revenue&${chartQuery}`)
         .then(r => r.json())
         .then(data => {
+            console.log('Revenue data:', data);
             const ctx = document.getElementById('revenueChart');
-            if (!ctx) return;
+            if (!ctx) {
+                console.error('revenueChart canvas not found');
+                return;
+            }
+            if (!data.labels || data.labels.length === 0) {
+                console.warn('No revenue labels');
+                ctx.parentElement.innerHTML = '<p class="text-center text-muted py-5"><i class="bi bi-graph-up display-4 d-block mb-2"></i>Chưa có dữ liệu doanh thu</p>';
+                return;
+            }
+            // Kiểm tra nếu tất cả values = 0
+            const hasData = data.data && data.data.some(v => v > 0);
+            if (!hasData) {
+                console.warn('All revenue values are 0');
+                ctx.parentElement.innerHTML = '<p class="text-center text-muted py-5"><i class="bi bi-graph-up display-4 d-block mb-2"></i>Chưa có đơn hàng đã thanh toán trong khoảng thời gian này<br><small>Doanh thu chỉ tính từ đơn hàng đã thanh toán (paid)</small></p>';
+                return;
+            }
             new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -506,13 +522,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             });
-        });
+        })
+        .catch(err => console.error('Revenue chart error:', err));
 
     fetch(`{% url "admin_dashboard:chart_data" %}?type=orders&${chartQuery}`)
         .then(r => r.json())
         .then(data => {
+            console.log('Order status data:', data);
             const ctx = document.getElementById('orderStatusChart');
-            if (!ctx) return;
+            if (!ctx) {
+                console.error('orderStatusChart canvas not found');
+                return;
+            }
+            if (!data.labels || data.labels.length === 0) {
+                console.warn('No order status data to display');
+                ctx.parentElement.innerHTML = '<p class="text-center text-muted py-5">Chưa có dữ liệu đơn hàng</p>';
+                return;
+            }
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
@@ -532,7 +558,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     cutout: '65%'
                 }
             });
-        });
+        })
+        .catch(err => console.error('Order chart error:', err));
 });
 </script>
 {% endblock %}
