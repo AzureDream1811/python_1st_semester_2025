@@ -320,8 +320,8 @@
         <!-- Product Image -->
         <a href="{{ product.get_absolute_url }}" class="product-card__image-link" aria-label="Xem chi tiết {{ product.name }}">
             {% if product.image %}
-            <img src="{{ product.image.url }}" 
-                 class="product-card__image" 
+            <img src="{{ product.image|smart_image_url }}"
+                 class="product-card__image"
                  alt="{{ product.name }}" 
                  loading="lazy"
                  itemprop="image">

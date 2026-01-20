@@ -86,7 +86,7 @@
                 {% for item in order.items.all %}
                 <div class="d-flex align-items-start p-3 {% if not forloop.last %}border-bottom{% endif %}">
                     {% if item.product_image %}
-                    <img src="{{ item.product_image }}" width="80" height="80" class="rounded me-3" style="object-fit: contain; background: #f8f9fa;">
+                    <img src="{{ item.product_image|fix_image_url }}" width="80" height="80" class="rounded me-3" style="object-fit: contain; background: #f8f9fa;">
                     {% else %}
                     <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
                         <i class="bi bi-image text-muted"></i>

@@ -55,8 +55,8 @@
         
         <a href="{% url 'products:detail' sale.product.slug %}" class="product-card__image-link" aria-label="Xem chi tiết {{ sale.product.name }}">
             {% if sale.product.image %}
-            <img src="{{ sale.product.image.url }}" 
-                 class="product-card__image" 
+            <img src="{{ sale.product.image|smart_image_url }}"
+                 class="product-card__image"
                  alt="{{ sale.product.name }}" 
                  loading="lazy"
                  itemprop="image">
@@ -106,7 +106,7 @@
         </div>
         
         <div class="product-card__price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-            <span class="price-current" itemprop="price" content="{{ sale.sale_price }}">{{ sale.sale_price|currency }}</span>
+            <span class="price-current" itemprop="price" content="{{ sale.get_effective_sale_price }}">{{ sale.get_effective_sale_price|currency }}</span>
             <span class="price-original" aria-label="Giá gốc">{{ sale.product.price|currency }}</span>
             <meta itemprop="priceCurrency" content="VND">
         </div>

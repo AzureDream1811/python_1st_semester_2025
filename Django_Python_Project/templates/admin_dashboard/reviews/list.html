@@ -1,133 +1,656 @@
 {% extends 'admin_dashboard/base.html' %}
+{% load vn_currency product_tags %}
 
 {% block title %}Quản lý đánh giá{% endblock %}
+
+{% block extra_css %}
+<style>
+.review-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid var(--border);
+}
+
+.stat-card .icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.stat-card .icon.positive { background: #d1fae5; color: #059669; }
+.stat-card .icon.negative { background: #fee2e2; color: #dc2626; }
+.stat-card .icon.neutral { background: #f3f4f6; color: #6b7280; }
+.stat-card .icon.warning { background: #fef3c7; color: #d97706; }
+.stat-card .icon.total { background: #dbeafe; color: #2563eb; }
+
+.stat-card .info h4 { font-size: 1.5rem; font-weight: 700; margin: 0; }
+.stat-card .info span { font-size: 0.8rem; color: #666; }
+
+.filters-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border);
+}
+
+.review-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+}
+
+.review-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: var(--primary);
+}
+
+.review-card.mismatch {
+    border-left: 4px solid #f59e0b;
+    background: #fffbeb;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.review-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.review-user .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+}
+
+.review-user .user-info h6 { margin: 0; font-weight: 600; }
+.review-user .user-info small { color: #666; }
+
+.review-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.review-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.review-rating .star { color: #ffc107; font-size: 1rem; }
+.review-rating .star.empty { color: #e0e0e0; }
+
+.review-product {
+    background: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.review-product img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.review-product .product-info h6 { margin: 0; font-size: 0.9rem; }
+.review-product .product-info small { color: #666; }
+
+.review-content {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-height: 150px;
+    overflow: hidden;
+    position: relative;
+}
+
+.review-content.expanded {
+    max-height: none;
+}
+
+.review-content .fade-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: linear-gradient(transparent, #f8f9fa);
+}
+
+.review-content.expanded .fade-overlay {
+    display: none;
+}
+
+.review-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.sentiment-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.sentiment-badge.positive { background: #d1fae5; color: #059669; }
+.sentiment-badge.negative { background: #fee2e2; color: #dc2626; }
+.sentiment-badge.neutral { background: #f3f4f6; color: #6b7280; }
+
+.ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.action-btns {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btns .btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.85rem;
+}
+
+/* Modal styles */
+.review-modal .modal-header {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+}
+
+.review-modal .modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.review-detail-section {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.review-detail-section h6 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.sentiment-analysis {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    text-align: center;
+}
+
+.sentiment-analysis .item {
+    padding: 0.75rem;
+    background: white;
+    border-radius: 8px;
+}
+
+.sentiment-analysis .item .value {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.sentiment-analysis .item .label {
+    font-size: 0.75rem;
+    color: #666;
+}
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="page-card">
     <div class="page-header">
         <h1><i class="bi bi-star"></i> Quản lý đánh giá</h1>
+        <div class="d-flex gap-2">
+            <span class="badge bg-primary fs-6">{{ total_count }} đánh giá</span>
+        </div>
     </div>
-    <div class="mb-3">
-        <form method="get" class="row g-3">
-            <div class="col-md-5">
-                <select name="sentiment" class="form-select">
-                    <option value="">-- Tất cả sentiment --</option>
-                    <option value="positive" {% if request.GET.sentiment == 'positive' %}selected{% endif %}>Tích cực</option>
-                    <option value="neutral" {% if request.GET.sentiment == 'neutral' %}selected{% endif %}>Trung lập</option>
-                    <option value="negative" {% if request.GET.sentiment == 'negative' %}selected{% endif %}>Tiêu cực</option>
-                </select>
+
+    <!-- Stats Cards -->
+    <div class="review-stats">
+        <div class="stat-card">
+            <div class="icon total"><i class="bi bi-chat-square-text"></i></div>
+            <div class="info">
+                <h4>{{ total_count }}</h4>
+                <span>Tổng đánh giá</span>
             </div>
-            <div class="col-md-5">
-                <select name="ai_check" class="form-select">
-                    <option value="">-- AI Check --</option>
-                    <option value="mismatch" {% if request.GET.ai_check == 'mismatch' %}selected{% endif %}>
-                        Sao không khớp sentiment ({{ mismatch_count }})
-                    </option>
+        </div>
+        <div class="stat-card">
+            <div class="icon positive"><i class="bi bi-emoji-smile"></i></div>
+            <div class="info">
+                <h4>{{ positive_count }}</h4>
+                <span>Tích cực</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="icon neutral"><i class="bi bi-emoji-neutral"></i></div>
+            <div class="info">
+                <h4>{{ neutral_count }}</h4>
+                <span>Trung lập</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="icon negative"><i class="bi bi-emoji-frown"></i></div>
+            <div class="info">
+                <h4>{{ negative_count }}</h4>
+                <span>Tiêu cực</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="icon warning"><i class="bi bi-robot"></i></div>
+            <div class="info">
+                <h4>{{ mismatch_count }}</h4>
+                <span>Không khớp AI</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-card">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label"><i class="bi bi-emoji-smile"></i> Sentiment</label>
+                <select name="sentiment" class="form-select">
+                    <option value="">Tất cả</option>
+                    <option value="positive" {% if request.GET.sentiment == 'positive' %}selected{% endif %}>😊 Tích cực</option>
+                    <option value="neutral" {% if request.GET.sentiment == 'neutral' %}selected{% endif %}>😐 Trung lập</option>
+                    <option value="negative" {% if request.GET.sentiment == 'negative' %}selected{% endif %}>😞 Tiêu cực</option>
                 </select>
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-outline-primary w-100">
-                    <i class="bi bi-filter"></i> Lọc
-                </button>
+                <label class="form-label"><i class="bi bi-star"></i> Rating</label>
+                <select name="rating" class="form-select">
+                    <option value="">Tất cả</option>
+                    {% for i in "54321" %}
+                    <option value="{{ i }}" {% if request.GET.rating == i %}selected{% endif %}>{{ i }} sao</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label"><i class="bi bi-check-circle"></i> Trạng thái</label>
+                <select name="status" class="form-select">
+                    <option value="">Tất cả</option>
+                    <option value="approved" {% if request.GET.status == 'approved' %}selected{% endif %}>Đã duyệt</option>
+                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Chờ duyệt</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label"><i class="bi bi-robot"></i> AI Check</label>
+                <select name="ai_check" class="form-select">
+                    <option value="">Tất cả</option>
+                    <option value="mismatch" {% if request.GET.ai_check == 'mismatch' %}selected{% endif %}>Không khớp ({{ mismatch_count }})</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="bi bi-funnel"></i> Lọc
+                    </button>
+                    <a href="{% url 'admin_dashboard:review_list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                </div>
             </div>
         </form>
     </div>
-    
-    {% if mismatch_count > 0 %}
+
+    {% if mismatch_count > 0 and not request.GET.ai_check %}
     <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
-        <i class="bi bi-robot me-2"></i>
+        <i class="bi bi-robot fs-4 me-3"></i>
         <div>
-            <strong>AI Sentiment Check:</strong> Có <strong>{{ mismatch_count }}</strong> đánh giá có số sao không khớp với nội dung.
-            <a href="?ai_check=mismatch" class="alert-link">Xem tất cả</a>
+            <strong>AI Phát hiện:</strong> Có <strong>{{ mismatch_count }}</strong> đánh giá có số sao không khớp với nội dung phân tích.
+            <a href="?ai_check=mismatch" class="alert-link ms-2">Xem tất cả →</a>
         </div>
     </div>
     {% endif %}
 
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Sản phẩm</th>
-                    <th>Người đánh giá</th>
-                    <th>Đánh giá</th>
-                    <th>Sentiment / AI Check</th>
-                    <th>Trạng thái</th>
-                    <th>Ngày tạo</th>
-                    <th>Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for review in reviews %}
-                <tr{% if review.rating_sentiment_mismatch.severity == 'high' %} class="table-warning"{% endif %}>
-                    <td>{{ review.product.name|truncatechars:30 }}</td>
-                    <td>{{ review.user.username }}</td>
-                    <td>
+    <!-- Reviews List -->
+    <div class="reviews-list">
+        {% for review in reviews %}
+        <div class="review-card {% if review.rating_sentiment_mismatch.mismatch %}mismatch{% endif %}">
+            <div class="review-header">
+                <div class="review-user">
+                    <div class="avatar">{{ review.user.username|slice:":1"|upper }}</div>
+                    <div class="user-info">
+                        <h6>{{ review.user.username }}</h6>
+                        <small>{{ review.created_at|date:"d/m/Y H:i" }}</small>
+                    </div>
+                </div>
+                <div class="review-meta">
+                    <div class="review-rating">
                         {% for i in "12345" %}
-                        <i class="bi bi-star{% if forloop.counter <= review.rating %}-fill text-warning{% endif %}"></i>
+                        <i class="bi bi-star{% if forloop.counter <= review.rating %}-fill star{% else %} star empty{% endif %}"></i>
                         {% endfor %}
-                        {% if review.rating_sentiment_mismatch.mismatch %}
-                        <br><small class="text-muted">AI gợi ý: {{ review.ai_suggested_rating }} sao</small>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <span class="badge bg-{{ review.sentiment_color }}">
-                            {{ review.get_sentiment_display|default:"-" }}
-                        </span>
-                        {% if review.rating_sentiment_mismatch.mismatch %}
-                        <br>
-                        <span class="badge bg-{% if review.rating_sentiment_mismatch.severity == 'high' %}danger{% else %}info{% endif %}" 
-                              title="{{ review.rating_sentiment_mismatch.message }}">
-                            <i class="bi bi-robot"></i> 
-                            {% if review.rating_sentiment_mismatch.severity == 'high' %}Không khớp{% else %}Gợi ý{% endif %}
-                        </span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if review.is_approved %}
-                        <span class="badge bg-success">Đã duyệt</span>
-                        {% else %}
-                        <span class="badge bg-warning">Chờ duyệt</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ review.created_at|date:"d/m/Y" }}</td>
-                    <td>
-                        {% if not review.is_approved %}
-                        <form method="post" action="{% url 'admin_dashboard:review_approve' review.pk %}" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-success" title="Duyệt">
-                                <i class="bi bi-check-lg"></i>
-                            </button>
-                        </form>
-                        {% endif %}
-                        {% if review.is_approved %}
-                        <form method="post" action="{% url 'admin_dashboard:review_reject' review.pk %}" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-danger" title="Từ chối">
-                                <i class="bi bi-x-lg"></i>
-                            </button>
-                        </form>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="7" class="text-center text-muted">Chưa có đánh giá</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        <span class="ms-1 fw-semibold">{{ review.rating }}/5</span>
+                    </div>
+                    <span class="sentiment-badge {{ review.sentiment }}">
+                        {% if review.sentiment == 'positive' %}<i class="bi bi-emoji-smile-fill"></i> Tích cực
+                        {% elif review.sentiment == 'negative' %}<i class="bi bi-emoji-frown-fill"></i> Tiêu cực
+                        {% else %}<i class="bi bi-emoji-neutral-fill"></i> Trung lập{% endif %}
+                    </span>
+                    {% if review.rating_sentiment_mismatch.mismatch %}
+                    <span class="ai-badge" title="{{ review.rating_sentiment_mismatch.message }}">
+                        <i class="bi bi-robot"></i> AI: Không khớp
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="review-product">
+                {% if review.product.image %}
+                <img src="{{ review.product.image|smart_image_url }}" alt="{{ review.product.name }}">
+                {% else %}
+                <div style="width:50px;height:50px;background:#e0e0e0;border-radius:6px;display:flex;align-items:center;justify-content:center;">
+                    <i class="bi bi-image text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="product-info">
+                    <h6>{{ review.product.name|truncatechars:50 }}</h6>
+                    <small>{{ review.product.category.name }} • {{ review.product.brand.name }}</small>
+                </div>
+            </div>
+
+            <div class="review-content" id="content-{{ review.pk }}">
+                {{ review.comment }}
+                {% if review.comment|length > 200 %}
+                <div class="fade-overlay"></div>
+                {% endif %}
+            </div>
+
+            {% if review.comment|length > 200 %}
+            <button class="btn btn-link btn-sm p-0 mb-2" onclick="toggleContent({{ review.pk }})">
+                <span id="toggle-text-{{ review.pk }}">Xem thêm</span>
+            </button>
+            {% endif %}
+
+            <div class="review-footer">
+                <div class="d-flex align-items-center gap-3">
+                    {% if review.is_approved %}
+                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> Đã duyệt</span>
+                    {% else %}
+                    <span class="badge bg-warning text-dark"><i class="bi bi-clock"></i> Chờ duyệt</span>
+                    {% endif %}
+                    {% if review.is_verified_purchase %}
+                    <span class="badge bg-info"><i class="bi bi-patch-check"></i> Đã mua hàng</span>
+                    {% endif %}
+                    <small class="text-muted">
+                        <i class="bi bi-hand-thumbs-up"></i> {{ review.helpful_count }} hữu ích
+                    </small>
+                </div>
+                <div class="action-btns">
+                    <button class="btn btn-outline-primary btn-sm" onclick="viewReviewDetail({{ review.pk }})" title="Xem chi tiết">
+                        <i class="bi bi-eye"></i> Chi tiết
+                    </button>
+                    {% if not review.is_approved %}
+                    <form method="post" action="{% url 'admin_dashboard:review_approve' review.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-sm" title="Duyệt">
+                            <i class="bi bi-check-lg"></i> Duyệt
+                        </button>
+                    </form>
+                    {% endif %}
+                    {% if review.is_approved %}
+                    <form method="post" action="{% url 'admin_dashboard:review_reject' review.pk %}" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn ẩn đánh giá này?')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Ẩn">
+                            <i class="bi bi-eye-slash"></i> Ẩn
+                        </button>
+                    </form>
+                    {% endif %}
+                    <form method="post" action="{% url 'admin_dashboard:review_delete' review.pk %}" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn XÓA VĨNH VIỄN đánh giá này?')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm" title="Xóa">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-5">
+            <i class="bi bi-chat-square-text display-1 text-muted"></i>
+            <p class="text-muted mt-3">Không có đánh giá nào</p>
+        </div>
+        {% endfor %}
     </div>
 
+    <!-- Pagination -->
     {% if page_obj.has_other_pages %}
-    <nav>
+    <nav class="mt-4">
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Trước</a></li>
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if request.GET.sentiment %}&sentiment={{ request.GET.sentiment }}{% endif %}{% if request.GET.rating %}&rating={{ request.GET.rating }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.ai_check %}&ai_check={{ request.GET.ai_check }}{% endif %}">
+                    <i class="bi bi-chevron-double-left"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.sentiment %}&sentiment={{ request.GET.sentiment }}{% endif %}{% if request.GET.rating %}&rating={{ request.GET.rating }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.ai_check %}&ai_check={{ request.GET.ai_check }}{% endif %}">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
             {% endif %}
-            <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if request.GET.sentiment %}&sentiment={{ request.GET.sentiment }}{% endif %}{% if request.GET.rating %}&rating={{ request.GET.rating }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.ai_check %}&ai_check={{ request.GET.ai_check }}{% endif %}">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+
             {% if page_obj.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Sau</a></li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.sentiment %}&sentiment={{ request.GET.sentiment }}{% endif %}{% if request.GET.rating %}&rating={{ request.GET.rating }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.ai_check %}&ai_check={{ request.GET.ai_check }}{% endif %}">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.sentiment %}&sentiment={{ request.GET.sentiment }}{% endif %}{% if request.GET.rating %}&rating={{ request.GET.rating }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.ai_check %}&ai_check={{ request.GET.ai_check }}{% endif %}">
+                    <i class="bi bi-chevron-double-right"></i>
+                </a>
+            </li>
             {% endif %}
         </ul>
+        <p class="text-center text-muted">Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} ({{ page_obj.paginator.count }} đánh giá)</p>
     </nav>
     {% endif %}
 </div>
+
+<!-- Review Detail Modal -->
+<div class="modal fade review-modal" id="reviewDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-chat-square-text"></i> Chi tiết đánh giá</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="reviewDetailContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2">Đang tải...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleContent(reviewId) {
+    const content = document.getElementById('content-' + reviewId);
+    const toggleText = document.getElementById('toggle-text-' + reviewId);
+
+    if (content.classList.contains('expanded')) {
+        content.classList.remove('expanded');
+        toggleText.textContent = 'Xem thêm';
+    } else {
+        content.classList.add('expanded');
+        toggleText.textContent = 'Thu gọn';
+    }
+}
+
+function viewReviewDetail(reviewId) {
+    const modal = new bootstrap.Modal(document.getElementById('reviewDetailModal'));
+    const contentDiv = document.getElementById('reviewDetailContent');
+
+    // Show loading
+    contentDiv.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2">Đang tải...</p>
+        </div>
+    `;
+    modal.show();
+
+    // Fetch review detail
+    fetch(`/admin-dashboard/reviews/${reviewId}/detail/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const review = data.review;
+                let starsHtml = '';
+                for (let i = 1; i <= 5; i++) {
+                    starsHtml += `<i class="bi bi-star${i <= review.rating ? '-fill text-warning' : ''}"></i>`;
+                }
+
+                contentDiv.innerHTML = `
+                    <div class="review-detail-section">
+                        <h6>Thông tin người đánh giá</h6>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="avatar" style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:1.25rem;">
+                                ${review.username.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <strong>${review.username}</strong><br>
+                                <small class="text-muted">${review.user_email}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="review-detail-section">
+                        <h6>Sản phẩm</h6>
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="${review.product_image || '/static/images/placeholder.png'}"
+                                 style="width:60px;height:60px;object-fit:cover;border-radius:8px;">
+                            <div>
+                                <strong>${review.product_name}</strong><br>
+                                <small class="text-muted">${review.product_category} • ${review.product_brand}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="review-detail-section">
+                        <h6>Đánh giá</h6>
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <div class="review-rating">${starsHtml}</div>
+                            <span class="fw-bold">${review.rating}/5 sao</span>
+                        </div>
+                        <div class="p-3 bg-white rounded border">
+                            ${review.comment}
+                        </div>
+                        <small class="text-muted d-block mt-2">
+                            <i class="bi bi-calendar"></i> ${review.created_at}
+                            ${review.is_verified_purchase ? '<span class="badge bg-info ms-2"><i class="bi bi-patch-check"></i> Đã mua hàng</span>' : ''}
+                        </small>
+                    </div>
+
+                    <div class="review-detail-section">
+                        <h6>Phân tích AI Sentiment</h6>
+                        <div class="sentiment-analysis">
+                            <div class="item">
+                                <div class="value ${review.sentiment === 'positive' ? 'text-success' : review.sentiment === 'negative' ? 'text-danger' : 'text-secondary'}">
+                                    ${review.sentiment === 'positive' ? '😊' : review.sentiment === 'negative' ? '😞' : '😐'}
+                                </div>
+                                <div class="label">Sentiment</div>
+                                <div class="fw-semibold">${review.sentiment === 'positive' ? 'Tích cực' : review.sentiment === 'negative' ? 'Tiêu cực' : 'Trung lập'}</div>
+                            </div>
+                            <div class="item">
+                                <div class="value">${review.sentiment_score.toFixed(2)}</div>
+                                <div class="label">Score</div>
+                            </div>
+                            <div class="item">
+                                <div class="value">${review.helpful_count}</div>
+                                <div class="label">Lượt hữu ích</div>
+                            </div>
+                        </div>
+                        ${review.mismatch ? `
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <i class="bi bi-robot"></i> <strong>AI phát hiện:</strong> ${review.mismatch_message}
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            } else {
+                contentDiv.innerHTML = `<div class="alert alert-danger">Không thể tải thông tin đánh giá</div>`;
+            }
+        })
+        .catch(error => {
+            contentDiv.innerHTML = `<div class="alert alert-danger">Đã xảy ra lỗi: ${error.message}</div>`;
+        });
+}
+</script>
 {% endblock %}

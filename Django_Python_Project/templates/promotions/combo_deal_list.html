@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static product_tags %}
 
 {% block title %}Combo Deals - ElectroShop{% endblock %}
 
@@ -626,7 +626,7 @@
                     {% for product in item.products %}
                     <div class="combo-product" role="listitem">
                         <div class="combo-product__media" aria-hidden="true">
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                            <img src="{{ product.image|smart_image_url }}" alt="{{ product.name }}">
                         </div>
                         <div>
                             <div class="combo-product__name">

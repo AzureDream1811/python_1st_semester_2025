@@ -6,6 +6,19 @@ from django.utils.html import format_html
 from .models import Category, Brand, Product, ProductImage, Wishlist, FlashSale
 
 
+def get_smart_image_url(image_field):
+    """Lấy URL đúng cho image field (hỗ trợ cả URL ngoại và local)."""
+    if not image_field:
+        return ''
+    image_name = str(image_field.name) if hasattr(image_field, 'name') else str(image_field)
+    if image_name.startswith(('http://', 'https://')):
+        return image_name
+    try:
+        return image_field.url
+    except (ValueError, AttributeError):
+        return ''
+
+
 class ProductImageInline(admin.TabularInline):
     """
     Inline hiển thị hình ảnh sản phẩm trong trang chi tiết Product
@@ -18,7 +31,7 @@ class ProductImageInline(admin.TabularInline):
     def image_preview(self, obj):
         """Hiển thị preview ảnh dạng thumbnail"""
         if obj.image:
-            return format_html('<img src="{}" width="80" height="80" style="object-fit: cover;" />', obj.image.url)
+            return format_html('<img src="{}" width="80" height="80" style="object-fit: cover;" />', get_smart_image_url(obj.image))
         return '-'
 
     image_preview.short_description = 'Preview'
@@ -53,7 +66,7 @@ class CategoryAdmin(admin.ModelAdmin):
         """Hiển thị preview hình ảnh danh mục"""
         if obj.image:
             return format_html('<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 5px;" />',
-                               obj.image.url)
+                               get_smart_image_url(obj.image))
         return '-'
 
     image_preview.short_description = 'Hình ảnh'
@@ -140,7 +153,7 @@ class ProductAdmin(admin.ModelAdmin):
     def image_preview(self, obj):
         """Hiển thị ảnh preview"""
         if obj.image:
-            return format_html('<img src="{}" width="150" height="150" style="object-fit: contain;" />', obj.image.url)
+            return format_html('<img src="{}" width="150" height="150" style="object-fit: contain;" />', get_smart_image_url(obj.image))
         return '-'
 
     image_preview.short_description = 'Preview'
@@ -232,7 +245,7 @@ class ProductImageAdmin(admin.ModelAdmin):
 
     def image_preview(self, obj):
         if obj.image:
-            return format_html('<img src="{}" width="60" height="60" style="object-fit: cover;" />', obj.image.url)
+            return format_html('<img src="{}" width="60" height="60" style="object-fit: cover;" />', get_smart_image_url(obj.image))
         return '-'
 
     image_preview.short_description = 'Preview'

@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Review, ReviewHelpful
 from .sentiment import SentimentAnalyzer
@@ -63,9 +64,9 @@ def add_review(request, product_slug):
     if purchased_items.exists():
         review.order_item = purchased_items.first()
 
-    # Phân tích sentiment
+    # Phân tích sentiment với cả text và rating
     analyzer = SentimentAnalyzer()
-    result = analyzer.analyze(comment)
+    result = analyzer.analyze(comment, rating=rating)
     review.sentiment = result['sentiment']
     review.sentiment_score = result['score']
 
@@ -214,3 +215,79 @@ def get_review(request, review_id):
             'comment': review.comment,
         }
     })
+
+
+@csrf_exempt
+@require_POST
+def analyze_sentiment_api(request):
+    """
+    API endpoint để phân tích sentiment của text.
+    Sử dụng AI FastText model để phân tích.
+
+    POST /reviews/api/analyze-sentiment/
+    Body: { "text": "...", "rating": 5 }
+
+    Returns:
+        {
+            "success": true,
+            "sentiment": "positive|negative|neutral",
+            "score": 0.85,
+            "text_score": 0.75,
+            "rating_score": 1.0,
+            "label": "1|0|unknown"
+        }
+    """
+    import json
+
+    try:
+        # Parse JSON body
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+        else:
+            data = request.POST
+
+        text = data.get('text', '').strip()
+        rating = data.get('rating')
+
+        if rating:
+            try:
+                rating = int(rating)
+                if rating < 1 or rating > 5:
+                    rating = None
+            except (ValueError, TypeError):
+                rating = None
+
+        if not text:
+            return JsonResponse({
+                'success': False,
+                'error': 'Vui lòng nhập nội dung để phân tích'
+            }, status=400)
+
+        # Phân tích sentiment
+        analyzer = SentimentAnalyzer()
+        result = analyzer.analyze(text, rating=rating)
+
+        return JsonResponse({
+            'success': True,
+            'sentiment': result['sentiment'],
+            'score': round(result['score'], 4),
+            'text_score': round(result['text_score'], 4),
+            'rating_score': round(result['rating_score'], 4),
+            'label': result['label'],
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid JSON'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+def sentiment_demo(request):
+    """Trang demo phân tích sentiment với AI"""
+    return render(request, 'reviews/sentiment_demo.html')

@@ -5,6 +5,56 @@ register = template.Library()
 
 
 @register.filter
+def smart_image_url(image_field):
+    """
+    Returns the correct URL for an image field.
+    If the stored path is already a full URL (http/https), return it directly.
+    Otherwise, return the standard .url property.
+    """
+    if not image_field:
+        return ''
+
+    # Get the name/path stored in the field
+    image_name = str(image_field.name) if hasattr(image_field, 'name') else str(image_field)
+
+    # Check if it's already a full URL
+    if image_name.startswith(('http://', 'https://')):
+        return image_name
+
+    # Otherwise return the normal URL
+    try:
+        return image_field.url
+    except (ValueError, AttributeError):
+        return ''
+
+
+@register.filter
+def fix_image_url(url_string):
+    """
+    Fix URL string đã bị lưu sai (có /media/ prefix với external URL).
+    Dùng cho CharField chứa URL như OrderItem.product_image.
+    """
+    if not url_string:
+        return ''
+
+    url = str(url_string)
+
+    # Nếu URL bị lưu sai dạng "/media/https:/..." thì fix lại
+    if url.startswith('/media/http'):
+        # Loại bỏ /media/ prefix
+        url = url[7:]  # Bỏ "/media/"
+        # Fix lại https:/ thành https://
+        url = url.replace('https:/', 'https://').replace('http:/', 'http://')
+
+    # Nếu đã là URL đúng, trả về nguyên
+    if url.startswith(('http://', 'https://')):
+        return url
+
+    # Nếu là path local, giữ nguyên
+    return url_string
+
+
+@register.filter
 def currency(value):
     """Format số tiền theo định dạng VNĐ: 3.500.000₫"""
     try:

@@ -1,15 +1,5 @@
 """
 Views Gợi Ý Sản Phẩm cho ElectroShop
-====================================
-
-Module này cung cấp các API endpoints cho hệ thống gợi ý sản phẩm:
-- Gợi ý cá nhân hóa cho user
-- Sản phẩm tương tự
-- Sản phẩm thường mua cùng
-- Sản phẩm trending
-- Ghi nhận hoạt động người dùng
-
-Tác giả: ElectroShop Team
 """
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -21,6 +11,19 @@ import json
 from apps.products.models import Product
 from apps.orders.models import OrderItem
 from .models import UserActivity, ProductSimilarity, FrequentlyBoughtTogether
+
+
+def get_smart_image_url(image_field):
+    """Lấy URL đúng cho image field (hỗ trợ cả URL ngoại và local)."""
+    if not image_field:
+        return None
+    image_name = str(image_field.name) if hasattr(image_field, 'name') else str(image_field)
+    if image_name.startswith(('http://', 'https://')):
+        return image_name
+    try:
+        return image_field.url
+    except (ValueError, AttributeError):
+        return None
 
 
 # =============================================================================
@@ -76,7 +79,7 @@ def get_recommendations_for_user(request, user_id=None):
                     'name': product.name,
                     'slug': product.slug,
                     'price': float(product.current_price),
-                    'image': product.image.url if product.image else None,
+                    'image': get_smart_image_url(product.image),
                     'reason': 'Tương tự sản phẩm bạn đã mua',
                     'score': similarity.score
                 })
@@ -94,7 +97,7 @@ def get_recommendations_for_user(request, user_id=None):
                 'name': product.name,
                 'slug': product.slug,
                 'price': float(product.current_price),
-                'image': product.image.url if product.image else None,
+                'image': get_smart_image_url(product.image),
                 'reason': 'Sản phẩm phổ biến',
                 'score': 0.8
             })
@@ -143,7 +146,7 @@ def get_similar_products(request, product_id):
                 'name': similar_product.name,
                 'slug': similar_product.slug,
                 'price': float(similar_product.current_price),
-                'image': similar_product.image.url if similar_product.image else None,
+                'image': get_smart_image_url(similar_product.image),
                 'similarity_score': similarity.score
             })
 
@@ -160,7 +163,7 @@ def get_similar_products(request, product_id):
                 'name': similar_product.name,
                 'slug': similar_product.slug,
                 'price': float(similar_product.current_price),
-                'image': similar_product.image.url if similar_product.image else None,
+                'image': get_smart_image_url(similar_product.image),
                 'similarity_score': 0.5  # Score mặc định cho cùng danh mục
             })
 
@@ -211,7 +214,7 @@ def get_frequently_bought_together(request, product_id):
                 'name': related_product.name,
                 'slug': related_product.slug,
                 'price': float(related_product.current_price),
-                'image': related_product.image.url if related_product.image else None,
+                'image': get_smart_image_url(related_product.image),
                 'bought_together_count': fbt.count
             })
             total_price += float(related_product.current_price)
@@ -222,7 +225,7 @@ def get_frequently_bought_together(request, product_id):
             'id': product.id,
             'name': product.name,
             'price': float(product.current_price),
-            'image': product.image.url if product.image else None
+            'image': get_smart_image_url(product.image)
         },
         'frequently_bought_together': recommendations,
         'total_price': total_price,
@@ -345,7 +348,7 @@ def trending_products(request):
             'name': product.name,
             'slug': product.slug,
             'price': float(product.current_price),
-            'image': product.image.url if product.image else None,
+            'image': get_smart_image_url(product.image),
             'category': product.category.name if product.category else None,
             'sentiment_score': product.sentiment_score
         })

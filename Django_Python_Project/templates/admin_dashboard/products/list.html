@@ -1,5 +1,5 @@
 {% extends 'admin_dashboard/base.html' %}
-{% load vn_currency %}
+{% load vn_currency product_tags %}
 
 {% block title %}Quản lý sản phẩm{% endblock %}
 
@@ -44,7 +44,7 @@
                 <tr>
                     <td>
                         {% if product.image %}
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 50px; height: 50px; object-fit: cover;">
+                        <img src="{{ product.image|smart_image_url }}" alt="{{ product.name }}" style="width: 50px; height: 50px; object-fit: cover;">
                         {% else %}
                         <span class="text-muted">N/A</span>
                         {% endif %}

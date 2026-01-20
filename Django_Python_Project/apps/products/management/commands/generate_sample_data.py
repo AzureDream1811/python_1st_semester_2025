@@ -3,7 +3,10 @@ import json
 from decimal import Decimal
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
+from django.contrib.auth.models import User
 from apps.products.models import Category, Brand, Product
+from apps.reviews.models import Review
+from apps.reviews.sentiment import SentimentAnalyzer
 
 
 class Command(BaseCommand):
@@ -125,6 +128,96 @@ class Command(BaseCommand):
         {'name': 'Lock&Lock',
          'description': 'Thương hiệu Hàn Quốc chuyên về đồ gia dụng, bình thủy và hộp đựng thực phẩm.'},
         {'name': 'Korihome', 'description': 'Thương hiệu Hàn Quốc chuyên về máy lọc nước nóng lạnh cao cấp.'},
+    ]
+
+    # Sample reviews theo rating với sentiment tương ứng
+    SAMPLE_REVIEWS = {
+        5: {  # 5 sao - Tích cực
+            'sentiment': 'positive',
+            'comments': [
+                "Sản phẩm tuyệt vời, chất lượng vượt quá mong đợi! Đóng gói cẩn thận, giao hàng nhanh. Rất hài lòng!",
+                "Đã dùng được 1 tháng, sản phẩm hoạt động hoàn hảo. Thiết kế đẹp, tiết kiệm điện. Sẽ giới thiệu cho bạn bè.",
+                "Chất lượng xuất sắc, đúng như mô tả. Shop tư vấn nhiệt tình, giao hàng đúng hẹn. 10 điểm!",
+                "Sản phẩm chính hãng, bảo hành uy tín. Sử dụng rất ổn định, không có gì để chê. Recommend!",
+                "Quá tuyệt vời! Đây là lần mua hàng online hài lòng nhất. Sản phẩm đẹp, chạy êm, tiết kiệm điện.",
+                "Mua cho gia đình dùng rất thích. Công nghệ hiện đại, dễ sử dụng. Giá cả hợp lý so với chất lượng.",
+                "Sản phẩm đáng đồng tiền bát gạo. Thiết kế sang trọng, hoạt động mượt mà. Cảm ơn shop!",
+                "Excellent! Rất đáng mua. Sử dụng 2 tuần không có vấn đề gì. Giao hàng cực nhanh, đóng gói kỹ.",
+                "Chồng mình rất thích sản phẩm này. Chất lượng tốt, tiết kiệm điện, chạy êm ái. 5 sao xứng đáng!",
+                "Mình đã so sánh nhiều nơi và quyết định mua ở đây. Không thất vọng chút nào. Sản phẩm tuyệt vời!",
+                "Lần đầu mua online mà được hàng chuẩn như này. Sản phẩm y hệt hình, chất lượng thật sự tốt.",
+                "Shop uy tín, sản phẩm chính hãng 100%. Đã kiểm tra kỹ, hoàn toàn hài lòng. Sẽ ủng hộ tiếp!",
+            ]
+        },
+        4: {  # 4 sao - Tích cực (có chút góp ý nhỏ)
+            'sentiment': 'positive',
+            'comments': [
+                "Sản phẩm tốt, đáng mua. Chỉ tiếc là giao hàng hơi lâu một chút. Nhưng overall vẫn hài lòng.",
+                "Chất lượng ổn, thiết kế đẹp. Mong shop có thêm nhiều màu sắc để lựa chọn. Còn lại rất ok!",
+                "Sản phẩm đúng như mô tả, hoạt động tốt. Hộp đựng bị móp nhẹ nhưng không ảnh hưởng máy.",
+                "Dùng được 2 tuần, khá hài lòng. Chạy hơi ồn một chút lúc mới bật nhưng sau êm dần. Tốt!",
+                "Giá hợp lý, chất lượng tương xứng. Shop tư vấn tốt. Trừ 1 sao vì không có quà tặng kèm.",
+                "Sản phẩm ok, giao hàng nhanh. Thiếu sách hướng dẫn tiếng Việt, phải tự tìm hiểu. Còn lại tốt.",
+                "Mua để thay thế máy cũ, dùng rất ổn. Tiết kiệm điện hơn. Thiết kế hơi đơn giản nhưng bền.",
+                "Chất lượng tốt so với giá tiền. Đóng gói cẩn thận. Chỉ là remote hơi nhạy, cần cải thiện.",
+                "Hài lòng với sản phẩm, đúng như kỳ vọng. Giao hàng cần nhanh hơn nữa thì hoàn hảo.",
+                "Sản phẩm chính hãng, hoạt động ổn định. Bảo hành tốt. Chỉ là giá cao hơn nơi khác một chút.",
+            ]
+        },
+        3: {  # 3 sao - Trung lập
+            'sentiment': 'neutral',
+            'comments': [
+                "Sản phẩm bình thường, không có gì đặc biệt. Hoạt động được nhưng không quá ấn tượng.",
+                "Tạm ổn so với giá tiền. Không tệ nhưng cũng không xuất sắc. Dùng được.",
+                "Giao hàng chậm hơn dự kiến. Sản phẩm ok, nhưng đóng gói sơ sài. Cần cải thiện.",
+                "Chất lượng trung bình khá. Có một số tính năng không như quảng cáo. Tạm chấp nhận được.",
+                "Sản phẩm dùng được, nhưng hơi ồn. Thiết kế cũng bình thường. Giá thì hợp lý.",
+                "Không quá hài lòng cũng không thất vọng. Sản phẩm hoạt động đúng chức năng cơ bản.",
+                "Đã nhận hàng, sản phẩm tạm ổn. Cần dùng thêm thời gian mới đánh giá chính xác được.",
+                "Sản phẩm y hình, nhưng chất liệu không được cao cấp như mong đợi. Giá tiền này thì ok.",
+                "Dùng thử 1 tuần, không có vấn đề gì lớn. Tuy nhiên cũng không có gì nổi bật. 3 sao.",
+                "Hàng nhận được bình thường, không bị lỗi gì. Nhưng tính năng hạn chế hơn tưởng tượng.",
+            ]
+        },
+        2: {  # 2 sao - Tiêu cực (thất vọng)
+            'sentiment': 'negative',
+            'comments': [
+                "Sản phẩm không như mong đợi. Chất lượng kém hơn so với giá tiền. Hơi thất vọng.",
+                "Giao hàng chậm, sản phẩm bị trầy xước. Liên hệ shop thì phản hồi chậm. Không hài lòng.",
+                "Dùng được 1 tuần thì bắt đầu có vấn đề. Tiếng ồn lớn, hoạt động không ổn định.",
+                "Sản phẩm không giống hình. Chất liệu rẻ tiền, cảm giác không bền. Đáng lẽ nên mua hãng khác.",
+                "Thất vọng về chất lượng. Quảng cáo hay nhưng thực tế không được như vậy.",
+                "Đóng gói sơ sài, máy bị móp góc. Hoạt động được nhưng lo về độ bền. Không recommend.",
+                "Sản phẩm tạm dùng được nhưng nhiều lỗi vặt. Hướng dẫn sử dụng không rõ ràng.",
+                "Mua về dùng thử thì thấy không đáng tiền. Tính năng hạn chế, chất lượng trung bình.",
+            ]
+        },
+        1: {  # 1 sao - Rất tiêu cực
+            'sentiment': 'negative',
+            'comments': [
+                "Sản phẩm lỗi ngay khi nhận hàng. Liên hệ đổi trả rất khó khăn. Rất thất vọng!",
+                "Quá tệ! Không hoạt động được, phải gửi bảo hành ngay. Mất thời gian và công sức.",
+                "Sản phẩm giả, không phải hàng chính hãng như quảng cáo. Yêu cầu hoàn tiền!",
+                "Giao hàng sai mẫu, liên hệ mãi không được. Dịch vụ quá kém. Không bao giờ mua lại!",
+                "Chất lượng quá tệ, vừa dùng được 3 ngày đã hỏng. Tiền mất tật mang.",
+                "Thất vọng hoàn toàn! Sản phẩm không đúng mô tả, chất lượng rất kém.",
+                "Mình phải cho 1 sao vì sản phẩm bị lỗi và không được hỗ trợ đổi trả. Rất buồn!",
+                "Đừng mua! Sản phẩm rất tệ, không đáng tiền. Shop không uy tín, phản hồi chậm.",
+            ]
+        }
+    }
+
+    # Tên người dùng mẫu cho reviews
+    SAMPLE_USERNAMES = [
+        'nguyen_van_a', 'tran_thi_b', 'le_van_c', 'pham_thi_d', 'hoang_van_e',
+        'vu_thi_f', 'dang_van_g', 'bui_thi_h', 'do_van_i', 'ngo_thi_k',
+        'duong_van_l', 'ly_thi_m', 'truong_van_n', 'dinh_thi_o', 'ha_van_p',
+        'mai_thi_q', 'vo_van_r', 'tang_thi_s', 'phan_van_t', 'cao_thi_u',
+        'lam_van_v', 'to_thi_x', 'trinh_van_y', 'nghiem_thi_z', 'chu_van_aa',
+        'khuat_thi_bb', 'quach_van_cc', 'ta_thi_dd', 'mac_van_ee', 'huynh_thi_ff',
+        'user_reviewer_01', 'user_reviewer_02', 'user_reviewer_03', 'user_reviewer_04',
+        'khachhang_01', 'khachhang_02', 'khachhang_03', 'khachhang_04', 'khachhang_05',
+        'customer_vn_01', 'customer_vn_02', 'customer_vn_03', 'customer_vn_04',
     ]
 
     BRAND_CATEGORY_MAPPING = {
@@ -1334,10 +1427,17 @@ class Command(BaseCommand):
                         )
                         product_index += 1
 
-        self.stdout.write(self.style.SUCCESS(f'\nHoàn thành! Đã tạo:'))
+        self.stdout.write(self.style.SUCCESS(f'\nHoàn thành tạo sản phẩm! Đã tạo:'))
         self.stdout.write(self.style.SUCCESS(f'  - {len(self.CATEGORIES)} danh mục'))
         self.stdout.write(self.style.SUCCESS(f'  - {len(self.BRANDS)} thương hiệu'))
         self.stdout.write(self.style.SUCCESS(f'  - {product_count} sản phẩm'))
+
+        # Tạo reviews cho sản phẩm
+        self.stdout.write(self.style.WARNING('\nBắt đầu tạo reviews...'))
+        review_count = self.create_reviews_for_products()
+        self.stdout.write(self.style.SUCCESS(f'  - {review_count} reviews đã được tạo'))
+
+        self.stdout.write(self.style.SUCCESS('\n✓ Hoàn thành tất cả!'))
 
     def create_product(self, template, brand, category, index, **kwargs):
         size = kwargs.get('size')
@@ -1452,3 +1552,96 @@ class Command(BaseCommand):
         if created:
             return 1
         return 0
+
+    def create_reviews_for_products(self):
+        """Tạo reviews cho tất cả sản phẩm"""
+        from django.utils import timezone
+        from datetime import timedelta
+
+        products = Product.objects.filter(is_active=True)
+        total_reviews = 0
+        users_cache = {}
+
+        self.stdout.write('Đang tạo reviews cho sản phẩm...')
+
+        # Khởi tạo AI Sentiment Analyzer (load model 1 lần duy nhất)
+        self.stdout.write('  Đang load AI Sentiment model...')
+        analyzer = SentimentAnalyzer()
+        self.stdout.write('  ✓ AI model đã sẵn sàng')
+
+        for product in products:
+            # Mỗi sản phẩm có từ 5-10 reviews
+            num_reviews = random.randint(5, 10)
+
+            # Phân bố rating: thiên về 4-5 sao (thực tế hơn)
+            # Tỷ lệ: 5 sao (35%), 4 sao (30%), 3 sao (20%), 2 sao (10%), 1 sao (5%)
+            rating_distribution = [5]*35 + [4]*30 + [3]*20 + [2]*10 + [1]*5
+
+            for i in range(num_reviews):
+                rating = random.choice(rating_distribution)
+                review_data = self.SAMPLE_REVIEWS[rating]
+                comment = random.choice(review_data['comments'])
+
+                # Sử dụng AI FastText để phân tích sentiment thực sự
+                # Kết hợp cả text và rating (text 60%, rating 40%)
+                result = analyzer.analyze(comment, rating=rating)
+                sentiment = result['sentiment']
+                sentiment_score = result['score']
+
+                # Tạo hoặc lấy user
+                username = random.choice(self.SAMPLE_USERNAMES)
+                if username not in users_cache:
+                    user, _ = User.objects.get_or_create(
+                        username=username,
+                        defaults={
+                            'email': f'{username}@example.com',
+                            'first_name': username.split('_')[0].title(),
+                            'last_name': username.split('_')[-1].title() if '_' in username else '',
+                            'is_active': True,
+                        }
+                    )
+                    users_cache[username] = user
+                else:
+                    user = users_cache[username]
+
+                # Kiểm tra xem user đã review sản phẩm này chưa
+                if Review.objects.filter(product=product, user=user).exists():
+                    continue
+
+                # Tạo ngày review ngẫu nhiên trong 6 tháng qua
+                days_ago = random.randint(1, 180)
+                review_date = timezone.now() - timedelta(days=days_ago)
+
+                # Tạo review
+                review = Review.objects.create(
+                    product=product,
+                    user=user,
+                    rating=rating,
+                    comment=comment,
+                    sentiment=sentiment,
+                    sentiment_score=round(sentiment_score, 2),
+                    is_approved=True,
+                    is_verified_purchase=random.random() < 0.7,  # 70% là mua hàng xác thực
+                    helpful_count=random.randint(0, 50),
+                )
+                review.created_at = review_date
+                review.save(update_fields=['created_at'])
+
+                total_reviews += 1
+
+            # Cập nhật sentiment_score cho product
+            product_reviews = Review.objects.filter(product=product, is_approved=True)
+            if product_reviews.exists():
+                # Cập nhật sentiment stats
+                positive_count = product_reviews.filter(sentiment='positive').count()
+                negative_count = product_reviews.filter(sentiment='negative').count()
+                total_count = product_reviews.count()
+
+                if total_count > 0:
+                    product.sentiment_score = round((positive_count - negative_count) / total_count, 2)
+                    product.positive_reviews = positive_count
+                    product.negative_reviews = negative_count
+                    product.save(update_fields=['sentiment_score', 'positive_reviews', 'negative_reviews'])
+
+        return total_reviews
+

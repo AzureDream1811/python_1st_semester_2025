@@ -1145,7 +1145,7 @@ p {
                 </button>
                 
                 {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" id="mainImage">
+                <img src="{{ product.image|smart_image_url }}" alt="{{ product.name }}" id="mainImage">
                 {% else %}
                 <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:64px;">
                     <i class="bi bi-image"></i>
@@ -1157,13 +1157,13 @@ p {
             {% if product.images.exists or product.image %}
             <div class="pd-gallery__thumbs">
                 {% if product.image %}
-                <div class="pd-gallery__thumb active" onclick="changeImage('{{ product.image.url }}', this)">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                <div class="pd-gallery__thumb active" onclick="changeImage('{{ product.image|smart_image_url }}', this)">
+                    <img src="{{ product.image|smart_image_url }}" alt="{{ product.name }}">
                 </div>
                 {% endif %}
                 {% for img in product.images.all %}
-                <div class="pd-gallery__thumb" onclick="changeImage('{{ img.image.url }}', this)">
-                    <img src="{{ img.image.url }}" alt="{{ product.name }}">
+                <div class="pd-gallery__thumb" onclick="changeImage('{{ img.image|smart_image_url }}', this)">
+                    <img src="{{ img.image|smart_image_url }}" alt="{{ product.name }}">
                 </div>
                 {% endfor %}
             </div>

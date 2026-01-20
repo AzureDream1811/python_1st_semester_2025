@@ -478,7 +478,7 @@
             <a href="{% url 'products:category' cat.slug %}" class="category-card">
                 <div class="category-image">
                     {% if cat.image %}
-                    <img src="{{ cat.image.url }}" alt="{{ cat.name }}">
+                    <img src="{{ cat.image|smart_image_url }}" alt="{{ cat.name }}">
                     {% else %}
                     <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80" alt="{{ cat.name }}">
                     {% endif %}
