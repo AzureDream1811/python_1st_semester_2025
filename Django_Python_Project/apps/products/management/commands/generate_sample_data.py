@@ -155,6 +155,14 @@ class Command(BaseCommand):
                 'name_template': 'Smart Tivi 4K {brand} {size} inch',
                 'description': 'Smart Tivi 4K với độ phân giải Ultra HD 3840x2160, công nghệ HDR10+ cho hình ảnh sống động. Hệ điều hành thông minh với kho ứng dụng phong phú, điều khiển giọng nói tiện lợi. Thiết kế viền mỏng sang trọng, phù hợp mọi không gian.',
                 'sizes': [43, 50, 55, 65, 75],
+                'images': [
+                    'https://cdn.hoanghamobile.vn/Uploads/2024/06/14/sony-google-tivi-oled-k-65xr80-06.jpg',
+                    'https://cdn.tgdd.vn/Files/2017/02/11/948506/tivi-qled-cua-samsung-co-gia-bao-nhieu--11.jpg',
+                    'https://dienmaygiare.net/wp-content/uploads/2025/12/smart-tivi-hisense-32-inch-32a4q-1-638921808926524429-700x467-1.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSNr71Ztjncx27D4-jISVX5IWqIP1r-_h97g&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSNr71Ztjncx27D4-jISVX5IWqIP1r-_h97g&s',
+                    'https://dienmay247.com.vn/wp-content/uploads/2024/09/10.4.jpg'
+                ],
                 'specs_template': {
                     'Kích thước màn hình': '{size} inch',
                     'Độ phân giải': '4K Ultra HD (3840 x 2160)',
@@ -170,6 +178,14 @@ class Command(BaseCommand):
                 'name_template': 'Tivi OLED {brand} {size} inch 4K',
                 'description': 'Tivi OLED cao cấp với công nghệ điểm ảnh tự phát sáng, màu đen tuyệt đối, độ tương phản vô hạn. Góc nhìn 178 độ không đổi màu, thời gian phản hồi 0.1ms hoàn hảo cho gaming. Thiết kế siêu mỏng như tranh treo tường.',
                 'sizes': [55, 65, 77, 83],
+                'images': [
+                    'https://bizweb.dktcdn.net/100/549/276/files/2-tivi-oled-lg-cung-cap-do-phan-giai-len-den-8k-cho-moi-hinh-anh-chi-tiet-va-sac-net-hon-bao-gio-het-jpeg.jpg?v=1740972602263',
+                    'https://bizweb.dktcdn.net/100/549/276/files/5-nguoi-dung-cam-thay-an-tuong-voi-do-tuong-phan-cao-cua-mau-tivi-sony-a8-oled-jpeg.jpg?v=1740972590071',
+                    'https://muahangtaikho.vn/media/lib/11-10-2024/tivi-oled10.png',
+                    'https://muahangtaikho.vn/media/lib/11-10-2024/tivi-oled8.png',
+                    'https://cdnv2.tgdd.vn/mwg-static/dmx/Products/Images/1942/337482/smart-tivi-oled-evo-lg-ai-4k-55-inch-oled55c5psa-2-638814287666408461-700x467.jpg',
+                    'https://bizweb.dktcdn.net/100/439/998/products/tivi-oled-lg-4k-77-inch-77c4psa-2-optimized-e69c3e4c-c17d-407f-8e23-a91a26f48f5c.jpg?v=1725609488910'
+                ],
                 'specs_template': {
                     'Kích thước màn hình': '{size} inch',
                     'Độ phân giải': '4K Ultra HD (3840 x 2160)',
@@ -185,6 +201,16 @@ class Command(BaseCommand):
                 'name_template': 'Tivi QLED {brand} {size} inch 4K',
                 'description': 'Tivi QLED với công nghệ Quantum Dot, hiển thị 1 tỷ màu sắc chính xác. Độ sáng cao 1000 nits, xem tốt cả trong ánh sáng mạnh. Công nghệ chống phản chiếu, bảo vệ mắt khi xem lâu.',
                 'sizes': [50, 55, 65, 75, 85],
+                'images': [
+                    'https://ledlia.com/wp-content/uploads/2024/11/cau-tao-man-hinh-qled.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwILE4irdfWkVlGOriOP0armw2phsI1naLDA&s',
+                    'https://bizweb.dktcdn.net/100/444/251/files/cong-nghe-quantum-dot-color-tren-tivi-hisense.jpg?v=1744395054740',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR19ljecAALw_35DpzybYzpXW-VilWjDIDRag&s',
+                    'https://cdn.tgdd.vn/Products/Images/1942/322672/Slider/1fix2-1020x570.jpg',
+                    'https://bizweb.dktcdn.net/thumb/large/100/549/276/products/qa55q6faakxxv-6.jpg?v=1760493832453',
+                    'https://cdn.tgdd.vn/Products/Images/1942/219254/samsung-qa49q80t-111122-033158-550x340.jpg',
+                    'https://cdnv2.tgdd.vn/mwg-static/common/News/1582439/tivi-qd-mini-led-la-gi-5.jpg'
+                ],
                 'specs_template': {
                     'Kích thước màn hình': '{size} inch',
                     'Độ phân giải': '4K Ultra HD (3840 x 2160)',
@@ -200,6 +226,13 @@ class Command(BaseCommand):
                 'name_template': 'Tivi LED {brand} {size} inch Full HD',
                 'description': 'Tivi LED Full HD kinh tế với hình ảnh sắc nét, màu sắc tự nhiên. Thiết kế mỏng nhẹ, tiết kiệm điện. Phù hợp phòng ngủ, phòng bếp hoặc phòng trọ.',
                 'sizes': [32, 40, 43],
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuy562A6VL7TEjI3Fc7Au4OMtdW0VR1tz6Tw&s',
+                    'https://tiki.vn/blog/wp-content/uploads/2023/10/co-nen-mua-tivi-xiaomi-3-compressed.jpg',
+                    'https://bizweb.dktcdn.net/100/549/276/files/tivi-hinh2.jpg?v=1740988405638',
+                    'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:0/q:100/plain/https://cellphones.com.vn/media/wysiwyg/Tivi/tivi-full-hd-2.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMZW_uqossE7DAJLuhQowkQCaxiqzf7VAduw&s'
+                ],
                 'specs_template': {
                     'Kích thước màn hình': '{size} inch',
                     'Độ phân giải': 'Full HD (1920 x 1080)',
@@ -214,6 +247,13 @@ class Command(BaseCommand):
                 'name_template': 'Smart Tivi 8K {brand} {size} inch Neo QLED',
                 'description': 'Smart Tivi 8K đỉnh cao công nghệ với độ phân giải 7680x4320, gấp 4 lần 4K. AI Upscaling nâng cấp mọi nội dung lên gần 8K. Âm thanh vòm 3D theo chuyển động hình ảnh.',
                 'sizes': [65, 75, 85],
+                'images': [
+                    'https://cdn.tgdd.vn//News/1436081//smart-tivi-neo-qled-8k-65-inch-samsung-qa65qn800c-140323-021017-845x472.jpg',
+                    'https://dienmaythienphu.vn/_next/image?url=https%3A%2F%2Fdienmaythienphu.vn%2Fwp-content%2Fuploads%2F2023%2F11%2Fsamsung-QA98QN990C-1.jpg&w=1920&q=100',
+                    'https://cdn.tgdd.vn/Products/Images/1942/322639/Slider/1-1020x570.jpg',
+                    'https://dienmaythienphu.vn/_next/image?url=https%3A%2F%2Fdienmaythienphu.vn%2Fwp-content%2Fuploads%2F2022%2F05%2FLG-QNED99SQB-1.jpg&w=1920&q=100',
+                    'https://cdn11.dienmaycholon.vn/filewebdmclnew/DMCL21/Picture/Apro/Apro_product_36410/smart-ai-tivi-samsung-mini-led-8k-85-inch-qa85qn950f-main--494.png'
+                ],
                 'specs_template': {
                     'Kích thước màn hình': '{size} inch',
                     'Độ phân giải': '8K (7680 x 4320)',
@@ -231,6 +271,15 @@ class Command(BaseCommand):
                 'name_template': 'Tủ lạnh Inverter {brand} {capacity} lít',
                 'description': 'Tủ lạnh Inverter tiết kiệm điện với công nghệ làm lạnh đa chiều, giữ thực phẩm tươi ngon lâu hơn. Máy nén Digital Inverter vận hành êm ái, bền bỉ 10 năm. Ngăn đông mềm -1°C tiện lợi.',
                 'capacities': [256, 280, 320, 360, 400],
+                'images': [
+                    'https://cdn11.dienmaycholon.vn/filewebdmclnew/DMCL21/Picture/News/News_expe_3940/3940_610.png.webp',
+                    'https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/tu_lanh_inverter_tot_nhat_2025_253eb6343f.jpg',
+                    'https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/2023_11_7_638349589404258558_b9-biars.jpg',
+                    'https://dienmayhtech.com/_next/image?url=https%3A%2F%2Fimage.dienmayhtech.com%2FStaticFiles%2FImages%2F2024%2F09%2F20%2Ftu-lanh-hitachi-tiet-kiem-dien-1_3ae4.png&w=3840&q=75',
+                    'https://file.hstatic.net/200000868155/file/73-post-tu-lanh-inverter-la-gi-uu-diem-voi-cong-nghe-inverter-la-gi--5.jpg',
+                    'https://cdn.tgdd.vn/Products/Images/1943/328725/Slider/Tie%CC%82%CC%81t-kie%CC%A3%CC%82m-die%CC%A3%CC%82n-kha%CC%81ng-khua%CC%82%CC%89n-1920x1080.jpg',
+                    'https://img.meta.com.vn/data/image/2024/05/22/1-cong-nghe-inverter-tren-tu-lanh-casper.png'
+                ],
                 'specs_template': {
                     'Dung tích tổng': '{capacity} lít',
                     'Dung tích sử dụng': '{usable} lít',
@@ -247,6 +296,14 @@ class Command(BaseCommand):
                 'name_template': 'Tủ lạnh Side by Side {brand} {capacity} lít',
                 'description': 'Tủ lạnh Side by Side sang trọng với dung tích siêu lớn, cửa kính cường lực. Ngăn lấy nước và đá ngoài tiện lợi. Công nghệ làm lạnh vòng cung, nhiệt độ đồng đều mọi ngóc ngách.',
                 'capacities': [580, 620, 680, 750],
+                'images': [
+                    'https://dienlanhthinhphat.com.vn/wp-content/uploads/2023/09/thinh-phat-Tong-quan-ve-tu-lanh-side-by-side-la-gi.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKjr5d1YpSN4Ex1O_CC0ewEq11mzodgiPNYQ&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgY8_6Cm_rV_q1jog52okzYn0eHcTnkJUXog&s',
+                    'https://uuvietsolutions.vn/wp-content/uploads/2025/01/tu-lanh-side-by-side-va-tu-lanh-4-canh-1-1024x1024.png',
+                    'https://dienmaysieure.vn/wp-content/uploads/2024/11/tu-lanh-lg-inverter-641-lit-side-by-side-lsi63blma-1-638647747978087898-700x467-1.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKkUdqA0FOzdE2I_0X5EmdG5fgdFojrU4xrw&s'
+                ],
                 'specs_template': {
                     'Dung tích tổng': '{capacity} lít',
                     'Kiểu tủ': 'Side by Side 2 cánh',
@@ -263,6 +320,14 @@ class Command(BaseCommand):
                 'name_template': 'Tủ lạnh Mini {brand} {capacity} lít',
                 'description': 'Tủ lạnh mini nhỏ gọn phù hợp phòng trọ, khách sạn, văn phòng. Tiết kiệm điện, vận hành êm ái. Ngăn đá riêng biệt, đủ dùng cho 1-2 người.',
                 'capacities': [90, 100, 120, 150],
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1ysMD88EddPQhVsB9tOmWfYgJJPyvKtuacA&s',
+                    'https://aloma.vn/tai-len/2024/05/tu-lanh-mini-28lit-SAST-BCD28L-gia-dung-aloma-12.jpg',
+                    'https://kithome.com.vn/wp-content/uploads/2025/05/d073bebb-tu-lanh-mini-co-ngan-da.jpg',
+                    'https://phuchoa.com.vn/wp-content/uploads/2024/08/review-tu-lanh-mini-Aqua-AQR-D59FA-BS.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJXBJ9ZuBYxb9QncbdTDnko3AiAXMrnzzxGw&s',
+                    'https://cdn.tgdd.vn/Files/2022/05/19/1433690/tu-lanh-mini-co-ngan-da-khong-top-tu-lanh-mini-dang-mua-5.jpg'
+                ],
                 'specs_template': {
                     'Dung tích tổng': '{capacity} lít',
                     'Kiểu tủ': 'Tủ mini 1 cửa',
@@ -278,6 +343,13 @@ class Command(BaseCommand):
                 'name_template': 'Tủ lạnh 3 cửa {brand} {capacity} lít French Door',
                 'description': 'Tủ lạnh French Door 3 cửa thiết kế hiện đại, ngăn rau quả rộng rãi ở dưới. Ngăn đông kéo riêng tiện lợi, công nghệ cấp đông mềm giữ thịt cá tươi ngon.',
                 'capacities': [450, 520, 580],
+                'images': [
+                    'https://dienlanhthinhphat.com.vn/wp-content/uploads/2024/04/thinh-phat-Tim-hieu-ve-tu-lanh-co-cau-tao-la-gi.jpg',
+                    'https://dienmaybanre.com/images/products/2024/01/04/original/tu-lanh-hitachi-inverter-464-lit-multi-door-hr4n7520dswdxvn-4_1704341812.jpg',
+                    'https://media3.bosch-home.com/Images/400x300/19526229_Bosch_Refrigeration_French_Door_Familypage_VP2_1_1600x1200.jpg',
+                    'https://cdn.tgdd.vn/Files/2021/09/02/1379688/loi-ich-tu-ngan-rau-khong-lo-tren-tu-lanh-panasonic_730x411.jpg',
+                    'https://bizweb.dktcdn.net/thumb/medium/100/175/569/products/lfb61blgai.png?v=1742181632040'
+                ],
                 'specs_template': {
                     'Dung tích tổng': '{capacity} lít',
                     'Kiểu tủ': 'French Door 3 cửa',
@@ -295,6 +367,14 @@ class Command(BaseCommand):
                 'name_template': 'Máy giặt cửa trước {brand} Inverter {capacity} kg',
                 'description': 'Máy giặt cửa trước với motor Inverter bền bỉ bảo hành 10 năm. Công nghệ giặt hơi nước diệt 99.9% vi khuẩn. Lồng giặt thép không gỉ, nhiều chế độ giặt chuyên biệt.',
                 'capacities': [8, 9, 10, 11, 12],
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-CcNhT1rLsXStHDvQts49wJCbhEgELNUB5w&s',
+                    'https://product.hstatic.net/200000335975/product/0_6f7ae81f552a471a9c0271bfabaed982_master.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMUK_RrNFpfUnO0yuHdRb0d3d2zQ8ng_uUoQ&s',
+                    'https://dienmaybanre.com/images/products/2022/03/08/large/may-giat-electrolux-inverter-ewf1024p5wb_1646735315.jpg',
+                    'https://dienmayrenhat.com.vn/wp-content/uploads/2025/10/WW10DG6U34LBSV.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTX9IjPS55P_SLsVVDkQfvybo0L_uT9dsOgHQ&s'
+                ],
                 'specs_template': {
                     'Khối lượng giặt': '{capacity} kg',
                     'Kiểu máy': 'Cửa trước (Front Load)',
@@ -311,6 +391,14 @@ class Command(BaseCommand):
                 'name_template': 'Máy giặt cửa trên {brand} {capacity} kg',
                 'description': 'Máy giặt cửa trên tiện lợi, dễ cho đồ vào khi đang giặt. Mâm giặt sóng siêu âm giặt sạch nhẹ nhàng. Chế độ vệ sinh lồng giặt tự động.',
                 'capacities': [7, 8, 9, 10, 12],
+                'images': [
+                    'https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/may_giat_aqua_ban_chay_nhat_thumb_ed984757af.png',
+                    'https://dienmay247.com.vn/wp-content/uploads/2024/06/may-giat-lg-9-k_main_331_1020.png.webp',
+                    'https://dienmaythienphu.vn/wp-content/uploads/2025/11/47cb846b3d66ff7d41112c4cca2b749d-1.jpg',
+                    'https://magiamgia.com/wp-content/uploads/2019/02/may-giat-cua-truoc-inverter-electrolux-ewf12938.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsCDK1YKp-ugGBlKizH4Th3nWsZGAddO0Idg&s',
+                    'https://cdn.tgdd.vn/Products/Images/1944/236125/giat-hoi-nuoc-hygiene-steam.jpg'
+                ],
                 'specs_template': {
                     'Khối lượng giặt': '{capacity} kg',
                     'Kiểu máy': 'Cửa trên (Top Load)',
@@ -327,6 +415,14 @@ class Command(BaseCommand):
                 'name_template': 'Máy giặt sấy {brand} {capacity} kg 2 trong 1',
                 'description': 'Máy giặt tích hợp sấy tiện lợi trong 1 thiết bị. Sấy hơi nước không làm hư vải, giảm nếp nhăn. Phù hợp không gian nhỏ, tiết kiệm thời gian phơi.',
                 'capacities': [9, 10, 12, 14],
+                'images': [
+                    'https://cdn.tgdd.vn/Products/Images/1944/236189/may-giat-say-say-samsung-11kg-wd11t734dbx-sv-thumb-600x600.jpg',
+                    'https://cdn.tgdd.vn/Products/Images/1944/304209/may-giat-say-toshiba-inverter-twd-bm135gf4v-mg-070823-042002-600x600.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxV5npU-f_P4Dvc31X06xAl0hp3BkU7bWMZQ&s',
+                    'https://cdn.tgdd.vn//News/946533//May-giat-hoi-nuoc-la-gi-uu-nhuoc-diem-cua-may-giat-hoi-nuoc-4-730x414.jpg',
+                    'https://cdn.tgdd.vn/Products/Images/1944/326444/may-giat-say-toshiba-inverter-giat-10-5-kg-say-7-kg-twd-t21bu115uwv-mg-thumb-1-600x600.jpg',
+                    'https://cdnv2.tgdd.vn/mwg-static/common/News/749976/co-nen-mua-may-giat-say-4.jpg'
+                ],
                 'specs_template': {
                     'Khối lượng giặt': '{capacity} kg',
                     'Khối lượng sấy': '{dry_capacity} kg',
@@ -343,6 +439,14 @@ class Command(BaseCommand):
                 'name_template': 'Máy sấy quần áo {brand} {capacity} kg',
                 'description': 'Máy sấy riêng biệt với công nghệ bơm nhiệt tiết kiệm điện. Cảm biến độ ẩm tự ngắt khi khô, bảo vệ vải. Bộ lọc xơ vải dễ vệ sinh.',
                 'capacities': [7, 8, 9, 10],
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN6VY9YYDEVefnrgcAvPOXpRH9-3-U_4Q7bg&s',
+                    'https://images.samsung.com/is/image/samsung/p6pim/vn/feature/others/vn-feature-wd8000dk-543281679?$FB_TYPE_A_MO_JPG$',
+                    'https://www.electrolux.vn/globalassets/importimageproduct/2026-jan-vn/edh803j5wc-img-vn.jpg?width=464',
+                    'https://bephungphu.com/wp-content/uploads/2023/10/may-say-beko-da9112rx0mb-6.png',
+                    'https://www.electrolux.vn/globalassets/importimageproduct/2026-jan-vn/edh902r9sc-img-vn.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcToqrAVg0aeev85obF7VhJWff-t4vg8lAlypw&s'
+                ],
                 'specs_template': {
                     'Khối lượng sấy': '{capacity} kg',
                     'Công nghệ sấy': 'Heat Pump (Bơm nhiệt)',
@@ -360,6 +464,14 @@ class Command(BaseCommand):
                 'name_template': 'Điều hòa Inverter {brand} {btu} BTU',
                 'description': 'Điều hòa Inverter 1 chiều tiết kiệm điện lên đến 60%. Làm lạnh nhanh trong 30 giây, luồng gió 3D mát đều khắp phòng. Vận hành siêu êm chỉ 19dB, phù hợp phòng ngủ.',
                 'btus': [9000, 12000, 18000, 24000],
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR92jAki9IaZZp_nYexCeQXFmVhfdPDR-ziaQ&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnDaAdDsR5uBaWHotOqkhZPa9nQ60GWykhGQ&s',
+                    'https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/dieu_hoa_daikin_12000_1_chieu_inverter_thumb_4974c52c0c.png',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2r5bUuJV1zewYy3vkREdZxeKydQoeJiIhKA&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpGAUJQmIyFu_U0gR2b86m4acX5cgaBB4ZUw&s',
+                    'https://cdn.mediamart.vn/images/uploads/news/202510/dieu-hoa-coex-1-chieu-inverter-1hp-9000b_i21322.webp'
+                ],
                 'specs_template': {
                     'Công suất lạnh': '{btu} BTU/h',
                     'Phạm vi làm lạnh': '{area} m²',
@@ -377,6 +489,14 @@ class Command(BaseCommand):
                 'name_template': 'Điều hòa 2 chiều {brand} {btu} BTU Inverter',
                 'description': 'Điều hòa 2 chiều vừa làm lạnh mùa hè vừa sưởi ấm mùa đông. Công nghệ Inverter tiết kiệm điện, ổn định nhiệt độ. Bộ lọc Plasma diệt khuẩn, khử mùi hiệu quả.',
                 'btus': [9000, 12000, 18000, 24000],
+                'images': [
+                    'https://cdn.tgdd.vn//News/824169//panasonic-cu-cs-yz12wkh-8-writeee-7-730x405.jpg',
+                    'https://cdn.tgdd.vn/Products/Images/2002/236419/Slider/1-1020x570.jpg',
+                    'https://cdn.tgdd.vn//News/824169//daikin-fthf25vavmv-160421-0400080-730x408.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNYtN9C_xTbRIHYec42bJ3cEzMF6tJXiojSQ&s',
+                    'https://dienmayphuckhanh.vn/wp-content/uploads/2025/12/dieu-hoa-daikin-2-chieu.jpg',
+                    'https://cafefcdn.com/203337114487263232/2023/11/24/photo-1-1700793081924703631333-17007930964531506153782-1700813903534-1700813903641632910135.jpg'
+                ],
                 'specs_template': {
                     'Công suất lạnh': '{btu} BTU/h',
                     'Công suất sưởi': '{heat_btu} BTU/h',
@@ -393,6 +513,13 @@ class Command(BaseCommand):
                 'name_template': 'Điều hòa tủ đứng {brand} {btu} BTU',
                 'description': 'Điều hòa tủ đứng công suất lớn phù hợp phòng khách rộng, showroom, văn phòng. Luồng gió mạnh phủ rộng, làm mát nhanh không gian lớn. Thiết kế sang trọng như tủ trang trí.',
                 'btus': [24000, 36000, 48000],
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtxbzB1RxiHJrTAq-rGdMuR765UajtcGRtAQ&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKNGoxNPQEissQkCgNXOsv9kjhOGQG8iehRQ&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7qdmX32JF2f2PXE4d1ArQtU7NZ43f-YZabg&s',
+                    'https://dienmaythienphu.vn/wp-content/uploads/2025/11/fdf125csv-s5fdc125csv-s5-1.png',
+                    'https://dienmaythienphu.vn/wp-content/uploads/2025/05/bia-cay-lg752025-1.jpg'
+                ],
                 'specs_template': {
                     'Công suất lạnh': '{btu} BTU/h',
                     'Phạm vi': '{area} m²',
@@ -410,6 +537,14 @@ class Command(BaseCommand):
                 'name_template': 'Máy lọc không khí {brand} phòng {area}m²',
                 'description': 'Máy lọc không khí với bộ lọc HEPA H13 lọc 99.97% bụi mịn PM2.5, phấn hoa, vi khuẩn. Cảm biến chất lượng không khí tự động điều chỉnh tốc độ. Vận hành êm ái ban đêm.',
                 'areas': [20, 30, 40, 50, 60],
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpJA3Tqr9uEVde9FRdZBaChW1SO6tRJ01JpA&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_lw11cdXuzXVNvrzwKqhNCoq6IO4p3tLN-Q&s',
+                    'https://mi-lux.vn/wp-content/uploads/2025/05/Gradient-xanh-duong-don-gian-de-thuong-khung-san-pham-dang-Instagram-23.png',
+                    'https://mi-lux.vn/wp-content/uploads/59.png',
+                    'https://mi-lux.vn/wp-content/uploads/2025/05/Gradient-xanh-duong-don-gian-de-thuong-khung-san-pham-dang-Instagram-2.png',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVsZNc8tR1pQjfAqVDNt0N0YscjWj8qEsgGQ&s'
+                ],
                 'specs_template': {
                     'Diện tích phòng': 'Đến {area}m²',
                     'Bộ lọc': 'HEPA H13 + Carbon + Pre-filter',
@@ -426,6 +561,12 @@ class Command(BaseCommand):
                 'name_template': 'Máy lọc không khí {brand} diệt khuẩn Ion',
                 'description': 'Máy lọc không khí tích hợp công nghệ Plasmacluster Ion diệt 99.9% virus, vi khuẩn trong không khí. Khử mùi hiệu quả thuốc lá, nấu ăn. Nhỏ gọn đặt bàn hoặc phòng nhỏ.',
                 'areas': [15, 20, 25],
+                'images': [
+                    'https://cdn.tgdd.vn//News/1042485//cong-nghe-plasmacluster-ion-tren-may-loc-khong-khi-1-730x405.jpg',
+                    'https://cdn.tgdd.vn//News/1042485//cong-nghe-plasmacluster-ion-tren-may-loc-khong-khi-3-730x405.jpg',
+                    'https://reviewmaylockhongkhi.com/wp-content/uploads/2025/06/cong-nghe-plasmacluster-ion-3.jpg',
+                    'https://cdn2.fptshop.com.vn/unsafe/Uploads/images/tin-tuc/137506/Originals/Plasmacluster-05.jpg'
+                ],
                 'specs_template': {
                     'Diện tích phòng': 'Đến {area}m²',
                     'Công nghệ': 'Plasmacluster Ion / Nanoe',
@@ -443,6 +584,13 @@ class Command(BaseCommand):
                 'name_template': 'Robot hút bụi lau nhà {brand} thông minh',
                 'description': 'Robot hút bụi lau nhà 2 trong 1 với công nghệ LiDAR lập bản đồ chính xác. Tự động sạc và tiếp tục dọn, lực hút 4000Pa. Điều khiển qua App, hẹn lịch dọn tự động.',
                 'specs_template': {
+                    'images': [
+                        'https://droppii.xyz/wp-content/uploads/2025/10/robot-hut-bui-lau-nha-ku-ppr3006-6.jpg',
+                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3qySjw1UQMA8kpQPyOO0bh_ZRlWx41cpBzg&s',
+                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRt8QjNQR1k5JguZI4djC8KYDk1nVqX-FPfjw&s',
+                        'https://cdn.tgdd.vn//News/1418736//cac-dieu-huong-tren-robot-hut-bui-3-min-730x500.jpg',
+                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLuHidtcHQlLTN_46NV9Nc1QuselrzdqfRgw&s'
+                    ],
                     'Công nghệ định vị': 'LiDAR Navigation',
                     'Lực hút': '4000 Pa',
                     'Dung tích hộp bụi': '470ml',
@@ -457,6 +605,14 @@ class Command(BaseCommand):
             {
                 'name_template': 'Máy hút bụi cầm tay không dây {brand}',
                 'description': 'Máy hút bụi không dây với motor số hiệu suất cao, lực hút mạnh 150AW. Pin sạc cho 60 phút hoạt động. Đầu hút đa năng hút sàn, giường, sofa, khe hẹp.',
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjTv3c0D1WTlY5SF4hNKS4UTXYSEhQau5fYA&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsmWdszBKF9L-Xgm6xNKwg61zCFeJDkReF9g&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGA4sZCmVtbv-X0yu8WJTSn3-Htm9o6-TMxg&s',
+                    'https://down-vn.img.susercontent.com/file/55db3548602fef1ac667acf1c786d086',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqzscYUoAo3zYou3ce23DoWGDEop-kKXsUog&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq3CGwN8IbXgUhw-5WwBF504J7GNJB2Bf00w&s'
+                ],
                 'specs_template': {
                     'Kiểu máy': 'Cầm tay không dây (Stick Vacuum)',
                     'Lực hút': '150 AW',
@@ -473,6 +629,14 @@ class Command(BaseCommand):
                 'name_template': 'Máy hút bụi công suất lớn {brand} {power}W',
                 'description': 'Máy hút bụi có dây công suất lớn, hút sạch mọi loại bụi bẩn. Lọc HEPA giữ lại bụi mịn, không khí thải ra sạch. Dây điện 6m tiện dụng.',
                 'powers': [1800, 2000, 2200],
+                'images': [
+                    'https://maycongnghiepdaiviet.com/thumb/750x750/1/upload/hinhthem/mayhutbuicongnghiepdavicleandv115jphepa-6925.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfKWUqnV4V0Uf7Fc4Xyo9mx0vmpucCtunKew&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyl6dm5mlhXqO47GaHjVV4IXKmivyWIvcrpg&s',
+                    'https://yenphat.vn/storage/2020/02/21/7576-may-hut-bui-phong-sach-gp127-hepa-iso5-2.webp',
+                    'https://kumisai.vn/storage/photos/18/may-hut-bui-cong-nghiep-kumisai-kms70h-hepa.jpg',
+                    'https://mediamart.vn/images/uploads/2024/5a25ab72-0b45-42db-8daf-08366ba0769f.png'
+                ],
                 'specs_template': {
                     'Công suất': '{power}W',
                     'Lực hút': '400 AW',
@@ -490,6 +654,14 @@ class Command(BaseCommand):
                 'name_template': 'Lò vi sóng điện tử {brand} {capacity} lít',
                 'description': 'Lò vi sóng điện tử với nhiều chế độ nấu sẵn cho các món Việt. Công suất 800W hâm nóng nhanh. Mâm xoay thủy tinh, lòng nồi chống dính dễ vệ sinh.',
                 'capacities': [20, 23, 25, 28],
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxD6qUhEiGgPsQV5DBGccsX6S8e2610k1E7Q&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGkW0mAXJP5q0sksqqoUBMa4ZdQUxuSyMANQ&s',
+                    'https://meta.vn/Data/Image/2025/09/18/lo-vi-song-sharp-r-205vn-s-1.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqHPRypzzvfmaFF54QlmZDziraQod33ItRcw&s',
+                    'https://cdn11.dienmaycholon.vn/filewebdmclnew/DMCL21/Picture/News/News_expe_13430/13430.png?version=150248',
+                    'https://bephungphu.com/wp-content/uploads/2024/06/lo-vi-song-hap-nuong-panasonic-nn-ds59nbyue.png'
+                ],
                 'specs_template': {
                     'Dung tích': '{capacity} lít',
                     'Công suất vi sóng': '800W (5 mức)',
@@ -505,6 +677,14 @@ class Command(BaseCommand):
                 'name_template': 'Lò nướng đa năng {brand} {capacity} lít',
                 'description': 'Lò nướng điện đa năng với 4 thanh nhiệt trên dưới, nướng đều 2 mặt. Chế độ nướng đối lưu, quay xiên. Phù hợp nướng gà, pizza, bánh ngọt.',
                 'capacities': [30, 35, 42, 50],
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpOG-hwiIiqDzfv9GVAkR-q814zprIrP97wg&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdWQp4c8BmCMw3s4K9kujUD3ArlsWoHqK5yw&s',
+                    'https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/1_0da4aa7caa.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLM_Kji3oRZlSZPDbQ02_6Q5VCD6_ASuKDHw&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnsJfo_Gr-eZxTao5JeA7c20A2l9mcYL3Okw&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSECCYd4M5oG9NhKwIE5WAIu8rStCKujOg2NQ&s'
+                ],
                 'specs_template': {
                     'Dung tích': '{capacity} lít',
                     'Công suất': '1800W',
@@ -520,6 +700,14 @@ class Command(BaseCommand):
                 'name_template': 'Nồi chiên không dầu {brand} {capacity} lít',
                 'description': 'Nồi chiên không dầu với công nghệ Rapid Air luân chuyển khí nóng 360 độ. Chiên giòn ngon mà ít dầu mỡ, tốt cho sức khỏe. Màn hình cảm ứng, 8 chế độ nấu sẵn.',
                 'capacities': [4, 5, 6, 7, 8],
+                'images': [
+                    'https://unie.com.vn/wp-content/uploads/2021/09/cong-nghe-chien-dau-rapid-air.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1_eq9Sg0EdqVFloyfIBRvgYfKV_u5olCvJA&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZaj7Xqz2iruVkJzpSUrIQ-DWdUo50IYyAqA&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzuBKMmX7wy6pESy7LLJNTwwWR-RbZKUm2qw&s',
+                    'https://sunhouse.com.vn/pic/news/images/1-cong-nghe-noi-chien-khong-dau.jpeg',
+                    'https://bizweb.dktcdn.net/100/404/512/files/3-162aa362-e8fb-45b7-9a21-d355baab968b.jpg?v=1708435562758'
+                ],
                 'specs_template': {
                     'Dung tích': '{capacity} lít',
                     'Công suất': '1500W',
@@ -536,6 +724,14 @@ class Command(BaseCommand):
             {
                 'name_template': 'Bếp từ đôi {brand} Inverter',
                 'description': 'Bếp từ đôi với mặt kính cường lực Schott Ceran của Đức, chịu lực và nhiệt tốt. Công nghệ Inverter tiết kiệm điện 30%. Nhiều mức điều chỉnh nhiệt, nấu chính xác.',
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnomS-IANNZmpnYMV8R0JMCIzXebK-s_Lhcw&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQC-fSXypmwqFsfy0yc2FnWE6qbEzhNT99U3g&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBqclbUzKVevZoAj-E8KThIZHmlkvaBeai3Q&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTr91gyza-Zy7HjNyiVVln8c_WnbyF1DQAT4A&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBY9umTm2pSerAy-6u06EaMiwyOhYkusTyUg&s',
+                    'https://cdn.tgdd.vn/2025/11/timerseo/234841.jpg'
+                ],
                 'specs_template': {
                     'Số bếp': '2 vùng nấu',
                     'Công suất tổng': '4400W (2200W x 2)',
@@ -551,7 +747,15 @@ class Command(BaseCommand):
             {
                 'name_template': 'Bếp hồng ngoại đôi {brand}',
                 'description': 'Bếp hồng ngoại đôi dùng được mọi loại nồi (nhôm, đất, thủy tinh...). Không kén nồi như bếp từ, giá thành hợp lý. Mặt kính dễ vệ sinh.',
-                'specs_template': {
+                'images': [
+                    'https://hagaco.vn/wp-content/uploads/2022/06/noi-thuy-tinh-dung-tren-bep-hong-ngoai.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxku-_ai71DaU0Foc2sEwVc4Dsmpe9vL30Hg&s',
+                    'https://www.kaffvietnam.vn/image/cache/catalog/sanpham/bep-dien-tu/bep-hong-ngoai-doi-nhap-khau-kaff-kf-073cc-2-600x425-1400x875.jpg',
+                    'https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/news/gia-dung/bep-hong-ngoai-dung-duoc-tat-ca-cac-loai-noi.jpg',
+                    'https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/2023_3_14_638143824938718749_bep-hong-ngoai-co-ken-noi-khong-1.jpg',
+                    'https://cdn.tgdd.vn/Products/Images/3305/316814/bep-hong-ngoai-crystal-p-27-1-700x467.jpg'
+                ],
+              'specs_template': {
                     'Số bếp': '2 vùng nấu',
                     'Công suất tổng': '4000W (2000W x 2)',
                     'Mặt kính': 'Kính cường lực chịu nhiệt',
@@ -565,6 +769,14 @@ class Command(BaseCommand):
             {
                 'name_template': 'Bếp từ đơn {brand} di động',
                 'description': 'Bếp từ đơn nhỏ gọn, tiện mang đi hoặc dùng cho phòng trọ. Công suất 2000W nấu nhanh. Mặt kính chịu lực, có tay cầm di chuyển.',
+                'images': [
+                    'https://thegioidodung.vn/wp-content/uploads/2025/12/bep-tu-don-daikiosan-db101-7.jpg',
+                    'https://thegioidodung.vn/wp-content/uploads/2025/07/bep-tu-don-kidosu-kd-bt129-5.jpg',
+                    'https://thegioidodung.vn/wp-content/uploads/2025/07/bep-tu-korichi-krc-3381-7.jpg',
+                    'https://cdn.tgdd.vn/2026/01/timerseo/312917-600x600-1.png',
+                    'https://product.hstatic.net/200000700229/product/6727_0193e5b7be104be38cc4c879e8f48424_master.png',
+                    'https://product.hstatic.net/200000700229/product/icb-6729-01_47e71fa53e7e425596835ef56b4681b4_master.jpg'
+                ],
                 'specs_template': {
                     'Số bếp': '1 vùng nấu',
                     'Công suất': '2000W',
@@ -582,6 +794,14 @@ class Command(BaseCommand):
                 'name_template': 'Máy xay sinh tố {brand} {power}W',
                 'description': 'Máy xay sinh tố công suất cao với lưỡi dao 6 cánh bằng thép không gỉ. Cối thủy tinh dày chịu nhiệt, xay đá nhuyễn. 3 tốc độ và nút Pulse linh hoạt.',
                 'powers': [800, 1000, 1200, 1500],
+                'images': [
+                    'https://cdn.tgdd.vn/Products/Images/1985/241898/TimerThumb/241898-800x800-2.png',
+                    'https://mitomo.com.vn/wp-content/uploads/2026/01/may-xay-sinh-to-cao-cap-mitomo-pro-ans-3380b-13.png',
+                    'https://mitomo.com.vn/wp-content/uploads/2026/01/may-xay-sinh-to-cao-cap-mitomo-pro-ans-3380b-13.png',
+                    'https://mitomo.com.vn/wp-content/uploads/2026/01/may-xay-sinh-to-cao-cap-mitomo-pro-ans-3380b.png',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3XA0lx3X0DRzmV4KgxT56SHQY2eMoXZeJ3w&s',
+                    'https://cdn.tgdd.vn/2023/06/CookRecipe/CookTipsNote/top-5-may-xay-da-nang-nhat-ban-ben-dep-chat-luong-tipsnote-800x450-1.jpg'
+                ],
                 'specs_template': {
                     'Công suất': '{power}W',
                     'Dung tích cối': '1.5 lít',
@@ -596,6 +816,14 @@ class Command(BaseCommand):
             {
                 'name_template': 'Máy ép trái cây chậm {brand}',
                 'description': 'Máy ép chậm với trục ép xoắn ốc tốc độ 45 vòng/phút, không sinh nhiệt giữ nguyên vitamin. Tách bã khô, cho nước ép nguyên chất. Ép được rau củ cứng như cà rốt, củ cải.',
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSARIWp0YYKaVTG1_pi17Q7k3_y3SC497nS_g&s',
+                    'https://thegioidodung.vn/wp-content/uploads/2020/05/may-ep-hoa-qua-cham-klarsteincua-duc-400w.jpg.webp',
+                    'https://goldsun.vn/pic/ProductItem/images/M%C3%A1y%20%C3%A9p%20ch%E1%BA%ADm%20Goldsun%20GFJ4501%20(5).jpg',
+                    'https://goldsun.vn/pic/ProductItem/May-ep-ch_637872769127961421.jpg',
+                    'https://goldsun.vn/pic/ProductItem/images/M%C3%A1y%20%C3%A9p%20ch%E1%BA%ADm%20Goldsun%20GFJ4501%20(7)(1).jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSicBU3d8HIE8NWDJ0s6eGKLZrwVMKyIkrb4w&s'
+                ],
                 'specs_template': {
                     'Công suất': '150W',
                     'Tốc độ ép': '45 vòng/phút (chậm, không sinh nhiệt)',
@@ -610,6 +838,14 @@ class Command(BaseCommand):
             {
                 'name_template': 'Máy làm sữa hạt {brand} đa năng',
                 'description': 'Máy làm sữa hạt tự động xay và nấu trong 20 phút. Làm được sữa đậu nành, sữa hạnh nhân, sữa óc chó, cháo, súp. Lọc tự động, không cần lược thêm.',
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrOzOhEdWLeYcPjJUkOayzyceFw_ZGFC4w3g&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrG9nvAzlbkTWFaXqmZCNnUauCv_RJ1xSecw&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNKJN-Wmu1WS7T3k3mL1tKKdK2rt9Lr46bmQ&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdKzQ9W0dTkMXBnW3ZQAM8NkuqQPa1cgKc4Q&s',
+                    'https://mitomo.com.vn/wp-content/uploads/2026/01/48.png',
+                    'https://happyphone.vn/wp-content/uploads/2024/06/May-lam-sua-hat-Bear-PBJ-C16Q8-dung-tich-lon-1.5L-va-cong-suat-manh-me-1200W-1024x576.webp'
+                ],
                 'specs_template': {
                     'Công suất': '800W',
                     'Dung tích': '1.2 lít',
@@ -627,6 +863,14 @@ class Command(BaseCommand):
                 'name_template': 'Nồi cơm điện tử {brand} {capacity} lít',
                 'description': 'Nồi cơm điện tử với công nghệ gia nhiệt 3D, cơm chín đều dẻo thơm. Nhiều chế độ nấu: cơm, cháo, xôi, hấp, làm bánh. Giữ ấm 24 giờ không khô cứng.',
                 'capacities': [1.0, 1.5, 1.8, 2.0],
+                'images': [
+                    'https://bizweb.dktcdn.net/100/427/122/files/noi-com-dien-cao-cap-kalpen-r5-1-6.jpg?v=1685162062598',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfG1DzorPtRt_jnzO3wBiRviqDAjT3WDj-gg&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvbNixKhgS2YJystSCTmjxV9QFIJhKmHzXCw&s',
+                    'https://bephungphu.com/wp-content/uploads/2025/01/noi-com-dien-tu-unie-urc612-4.jpg',
+                    'https://cdn.tgdd.vn/2022/07/CookDish/8-mau-noi-com-dien-3d-hien-dai-de-nau-com-deo-thom-hap-dan-avt-1200x676-2.jpg',
+                    'https://bizweb.dktcdn.net/100/427/122/files/noi-com-dien-cao-cap-kalpen-r5-1-2.jpg?v=1685162022479'
+                ],
                 'specs_template': {
                     'Dung tích': '{capacity} lít',
                     'Công suất': '860W',
@@ -643,6 +887,14 @@ class Command(BaseCommand):
                 'name_template': 'Nồi cơm cao tần IH {brand} {capacity} lít',
                 'description': 'Nồi cơm cao tần IH với công nghệ gia nhiệt cảm ứng từ, nhiệt phân bố đều 360 độ. Cơm ngon như nấu bếp củi, giữ hương vị gạo. Lòng nồi nhiều lớp giữ nhiệt tốt.',
                 'capacities': [1.0, 1.5, 1.8],
+                'images': [
+                    'https://bephungphu.com/wp-content/uploads/2025/07/noi-com-dien-cao-tan-olivo-rc900ih-6.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRaGlikyCwL_zd-v96JVM5HJ-cs_i4PaUDM7g&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0wcXD6OXL2YLY8CIJvkgzUP981TAkgJhugA&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQO56Cl1zIHYndB5EmlYguHJWNMy2UbGOEgOw&s',
+                    'https://bephungphu.com/wp-content/uploads/2025/07/noi-com-dien-cao-tan-olivo-rc900ih-3.jpg',
+                    'https://bepvuson.vn/Data/upload/images/Hawonkoo/4(3).png'
+                ],
                 'specs_template': {
                     'Dung tích': '{capacity} lít',
                     'Công suất': '1200W',
@@ -658,6 +910,14 @@ class Command(BaseCommand):
                 'name_template': 'Nồi áp suất điện {brand} {capacity} lít',
                 'description': 'Nồi áp suất điện đa năng nấu nhanh gấp 3 lần, giữ nguyên dinh dưỡng. Nấu cơm, hầm, hấp, làm sữa chua, làm bánh... Nhiều cơ chế an toàn, xả áp từ xa.',
                 'capacities': [5, 6, 8],
+                'images': [
+                    'https://socdo.cdn.vccloud.vn/uploads/minh-hoa/noi-ap-suat-dien-da-nang-syntex-sp06-2-1757558137.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyLbbu-uWGuBxaD-8jqMM34Uqhh1KiHSDOrg&s',
+                    'https://sekavn.com/wp-content/uploads/2024/11/Noi-Ap-Suat-Dien-Da-Nang-SEKA-SK5858-02-min-scaled.jpg',
+                    'https://thegioidodung.vn/wp-content/uploads/2016/08/noi-ap-suat-dien-da-nang-sunhouse-shd1562.jpg.webp',
+                    'https://bephungphu.com/wp-content/uploads/2025/06/noi-ap-suat-dien-kalpen-p5-3.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRl93y1b7NfDLF20ZlVHbJ-78GMy3J_w6Qvtg&s'
+                ],
                 'specs_template': {
                     'Dung tích': '{capacity} lít',
                     'Công suất': '1000W',
@@ -675,6 +935,14 @@ class Command(BaseCommand):
                 'name_template': 'Ấm siêu tốc {brand} {capacity} lít inox 304',
                 'description': 'Ấm siêu tốc với thân ấm inox 304 cao cấp, an toàn cho sức khỏe. Đun sôi 1.7L chỉ trong 5 phút. Tự ngắt khi sôi và khi cạn nước.',
                 'capacities': [1.5, 1.7, 1.8, 2.0],
+                'images': [
+                    'https://bizweb.dktcdn.net/100/435/502/products/1-86591edb-a039-49ee-a21f-c1d4bf56d846.png?v=1755851179373',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJrUyQXmtPCHfgssF2g5zfjsog8TEUYzdtoQ&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4RUw9iZ6iqLoPycufhZBlZcDrdjsMQ-T_qg&s',
+                    'https://bizweb.dktcdn.net/100/448/192/files/cong-suat-lon.jpg?v=1681367836481',
+                    'https://bizweb.dktcdn.net/100/435/504/products/7-fabe6627-12cd-4dcd-b6eb-938c62498edf.jpg?v=1657788243980',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRBzTmuTqJFkREB2tnnJcEnH8eVKznvmFd0g&s'
+                ],
                 'specs_template': {
                     'Dung tích': '{capacity} lít',
                     'Công suất': '1800W',
@@ -690,6 +958,14 @@ class Command(BaseCommand):
                 'name_template': 'Bình thủy điện {brand} {capacity} lít',
                 'description': 'Bình thủy điện giữ nóng 24 giờ, 3 mức nhiệt độ 60/85/98 độ C. Rót nước bằng nút bấm điện hoặc bơm tay khi mất điện. Khóa an toàn chống đổ.',
                 'capacities': [3.0, 4.0, 5.0],
+                'images': [
+                    'https://bephungphu.com/wp-content/uploads/2025/06/binh-thuy-dien-toshiba-plk-45sfwtvn-3.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtae94uDWrT11TTrSDGH-yreq6Z7g4BbK25w&s',
+                    'https://bizweb.dktcdn.net/100/350/598/products/binh-thuy-dien-toshiba-plk-45sf-wt-vn-4-5-lit-8.jpg?v=1645632428953',
+                    'https://vietreview.vn/wp-content/uploads/2021/02/2-binh-giu-nhiet-Nagakawa-NAG0405-220x220.jpg',
+                    'https://vietreview.vn/wp-content/uploads/2021/02/6-binh-thuy-dien-toshiba-350x350.jpg',
+                    'https://cdn.tgdd.vn/Files/2016/06/10/839937/cac-chuc-nang-dac-biet-cua-binh-thuy-dien-8.jpg'
+                ],
                 'specs_template': {
                     'Dung tích': '{capacity} lít',
                     'Công suất đun': '800W',
@@ -705,6 +981,14 @@ class Command(BaseCommand):
                 'name_template': 'Ấm đun đa nhiệt độ {brand} {capacity} lít',
                 'description': 'Ấm đun thông minh điều chỉnh nhiệt độ từ 40-100 độ C, phù hợp pha trà, cà phê, sữa. Giữ ấm tự động 2 giờ. Màn hình LED hiển thị nhiệt độ thực.',
                 'capacities': [1.0, 1.5, 1.7],
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUUKpK80SENHVAmT5UAuy4XML4lM9UV7qllQ&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5w8vUq_g9JZKHJKnM5aYFggrDWm6g_rvtHg&s',
+                    'https://bizweb.dktcdn.net/100/500/389/products/1-d767d6a9-4504-46ff-8cf2-1697bbddd485.jpg?v=1751946498030',
+                    'https://bizweb.dktcdn.net/100/500/389/files/3.jpg?v=1752804744876',
+                    'https://genex.com.vn/wp-content/uploads/2024/03/May-dun-va-ham-nuoc-pha-sua-thuy-tinh-an-toan-HiQuick-2-1.png',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRThM1iD5xuPdqo8oaTzRRBjUvmw8gHOr5pSQ&s'
+                ],
                 'specs_template': {
                     'Dung tích': '{capacity} lít',
                     'Công suất': '1500W',
@@ -721,6 +1005,14 @@ class Command(BaseCommand):
             {
                 'name_template': 'Quạt đứng {brand} 5 cánh',
                 'description': 'Quạt đứng 5 cánh gió mạnh, êm ái. Chế độ gió tự nhiên, ngủ đêm. Điều khiển từ xa tiện lợi. Động cơ bạc đạn bền bỉ.',
+                'images': [
+                    'https://bephungphu.com/wp-content/uploads/2025/07/quat-dung-sunhouse-shd7396b.jpg',
+                    'https://bephungphu.com/wp-content/uploads/2025/07/quat-dung-sunhouse-shd7363b-2.jpg',
+                    'https://bizweb.dktcdn.net/thumb/1024x1024/100/425/687/products/s6-71609949-2fb1-407b-bfc7-50c3ec77d0c4.jpg?v=1767689784953',
+                    'https://bephungphu.com/wp-content/uploads/2025/04/quat-dung-toshiba-f-dsc50xvnw.jpg',
+                    'https://bizweb.dktcdn.net/100/602/499/products/img-1770-jpeg.jpg?v=1758359094747',
+                    'https://bepvuson.vn/Data/upload/images/Hawonkoo/noi_chien_hawonkoo/AC%20FAH-011-W%20(2).png'
+                ],
                 'specs_template': {
                     'Loại quạt': 'Quạt đứng',
                     'Số cánh': '5 cánh',
@@ -736,6 +1028,14 @@ class Command(BaseCommand):
             {
                 'name_template': 'Quạt điều hòa {brand} hơi nước',
                 'description': 'Quạt điều hòa làm mát bằng hơi nước, giảm 5-8 độ C so với nhiệt độ phòng. Bình nước 8 lít, thêm đá mát hơn. Tiết kiệm điện hơn điều hòa 10 lần.',
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZq-7dc_Y9m9CDiefQtzEF1P_nP2tvzi1Dmw&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPj0Tfd9k9sfE6rF-7TSyDX1usHu2UsaLUzQ&s',
+                    'https://bizweb.dktcdn.net/100/383/169/files/1-5.jpg?v=1686539612056',
+                    'https://cdnv2.tgdd.vn/mwg-static/common/News/831809/cach-su-dung-quat-dieu-hoa-2.jpg',
+                    'https://toanthuy.vn/upload/images/2023/Qu%E1%BA%A1t%20%C4%91i%E1%BB%81u%20h%C3%B2a/Daiichi%20HA-40A.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIK2N_VQLEb7Rl-rYRh2U0cKaL0Pnnhjz2CA&s'
+                ],
                 'specs_template': {
                     'Loại quạt': 'Quạt điều hòa hơi nước',
                     'Công suất': '80W',
@@ -751,6 +1051,14 @@ class Command(BaseCommand):
             {
                 'name_template': 'Quạt tháp {brand} không cánh',
                 'description': 'Quạt tháp không cánh an toàn với trẻ nhỏ, không cuốn tóc. Thiết kế tháp gọn đẹp, gió êm mát. Chế độ gió tự nhiên thay đổi cường độ.',
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfnTKxMMNCHFC2nPkxK8r7CaWkjqu7JRddlA&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCD1GDT7iYCAbV2oqvKESPSrv0q9_4xlHltg&s',
+                    'https://mivietnam.vn/wp-content/uploads/2024/08/mivietnam-quat-khong-canh-lumias-t08-01.jpg',
+                    'https://bear.com.vn/wp-content/uploads/2024/03/bear-dfs-a40j1.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMrtIlxe-_gPMYLbdcwau199wYzBkJyYQMHw&s',
+                    'https://afamilycdn.com/150157425591193600/2021/5/11/frame-12-1620719584084684297625.png'
+                ],
                 'specs_template': {
                     'Loại quạt': 'Quạt tháp không cánh',
                     'Công suất': '45W',
@@ -766,6 +1074,14 @@ class Command(BaseCommand):
             {
                 'name_template': 'Quạt trần đèn LED {brand}',
                 'description': 'Quạt trần kết hợp đèn LED chiếu sáng, tiết kiệm không gian. Cánh quạt thu gọn khi tắt, như đèn chùm trang trí. Điều khiển từ xa cả quạt và đèn.',
+                'images': [
+                    'https://thudoden.vn/wp-content/uploads/2024/10/1-15.png',
+                    'https://tapdoannangluongxanh.vn/wp-content/uploads/2021/02/denled_quat-tran-den-trang-tri-cao-cap-knq040-quat-vuong-gia-lap-biet-thu-3.jpg',
+                    'https://thegioidodung.vn/wp-content/uploads/2022/08/quat-tran-den-trang-tri-glj-f06.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPcK-5mtsBSC2BtRwTGZPATsVFHd8xyRSUYg&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXq1EQbQfL6bmLE8HVsPyuMquBxuyVtHXJyg&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNT4Eazm_Io46JBMcoyidFx-KyrOxTtimMlw&s'
+                ],
                 'specs_template': {
                     'Loại quạt': 'Quạt trần đèn',
                     'Đường kính': '110cm (cánh mở)',
@@ -783,6 +1099,14 @@ class Command(BaseCommand):
             {
                 'name_template': 'Máy lọc nước RO {brand} 10 lõi',
                 'description': 'Máy lọc nước RO 10 cấp lọc, loại bỏ 99.99% tạp chất, kim loại nặng, vi khuẩn. Màng RO nhập khẩu Mỹ, tuổi thọ 3 năm. Nước uống trực tiếp ngay vòi.',
+                'images': [
+                    'https://product.hstatic.net/1000069523/product/loc-ro-son-ha-10-loi-khong-tu_7df075018619440b87a2f0141758a13c.jpg',
+                    'https://bizweb.dktcdn.net/100/383/169/files/9b3c06aadfba1ae443ab.jpg?v=1660751268028',
+                    'https://bizweb.dktcdn.net/100/383/169/products/55b55c228532406c1923.jpg?v=1660751158863',
+                    'https://maylocnuockangaroo.vn/wp-content/uploads/2021/05/maylocnuockangaroo.vn-KG100HG-KV.jpg',
+                    'https://bizweb.dktcdn.net/thumb/1024x1024/100/428/291/products/maylocnuochoaphathwu1a10221dc2.jpg?v=1699407276007',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpWJB8C2nN41pJsgc3CodBMgb3UgEZlF0VxA&s'
+                ],
                 'specs_template': {
                     'Công nghệ lọc': 'RO (Reverse Osmosis) 10 cấp',
                     'Màng lọc RO': 'DOW Filmtec (Mỹ)',
@@ -798,6 +1122,14 @@ class Command(BaseCommand):
             {
                 'name_template': 'Máy lọc nước {brand} Nano',
                 'description': 'Máy lọc nước Nano giữ lại khoáng chất có lợi, không cần điện, không nước thải. Lõi lọc Nano cao cấp Nhật Bản. Phù hợp nguồn nước máy đạt chuẩn.',
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQljBti1lAE8SQ9dOQHFPR4DhP7efFNSj-e9g&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJMg-LzSuZzaYEG_nKx2kZPld1hUhjxSpwQg&s',
+                    'https://file.hstatic.net/1000120355/file/may-loc-nuoc-khong-dung-dien-11_05018411757d479ab621aff40f623e9b_grande.gif',
+                    'https://www.geyser.com.vn/wp-content/uploads/2024/09/geyser-ecotar-4-smart-anti-discharge.jpg',
+                    'https://tiki.vn/blog/wp-content/uploads/2023/01/tieu-chi-chon-may-loc-nuoc-nano.jpg',
+                    'https://cdn2.fptshop.com.vn/unsafe/Uploads/images/tin-tuc/136727/Originals/may-loc-nuoc-nano-khong-dung-dien.jpg'
+                ],
                 'specs_template': {
                     'Công nghệ lọc': 'Nano 6 cấp',
                     'Không cần điện': 'Hoạt động bằng áp lực nước',
@@ -814,6 +1146,14 @@ class Command(BaseCommand):
                 'name_template': 'Máy sấy tóc Ion {brand} {power}W',
                 'description': 'Máy sấy tóc công nghệ Ion âm giảm xơ rối, tóc bóng mượt. Nhiệt độ và gió điều chỉnh riêng. Đầu tạo kiểu đi kèm. Bảo vệ tóc khỏi nhiệt độ cao.',
                 'powers': [1800, 2000, 2200],
+                'images': [
+                    'https://cdn.tgdd.vn//News/1503357//Thietkechuacoten-2023-01-18T013006.914-730x458.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVvkk9zTD8T4HKin6h0AnwpBmKcHAc65uGqQ&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwwibA0guyasNcGNgRLCi0idmWUnbcSgx1lw&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDtGYlQQ8AEyQ9t77jXIxoYmNhiDCoAeHjbw&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1Bw7y3o_4_SsGAFjYRjNsU4otFIK-2LEexw&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQYd7-UkxYiawssqNZn17zHSr0asFMflSJBw&s'
+                ],
                 'specs_template': {
                     'Công suất': '{power}W',
                     'Công nghệ': 'Ion âm chăm sóc tóc',
@@ -831,6 +1171,14 @@ class Command(BaseCommand):
                 'name_template': 'Bàn ủi hơi nước {brand} {power}W',
                 'description': 'Bàn ủi hơi nước với mặt đế Ceramic chống dính, trượt mượt trên mọi loại vải. Phun hơi mạnh 40g/phút, ủi phẳng nếp nhăn cứng đầu. Chống cặn canxi tự động.',
                 'powers': [2000, 2200, 2400],
+                'images': [
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2HOT48DJwV84pmfu4CNMLl6p6WieGfNOi9w&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjeHdmLt3lDE-mBOASA6F0sNEFYaq3172mSw&s',
+                    'https://www.locknlock.vn/dw/image/v2/BLBT_PRD/on/demandware.static/-/Sites-locknlock-shared-master/default/dwd8056c76/images/thumbnails/3.Small%20Appliances/2.Home%20Appliances/3.Irons&Steamers/ENI334BLK-B80023605_5.jpg?sw=800&q=69',
+                    'https://bizweb.dktcdn.net/100/444/246/products/ban-ui-hoi-nuoc-philips-dst3040-70-30.jpg?v=1676447032320',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFkuTzoGMAPKTcYco9glSNKhGccuF6-N8dNA&s',
+                    'https://bizweb.dktcdn.net/100/443/453/products/12-b579bb26-9607-487a-9148-a437e4a27b78.jpg?v=1678682256063'
+                ],
                 'specs_template': {
                     'Công suất': '{power}W',
                     'Mặt đế': 'Ceramic chống dính',
@@ -846,6 +1194,14 @@ class Command(BaseCommand):
             {
                 'name_template': 'Bàn ủi hơi nước đứng {brand}',
                 'description': 'Bàn ủi hơi nước đứng phun hơi mạnh, ủi thẳng trên móc áo. Tiện cho vest, áo dài, rèm cửa. Bình nước lớn 1.6L ủi liên tục 45 phút.',
+                'images': [
+                    'https://vbingoo.com/wp-content/uploads/2024/11/Ban-ui-hoi-nuoc-dung-cao-cap-Mitomo-GC-899-Max.png',
+                    'https://vbingoo.com/wp-content/uploads/2024/11/Ban-ui-hoi-nuoc-dung-Mitomo-GC-559.png',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKs9cYPLpQMCkKjtsTdnrTO9ERVSdR2BiUFQ&s',
+                    'https://dienmaytonghopmiennam.com/wp-content/uploads/2024/02/ban-ui-hoi-nuoc-dung-kangaroo-kg758.jpg',
+                    'https://dienmaytonghopmiennam.com/wp-content/uploads/2024/02/ban-ui-hoi-nuoc-dung-lock-lock-eni211.jpg',
+                    'https://dienmaytonghopmiennam.com/wp-content/uploads/2024/02/ban-ui-hoi-nuoc-dung-electrolux-e5gs1-44mn.jpg'
+                ],
                 'specs_template': {
                     'Công suất': '1800W',
                     'Dung tích bình': '1.6 lít',
@@ -989,24 +1345,52 @@ class Command(BaseCommand):
         btu = kwargs.get('btu')
         area = kwargs.get('area')
         power = kwargs.get('power')
-
+        variant_index = 0
         format_args = {'brand': brand.name}
         if size:
             format_args['size'] = size
+            # Lấy index của size trong danh sách sizes
+            if 'sizes' in template:
+                try:
+                    variant_index = template['sizes'].index(size)
+                except ValueError:
+                    pass
         if capacity:
             format_args['capacity'] = capacity
             format_args['usable'] = int(capacity * 0.85)
             format_args['dry_capacity'] = int(capacity * 0.6)
+
+            if 'capacity' in template:
+                try:
+                    variant_index = template['capacity'].index(capacity)
+                except ValueError:
+                    pass
         if btu:
             format_args['btu'] = btu
             format_args['heat_btu'] = int(btu * 0.9)
             area_map = {9000: 15, 12000: 20, 18000: 30, 24000: 40, 36000: 50, 48000: 70}
             format_args['area'] = area_map.get(btu, 25)
+
+            if 'btu' in template:
+                try:
+                    variant_index = template['btu'].index(btu)
+                except ValueError:
+                    pass
         if area:
             format_args['area'] = area
             format_args['cadr'] = area * 8
+            if 'areas' in template:
+                try:
+                    variant_index = template['areas'].index(area)
+                except ValueError:
+                    pass
         if power:
             format_args['power'] = power
+            if 'powers' in template:
+                try:
+                    variant_index = template['powers'].index(power)
+                except ValueError:
+                    pass
 
         try:
             name = template['name_template'].format(**format_args)
@@ -1037,13 +1421,20 @@ class Command(BaseCommand):
             sale_price = Decimal(str(int(sale_price / 100000) * 100000))
 
         unique_slug = f"{slugify(name)}-{index}"
-
+        images_list = template.get('images', [])
+        if images_list:
+            # Lấy ảnh tại vị trí variant_index, nếu vượt quá thì lấy ảnh cuối
+            image_url = images_list[min(variant_index, len(images_list) - 1)]
+        else:
+            # Fallback về image đơn nếu không có danh sách images
+            image_url = template.get('image', '')
         product, created = Product.objects.get_or_create(
             sku=sku,
             defaults={
                 'name': name,
                 'slug': unique_slug,
                 'description': description,
+                'image': image_url,
                 'category': category,
                 'brand': brand,
                 'price': price,
