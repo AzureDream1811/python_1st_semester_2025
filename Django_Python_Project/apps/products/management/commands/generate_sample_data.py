@@ -155,6 +155,13 @@ class Command(BaseCommand):
                 'name_template': 'Smart Tivi 4K {brand} {size} inch',
                 'description': 'Smart Tivi 4K với độ phân giải Ultra HD 3840x2160, công nghệ HDR10+ cho hình ảnh sống động. Hệ điều hành thông minh với kho ứng dụng phong phú, điều khiển giọng nói tiện lợi. Thiết kế viền mỏng sang trọng, phù hợp mọi không gian.',
                 'sizes': [43, 50, 55, 65, 75],
+                'images': [
+                    'https://cdn.hoanghamobile.vn/Uploads/2024/06/14/sony-google-tivi-oled-k-65xr80-06.jpg',
+                    'https://cdn.tgdd.vn/Files/2017/02/11/948506/tivi-qled-cua-samsung-co-gia-bao-nhieu--11.jpg',
+                    'https://dienmaygiare.net/wp-content/uploads/2025/12/smart-tivi-hisense-32-inch-32a4q-1-638921808926524429-700x467-1.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSNr71Ztjncx27D4-jISVX5IWqIP1r-_h97g&s',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSNr71Ztjncx27D4-jISVX5IWqIP1r-_h97g&s',
+                ],
                 'specs_template': {
                     'Kích thước màn hình': '{size} inch',
                     'Độ phân giải': '4K Ultra HD (3840 x 2160)',
@@ -989,10 +996,16 @@ class Command(BaseCommand):
         btu = kwargs.get('btu')
         area = kwargs.get('area')
         power = kwargs.get('power')
-
+        variant_index = 0
         format_args = {'brand': brand.name}
         if size:
             format_args['size'] = size
+            # Lấy index của size trong danh sách sizes
+            if 'sizes' in template:
+                try:
+                    variant_index = template['sizes'].index(size)
+                except ValueError:
+                    variant_index = 0
         if capacity:
             format_args['capacity'] = capacity
             format_args['usable'] = int(capacity * 0.85)
@@ -1037,13 +1050,20 @@ class Command(BaseCommand):
             sale_price = Decimal(str(int(sale_price / 100000) * 100000))
 
         unique_slug = f"{slugify(name)}-{index}"
-
+        images_list = template.get('images', [])
+        if images_list:
+            # Lấy ảnh tại vị trí variant_index, nếu vượt quá thì lấy ảnh cuối
+            image_url = images_list[min(variant_index, len(images_list) - 1)]
+        else:
+            # Fallback về image đơn nếu không có danh sách images
+            image_url = template.get('image', '')
         product, created = Product.objects.get_or_create(
             sku=sku,
             defaults={
                 'name': name,
                 'slug': unique_slug,
                 'description': description,
+                'image': image_url,
                 'category': category,
                 'brand': brand,
                 'price': price,
