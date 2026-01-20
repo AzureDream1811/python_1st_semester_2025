@@ -709,7 +709,7 @@
                     <div class="cart-item__product">
                         <a href="{{ item.product.get_absolute_url }}" class="cart-item__image">
                             {% if item.product.image %}
-                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                            <img src="{{ item.product.image|smart_image_url }}" alt="{{ item.product.name }}">
                             {% else %}
                             <div class="cart-item__placeholder">
                                 <i class="bi bi-image" aria-hidden="true"></i>
@@ -905,7 +905,7 @@
             <div class="saved-later-item">
                 <a href="{{ item.product.get_absolute_url }}" class="saved-later-item__image">
                     {% if item.product.image %}
-                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                    <img src="{{ item.product.image|smart_image_url }}" alt="{{ item.product.name }}">
                     {% else %}
                     <div class="cart-item__placeholder">
                         <i class="bi bi-image" aria-hidden="true"></i>

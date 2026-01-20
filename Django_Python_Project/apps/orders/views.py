@@ -1,6 +1,4 @@
-import uuid
 import json
-from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -11,7 +9,26 @@ from django.views.decorators.http import require_POST
 
 from .models import Order, OrderItem, OrderHistory
 from apps.cart.views import get_or_create_cart
-from apps.cart.models import Cart
+
+
+def get_smart_image_url(image_field):
+    """
+    Lấy URL đúng cho image field.
+    Nếu path đã là URL đầy đủ (http/https), trả về trực tiếp.
+    Nếu không, trả về .url như bình thường.
+    """
+    if not image_field:
+        return ''
+
+    image_name = str(image_field.name) if hasattr(image_field, 'name') else str(image_field)
+
+    if image_name.startswith(('http://', 'https://')):
+        return image_name
+
+    try:
+        return image_field.url
+    except (ValueError, AttributeError):
+        return ''
 
 
 @login_required
@@ -142,7 +159,7 @@ def checkout(request):
                     order=order,
                     product=item.product,
                     product_name=item.product.name,
-                    product_image=item.product.image.url if item.product.image else '',
+                    product_image=get_smart_image_url(item.product.image),
                     price=item.price,
                     quantity=item.quantity,
                 )

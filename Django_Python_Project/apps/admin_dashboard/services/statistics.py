@@ -20,29 +20,32 @@ from apps.promotions.models import Voucher, VoucherUsage, FlashSale
 class DashboardStatistics:
     """Service class để tính toán các thống kê cho dashboard"""
 
+    PAID_STATUS = 'paid'
+
     # === REVENUE STATISTICS ===
 
     def get_revenue_stats(self, start_date=None, end_date=None) -> Dict[str, Any]:
         """
         Tính toán doanh thu trong khoảng thời gian
-        Property 1: Tổng doanh thu = tổng giá trị đơn hàng completed/delivered
+        Chỉ tính đơn hàng đã xác nhận thanh toán (payment_status='paid')
         """
         if not start_date:
             start_date = timezone.now().replace(day=1).date()
         if not end_date:
             end_date = timezone.now().date()
 
-        completed_orders = Order.objects.filter(
-            status__in=['completed', 'delivered'],
+        # Chỉ tính đơn hàng đã thanh toán
+        paid_orders = Order.objects.filter(
+            payment_status=self.PAID_STATUS,
             created_at__date__gte=start_date,
             created_at__date__lte=end_date
-        )
+        ).exclude(status__in=['cancelled', 'refunded'])
 
-        total_revenue = completed_orders.aggregate(
+        total_revenue = paid_orders.aggregate(
             total=Sum('total')
         )['total'] or Decimal('0')
 
-        order_count = completed_orders.count()
+        order_count = paid_orders.count()
 
         return {
             'total_revenue': total_revenue,
@@ -54,16 +57,20 @@ class DashboardStatistics:
     def get_daily_revenue(self, start_date=None, end_date=None) -> List[Dict[str, Any]]:
         """
         Lấy doanh thu theo ngày cho biểu đồ
+        Chỉ tính đơn hàng đã xác nhận thanh toán (payment_status='paid')
         """
         if not end_date:
             end_date = timezone.now().date()
         if not start_date:
             start_date = end_date - timedelta(days=30)
 
+        # Chỉ tính doanh thu từ đơn hàng đã thanh toán
         daily_revenue = Order.objects.filter(
-            status__in=['completed', 'delivered'],
+            payment_status=self.PAID_STATUS,
             created_at__date__gte=start_date,
             created_at__date__lte=end_date
+        ).exclude(
+            status__in=['cancelled', 'refunded']
         ).annotate(
             date=TruncDate('created_at')
         ).values('date').annotate(
@@ -73,11 +80,25 @@ class DashboardStatistics:
         return list(daily_revenue)
 
     def get_daily_revenue_chart_data(self, start_date=None, end_date=None) -> Dict[str, Any]:
-        """Dữ liệu biểu đồ doanh thu theo ngày"""
+        """Dữ liệu biểu đồ doanh thu theo ngày - điền đầy đủ tất cả ngày trong khoảng"""
+        if not end_date:
+            end_date = timezone.now().date()
+        if not start_date:
+            start_date = end_date - timedelta(days=30)
+
         daily_data = self.get_daily_revenue(start_date, end_date)
 
-        labels = [d['date'].strftime('%d/%m') for d in daily_data]
-        values = [float(d['revenue'] or 0) for d in daily_data]
+        # Tạo dict để tra cứu nhanh
+        revenue_by_date = {d['date']: float(d['revenue'] or 0) for d in daily_data}
+
+        # Tạo danh sách tất cả các ngày trong khoảng
+        labels = []
+        values = []
+        current_date = start_date
+        while current_date <= end_date:
+            labels.append(current_date.strftime('%d/%m'))
+            values.append(revenue_by_date.get(current_date, 0))
+            current_date += timedelta(days=1)
 
         return {
             'labels': labels,
@@ -89,7 +110,7 @@ class DashboardStatistics:
     def get_order_stats(self) -> Dict[str, Any]:
         """
         Thống kê đơn hàng theo trạng thái
-        Property 2: Số lượng theo trạng thái = count thực tế trong DB
+        Số lượng theo trạng thái = count thực tế trong DB
         """
         status_counts = Order.objects.values('status').annotate(
             count=Count('id')
@@ -237,7 +258,7 @@ class DashboardStatistics:
     def get_top_products(self, limit: int = 10) -> QuerySet:
         """
         Lấy sản phẩm bán chạy nhất
-        Property 4: Sản phẩm đầu tiên có sold >= tất cả sản phẩm khác
+        Sản phẩm đầu tiên có sold >= tất cả sản phẩm khác
         """
         return Product.objects.filter(
             is_active=True
@@ -246,7 +267,7 @@ class DashboardStatistics:
     def get_products_sorted_by_sentiment(self, ascending: bool = False):
         """
         Sắp xếp sản phẩm theo sentiment score
-        Property 9: Mỗi product có sentiment_score >= product tiếp theo (desc)
+        Mỗi product có sentiment_score >= product tiếp theo (desc)
         """
         order = 'sentiment_score' if ascending else '-sentiment_score'
         return Product.objects.filter(is_active=True).order_by(order)
@@ -260,9 +281,11 @@ class DashboardStatistics:
         return product.sentiment_score < 0
 
     def get_category_revenue(self) -> List[Dict[str, Any]]:
-        """Doanh thu theo danh mục"""
+        """Doanh thu theo danh mục - chỉ tính đơn đã thanh toán"""
         category_revenue = OrderItem.objects.filter(
-            order__status__in=['completed', 'delivered']
+            order__payment_status=self.PAID_STATUS
+        ).exclude(
+            order__status__in=['cancelled', 'refunded']
         ).values(
             'product__category__name'
         ).annotate(
@@ -305,12 +328,14 @@ class DashboardStatistics:
     def get_revenue_by_payment_method(self, start_date, end_date) -> Dict[str, Decimal]:
         """
         Doanh thu theo phương thức thanh toán
-        Property 11: Tổng theo payment_method = sum thực tế
+        Chỉ tính đơn đã thanh toán
         """
         revenue_by_method = Order.objects.filter(
-            status__in=['completed', 'delivered'],
+            payment_status=self.PAID_STATUS,
             created_at__date__gte=start_date,
             created_at__date__lte=end_date
+        ).exclude(
+            status__in=['cancelled', 'refunded']
         ).values('payment_method').annotate(
             revenue=Sum('total')
         )
@@ -321,11 +346,13 @@ class DashboardStatistics:
         }
 
     def get_top_revenue_products(self, start_date, end_date, limit: int = 10):
-        """Sản phẩm có doanh thu cao nhất"""
+        """Sản phẩm có doanh thu cao nhất - chỉ tính đơn đã thanh toán"""
         return OrderItem.objects.filter(
-            order__status__in=['completed', 'delivered'],
+            order__payment_status=self.PAID_STATUS,
             order__created_at__date__gte=start_date,
             order__created_at__date__lte=end_date
+        ).exclude(
+            order__status__in=['cancelled', 'refunded']
         ).values(
             'product__name', 'product__id'
         ).annotate(

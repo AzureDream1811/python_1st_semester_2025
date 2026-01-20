@@ -12,4 +12,6 @@ urlpatterns = [
     path('helpful/<int:review_id>/', views.mark_helpful, name='helpful'),
     path('edit/<int:review_id>/', views.edit_review, name='edit'),
     path('get/<int:review_id>/', views.get_review, name='get'),
+    path('api/analyze-sentiment/', views.analyze_sentiment_api, name='analyze_sentiment'),
+    path('demo/sentiment/', views.sentiment_demo, name='sentiment_demo'),
 ]

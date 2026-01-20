@@ -42,6 +42,8 @@ urlpatterns = [
     path('reviews/', views.ReviewListView.as_view(), name='review_list'),
     path('reviews/<int:pk>/approve/', views.ReviewApproveView.as_view(), name='review_approve'),
     path('reviews/<int:pk>/reject/', views.ReviewRejectView.as_view(), name='review_reject'),
+    path('reviews/<int:pk>/delete/', views.ReviewDeleteView.as_view(), name='review_delete'),
+    path('reviews/<int:pk>/detail/', views.ReviewDetailAPIView.as_view(), name='review_detail_api'),
 
     # Promotions - Vouchers
     path('vouchers/', views.VoucherListView.as_view(), name='voucher_list'),

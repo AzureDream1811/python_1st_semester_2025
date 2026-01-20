@@ -13,6 +13,19 @@ from apps.products.models import Product, Category, Brand
 from .services.search_service import SearchService
 
 
+def get_smart_image_url(image_field):
+    """Lấy URL đúng cho image field (hỗ trợ cả URL ngoại và local)."""
+    if not image_field:
+        return ''
+    image_name = str(image_field.name) if hasattr(image_field, 'name') else str(image_field)
+    if image_name.startswith(('http://', 'https://')):
+        return image_name
+    try:
+        return image_field.url
+    except (ValueError, AttributeError):
+        return ''
+
+
 def search_products(request):
     """
     Tìm kiếm sản phẩm với bộ lọc và phân trang
@@ -106,7 +119,7 @@ def search_products(request):
                     'id': p.id,
                     'name': p.name,
                     'price': float(p.price),
-                    'image': p.image.url if p.image else '',
+                    'image': get_smart_image_url(p.image),
                     'url': p.get_absolute_url(),
                 }
                 for p in products

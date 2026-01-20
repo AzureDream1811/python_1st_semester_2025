@@ -322,7 +322,8 @@ class FlashSale(models.Model):
         """
         from decimal import Decimal
 
-        if self.discount_type == 'percent' and self.discount_percent and self.discount_percent > 0:
+        # Handle cả 'percent' (cũ) và 'percentage' (mới)
+        if self.discount_type in ('percent', 'percentage') and self.discount_percent and self.discount_percent > 0:
             discount_amount = self.product.price * Decimal(self.discount_percent) / 100
             return self.product.price - discount_amount
         elif self.sale_price:
@@ -337,7 +338,8 @@ class FlashSale(models.Model):
         Returns:
             int: Phần trăm giảm giá (0-100)
         """
-        if self.discount_type == 'percent' and self.discount_percent:
+        # Handle cả 'percent' (cũ) và 'percentage' (mới)
+        if self.discount_type in ('percent', 'percentage') and self.discount_percent:
             return self.discount_percent
 
         if self.product.price > 0 and self.sale_price:
@@ -349,7 +351,11 @@ class FlashSale(models.Model):
         """Tính toán sale_price khi lưu"""
         from decimal import Decimal
 
-        if self.discount_type == 'percent' and self.discount_percent and self.discount_percent > 0:
+        # Auto-fix old 'percent' value to 'percentage'
+        if self.discount_type == 'percent':
+            self.discount_type = 'percentage'
+
+        if self.discount_type == 'percentage' and self.discount_percent and self.discount_percent > 0:
             discount_amount = self.product.price * Decimal(self.discount_percent) / 100
             self.sale_price = self.product.price - discount_amount
         elif self.discount_type == 'fixed' and not self.sale_price:

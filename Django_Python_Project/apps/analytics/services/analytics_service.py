@@ -1,4 +1,4 @@
-from django.db.models import Sum, Count, Avg, F
+from django.db.models import Sum, Count, Avg, F, Max
 from django.db.models.functions import TruncDate, TruncMonth
 from django.utils import timezone
 from datetime import timedelta
@@ -8,9 +8,10 @@ from decimal import Decimal
 class AnalyticsService:
     """Service for analytics and reporting"""
 
+    PAID_STATUS = 'paid'
+
     @staticmethod
     def get_revenue_data(start_date=None, end_date=None, group_by='day'):
-        """Get revenue data with optional date range and grouping"""
         from apps.orders.models import Order
 
         if not start_date:
@@ -18,10 +19,11 @@ class AnalyticsService:
         if not end_date:
             end_date = timezone.now()
 
+        # Chỉ tính đơn đã thanh toán
         orders = Order.objects.filter(
             created_at__range=[start_date, end_date],
-            status__in=['completed', 'delivered']
-        )
+            payment_status='paid'
+        ).exclude(status__in=['cancelled', 'refunded'])
 
         if group_by == 'day':
             data = orders.annotate(
@@ -54,9 +56,11 @@ class AnalyticsService:
 
         now = timezone.now()
 
-        # Get customer metrics
+        # Get customer metrics - chỉ tính đơn đã thanh toán
         customers = User.objects.filter(
-            orders__status__in=['completed', 'delivered']
+            orders__payment_status='paid'
+        ).exclude(
+            orders__status__in=['cancelled', 'refunded']
         ).annotate(
             last_order=Max('orders__created_at'),
             order_count=Count('orders'),
@@ -117,7 +121,9 @@ class AnalyticsService:
 
         daily_revenue = Order.objects.filter(
             created_at__range=[start_date, end_date],
-            status__in=['completed', 'delivered']
+            payment_status='paid'
+        ).exclude(
+            status__in=['cancelled', 'refunded']
         ).annotate(
             date=TruncDate('created_at')
         ).values('date').annotate(

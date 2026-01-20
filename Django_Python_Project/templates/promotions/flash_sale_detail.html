@@ -21,7 +21,7 @@
             </span>
             {% if flash_sale.product.image %}
             <div class="main-image" style="background: linear-gradient(180deg, var(--gray-50) 0%, var(--white) 100%); aspect-ratio: 1;">
-                <img src="{{ flash_sale.product.image.url }}" class="p-4" alt="{{ flash_sale.product.name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                <img src="{{ flash_sale.product.image|smart_image_url }}" class="p-4" alt="{{ flash_sale.product.name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
             </div>
             {% else %}
             <div class="d-flex align-items-center justify-content-center" style="height: 400px; background: var(--gray-100);">
@@ -74,7 +74,7 @@
         <!-- Price -->
         <div class="p-4 rounded-3 mb-4" style="background: linear-gradient(135deg, var(--danger-light) 0%, var(--white) 100%); border: 2px solid var(--danger);">
             <div class="d-flex align-items-baseline gap-3 flex-wrap">
-                <span class="h2 mb-0 fw-bold" style="color: var(--danger);">{{ flash_sale.sale_price|currency }}</span>
+                <span class="h2 mb-0 fw-bold" style="color: var(--danger);">{{ flash_sale.get_effective_sale_price|currency }}</span>
                 <span class="text-muted text-decoration-line-through fs-5">{{ flash_sale.product.price|currency }}</span>
                 <span class="badge bg-danger fs-6">Tiết kiệm {{ flash_sale.discount_percentage }}%</span>
             </div>

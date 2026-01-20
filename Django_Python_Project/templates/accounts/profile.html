@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize %}
+{% load static humanize product_tags %}
 
 {% block title %}Tài khoản của tôi - ElectroShop{% endblock %}
 
@@ -950,7 +950,7 @@
                         {% for review in reviews %}
                         <div class="item-card">
                             {% if review.product.image %}
-                            <img src="{{ review.product.image.url }}" alt="{{ review.product.name }}">
+                            <img src="{{ review.product.image|smart_image_url }}" alt="{{ review.product.name }}">
                             {% else %}
                             <div style="width:80px;height:80px;background:var(--es-bg-secondary);border-radius:var(--es-radius-sm);display:flex;align-items:center;justify-content:center;">
                                 <i class="bi bi-image text-muted"></i>
@@ -994,7 +994,7 @@
                         {% for item in wishlist_items %}
                         <div class="item-card">
                             {% if item.product.image %}
-                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                            <img src="{{ item.product.image|smart_image_url }}" alt="{{ item.product.name }}">
                             {% else %}
                             <div style="width:80px;height:80px;background:var(--es-bg-secondary);border-radius:var(--es-radius-sm);display:flex;align-items:center;justify-content:center;">
                                 <i class="bi bi-image text-muted"></i>

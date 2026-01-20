@@ -37,7 +37,7 @@ class VoucherAdmin(admin.ModelAdmin):
 
     def discount_value_display(self, obj):
         """Hiển thị giá trị giảm giá với format phù hợp"""
-        if obj.discount_type == 'percent':
+        if obj.discount_type == 'percentage':
             return f"{obj.discount_value}%"
         return f"{obj.discount_value:,.0f}đ"
 
@@ -108,7 +108,7 @@ class ComboDealAdmin(admin.ModelAdmin):
 
     def discount_value_display(self, obj):
         """Hiển thị giá trị giảm giá với format phù hợp"""
-        if obj.discount_type == 'percent':
+        if obj.discount_type == 'percentage':
             return f"{obj.discount_value}%"
         return f"{obj.discount_value:,.0f}đ"
 

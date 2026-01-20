@@ -319,11 +319,26 @@ class ReviewListView(StaffRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = Review.objects.select_related('product', 'user').order_by('-created_at')
+        queryset = Review.objects.select_related('product', 'product__category', 'product__brand', 'user').order_by('-created_at')
+
+        # Filter by sentiment
         sentiment = self.request.GET.get('sentiment')
         if sentiment:
             queryset = queryset.filter(sentiment=sentiment)
 
+        # Filter by rating
+        rating = self.request.GET.get('rating')
+        if rating:
+            queryset = queryset.filter(rating=int(rating))
+
+        # Filter by status
+        status = self.request.GET.get('status')
+        if status == 'approved':
+            queryset = queryset.filter(is_approved=True)
+        elif status == 'pending':
+            queryset = queryset.filter(is_approved=False)
+
+        # Filter by AI mismatch
         ai_check = self.request.GET.get('ai_check')
         if ai_check == 'mismatch':
             from django.db.models import Q
@@ -336,11 +351,81 @@ class ReviewListView(StaffRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        from django.db.models import Q
+
+        # Thống kê
+        context['total_count'] = Review.objects.count()
+        context['positive_count'] = Review.objects.filter(sentiment='positive').count()
+        context['neutral_count'] = Review.objects.filter(sentiment='neutral').count()
+        context['negative_count'] = Review.objects.filter(sentiment='negative').count()
         context['mismatch_count'] = Review.objects.filter(
             Q(rating__gte=4, sentiment='negative') |
             Q(rating__lte=2, sentiment='positive')
         ).count()
+
         return context
+
+
+class ReviewDetailAPIView(StaffRequiredMixin, View):
+    """API trả về chi tiết review cho modal"""
+
+    def get(self, request, pk):
+        review = get_object_or_404(Review, pk=pk)
+
+        # Lấy thông tin mismatch
+        mismatch_info = review.rating_sentiment_mismatch
+
+        # Xử lý image URL (có thể là URL ngoại hoặc local file)
+        product_image = None
+        if review.product.image:
+            image_name = str(review.product.image.name) if hasattr(review.product.image, 'name') else str(review.product.image)
+            if image_name.startswith(('http://', 'https://')):
+                product_image = image_name
+            else:
+                try:
+                    product_image = review.product.image.url
+                except (ValueError, AttributeError):
+                    pass
+
+        data = {
+            'success': True,
+            'review': {
+                'id': review.pk,
+                'username': review.user.username,
+                'user_email': review.user.email,
+                'product_name': review.product.name,
+                'product_image': product_image,
+                'product_category': review.product.category.name if review.product.category else '',
+                'product_brand': review.product.brand.name if review.product.brand else '',
+                'rating': review.rating,
+                'comment': review.comment,
+                'sentiment': review.sentiment,
+                'sentiment_score': review.sentiment_score,
+                'helpful_count': review.helpful_count,
+                'is_approved': review.is_approved,
+                'is_verified_purchase': review.is_verified_purchase,
+                'created_at': review.created_at.strftime('%d/%m/%Y %H:%M'),
+                'mismatch': mismatch_info.get('mismatch', False),
+                'mismatch_message': mismatch_info.get('message', ''),
+            }
+        }
+
+        return JsonResponse(data)
+
+
+class ReviewDeleteView(StaffRequiredMixin, View):
+    """Xóa đánh giá"""
+
+    def post(self, request, pk):
+        review = get_object_or_404(Review, pk=pk)
+        product = review.product
+        review.delete()
+
+        # Cập nhật sentiment stats cho product
+        product.update_sentiment_stats()
+
+        messages.success(request, 'Đã xóa đánh giá!')
+        return redirect('admin_dashboard:review_list')
 
 
 class ReviewApproveView(StaffRequiredMixin, View):

@@ -486,7 +486,7 @@
                 <div class="order-items">
                     {% for item in order.items.all|slice:":4" %}
                     {% if item.product.image %}
-                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="order-item-img">
+                    <img src="{{ item.product.image|smart_image_url }}" alt="{{ item.product.name }}" class="order-item-img">
                     {% else %}
                     <div class="order-item-placeholder">
                         <i class="bi bi-image"></i>

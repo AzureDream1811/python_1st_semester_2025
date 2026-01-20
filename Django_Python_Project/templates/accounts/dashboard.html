@@ -485,7 +485,7 @@ select:focus-visible {
                 <p>Bạn có {{ expiring_vouchers|length }} voucher sẽ hết hạn trong 7 ngày tới:</p>
                 <ul>
                     {% for uv in expiring_vouchers %}
-                    <li>{{ uv.voucher.code }} - Giảm {{ uv.voucher.discount_value|intcomma }}{% if uv.voucher.discount_type == 'percent' %}%{% else %}₫{% endif %} (HSD: {{ uv.voucher.end_date|date:"d/m/Y" }})</li>
+                    <li>{{ uv.voucher.code }} - Giảm {{ uv.voucher.discount_value|intcomma }}{% if uv.voucher.discount_type == 'percentage' %}%{% else %}₫{% endif %} (HSD: {{ uv.voucher.end_date|date:"d/m/Y" }})</li>
                     {% endfor %}
                 </ul>
                 <a class="btn-ghost" href="{% url 'promotions:my_vouchers' %}">Xem voucher <i class="bi bi-arrow-up-right"></i></a>

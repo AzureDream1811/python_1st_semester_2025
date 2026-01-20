@@ -6,6 +6,19 @@ from django.http import JsonResponse
 from .models import Product, Category, Brand
 
 
+def get_smart_image_url(image_field):
+    """Lấy URL đúng cho image field (hỗ trợ cả URL ngoại và local)."""
+    if not image_field:
+        return None
+    image_name = str(image_field.name) if hasattr(image_field, 'name') else str(image_field)
+    if image_name.startswith(('http://', 'https://')):
+        return image_name
+    try:
+        return image_field.url
+    except (ValueError, AttributeError):
+        return None
+
+
 def _get_flash_sale_product_ids():
     """Lấy danh sách ID sản phẩm đang trong Flash Sale"""
     from django.utils import timezone
@@ -394,7 +407,7 @@ def top_rated_by_sentiment(request):
         'name': p.name,
         'slug': p.slug,
         'price': float(p.current_price),
-        'image': p.image.url if p.image else None,
+        'image': get_smart_image_url(p.image),
         'sentiment_score': p.sentiment_score,
         'positive_reviews': p.positive_reviews,
         'negative_reviews': p.negative_reviews,

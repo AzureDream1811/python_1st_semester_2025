@@ -295,7 +295,7 @@
 
 <section class="kpi-grid" aria-label="Thống kê tổng quan">
     <div class="kpi revenue">
-        <small>Doanh thu {{ stats.period_label|default:"tháng này" }}</small>
+        <small>Doanh thu  {{ stats.period_label|default:"tháng này" }}</small>
         <strong>{{ stats.monthly_revenue|default:0|vnd }}</strong>
         {% if stats.revenue_change %}
         <span class="delta {% if stats.revenue_change >= 0 %}up{% else %}down{% endif %}">
@@ -338,7 +338,7 @@
 
 <section class="grid-2" aria-label="Biểu đồ">
     <div class="card-lite">
-        <h3><i class="bi bi-graph-up"></i> Doanh thu {{ stats.period_label|default:"tháng này" }}</h3>
+        <h3><i class="bi bi-graph-up"></i> Doanh thu đã thanh toán {{ stats.period_label|default:"tháng này" }}</h3>
         <div style="height:280px"><canvas id="revenueChart" aria-label="Biểu đồ doanh thu" role="img"></canvas></div>
     </div>
     <div class="card-lite">

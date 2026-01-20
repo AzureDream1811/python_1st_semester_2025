@@ -1,0 +1,436 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Demo AI Sentiment Analysis - ElectroShop{% endblock %}
+
+{% block extra_css %}
+<style>
+.sentiment-demo {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.demo-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.demo-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.demo-title i {
+    color: var(--primary);
+}
+
+.demo-form textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 1rem;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 1rem;
+    resize: vertical;
+    transition: border-color 0.2s;
+}
+
+.demo-form textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.rating-select {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.rating-select label {
+    cursor: pointer;
+}
+
+.rating-select input[type="radio"] {
+    display: none;
+}
+
+.rating-select .star {
+    font-size: 1.5rem;
+    color: #ddd;
+    transition: color 0.2s;
+}
+
+.rating-select input[type="radio"]:checked ~ .star,
+.rating-select label:hover .star,
+.rating-select label:hover ~ label .star {
+    color: #ffc107;
+}
+
+.analyze-btn {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border: none;
+    padding: 0.875rem 2rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.analyze-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
+}
+
+.analyze-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.result-box {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border-radius: 12px;
+    display: none;
+}
+
+.result-box.show {
+    display: block;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.result-box.positive {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border: 2px solid #10b981;
+}
+
+.result-box.negative {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border: 2px solid #ef4444;
+}
+
+.result-box.neutral {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border: 2px solid #6b7280;
+}
+
+.sentiment-label {
+    font-size: 1.25rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.sentiment-label.positive { color: #059669; }
+.sentiment-label.negative { color: #dc2626; }
+.sentiment-label.neutral { color: #4b5563; }
+
+.score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.score-item {
+    background: rgba(255,255,255,0.7);
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.score-item .label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.score-item .value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.examples {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+}
+
+.examples h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #666;
+}
+
+.example-btn {
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    margin: 0.25rem;
+    transition: all 0.2s;
+}
+
+.example-btn:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.loading {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.loading.show {
+    display: flex;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sentiment-demo">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'products:home' %}">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Demo AI Sentiment</li>
+        </ol>
+    </nav>
+
+    <div class="demo-card">
+        <h1 class="demo-title">
+            <i class="bi bi-robot"></i>
+            Demo AI Sentiment Analysis
+        </h1>
+        <p class="text-muted mb-4">
+            Nhập nội dung đánh giá và chọn số sao để xem AI phân tích cảm xúc.
+            Hệ thống sử dụng mô hình FastText được huấn luyện trên dữ liệu tiếng Việt.
+        </p>
+
+        <form id="sentimentForm" class="demo-form">
+            <textarea id="reviewText" placeholder="Nhập nội dung đánh giá..." required></textarea>
+
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mt-3">
+                <div>
+                    <label class="form-label fw-semibold">Rating (tùy chọn):</label>
+                    <div class="rating-select" id="ratingSelect">
+                        <label><input type="radio" name="rating" value="1"><span class="star">★</span></label>
+                        <label><input type="radio" name="rating" value="2"><span class="star">★</span></label>
+                        <label><input type="radio" name="rating" value="3"><span class="star">★</span></label>
+                        <label><input type="radio" name="rating" value="4"><span class="star">★</span></label>
+                        <label><input type="radio" name="rating" value="5" checked><span class="star">★</span></label>
+                    </div>
+                </div>
+
+                <button type="submit" class="analyze-btn" id="analyzeBtn">
+                    <i class="bi bi-magic"></i>
+                    Phân tích Sentiment
+                </button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <span>Đang phân tích...</span>
+            </div>
+        </form>
+
+        <div class="result-box" id="resultBox">
+            <div class="sentiment-label" id="sentimentLabel">
+                <i class="bi bi-emoji-smile"></i>
+                <span id="sentimentText">Tích cực</span>
+            </div>
+            <div class="score-grid">
+                <div class="score-item">
+                    <div class="label">Điểm tổng hợp</div>
+                    <div class="value" id="finalScore">0.85</div>
+                </div>
+                <div class="score-item">
+                    <div class="label">Điểm từ Text</div>
+                    <div class="value" id="textScore">0.75</div>
+                </div>
+                <div class="score-item">
+                    <div class="label">Điểm từ Rating</div>
+                    <div class="value" id="ratingScore">1.0</div>
+                </div>
+                <div class="score-item">
+                    <div class="label">AI Label</div>
+                    <div class="value" id="aiLabel">1</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="examples">
+            <h3><i class="bi bi-lightbulb"></i> Ví dụ để thử:</h3>
+            <button class="example-btn" data-text="Sản phẩm tuyệt vời, chất lượng vượt quá mong đợi! Giao hàng nhanh, đóng gói cẩn thận." data-rating="5">
+                😊 Đánh giá tích cực
+            </button>
+            <button class="example-btn" data-text="Sản phẩm tệ, không như mô tả. Giao hàng chậm, hỗ trợ kém." data-rating="1">
+                😠 Đánh giá tiêu cực
+            </button>
+            <button class="example-btn" data-text="Sản phẩm bình thường, không có gì đặc biệt. Dùng được." data-rating="3">
+                😐 Đánh giá trung lập
+            </button>
+            <button class="example-btn" data-text="Mua hàng lần đầu ở đây, rất hài lòng với dịch vụ. Sẽ quay lại mua tiếp!" data-rating="5">
+                🌟 Khách hàng hài lòng
+            </button>
+            <button class="example-btn" data-text="Thất vọng hoàn toàn, sản phẩm lỗi ngay khi nhận. Tiền mất tật mang!" data-rating="1">
+                💢 Rất tiêu cực
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('sentimentForm');
+    const textArea = document.getElementById('reviewText');
+    const resultBox = document.getElementById('resultBox');
+    const loading = document.getElementById('loading');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const ratingSelect = document.getElementById('ratingSelect');
+
+    // Handle star rating visual
+    const labels = ratingSelect.querySelectorAll('label');
+    labels.forEach((label, index) => {
+        label.addEventListener('mouseenter', () => {
+            for (let i = 0; i <= index; i++) {
+                labels[i].querySelector('.star').style.color = '#ffc107';
+            }
+            for (let i = index + 1; i < labels.length; i++) {
+                labels[i].querySelector('.star').style.color = '#ddd';
+            }
+        });
+    });
+
+    ratingSelect.addEventListener('mouseleave', () => {
+        const checked = ratingSelect.querySelector('input:checked');
+        if (checked) {
+            const checkedIndex = parseInt(checked.value) - 1;
+            labels.forEach((label, i) => {
+                label.querySelector('.star').style.color = i <= checkedIndex ? '#ffc107' : '#ddd';
+            });
+        }
+    });
+
+    // Example buttons
+    document.querySelectorAll('.example-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            textArea.value = btn.dataset.text;
+            const rating = btn.dataset.rating;
+            if (rating) {
+                document.querySelector(`input[name="rating"][value="${rating}"]`).checked = true;
+                // Update visual
+                labels.forEach((label, i) => {
+                    label.querySelector('.star').style.color = i < parseInt(rating) ? '#ffc107' : '#ddd';
+                });
+            }
+        });
+    });
+
+    // Form submit
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const text = textArea.value.trim();
+        if (!text) return;
+
+        const ratingInput = document.querySelector('input[name="rating"]:checked');
+        const rating = ratingInput ? parseInt(ratingInput.value) : null;
+
+        // Show loading
+        loading.classList.add('show');
+        analyzeBtn.disabled = true;
+        resultBox.classList.remove('show');
+
+        try {
+            const response = await fetch('{% url "reviews:analyze_sentiment" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text, rating })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Update result
+                const sentiment = data.sentiment;
+                const sentimentLabel = document.getElementById('sentimentLabel');
+                const sentimentText = document.getElementById('sentimentText');
+
+                resultBox.className = 'result-box show ' + sentiment;
+                sentimentLabel.className = 'sentiment-label ' + sentiment;
+
+                const icons = {
+                    positive: 'bi-emoji-smile-fill',
+                    negative: 'bi-emoji-frown-fill',
+                    neutral: 'bi-emoji-neutral-fill'
+                };
+                const texts = {
+                    positive: 'Tích cực',
+                    negative: 'Tiêu cực',
+                    neutral: 'Trung lập'
+                };
+
+                sentimentLabel.querySelector('i').className = 'bi ' + icons[sentiment];
+                sentimentText.textContent = texts[sentiment];
+
+                document.getElementById('finalScore').textContent = data.score.toFixed(4);
+                document.getElementById('textScore').textContent = data.text_score.toFixed(4);
+                document.getElementById('ratingScore').textContent = data.rating_score.toFixed(4);
+                document.getElementById('aiLabel').textContent = data.label === '1' ? 'Positive' : data.label === '0' ? 'Negative' : 'Unknown';
+            } else {
+                alert('Lỗi: ' + data.error);
+            }
+        } catch (error) {
+            alert('Đã xảy ra lỗi khi phân tích');
+            console.error(error);
+        } finally {
+            loading.classList.remove('show');
+            analyzeBtn.disabled = false;
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,5 +1,5 @@
 {% extends 'admin_dashboard/base.html' %}
-{% load humanize vn_currency %}
+{% load humanize vn_currency product_tags %}
 
 {% block title %}Thêm Flash Sale hàng loạt{% endblock %}
 
@@ -239,7 +239,7 @@
                     {% for product in products %}
                     <div class="product-item" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}">
                         {% if product.image %}
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        <img src="{{ product.image|smart_image_url }}" alt="{{ product.name }}">
                         {% else %}
                         <div style="width:50px;height:50px;background:#f1f5f9;border-radius:6px;display:flex;align-items:center;justify-content:center;">
                             <i class="bi bi-image text-muted"></i>
