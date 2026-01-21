@@ -283,6 +283,10 @@
     overflow: hidden;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
     transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 420px; /* khóa chiều cao */
 }
 
 .product-card:hover {
@@ -311,8 +315,16 @@
     gap: 20px;
     overflow-x: auto;
     padding-bottom: 12px;
-    scroll-snap-type: x mandatory;
+
+    /* quan trọng */
+    align-items: stretch;
 }
+
+.flash-grid > * {
+    flex: 0 0 260px;   /* card cùng width */
+    max-width: 260px;
+}
+
 
 .flash-grid::-webkit-scrollbar {
     height: 6px;

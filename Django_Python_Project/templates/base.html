@@ -669,7 +669,6 @@
             border: none;
             border-top: 1px solid var(--es-border-light);
         }
-        /* static/css/support.css */
 :root{
   --support-radius: 1.25rem;
 }
@@ -1219,8 +1218,8 @@
                 <ul class="footer__list">
                     <li><a href="{% url 'products:product_list' %}">Tất cả sản phẩm</a></li>
                     <li><a href="{% url 'promotions:flash_sales' %}">Flash Sale</a></li>
-                    <li><a href="#">Sản phẩm mới</a></li>
-                    <li><a href="#">Bán chạy</a></li>
+                    <li><a href="{% url 'products:product_list' %}?sort=-created_at">Sản phẩm mới</a></li>
+                    <li><a href="{% url 'products:product_list' %}?sort=-sold">Bán chạy</a></li>
                 </ul>
             </div>
             <div class="footer__links">

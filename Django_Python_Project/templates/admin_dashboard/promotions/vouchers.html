@@ -1,4 +1,5 @@
 {% extends 'admin_dashboard/base.html' %}
+{% load vn_currency %}
 
 {% block title %}Quản lý Voucher{% endblock %}
 
@@ -10,8 +11,12 @@
             <i class="bi bi-plus-lg"></i> Thêm voucher
         </a>
     </div>
+    <div class="alert alert-info mb-3">
+        <i class="bi bi-info-circle"></i>
+        <strong>Lưu ý:</strong> Giới hạn sử dụng = 0 là không giới hạn.
+    </div>
     <div class="table-responsive">
-        <table class="table table-hover">
+        <table class="table table-hover align-middle">
             <thead>
                 <tr>
                     <th>Mã</th>
@@ -26,18 +31,47 @@
             <tbody>
                 {% for voucher in vouchers %}
                 <tr>
-                    <td><code>{{ voucher.code }}</code></td>
+                    <td><code class="text-uppercase">{{ voucher.code }}</code></td>
                     <td>{{ voucher.name }}</td>
-                    <td>{{ voucher.get_discount_type_display }}</td>
+                    <td>
+                        {% if voucher.discount_type == 'percentage' %}
+                        <span class="badge bg-info text-dark">{{ voucher.get_discount_type_display }}</span>
+                        {% else %}
+                        <span class="badge bg-primary">{{ voucher.get_discount_type_display }}</span>
+                        {% endif %}
+                    </td>
                     <td>
                         {% if voucher.discount_type == 'percentage' %}
                         {{ voucher.discount_value }}%
                         {% else %}
-                        {{ voucher.discount_value|floatformat:0 }}₫
+                        {{ voucher.discount_value|default:0|vnd }}
                         {% endif %}
                     </td>
-                    <td>{{ voucher.used_count }}/{{ voucher.usage_limit|default:"∞" }}</td>
-                    <td>{{ voucher.valid_from|date:"d/m/Y" }} - {{ voucher.valid_until|date:"d/m/Y" }}</td>
+                    <td>
+                        <div class="d-flex flex-column gap-1">
+                            <div class="fw-semibold">
+                                {{ voucher.used_count }}
+                                {% if voucher.usage_limit and voucher.usage_limit > 0 %}
+                                / {{ voucher.usage_limit }}
+                                {% else %}
+                                / không giới hạn
+                                {% endif %}
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                {% if voucher.usage_limit and voucher.usage_limit > 0 %}
+                                    {% if voucher.used_count >= voucher.usage_limit %}
+                                    <div class="progress-bar bg-danger" style="width: 100%;"></div>
+                                    {% else %}
+                                    {% widthratio voucher.used_count voucher.usage_limit 100 as usage_percent %}
+                                    <div class="progress-bar bg-success" style="width: {{ usage_percent }}%;"></div>
+                                    {% endif %}
+                                {% else %}
+                                <div class="progress-bar bg-success" style="width: 100%;"></div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-nowrap">{{ voucher.valid_from|date:"d/m/Y" }} - {{ voucher.valid_until|date:"d/m/Y" }}</td>
                     <td>
                         {% if voucher.is_valid %}
                         <span class="badge bg-success">Còn hiệu lực</span>
@@ -56,3 +90,4 @@
     {% include 'admin_dashboard/includes/pagination.html' %}
 </div>
 {% endblock %}
+

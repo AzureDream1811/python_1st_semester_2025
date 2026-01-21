@@ -26,7 +26,6 @@ def flash_sale_list(request):
     
     Sắp xếp theo thời gian kết thúc (sắp hết trước)
     
-    Template: promotions/flash_sale_list.html
     """
     now = timezone.now()
 
@@ -56,9 +55,7 @@ def flash_sale_detail(request, pk):
     
     Args:
         pk: ID của flash sale
-        
-    Template: promotions/flash_sale_detail.html
-    """
+            """
     flash_sale = get_object_or_404(FlashSale, pk=pk)
 
     context = {
@@ -68,9 +65,7 @@ def flash_sale_detail(request, pk):
     return render(request, 'promotions/flash_sale_detail.html', context)
 
 
-# =============================================================================
-# COMBO DEAL VIEWS
-# =============================================================================
+
 
 def combo_deal_list(request):
     """
@@ -83,7 +78,6 @@ def combo_deal_list(request):
     
     Sắp xếp theo ngày tạo mới nhất
     
-    Template: promotions/combo_deal_list.html
     """
     now = timezone.now()
     money_round = Decimal('0.01')
@@ -191,7 +185,6 @@ def my_vouchers(request):
     - Chưa hết hạn (valid_until >= now)
     - Đang active (is_active=True)
     
-    Template: promotions/my_vouchers.html
     """
     now = timezone.now()
 

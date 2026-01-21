@@ -17,7 +17,7 @@
         </div>
     </div>
     <div class="table-responsive">
-        <table class="table table-hover">
+        <table class="table table-hover align-middle">
             <thead>
                 <tr>
                     <th>Sản phẩm</th>
@@ -36,10 +36,28 @@
                     <td><span class="badge bg-danger">-{{ fs.discount_percentage }}%</span></td>
                     <td>{{ fs.get_effective_sale_price|vnd }}</td>
                     <td>{{ fs.quantity_limit }}</td>
-                    <td>{{ fs.sold_count }}</td>
+                    <td>
+                        <div class="d-flex flex-column gap-1">
+                            <div class="fw-semibold">
+                                {{ fs.sold_count_calc|default:0 }} / {{ fs.quantity_limit }}
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                {% if fs.quantity_limit > 0 %}
+                                    {% if fs.sold_count_calc >= fs.quantity_limit %}
+                                    <div class="progress-bar bg-danger" style="width: 100%;"></div>
+                                    {% else %}
+                                    {% widthratio fs.sold_count_calc fs.quantity_limit 100 as sold_percent %}
+                                    <div class="progress-bar bg-success" style="width: {{ sold_percent }}%;"></div>
+                                    {% endif %}
+                                {% else %}
+                                <div class="progress-bar bg-success" style="width: 100%;"></div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
                     <td>{{ fs.start_time|date:"d/m H:i" }} - {{ fs.end_time|date:"d/m H:i" }}</td>
                     <td>
-                        {% if fs.is_available %}
+                        {% if fs.is_active and fs.start_time <= now and fs.end_time >= now and fs.sold_count_calc < fs.quantity_limit %}
                         <span class="badge bg-success">Đang diễn ra</span>
                         {% else %}
                         <span class="badge bg-secondary">Kết thúc</span>

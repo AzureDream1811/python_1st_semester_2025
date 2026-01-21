@@ -179,9 +179,14 @@
 <div class="page-card">
     <div class="page-header">
         <h1><i class="bi bi-lightning"></i> Thêm Flash Sale hàng loạt</h1>
-        <a href="{% url 'admin_dashboard:flash_sale_list' %}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Quay lại
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{% url 'admin_dashboard:flash_sale_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Danh sách
+            </a>
+            <a href="{% url 'admin_dashboard:flash_sale_create' %}" class="btn btn-outline-primary">
+                <i class="bi bi-plus-lg"></i> Thêm 1 sản phẩm
+            </a>
+        </div>
     </div>
     
     <div class="hint-text">

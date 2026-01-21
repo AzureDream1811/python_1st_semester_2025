@@ -2,11 +2,12 @@
 Dashboard Statistics Service
 Cung cấp các hàm tính toán thống kê cho Admin Dashboard
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from decimal import Decimal
 from typing import Dict, List, Any
+from django.conf import settings
 from django.db.models.query import QuerySet
-from django.db.models import Sum, Count, Avg, Q
+from django.db.models import Sum, Count, Avg, Q, F, Case, When, ExpressionWrapper, DecimalField
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -21,6 +22,97 @@ class DashboardStatistics:
     """Service class để tính toán các thống kê cho dashboard"""
 
     PAID_STATUS = 'paid'
+    REVENUE_STATUSES = ['completed', 'delivered']
+    EXCLUDED_REVENUE_STATUSES = ['cancelled', 'refunded']
+
+    def _get_datetime_bounds(self, start_date, end_date):
+        """Convert date bounds to datetimes for DateTimeField filtering."""
+        start_dt = datetime.combine(start_date, time.min)
+        end_dt = datetime.combine(end_date, time.max)
+        if settings.USE_TZ:
+            tz = timezone.get_current_timezone()
+            start_dt = timezone.make_aware(start_dt, tz)
+            end_dt = timezone.make_aware(end_dt, tz)
+        return start_dt, end_dt
+
+    def _get_revenue_queryset(self, start_date, end_date):
+        """Base queryset for revenue calculations."""
+        start_dt, end_dt = self._get_datetime_bounds(start_date, end_date)
+        return Order.objects.filter(
+            created_at__range=[start_dt, end_dt]
+        ).exclude(
+            status__in=self.EXCLUDED_REVENUE_STATUSES
+        ).filter(
+            Q(payment_status=self.PAID_STATUS) | Q(status__in=self.REVENUE_STATUSES)
+        )
+
+    def _get_daily_revenue_python(self, start_date, end_date):
+        """Python fallback for daily revenue grouping (SQLite timezone-safe)."""
+        revenue_by_date = {}
+        orders = self._get_revenue_queryset(start_date, end_date).only('created_at', 'total')
+        for order in orders:
+            if not order.created_at:
+                continue
+            created_at = timezone.localtime(order.created_at) if settings.USE_TZ else order.created_at
+            order_date = created_at.date()
+            revenue_by_date[order_date] = revenue_by_date.get(order_date, Decimal('0')) + (order.total or Decimal('0'))
+
+        return [
+            {'date': order_date, 'revenue': revenue_by_date[order_date]}
+            for order_date in sorted(revenue_by_date)
+        ]
+
+    def _get_voucher_rollup(self):
+        """Aggregate voucher usage from vouchers table when usage logs are missing."""
+        vouchers = Voucher.objects.values(
+            'code',
+            'name',
+            'discount_type',
+            'discount_value',
+            'max_discount',
+            'min_order_value',
+            'used_count',
+        )
+        total_usage = 0
+        total_discount = Decimal('0')
+        top_vouchers = []
+
+        for voucher in vouchers:
+            used = voucher.get('used_count') or 0
+            if used <= 0:
+                continue
+            total_usage += used
+
+            discount_value = voucher.get('discount_value') or Decimal('0')
+            max_discount = voucher.get('max_discount')
+            min_order_value = voucher.get('min_order_value') or Decimal('0')
+
+            if voucher.get('discount_type') == 'fixed':
+                per_use = discount_value
+            else:
+                if max_discount:
+                    per_use = max_discount
+                elif min_order_value:
+                    per_use = (min_order_value * discount_value) / Decimal('100')
+                else:
+                    per_use = Decimal('0')
+
+            total_for_voucher = per_use * used
+            total_discount += total_for_voucher
+            top_vouchers.append({
+                'voucher__code': voucher.get('code') or '',
+                'voucher__name': voucher.get('name') or '',
+                'usage_count': used,
+                'total_discount': total_for_voucher,
+            })
+
+        top_vouchers.sort(key=lambda item: item.get('total_discount') or Decimal('0'), reverse=True)
+
+        return {
+            'usage_count': total_usage,
+            'total_discount': total_discount,
+            'top_vouchers': top_vouchers[:10],
+        }
 
     # === REVENUE STATISTICS ===
 
@@ -35,17 +127,13 @@ class DashboardStatistics:
             end_date = timezone.now().date()
 
         # Chỉ tính đơn hàng đã thanh toán
-        paid_orders = Order.objects.filter(
-            payment_status=self.PAID_STATUS,
-            created_at__date__gte=start_date,
-            created_at__date__lte=end_date
-        ).exclude(status__in=['cancelled', 'refunded'])
+        revenue_orders = self._get_revenue_queryset(start_date, end_date)
 
-        total_revenue = paid_orders.aggregate(
+        total_revenue = revenue_orders.aggregate(
             total=Sum('total')
         )['total'] or Decimal('0')
 
-        order_count = paid_orders.count()
+        order_count = revenue_orders.count()
 
         return {
             'total_revenue': total_revenue,
@@ -64,20 +152,22 @@ class DashboardStatistics:
         if not start_date:
             start_date = end_date - timedelta(days=30)
 
+        # SQLite timezone parsing can break date grouping; fall back to Python.
+        if 'sqlite' in settings.DATABASES['default']['ENGINE'].lower():
+            return self._get_daily_revenue_python(start_date, end_date)
+
         # Chỉ tính doanh thu từ đơn hàng đã thanh toán
-        daily_revenue = Order.objects.filter(
-            payment_status=self.PAID_STATUS,
-            created_at__date__gte=start_date,
-            created_at__date__lte=end_date
-        ).exclude(
-            status__in=['cancelled', 'refunded']
-        ).annotate(
+        daily_revenue = self._get_revenue_queryset(start_date, end_date).annotate(
             date=TruncDate('created_at')
         ).values('date').annotate(
             revenue=Sum('total')
         ).order_by('date')
 
-        return list(daily_revenue)
+        daily_revenue = list(daily_revenue)
+        if daily_revenue and all(item.get('date') is None for item in daily_revenue):
+            return self._get_daily_revenue_python(start_date, end_date)
+
+        return daily_revenue
 
     def get_daily_revenue_chart_data(self, start_date=None, end_date=None) -> Dict[str, Any]:
         """Dữ liệu biểu đồ doanh thu theo ngày - điền đầy đủ tất cả ngày trong khoảng"""
@@ -89,12 +179,13 @@ class DashboardStatistics:
         daily_data = self.get_daily_revenue(start_date, end_date)
 
         # Nếu không có data trong khoảng, thử lấy tất cả paid orders
-        if not daily_data:
+        allow_fallback = False  # Keep period accuracy.
+        if allow_fallback and not daily_data:
             # Lấy tất cả paid orders và group theo ngày
             all_paid = list(Order.objects.filter(
-                payment_status=self.PAID_STATUS
+                Q(payment_status=self.PAID_STATUS) | Q(status__in=self.REVENUE_STATUSES)
             ).exclude(
-                status__in=['cancelled', 'refunded']
+                status__in=self.EXCLUDED_REVENUE_STATUSES
             ).annotate(
                 date=TruncDate('created_at')
             ).values('date').annotate(
@@ -161,9 +252,9 @@ class DashboardStatistics:
     def get_order_status_chart_data(self, start_date=None, end_date=None) -> Dict[str, Any]:
         """Dữ liệu biểu đồ trạng thái đơn hàng"""
         if start_date and end_date:
+            start_dt, end_dt = self._get_datetime_bounds(start_date, end_date)
             orders = Order.objects.filter(
-                created_at__date__gte=start_date,
-                created_at__date__lte=end_date
+                created_at__range=[start_dt, end_dt]
             )
             status_counts = orders.values('status').annotate(count=Count('id'))
             by_status = {item['status']: item['count'] for item in status_counts}
@@ -222,9 +313,9 @@ class DashboardStatistics:
         Lọc đơn hàng theo khoảng thời gian
         Property 7: Tất cả orders trả về có created_at trong khoảng
         """
+        start_dt, end_dt = self._get_datetime_bounds(start_date, end_date)
         return Order.objects.filter(
-            created_at__date__gte=start_date,
-            created_at__date__lte=end_date
+            created_at__range=[start_dt, end_dt]
         )
 
     # === SENTIMENT STATISTICS ===
@@ -323,9 +414,9 @@ class DashboardStatistics:
     def get_category_revenue(self) -> List[Dict[str, Any]]:
         """Doanh thu theo danh mục - chỉ tính đơn đã thanh toán"""
         category_revenue = OrderItem.objects.filter(
-            order__payment_status=self.PAID_STATUS
+            Q(order__payment_status=self.PAID_STATUS) | Q(order__status__in=self.REVENUE_STATUSES)
         ).exclude(
-            order__status__in=['cancelled', 'refunded']
+            order__status__in=self.EXCLUDED_REVENUE_STATUSES
         ).values(
             'product__category__name'
         ).annotate(
@@ -370,12 +461,13 @@ class DashboardStatistics:
         Doanh thu theo phương thức thanh toán
         Chỉ tính đơn đã thanh toán
         """
+        start_dt, end_dt = self._get_datetime_bounds(start_date, end_date)
         revenue_by_method = Order.objects.filter(
-            payment_status=self.PAID_STATUS,
-            created_at__date__gte=start_date,
-            created_at__date__lte=end_date
+            created_at__range=[start_dt, end_dt]
         ).exclude(
-            status__in=['cancelled', 'refunded']
+            status__in=self.EXCLUDED_REVENUE_STATUSES
+        ).filter(
+            Q(payment_status=self.PAID_STATUS) | Q(status__in=self.REVENUE_STATUSES)
         ).values('payment_method').annotate(
             revenue=Sum('total')
         )
@@ -387,12 +479,13 @@ class DashboardStatistics:
 
     def get_top_revenue_products(self, start_date, end_date, limit: int = 10):
         """Sản phẩm có doanh thu cao nhất - chỉ tính đơn đã thanh toán"""
+        start_dt, end_dt = self._get_datetime_bounds(start_date, end_date)
         return OrderItem.objects.filter(
-            order__payment_status=self.PAID_STATUS,
-            order__created_at__date__gte=start_date,
-            order__created_at__date__lte=end_date
+            order__created_at__range=[start_dt, end_dt]
         ).exclude(
-            order__status__in=['cancelled', 'refunded']
+            order__status__in=self.EXCLUDED_REVENUE_STATUSES
+        ).filter(
+            Q(order__payment_status=self.PAID_STATUS) | Q(order__status__in=self.REVENUE_STATUSES)
         ).values(
             'product__name', 'product__id'
         ).annotate(
@@ -473,9 +566,9 @@ class DashboardStatistics:
 
         revenue_stats = self.get_revenue_stats(start_date, end_date)
 
+        start_dt, end_dt = self._get_datetime_bounds(start_date, end_date)
         orders = Order.objects.filter(
-            created_at__date__gte=start_date,
-            created_at__date__lte=end_date
+            created_at__range=[start_dt, end_dt]
         )
 
         return {
@@ -503,14 +596,17 @@ class DashboardStatistics:
         if not end_date:
             end_date = timezone.now().date()
 
+        start_dt, end_dt = self._get_datetime_bounds(start_date, end_date)
         voucher_usage = VoucherUsage.objects.filter(
-            used_at__date__gte=start_date,
-            used_at__date__lte=end_date
+            used_at__range=[start_dt, end_dt]
+        ).exclude(
+            order__status__in=self.EXCLUDED_REVENUE_STATUSES
         )
 
         total_discount = voucher_usage.aggregate(
             total=Sum('discount_amount')
         )['total'] or Decimal('0')
+        usage_count = voucher_usage.count()
 
         voucher_stats = voucher_usage.values(
             'voucher__code', 'voucher__name'
@@ -519,6 +615,40 @@ class DashboardStatistics:
             total_discount=Sum('discount_amount')
         ).order_by('-total_discount')[:10]
 
+        voucher_rollup = self._get_voucher_rollup()
+        if usage_count:
+            top_vouchers = list(voucher_stats)
+        else:
+            usage_count = voucher_rollup['usage_count']
+            total_discount = voucher_rollup['total_discount']
+            top_vouchers = voucher_rollup['top_vouchers']
+
+        if not usage_count and not total_discount:
+            fallback_orders = Order.objects.filter(
+                created_at__range=[start_dt, end_dt]
+            ).exclude(
+                status__in=self.EXCLUDED_REVENUE_STATUSES
+            )
+
+            effective_discount = Case(
+                When(discount__gt=0, then=F('discount')),
+                default=ExpressionWrapper(
+                    F('subtotal') + F('shipping_fee') - F('total'),
+                    output_field=DecimalField(max_digits=12, decimal_places=2)
+                ),
+                output_field=DecimalField(max_digits=12, decimal_places=2)
+            )
+            fallback_orders = fallback_orders.annotate(
+                effective_discount=effective_discount
+            ).filter(
+                effective_discount__gt=0
+            )
+            usage_count = fallback_orders.count()
+            total_discount = fallback_orders.aggregate(
+                total=Sum('effective_discount')
+            )['total'] or Decimal('0')
+            top_vouchers = []
+
         active_flash_sales = FlashSale.objects.filter(
             is_active=True,
             start_time__lte=timezone.now(),
@@ -526,8 +656,8 @@ class DashboardStatistics:
         ).count()
 
         flash_sales = FlashSale.objects.filter(
-            start_time__date__gte=start_date,
-            end_time__date__lte=end_date
+            start_time__gte=start_dt,
+            end_time__lte=end_dt
         )
 
         flash_sale_revenue = Decimal('0')
@@ -551,8 +681,8 @@ class DashboardStatistics:
             },
             'voucher': {
                 'total_discount': total_discount,
-                'usage_count': voucher_usage.count(),
-                'top_vouchers': list(voucher_stats)
+                'usage_count': usage_count,
+                'top_vouchers': top_vouchers
             },
             'flash_sale': {
                 'active_count': active_flash_sales,
@@ -641,25 +771,23 @@ class DashboardStatistics:
     def _get_period_order_count(self, start_date, end_date) -> int:
         """Đếm số đơn hàng trong khoảng thời gian"""
         return Order.objects.filter(
-            created_at__date__gte=start_date,
-            created_at__date__lte=end_date
+            created_at__range=self._get_datetime_bounds(start_date, end_date)
         ).count()
 
     def _get_period_customer_count(self, start_date, end_date) -> int:
         """Đếm số khách hàng mới trong khoảng thời gian"""
+        start_dt, end_dt = self._get_datetime_bounds(start_date, end_date)
         return User.objects.filter(
             is_active=True,
             is_staff=False,
-            date_joined__date__gte=start_date,
-            date_joined__date__lte=end_date
+            date_joined__range=[start_dt, end_dt]
         ).count()
 
     def _get_period_product_count(self, start_date, end_date) -> int:
         """Đếm số sản phẩm mới trong khoảng thời gian"""
         return Product.objects.filter(
             is_active=True,
-            created_at__date__gte=start_date,
-            created_at__date__lte=end_date
+            created_at__range=self._get_datetime_bounds(start_date, end_date)
         ).count()
 
     def get_dashboard_summary(self, period: str = 'month', custom_start=None, custom_end=None) -> Dict[str, Any]:
@@ -667,7 +795,6 @@ class DashboardStatistics:
         time_stats = self.get_time_based_stats(period, custom_start, custom_end)
         order_stats = self.get_order_stats()
         sentiment_stats = self.get_sentiment_stats()
-        promotion_stats = self.get_promotion_stats()
 
         # Lấy thông tin kỳ trước để so sánh
         prev_start, prev_end = self._get_previous_period_dates(period, custom_start, custom_end)
@@ -692,6 +819,8 @@ class DashboardStatistics:
         else:
             current_start = today.replace(day=1)
             current_end = today
+
+        promotion_stats = self.get_promotion_stats(current_start, current_end)
 
         # Tính toán số liệu kỳ trước
         prev_revenue_stats = self.get_revenue_stats(prev_start, prev_end)

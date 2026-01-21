@@ -296,7 +296,7 @@
 <section class="kpi-grid" aria-label="Thống kê tổng quan">
     <div class="kpi revenue">
         <small>Doanh thu  {{ stats.period_label|default:"tháng này" }}</small>
-        <strong>{{ stats.monthly_revenue|default:0|vnd }}</strong>
+        <strong id="kpiRevenueValue">{{ stats.time_stats.total_revenue|default:0|vnd }}</strong>
         {% if stats.revenue_change %}
         <span class="delta {% if stats.revenue_change >= 0 %}up{% else %}down{% endif %}">
             <i class="bi bi-{% if stats.revenue_change >= 0 %}arrow-up-right{% else %}arrow-down-right{% endif %}"></i>
@@ -457,9 +457,18 @@ document.addEventListener('DOMContentLoaded', function() {
     Chart.defaults.color = '#64748B';
     
     const urlParams = new URLSearchParams(window.location.search);
-    const period = urlParams.get('period') || 'year';  // Default to year to show more data
+    const period = urlParams.get('period') || '{{ current_period|default:"month"|escapejs }}';
     const startDate = urlParams.get('start_date') || '';
     const endDate = urlParams.get('end_date') || '';
+    const revenueKpiValue = document.getElementById('kpiRevenueValue');
+    const revenueSuffixMatch = revenueKpiValue ? revenueKpiValue.textContent.match(/^[0-9.\s]+(.*)$/) : null;
+    const revenueSuffix = revenueSuffixMatch ? revenueSuffixMatch[1].trim() : '';
+    const formatVnd = (value) => {
+        const numeric = Number(value);
+        const normalized = Number.isFinite(numeric) ? Math.trunc(numeric) : 0;
+        const formatted = normalized.toLocaleString('vi-VN');
+        return `${formatted}${revenueSuffix}`;
+    };
     
     let chartQuery = `period=${period}`;
     if (period === 'custom' && startDate && endDate) {
@@ -471,6 +480,9 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             console.log('Revenue data:', data);
             const ctx = document.getElementById('revenueChart');
+            if (revenueKpiValue && data && data.total != null) {
+                revenueKpiValue.textContent = formatVnd(data.total);
+            }
             if (!ctx) {
                 console.error('revenueChart canvas not found');
                 return;
