@@ -2,6 +2,10 @@
 import warnings
 import numpy as np
 from pathlib import Path
+from typing import Optional
+# Import fasttext sau khi patch
+import fasttext
+from ml_models.aivivn_fasttext.preprocess import PreprocessText
 
 # Monkey-patch để fix NumPy 2.0 compatibility với FastText
 # FastText sử dụng np.array(obj, copy=False) nhưng NumPy 2.0 không cho phép
@@ -15,9 +19,7 @@ def _patched_array(*args, **kwargs):
 
 np.array = _patched_array
 
-# Import fasttext sau khi patch
-import fasttext
-from ml_models.aivivn_fasttext.preprocess import PreprocessText
+
 
 # Suppress các warning không cần thiết
 warnings.filterwarnings('ignore', message='.*copy.*', category=DeprecationWarning)
@@ -66,7 +68,7 @@ class SentimentAnalyzer:
             print(f"[WARNING] Loi khi load model: {e}")
             self._predictor = None
 
-    def analyze(self, text: str, rating: int = None) -> dict:
+    def analyze(self, text: str, rating: Optional[int] = None) -> dict:
         """
         Phân tích sentiment của text, kết hợp với star rating nếu có.
 
@@ -240,7 +242,7 @@ class SentimentAnalyzer:
                 "rating_score": 0.0,
             }
 
-    def _rating_to_score(self, rating: int) -> float:
+    def _rating_to_score(self, rating: Optional[int]) -> float:
         """
         Chuyển đổi star rating (1-5) sang score (-1 đến 1).
 
