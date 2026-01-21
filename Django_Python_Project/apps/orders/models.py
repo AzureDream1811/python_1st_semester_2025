@@ -242,7 +242,7 @@ class Order(models.Model):
         from django.utils import timezone
         from django.db.models import F
 
-        now = timezone.now()
+        order_time = self.created_at or timezone.now()
 
         for item in self.items.all():
             if item.product:
@@ -250,8 +250,8 @@ class Order(models.Model):
                 flash_sale = FlashSale.objects.filter(
                     product=item.product,
                     is_active=True,
-                    start_time__lte=now,
-                    end_time__gte=now
+                    start_time__lte=order_time,
+                    end_time__gte=order_time
                 ).first()
 
                 if flash_sale:

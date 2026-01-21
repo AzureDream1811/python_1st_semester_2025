@@ -8,7 +8,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Sum, OuterRef, Subquery, IntegerField, Value
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 from datetime import datetime, timedelta
 
@@ -19,7 +20,7 @@ from .forms import (
     UserEditForm, VoucherForm, FlashSaleForm, NotificationForm
 )
 from apps.products.models import Product, Category, Brand
-from apps.orders.models import Order, OrderHistory
+from apps.orders.models import Order, OrderHistory, OrderItem
 from apps.reviews.models import Review
 from apps.promotions.models import Voucher, FlashSale
 from apps.notifications.models import Notification
@@ -481,6 +482,32 @@ class FlashSaleListView(StaffRequiredMixin, ListView):
     template_name = 'admin_dashboard/promotions/flash_sales.html'
     context_object_name = 'flash_sales'
     paginate_by = 20
+
+    def get_queryset(self):
+        queryset = super().get_queryset().select_related('product')
+        sold_items = OrderItem.objects.filter(
+            product=OuterRef('product'),
+            order__created_at__gte=OuterRef('start_time'),
+            order__created_at__lte=OuterRef('end_time'),
+        ).exclude(
+            order__status__in=['cancelled', 'refunded']
+        ).filter(
+            Q(order__payment_status='paid') | Q(order__status__in=['completed', 'delivered'])
+        ).values('product').annotate(
+            total=Sum('quantity')
+        ).values('total')
+
+        return queryset.annotate(
+            sold_count_calc=Coalesce(
+                Subquery(sold_items, output_field=IntegerField()),
+                Value(0)
+            )
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['now'] = timezone.now()
+        return context
 
 
 class FlashSaleCreateView(StaffRequiredMixin, CreateView):

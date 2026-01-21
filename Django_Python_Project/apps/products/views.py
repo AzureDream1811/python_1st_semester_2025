@@ -57,7 +57,7 @@ def home(request):
     recommended_products = Product.objects.filter(
         is_active=True,
         sentiment_score__gt=0.3
-    ).exclude(id__in=flash_sale_ids).select_related('category', 'brand').order_by('-sentiment_score')[:4]
+    ).exclude(id__in=flash_sale_ids).select_related('category', 'brand').order_by('-sentiment_score')[:8]
 
     # Best sellers - sản phẩm bán chạy nhất
     best_sellers = Product.objects.filter(
@@ -73,7 +73,7 @@ def home(request):
             start_time__lte=now,
             end_time__gte=now,
             is_active=True
-        ).select_related('product', 'product__category', 'product__brand')[:4]
+        ).select_related('product', 'product__category', 'product__brand')[:8]
     except Exception:
         pass
 

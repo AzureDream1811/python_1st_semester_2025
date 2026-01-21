@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db import transaction
+from django.db.models import F
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
@@ -137,6 +138,7 @@ def checkout(request):
             if Order.objects.filter(order_number=order_number).exists():
                 order_number = Order.generate_order_number()
                 request.session['draft_order_number'] = order_number
+            discount_amount = cart.discount if cart.voucher else 0
             order = Order.objects.create(
                 order_number=order_number,
                 user=request.user,
@@ -150,6 +152,7 @@ def checkout(request):
                 note=note,
                 payment_method=payment_method,
                 subtotal=cart.subtotal,
+                discount=discount_amount,
                 total=cart.total,
             )
 
@@ -171,6 +174,18 @@ def checkout(request):
 
             # Tạo order history
             OrderHistory.objects.create(order=order, status='pending')
+
+            if cart.voucher and discount_amount:
+                from apps.promotions.models import Voucher, VoucherUsage
+                VoucherUsage.objects.create(
+                    voucher=cart.voucher,
+                    user=request.user,
+                    order=order,
+                    discount_amount=discount_amount
+                )
+                Voucher.objects.filter(pk=cart.voucher.pk).update(
+                    used_count=F('used_count') + 1
+                )
 
             # Gửi thông báo đặt hàng thành công
             try:
