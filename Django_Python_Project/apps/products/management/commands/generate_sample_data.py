@@ -254,7 +254,33 @@ class Command(BaseCommand):
                     'https://dienmaygiare.net/wp-content/uploads/2025/12/smart-tivi-hisense-32-inch-32a4q-1-638921808926524429-700x467-1.jpg',
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSNr71Ztjncx27D4-jISVX5IWqIP1r-_h97g&s',
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSNr71Ztjncx27D4-jISVX5IWqIP1r-_h97g&s',
-                    'https://dienmay247.com.vn/wp-content/uploads/2024/09/10.4.jpg'
+                    'https://dienmay247.com.vn/wp-content/uploads/2024/09/10.4.jpg',
+                    'https://asher.com.vn/wp-content/uploads/2022/09/43-.png',
+                    'https://asher.com.vn/wp-content/uploads/2022/09/Anh-web-ASHER-43-02-2048x1366.jpg',
+                    'https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/2024_1_8_638403196055826396_tivi-re-nhat-1.jpg',
+                    'https://cdn11.dienmaycholon.vn/filewebdmclnew/DMCL21/Picture//Apro/Apro_product_36163/smart-tivi-samsung-qled-4k-vision-ai-65-inch-qa65q7fa-main-327357.webp',
+                    'https://cdnv2.tgdd.vn/mwg-static/dmx/Products/Images/1942/337819/smart-tivi-lg-ai-4k-55-inch-55ua8450psa-2-638822975892461982-700x467.jpg',
+                    'https://cdnv2.tgdd.vn/mwg-static/dmx/Products/Images/1942/339083/google-tivi-sony-4k-43-inch-k-43s25vm2-2-638844797000223938-700x467.jpg',
+                    'https://techcenter.vn/upload/source/tong-hop-2022/ban-gia-treo-tivi-di-dong-hq1700.png',
+                    'https://techcenter.vn/upload/source/gia-treo-tivi/hq1700/gia-treo-tivi-di-dong-hq1700.png',
+                    'https://techcenter.vn/upload/source/gia-treo-tivi/hq1700/ban-gia-treo-tivi-di-dong-hq1700.png',
+                    'https://cdn.mediamart.vn/images/product/smart-tivi-samsung-4k-75-inch-75au7700-uhd_3b060d16.jpg',
+                    'https://cdn.mediamart.vn/images/product/smart-tivi-tcl-4k-55p638-55-inch-google-tv_43dc709f.webp',
+                    'https://cdn.mediamart.vn/images/product/smart-tivi-samsung-4k-43-inch-43du7700-crystal-uhd_61e2b41c.webp',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQryAZ2xeevgPLQJ3eznJMKU33BalQWgXqRag&s',
+                    'https://product.hstatic.net/200000892961/product/qled-tivi-4k-toshiba-65m450np-65-inch-smart-tv_fdd4697f_7f7add6ec518477db0cd7bc2c05f7cd3.png',
+                    'https://product.hstatic.net/200000335975/product/1_b2f61ee8f2a94f7981354425f9e5b814_master.jpeg',
+                    'https://bepxanh.com/Uploads/smart-tivi-samsung-4k-50-inch-ua50tu8100.jpg',
+                    'https://product.hstatic.net/200000574527/product/21_57ae5753d2c340939db2362ac0cac8eb.png',
+                    'https://meta.vn/Data/image/2022/06/25/smart-tivi-lg-4k-43-inch-43uq8000psc-1.jpg',
+                    'https://bizweb.dktcdn.net/100/377/070/products/77910ce37b303744a5a1fdb336602e.jpg?v=1581299169937',
+                    'https://bizweb.dktcdn.net/thumb/1024x1024/100/443/782/products/smart-tivi-samsung-4k-43-inch-43au7000-uhd-gia-re-2.jpg?v=1672321942360',
+                    'https://dienmaysaigon.com/wp-content/uploads/2024/01/Smart-Tivi-LG-4K-43-Inch-43UQ7050PSA-Dien-May-Sai-Gon.jpg',
+                    'https://khodienmay.net/wp-content/uploads/2025/07/55.jpg',
+                    'https://dienmaybanre.com/images/products/2023/04/13/large/smart-tivi-lg-oled-55a3psa-4k-55-inch_1681397365.jpg',
+                    'https://dienmaybanre.com/images/products/2022/01/21/original/tivi-led-lg-55up7550ptc-9_1642738163.jpg',
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTphEp-2ak5aP4pQxmXcE8FkbbRG6AXlv5SGw&s',
+                    
                 ],
                 'specs_template': {
                     'Kích thước màn hình': '{size} inch',
@@ -277,7 +303,36 @@ class Command(BaseCommand):
                     'https://muahangtaikho.vn/media/lib/11-10-2024/tivi-oled10.png',
                     'https://muahangtaikho.vn/media/lib/11-10-2024/tivi-oled8.png',
                     'https://cdnv2.tgdd.vn/mwg-static/dmx/Products/Images/1942/337482/smart-tivi-oled-evo-lg-ai-4k-55-inch-oled55c5psa-2-638814287666408461-700x467.jpg',
-                    'https://bizweb.dktcdn.net/100/439/998/products/tivi-oled-lg-4k-77-inch-77c4psa-2-optimized-e69c3e4c-c17d-407f-8e23-a91a26f48f5c.jpg?v=1725609488910'
+                    'https://bizweb.dktcdn.net/100/439/998/products/tivi-oled-lg-4k-77-inch-77c4psa-2-optimized-e69c3e4c-c17d-407f-8e23-a91a26f48f5c.jpg?v=1725609488910',
+                    'https://mivietnam.vn/wp-content/uploads/2025/04/z7188388507500_8944b79d7eff5794b6e556d8936e990b.jpg',
+                    'https://i.pinimg.com/1200x/c1/0d/61/c10d610cec713da08a00a4b03733443a.jpg',
+                    'https://i.pinimg.com/736x/20/bb/81/20bb8165c7cd5a5919f66737773783a4.jpg',
+                    'https://i.pinimg.com/1200x/26/5a/68/265a681155c007a9b43e4a08d1f8c66e.jpg',
+                    'https://i.pinimg.com/736x/a1/8e/c1/a18ec1cab8915ef9916b446868a01e56.jpg',
+                    'https://i.pinimg.com/1200x/31/a5/0f/31a50fc088a9c34b58f2bf5cb6c3a3c6.jpg',
+                    'https://i.pinimg.com/736x/7d/4d/43/7d4d43ec98ce63b15be5f1feb155bb97.jpg',
+                    'https://i.pinimg.com/1200x/46/48/c3/4648c31a14420a79bc68984c57f4f042.jpg',
+                    'https://i.pinimg.com/1200x/ae/0b/88/ae0b88e51b92d906ff83ce9f66a7f732.jpg',
+                    'https://i.pinimg.com/1200x/cc/e8/c5/cce8c51d6d1e5fdb6972e15cf80623a5.jpg',
+                    'https://i.pinimg.com/736x/73/f9/82/73f9823687b4744fe3f107c4a1a86cf5.jpg',
+                    'https://i.pinimg.com/736x/db/d5/1e/dbd51ecb0c57de585c4489e2c5bf1207.jpg',
+                    'https://i.pinimg.com/1200x/c1/a1/59/c1a15954ce119ad68d9cd923dbdec27c.jpg',
+                    'https://i.pinimg.com/736x/4b/5f/26/4b5f264a77247c0908e2b43d02a90aa7.jpg',
+                    'https://i.pinimg.com/736x/03/36/2c/03362c0d017df3d0be6c65c04943559c.jpg',
+                    'https://i.pinimg.com/1200x/db/38/56/db385683eeb65ebb8564581abd693c55.jpg',
+                    'https://i.pinimg.com/1200x/20/3c/89/203c8971e3f0041a7fc9eee14c25910c.jpg',
+                    'https://i.pinimg.com/1200x/b1/53/e7/b153e705c421d8a0d4e7956792b851b5.jpg',
+                    'https://i.pinimg.com/1200x/b3/64/df/b364dfe5f51eb80271c29e2cc60882a6.jpg',
+                    'https://i.pinimg.com/1200x/c6/7f/0a/c67f0a5b38b1f217499513cc706888c0.jpg',
+                    'https://i.pinimg.com/1200x/39/65/44/39654439741157100debf12c106ea4bd.jpg',
+                    'https://i.pinimg.com/1200x/2c/81/1e/2c811e993f30bb04d7b3f2cf84c79a01.jpg',
+                    'https://i.pinimg.com/736x/f0/a1/ba/f0a1ba48518740ad8c0ddb91156c72fa.jpg',
+                    'https://i.pinimg.com/1200x/3c/94/0a/3c940a45f150ddc07a52965205befe1d.jpg',
+                    'https://i.pinimg.com/1200x/8a/4b/d8/8a4bd8df726dacce4ef23e7004e0b6ce.jpg',
+                    'https://i.pinimg.com/736x/ea/40/10/ea4010ba25b65e06e23cbb839048931d.jpg',
+                    'https://i.pinimg.com/736x/36/01/42/360142391fa8fefebc58dfbe708772ce.jpg',
+                    'https://i.pinimg.com/1200x/e5/72/42/e57242476c69b83ad60a1b52e19fc03a.jpg',
+                    
                 ],
                 'specs_template': {
                     'Kích thước màn hình': '{size} inch',
@@ -302,7 +357,30 @@ class Command(BaseCommand):
                     'https://cdn.tgdd.vn/Products/Images/1942/322672/Slider/1fix2-1020x570.jpg',
                     'https://bizweb.dktcdn.net/thumb/large/100/549/276/products/qa55q6faakxxv-6.jpg?v=1760493832453',
                     'https://cdn.tgdd.vn/Products/Images/1942/219254/samsung-qa49q80t-111122-033158-550x340.jpg',
-                    'https://cdnv2.tgdd.vn/mwg-static/common/News/1582439/tivi-qd-mini-led-la-gi-5.jpg'
+                    'https://cdnv2.tgdd.vn/mwg-static/common/News/1582439/tivi-qd-mini-led-la-gi-5.jpg',
+                    'https://i.pinimg.com/736x/d2/d9/f8/d2d9f8a6de3e6c5e64aa94ca914bcfd1.jpg',
+                    'https://i.pinimg.com/736x/70/ad/49/70ad49eb8134a3e3eff0e2fea0924f54.jpg',
+                    'https://i.pinimg.com/736x/f0/30/f2/f030f24b2dc7ddd23cd42bbb1b423c47.jpg',
+                    'https://i.pinimg.com/736x/07/48/4e/07484ed25e1c6442d97d32bd3c9b421c.jpg',
+                    'https://i.pinimg.com/736x/5b/15/8a/5b158a7c0898c289928ceae7723ddd65.jpg',
+                    'https://i.pinimg.com/736x/3c/ba/6d/3cba6d9c8f94d30bec4711b98f45b7ed.jpg',
+                    'https://i.pinimg.com/1200x/8a/4b/d8/8a4bd8df726dacce4ef23e7004e0b6ce.jpg',
+                    'https://i.pinimg.com/736x/3c/58/3e/3c583e04e2cceff608a1b086b69af6ff.jpg',
+                    'https://i.pinimg.com/736x/9a/10/d3/9a10d36fc476808bbd501e0ec2c7fb7f.jpg',
+                    'https://i.pinimg.com/736x/03/36/2c/03362c0d017df3d0be6c65c04943559c.jpg',
+                    'https://i.pinimg.com/1200x/2a/e1/14/2ae114a473c039bfb9258cf0c035a541.jpg',
+                    'https://i.pinimg.com/1200x/c5/df/e0/c5dfe02aafa3a146238e3244fe4eb898.jpg',
+                    'https://i.pinimg.com/736x/99/38/d7/9938d73b74049784e83f42df5db73829.jpg',
+                    'https://i.pinimg.com/1200x/f8/96/9f/f8969f625fcd8fbdb4131bab956eda58.jpg',
+                    'https://i.pinimg.com/736x/aa/23/d6/aa23d65366991e4d161d2a0fa9656e6b.jpg',
+                    'https://i.pinimg.com/736x/be/01/e5/be01e51689bdb7e75288fbf2317dc6b9.jpg',
+                    'https://i.pinimg.com/736x/c1/4d/08/c14d08322c07a4507f63144bfdcd8bff.jpg',
+                    'https://i.pinimg.com/736x/4e/7a/3a/4e7a3aed3f0c4f38bf395f3e52766518.jpg',
+                    'https://i.pinimg.com/736x/f9/31/08/f93108c5a91be69e3468b6a52f373f77.jpg',
+                    'https://i.pinimg.com/736x/87/d3/e5/87d3e566266678c88ea0791fb2bd6a38.jpg',
+                    'https://i.pinimg.com/736x/c4/40/9d/c4409debaa7c875cb594f99ae2f39277.jpg',
+                    'https://i.pinimg.com/736x/c4/40/9d/c4409debaa7c875cb594f99ae2f39277.jpg',
+                    'https://i.pinimg.com/736x/e0/36/1f/e0361faa5a104375be51db6d8c78f9d6.jpg'
                 ],
                 'specs_template': {
                     'Kích thước màn hình': '{size} inch',
@@ -324,7 +402,30 @@ class Command(BaseCommand):
                     'https://tiki.vn/blog/wp-content/uploads/2023/10/co-nen-mua-tivi-xiaomi-3-compressed.jpg',
                     'https://bizweb.dktcdn.net/100/549/276/files/tivi-hinh2.jpg?v=1740988405638',
                     'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:0/q:100/plain/https://cellphones.com.vn/media/wysiwyg/Tivi/tivi-full-hd-2.jpg',
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMZW_uqossE7DAJLuhQowkQCaxiqzf7VAduw&s'
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMZW_uqossE7DAJLuhQowkQCaxiqzf7VAduw&s',
+                    'https://i.pinimg.com/736x/6b/0d/22/6b0d22adf6378d91f449567e3f35d7ce.jpg',
+                    'https://i.pinimg.com/736x/6f/02/99/6f029995a3ec675152b1f1d54819abb9.jpg',
+                    'https://i.pinimg.com/736x/cd/53/d4/cd53d47e68a5260d372dc48e41511fb3.jpg',
+                    'https://i.pinimg.com/1200x/96/7b/08/967b086b0b5ef233c9814942043ff406.jpg',
+                    'https://i.pinimg.com/736x/3d/6d/79/3d6d798bac905325e0c08bcb7490e3cd.jpg',
+                    'https://i.pinimg.com/736x/fa/3c/67/fa3c673aa9e71cc05762086c12078606.jpg',
+                    'https://i.pinimg.com/1200x/dd/b2/a4/ddb2a409eb039db5f612e17ca869f8b3.jpg',
+                    'https://i.pinimg.com/1200x/ad/b9/29/adb929a15a3b8d8675f2bf9b749901a9.jpg',
+                    'https://i.pinimg.com/736x/e8/0d/07/e80d07383edc674e1cfe59755e5f0704.jpg',
+                    'https://i.pinimg.com/736x/46/ca/da/46cadaca1ae65f594fc498c3268edfed.jpg',
+                    'https://i.pinimg.com/736x/c6/69/0b/c6690b0273c83fc5f16cd4e4358223fb.jpg',
+                    'https://i.pinimg.com/1200x/c0/b2/84/c0b2841f3cc6bdf340e3a067e1bfbf12.jpg',
+                    'https://i.pinimg.com/736x/16/1b/90/161b90013a60445fa8015a87660e48e2.jpg',
+                    'https://i.pinimg.com/736x/09/71/42/0971424c7737ffa551ed5d2466fb21c7.jpg',
+                    'https://i.pinimg.com/1200x/6b/0e/a0/6b0ea0c36b3f4220048525d6b5a25b6c.jpg',
+                    'https://i.pinimg.com/736x/03/36/2c/03362c0d017df3d0be6c65c04943559c.jpg',
+                    'https://i.pinimg.com/736x/4b/c1/92/4bc192ed6133c80bae4f1daab1a6ceb7.jpg',
+                    'https://i.pinimg.com/736x/4d/ce/e9/4dcee96ffd48ebfdf73ef5dd74d32574.jpg',
+                    'https://i.pinimg.com/736x/9a/20/23/9a2023f363db589e6a145551db2dc976.jpg',
+                    'https://i.pinimg.com/736x/e9/2e/e6/e92ee682c173c05111b5530892f1076c.jpg',
+                    'https://i.pinimg.com/736x/76/e1/98/76e198aed72b6b9a9dc21c04ee6512ad.jpg',
+                    'https://i.pinimg.com/736x/bd/1d/eb/bd1debbcfcf4af7c4bfdd88f50082680.jpg',
+                    'https://i.pinimg.com/1200x/9b/0a/b8/9b0ab8d96b5d205b014308b66a74fb92.jpg'
                 ],
                 'specs_template': {
                     'Kích thước màn hình': '{size} inch',
@@ -345,7 +446,29 @@ class Command(BaseCommand):
                     'https://dienmaythienphu.vn/_next/image?url=https%3A%2F%2Fdienmaythienphu.vn%2Fwp-content%2Fuploads%2F2023%2F11%2Fsamsung-QA98QN990C-1.jpg&w=1920&q=100',
                     'https://cdn.tgdd.vn/Products/Images/1942/322639/Slider/1-1020x570.jpg',
                     'https://dienmaythienphu.vn/_next/image?url=https%3A%2F%2Fdienmaythienphu.vn%2Fwp-content%2Fuploads%2F2022%2F05%2FLG-QNED99SQB-1.jpg&w=1920&q=100',
-                    'https://cdn11.dienmaycholon.vn/filewebdmclnew/DMCL21/Picture/Apro/Apro_product_36410/smart-ai-tivi-samsung-mini-led-8k-85-inch-qa85qn950f-main--494.png'
+                    'https://cdn11.dienmaycholon.vn/filewebdmclnew/DMCL21/Picture/Apro/Apro_product_36410/smart-ai-tivi-samsung-mini-led-8k-85-inch-qa85qn950f-main--494.png',
+                    'https://i.pinimg.com/1200x/d3/f0/de/d3f0de3876c0528bdccfb09e19cc8681.jpg',
+                    'https://i.pinimg.com/736x/c9/e4/3c/c9e43c3b2d9d45c36aa3bb55a3e9dd80.jpg',
+                    'https://i.pinimg.com/1200x/85/78/2e/85782e95c143c0a5190e06bd1d0724bc.jpg',
+                    'https://i.pinimg.com/1200x/15/99/f7/1599f7a5802ab308798b4b40e2f98b1f.jpg',
+                    'https://i.pinimg.com/736x/85/ab/e2/85abe2aef21d747119c1b7184f838322.jpg',
+                    'https://i.pinimg.com/1200x/cc/b1/3f/ccb13f5a8df1319987b1e8051e8affa7.jpg',
+                    'https://i.pinimg.com/1200x/8d/43/6c/8d436c53dceecce90d0c9de47e2f8f68.jpg',
+                    'https://i.pinimg.com/736x/76/2c/a3/762ca3f103211ceca2f9213ec2893ea0.jpg',
+                    'https://i.pinimg.com/1200x/da/61/47/da6147230b33e44eed2607fda4adb104.jpg',
+                    'https://i.pinimg.com/736x/58/dc/5c/58dc5cd211fc2ce5dafe2ae20d09fe3f.jpg',
+                    'https://i.pinimg.com/736x/c6/5a/c9/c65ac9edb9d1621cb47c93cdb3f5f705.jpg',
+                    'https://i.pinimg.com/736x/68/59/c2/6859c210a53a6c5c03936ddf56cd5f0e.jpg',
+                    'https://i.pinimg.com/1200x/6c/a2/04/6ca20436f87a1223eb56a170c335ffb2.jpg',
+                    'https://i.pinimg.com/736x/9e/97/e6/9e97e6d0d41846496e00f70930709eff.jpg',
+                    'https://i.pinimg.com/736x/f1/8a/ad/f18aadfc93ca597e55f5848fdf68cf45.jpg',
+                    'https://i.pinimg.com/1200x/23/71/d2/2371d2358adbabec5074a37e1ec58d13.jpg',
+                    'https://i.pinimg.com/1200x/95/6b/46/956b469e2fa79b2acce0cf2f8d0b0acd.jpg',
+                    'https://i.pinimg.com/736x/bb/16/ae/bb16ae2a8528f046bfe4437134b0b303.jpg',
+                    'https://i.pinimg.com/1200x/ef/01/30/ef01307161f32c8c2125cbf5ac5ff5e3.jpg',
+                    'https://i.pinimg.com/1200x/e6/09/10/e60910af013acd770d3ed3b220a4c92e.jpg',
+                    'https://i.pinimg.com/736x/00/12/07/001207fb4e371538b2d6c1877cd7fdbb.jpg',
+                    'https://i.pinimg.com/1200x/c3/5e/b1/c35eb19751116c17d5ab920960ec0cad.jpg'
                 ],
                 'specs_template': {
                     'Kích thước màn hình': '{size} inch',
@@ -371,7 +494,34 @@ class Command(BaseCommand):
                     'https://dienmayhtech.com/_next/image?url=https%3A%2F%2Fimage.dienmayhtech.com%2FStaticFiles%2FImages%2F2024%2F09%2F20%2Ftu-lanh-hitachi-tiet-kiem-dien-1_3ae4.png&w=3840&q=75',
                     'https://file.hstatic.net/200000868155/file/73-post-tu-lanh-inverter-la-gi-uu-diem-voi-cong-nghe-inverter-la-gi--5.jpg',
                     'https://cdn.tgdd.vn/Products/Images/1943/328725/Slider/Tie%CC%82%CC%81t-kie%CC%A3%CC%82m-die%CC%A3%CC%82n-kha%CC%81ng-khua%CC%82%CC%89n-1920x1080.jpg',
-                    'https://img.meta.com.vn/data/image/2024/05/22/1-cong-nghe-inverter-tren-tu-lanh-casper.png'
+                    'https://img.meta.com.vn/data/image/2024/05/22/1-cong-nghe-inverter-tren-tu,-lanh-casper.png',
+                    'https://i.pinimg.com/736x/5d/ff/73/5dff735007d70867668864c7eca0964b.jpg',
+                    'https://i.pinimg.com/736x/3e/30/f6/3e30f60920461d5f806e2d67ea928e93.jpg',
+                    'https://i.pinimg.com/1200x/3a/cc/0f/3acc0f86ceef3d51a3cf41bcb39da60e.jpg'
+                    'https://i.pinimg.com/736x/c4/fb/a0/c4fba04e583e9ae5ceeccd1e539847c1.jpg',
+                    'https://i.pinimg.com/736x/02/97/cc/0297ccfd8895045d7d8e75610ee90751.jpg',
+                    'https://i.pinimg.com/736x/2e/34/6b/2e346bacee9331198b7879a6ef521174.jpg',
+                    'https://i.pinimg.com/736x/5d/f5/7e/5df57e4c00a9003ce5e76eb32e39f1ae.jpg',
+                    'https://i.pinimg.com/736x/08/4c/8c/084c8c2677b7be404c32fbafc1417f69.jpg',
+                    'https://i.pinimg.com/736x/46/59/24/465924b4ee1be8c4ae0742c7f2dbe6f5.jpg',
+                    'https://i.pinimg.com/1200x/b3/b8/87/b3b88780c28e7a1f910cb27b1f186158.jpg',
+                    'https://i.pinimg.com/1200x/d5/ee/ec/d5eeec5ff541465ceb28170163581f00.jpg',
+                    'https://i.pinimg.com/736x/66/aa/59/66aa59e3f5ac8e77d0fd3d84b2fb0442.jpg',
+                    'https://i.pinimg.com/1200x/79/29/fc/7929fcf2f062c8855768c6d1217213ec.jpg',
+                    'https://i.pinimg.com/736x/e6/07/f4/e607f49a67a11f5ed457ec67d6519bb9.jpg',
+                    'https://i.pinimg.com/736x/e6/a8/74/e6a8744d1d8fa6718903903bca91ed9e.jpg',
+                    'https://i.pinimg.com/736x/da/45/3e/da453e9412699644e32fb0e8363bdca9.jpg',
+                    'https://i.pinimg.com/736x/e3/ae/8c/e3ae8cc758922a7c2bb8fb97769e5d16.jpg',
+                    'https://i.pinimg.com/736x/e7/f4/97/e7f49789cdc4d2d7cf60bd0b3806a010.jpg',
+                    'https://i.pinimg.com/736x/fd/4e/27/fd4e272b09a12d847a428725526c8cbc.jpg',
+                    'https://i.pinimg.com/1200x/cd/54/7d/cd547dcf78e7e16afe72aff8d2b811e5.jpg',
+                    'https://i.pinimg.com/736x/75/8e/cf/758ecfae67ced5e6986cffd89ae9eea6.jpg',
+                    'https://i.pinimg.com/1200x/ca/58/59/ca58596d3bd5b4c2e41f2c3236571899.jpg',
+                    'https://i.pinimg.com/736x/0c/09/75/0c09755b4924d8452a48fe2f1dce42be.jpg',
+                    'https://i.pinimg.com/1200x/41/a0/47/41a0472f7f429d65614e0f1448a63b80.jpg',
+                    'https://i.pinimg.com/1200x/bc/ad/27/bcad275b5967e5a054f0df5cc38d1401.jpg',
+                    'https://i.pinimg.com/1200x/a2/a2/c8/a2a2c848bf776077c13c968f47e5c215.jpg'
+                
                 ],
                 'specs_template': {
                     'Dung tích tổng': '{capacity} lít',
@@ -395,7 +545,34 @@ class Command(BaseCommand):
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgY8_6Cm_rV_q1jog52okzYn0eHcTnkJUXog&s',
                     'https://uuvietsolutions.vn/wp-content/uploads/2025/01/tu-lanh-side-by-side-va-tu-lanh-4-canh-1-1024x1024.png',
                     'https://dienmaysieure.vn/wp-content/uploads/2024/11/tu-lanh-lg-inverter-641-lit-side-by-side-lsi63blma-1-638647747978087898-700x467-1.jpg',
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKkUdqA0FOzdE2I_0X5EmdG5fgdFojrU4xrw&s'
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKkUdqA0FOzdE2I_0X5EmdG5fgdFojrU4xrw&s',
+                    'https://www.electrolux.vn/globalassets/importimageproduct/original-first-image/ese5401a-bvn-img-fr-1500x1500.png?width=464',
+                    'https://www.electrolux.vn/globalassets/d2c-vn/refrigerators/vn-ese5401a-bvn-front-1500x1500-min-upright-refrigerator-open.png?width=464',
+                    'https://dienmaylepham.vn/wp-content/uploads/2024/11/z5462342417131_3e60b82d6cb1d9e246e56c9bd60ccd75-3.jpg',
+                    'https://haingan.vn/wp-content/uploads/2023/12/2-4.jpg',
+                    'https://bepkhanhtrang.vn/wp-content/uploads/2025/07/tu-lanh-side-by-side-kaff-kf-bcd523w-2-canh-mo-tren-2-ngan-rut-duoi-1599191834-1.jpg',
+                    'https://bizweb.dktcdn.net/thumb/large/100/386/618/products/gr-d257mc.jpg?v=1716451611767',
+                    'https://i.pinimg.com/736x/75/8e/cf/758ecfae67ced5e6986cffd89ae9eea6.jpg',
+                    'https://i.pinimg.com/1200x/5c/01/c6/5c01c68aff9dc3ea835bf42a119992de.jpg',
+                    'https://i.pinimg.com/1200x/b7/4d/83/b74d83e6007d67ad04328c2e36ecea5d.jpg',
+                    'https://i.pinimg.com/1200x/09/6d/9e/096d9ed953480c23e1e79e30bd058ccb.jpg',
+                    'https://i.pinimg.com/1200x/0a/0c/c4/0a0cc44d18a707ed1d301d4f62a3ede2.jpg',
+                    'https://i.pinimg.com/1200x/b3/b8/87/b3b88780c28e7a1f910cb27b1f186158.jpg',
+                    'https://i.pinimg.com/1200x/9d/9a/d7/9d9ad723039ed5cc47bab4b865167185.jpg',
+                    'https://i.pinimg.com/736x/4e/bc/59/4ebc59f33185c9fc1cfd813e063dc6c2.jpg',
+                    'https://i.pinimg.com/736x/e7/2b/19/e72b1970ad927b5f19c2111c6fec9cba.jpg',
+                    'https://i.pinimg.com/736x/cc/44/dc/cc44dca5877e51005195b7fbdda8c55f.jpg',
+                    'https://i.pinimg.com/736x/8f/3f/36/8f3f3647733265aa5d037d8eb8640005.jpg',
+                    'https://i.pinimg.com/1200x/47/f3/62/47f362b890c83cd1bd9268af4c4e75ba.jpg',
+                    'https://i.pinimg.com/736x/a4/24/4c/a4244ca44adf52706c7550edc945ae93.jpg',
+                    'https://i.pinimg.com/736x/fd/57/0d/fd570d000def81927ba0ced587cddacb.jpg',
+                    'https://i.pinimg.com/736x/ee/f6/0b/eef60b5b3ed4ae2907e1e55fd36c742d.jpg',
+                    'https://i.pinimg.com/736x/f5/96/66/f596666330e7252f22a7a82d23ad558e.jpg',
+                    'https://i.pinimg.com/736x/b9/56/8e/b9568e55e1660d610075fa5c79145235.jpg',
+                    'https://i.pinimg.com/1200x/bb/bc/b1/bbbcb16c4c03a61d5830d597145e9efa.jpg',
+                    'https://i.pinimg.com/1200x/9e/d1/1c/9ed11cbfce8f040027ac135a6c885a5c.jpg',
+                    'https://i.pinimg.com/736x/e6/d1/df/e6d1df7df4023b707474287f11dbc44f.jpg',
+                    'https://i.pinimg.com/1200x/2e/2b/eb/2e2beba24393ac9801c0efab2bf6a8bb.jpg'
                 ],
                 'specs_template': {
                     'Dung tích tổng': '{capacity} lít',
@@ -419,7 +596,31 @@ class Command(BaseCommand):
                     'https://kithome.com.vn/wp-content/uploads/2025/05/d073bebb-tu-lanh-mini-co-ngan-da.jpg',
                     'https://phuchoa.com.vn/wp-content/uploads/2024/08/review-tu-lanh-mini-Aqua-AQR-D59FA-BS.jpg',
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJXBJ9ZuBYxb9QncbdTDnko3AiAXMrnzzxGw&s',
-                    'https://cdn.tgdd.vn/Files/2022/05/19/1433690/tu-lanh-mini-co-ngan-da-khong-top-tu-lanh-mini-dang-mua-5.jpg'
+                    'https://cdn.tgdd.vn/Files/2022/05/19/1433690/tu-lanh-mini-co-ngan-da-khong-top-tu-lanh-mini-dang-mua-5.jpg',
+                    'https://bizweb.dktcdn.net/thumb/large/100/465/278/products/tu-lanh-aqua-90-lit-aqr-d100fa-bs-1.jpg?v=1724906570673',
+                    'https://dienmaysaigon.com/wp-content/uploads/2022/05/AQ_0058_D59FA.jpg',
+                    'https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/tu_lanh_mini_gia_duoi_2_trieu_fbb1cb01c3.jpg',
+                    'https://bizweb.dktcdn.net/100/383/169/products/fr91cd.jpg?v=1672302366507',
+                    'https://i.pinimg.com/1200x/64/3f/e6/643fe6ea82ac15204b5538ddd6edfae8.jpg'
+                    'https://i.pinimg.com/1200x/c0/af/00/c0af00937acb00e14cd614b54af102b9.jpg'
+                    'https://i.pinimg.com/1200x/e1/48/de/e148dec992b827e3fda9d8d88443a9d3.jpg'
+                    'https://i.pinimg.com/736x/09/e4/73/09e473b86ed3150525c7a4f9cdc81a3f.jpg'
+                    'https://i.pinimg.com/736x/63/26/3a/63263a81cec88882297bf75e42dbd2f6.jpg'
+                    'https://i.pinimg.com/736x/a1/46/c8/a146c890f6875a1cda777c4cef179af7.jpg'
+                    'https://i.pinimg.com/736x/f2/c1/3c/f2c13c49ab88cf7f63346e43e885725a.jpg'
+                    'https://i.pinimg.com/736x/a0/10/00/a01000437aafe5242ab56557660dff0e.jpg'
+                    'https://i.pinimg.com/736x/bd/a2/09/bda20939db70698d7e28debf2999e8ae.jpg'
+                    'https://i.pinimg.com/736x/eb/ba/9b/ebba9b73e4f51123b386972c92ccd51b.jpg'
+                    'https://i.pinimg.com/1200x/df/ef/9b/dfef9b846cba4f9f43bd19e1c3476dac.jpg'
+                    'https://i.pinimg.com/736x/19/ce/d9/19ced923ae2af20dd5cd88546061162a.jpg'
+                    'https://i.pinimg.com/1200x/d3/89/f9/d389f958549fd78da8fee83b76570622.jpg'
+                    'https://i.pinimg.com/736x/02/af/5b/02af5b2b472477055346f4e95d96fd45.jpg'
+                    'https://i.pinimg.com/1200x/63/4c/29/634c29468f1d4226b21476d3232ad906.jpg'
+                    'https://i.pinimg.com/736x/3c/ef/fb/3ceffbab5b2fdb53a35e524fdd7fe4fc.jpg'
+                    'https://i.pinimg.com/1200x/fb/36/d9/fb36d9b1e7985c7944e86aacef6126f4.jpg'
+                    'https://i.pinimg.com/736x/6a/df/5e/6adf5ed46053438e9f01a698be8748e0.jpg'
+                    'https://i.pinimg.com/736x/91/08/83/910883a4cbf2c94990e94b04383cf94d.jpg'
+                    'https://i.pinimg.com/736x/14/2f/a1/142fa1c987f00f7da359bf7c9ce0c863.jpg'
                 ],
                 'specs_template': {
                     'Dung tích tổng': '{capacity} lít',
@@ -441,7 +642,11 @@ class Command(BaseCommand):
                     'https://dienmaybanre.com/images/products/2024/01/04/original/tu-lanh-hitachi-inverter-464-lit-multi-door-hr4n7520dswdxvn-4_1704341812.jpg',
                     'https://media3.bosch-home.com/Images/400x300/19526229_Bosch_Refrigeration_French_Door_Familypage_VP2_1_1600x1200.jpg',
                     'https://cdn.tgdd.vn/Files/2021/09/02/1379688/loi-ich-tu-ngan-rau-khong-lo-tren-tu-lanh-panasonic_730x411.jpg',
-                    'https://bizweb.dktcdn.net/thumb/medium/100/175/569/products/lfb61blgai.png?v=1742181632040'
+                    'https://bizweb.dktcdn.net/thumb/medium/100/175/569/products/lfb61blgai.png?v=1742181632040',
+                    'https://st.meta.vn/Data/image/2022/09/19/tu-lanh-mitsubishi-mr-cx35em-brw-v-inverter-272-lit.jpg',
+                    'https://st.meta.vn/Data/image/2022/06/20/tu-lanh-mitsubishi-mr-cx35em-brw-v-inverter-272-lit-1.jpg',
+                    'https://dienmayngohoang.com/image/cache/catalog/2023/07/z4483557772750-7bf3e6283ab18178aafa766db9ad9958-0x0.jpg',
+                    'https://bizweb.dktcdn.net/thumb/large/100/380/176/products/600x-9003-ps-jpg.webp?v=1637133564220'
                 ],
                 'specs_template': {
                     'Dung tích tổng': '{capacity} lít',
@@ -466,7 +671,11 @@ class Command(BaseCommand):
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMUK_RrNFpfUnO0yuHdRb0d3d2zQ8ng_uUoQ&s',
                     'https://dienmaybanre.com/images/products/2022/03/08/large/may-giat-electrolux-inverter-ewf1024p5wb_1646735315.jpg',
                     'https://dienmayrenhat.com.vn/wp-content/uploads/2025/10/WW10DG6U34LBSV.jpg',
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTX9IjPS55P_SLsVVDkQfvybo0L_uT9dsOgHQ&s'
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTX9IjPS55P_SLsVVDkQfvybo0L_uT9dsOgHQ&s',
+                    'https://ctluxhome.vn/Upload/san-pham/may-giat-may-say/may-giat/2022/wat24480sg/anh-may-giat-wat24480sg_2000x2000.jpg',
+                    'https://kinghome.vn/data/products/may-giat-electrolux-8kg-ultimatecare-500-ewf8025cqsa-king-home.jpg1662378615',
+                    'https://suachuadienlanhhanoi.com.vn/wp-content/uploads/2024/04/uu-nhuoc-diem-cua-may-giat-cua-truoc.jpg',
+                    'https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/co_nen_mua_may_giat_cua_truoc_7b33863dc8.jpg'
                 ],
                 'specs_template': {
                     'Khối lượng giặt': '{capacity} kg',
@@ -490,7 +699,10 @@ class Command(BaseCommand):
                     'https://dienmaythienphu.vn/wp-content/uploads/2025/11/47cb846b3d66ff7d41112c4cca2b749d-1.jpg',
                     'https://magiamgia.com/wp-content/uploads/2019/02/may-giat-cua-truoc-inverter-electrolux-ewf12938.jpg',
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsCDK1YKp-ugGBlKizH4Th3nWsZGAddO0Idg&s',
-                    'https://cdn.tgdd.vn/Products/Images/1944/236125/giat-hoi-nuoc-hygiene-steam.jpg'
+                    'https://cdn.tgdd.vn/Products/Images/1944/236125/giat-hoi-nuoc-hygiene-steam.jpg',
+                    'https://anhchinh.vn/media/product/12197_0.jpg',
+                    'https://dienmaythiennamhoa.vn/static/images/Hinh-cam-nang/may-giat-cua-tren.jpg',
+                    'https://www.casper-electric.com/wp-content/uploads/2023/10/may-giat-cua-tren-ecowash-WT-8NG2-03.jpg'
                 ],
                 'specs_template': {
                     'Khối lượng giặt': '{capacity} kg',
@@ -514,7 +726,11 @@ class Command(BaseCommand):
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxV5npU-f_P4Dvc31X06xAl0hp3BkU7bWMZQ&s',
                     'https://cdn.tgdd.vn//News/946533//May-giat-hoi-nuoc-la-gi-uu-nhuoc-diem-cua-may-giat-hoi-nuoc-4-730x414.jpg',
                     'https://cdn.tgdd.vn/Products/Images/1944/326444/may-giat-say-toshiba-inverter-giat-10-5-kg-say-7-kg-twd-t21bu115uwv-mg-thumb-1-600x600.jpg',
-                    'https://cdnv2.tgdd.vn/mwg-static/common/News/749976/co-nen-mua-may-giat-say-4.jpg'
+                    'https://cdnv2.tgdd.vn/mwg-static/common/News/749976/co-nen-mua-may-giat-say-4.jpg',
+                    'https://cdn.tgdd.vn/Products/Images/1944/319846/may-giat-say-lg-inverter-giat-12kg-say-7kg-0-600x600.jpg',
+                    'https://dienmaybanre.com/images/products/2022/08/19/original/may-giat-say-panasonic-na-s056fr1bv-inverter-105-kg-1_1660901643.jpg',
+                    'https://bizweb.dktcdn.net/thumb/1024x1024/100/386/618/products/may-giat-say-samsung-wd14bb944dgmsv-1-2.jpg?v=1701226002940',
+                    'https://cdn11.dienmaycholon.vn/filewebdmclnew/DMCL21/Picture/News/News_expe_7513/7513.png?version=170116'
                 ],
                 'specs_template': {
                     'Khối lượng giặt': '{capacity} kg',
@@ -538,7 +754,10 @@ class Command(BaseCommand):
                     'https://www.electrolux.vn/globalassets/importimageproduct/2026-jan-vn/edh803j5wc-img-vn.jpg?width=464',
                     'https://bephungphu.com/wp-content/uploads/2023/10/may-say-beko-da9112rx0mb-6.png',
                     'https://www.electrolux.vn/globalassets/importimageproduct/2026-jan-vn/edh902r9sc-img-vn.jpg',
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcToqrAVg0aeev85obF7VhJWff-t4vg8lAlypw&s'
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcToqrAVg0aeev85obF7VhJWff-t4vg8lAlypw&s',
+                    'https://thegioidodung.vn/wp-content/uploads/2016/10/may-say-quan-ao-samsung-co-dieu-khien-khung-inox-thang.jpg.webp',
+                    'https://kinghome.vn/data/products/500/may-say-quan-ao-electrolux-eds7552-1.jpg',
+                    'https://bizweb.dktcdn.net/thumb/large/100/425/687/products/d6-4c38c6b6-fea0-46c3-8e4a-5388f91c08bb.jpg?v=1763948977970'
                 ],
                 'specs_template': {
                     'Khối lượng sấy': '{capacity} kg',
@@ -563,7 +782,9 @@ class Command(BaseCommand):
                     'https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/dieu_hoa_daikin_12000_1_chieu_inverter_thumb_4974c52c0c.png',
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2r5bUuJV1zewYy3vkREdZxeKydQoeJiIhKA&s',
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpGAUJQmIyFu_U0gR2b86m4acX5cgaBB4ZUw&s',
-                    'https://cdn.mediamart.vn/images/uploads/news/202510/dieu-hoa-coex-1-chieu-inverter-1hp-9000b_i21322.webp'
+                    'https://cdn.mediamart.vn/images/uploads/news/202510/dieu-hoa-coex-1-chieu-inverter-1hp-9000b_i21322.webp',
+                    'https://cdn11.dienmaycholon.vn/filewebdmclnew/public//userupload/images/may-lanh-inverter-la-gi-1.jpg',
+                    'https://dienmaythudo.vn/wp-content/uploads/2020/02/Kry2S6.png'
                 ],
                 'specs_template': {
                     'Công suất lạnh': '{btu} BTU/h',
@@ -588,7 +809,10 @@ class Command(BaseCommand):
                     'https://cdn.tgdd.vn//News/824169//daikin-fthf25vavmv-160421-0400080-730x408.jpg',
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNYtN9C_xTbRIHYec42bJ3cEzMF6tJXiojSQ&s',
                     'https://dienmayphuckhanh.vn/wp-content/uploads/2025/12/dieu-hoa-daikin-2-chieu.jpg',
-                    'https://cafefcdn.com/203337114487263232/2023/11/24/photo-1-1700793081924703631333-17007930964531506153782-1700813903534-1700813903641632910135.jpg'
+                    'https://cafefcdn.com/203337114487263232/2023/11/24/photo-1-1700793081924703631333-17007930964531506153782-1700813903534-1700813903641632910135.jpg',
+                    'https://www.lg.com/lk/images/AC/S3NQ18KL2FA/S3NQ18KL2FA_Wall-Air-Conditioners_Semi-R_2018_Feature_07_1_SlimDesign_D.jpg',
+                    'https://bizweb.dktcdn.net/thumb/1024x1024/100/412/539/products/5d2nv7.jpg?v=1611215842553'
+                    
                 ],
                 'specs_template': {
                     'Công suất lạnh': '{btu} BTU/h',
@@ -611,7 +835,10 @@ class Command(BaseCommand):
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKNGoxNPQEissQkCgNXOsv9kjhOGQG8iehRQ&s',
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7qdmX32JF2f2PXE4d1ArQtU7NZ43f-YZabg&s',
                     'https://dienmaythienphu.vn/wp-content/uploads/2025/11/fdf125csv-s5fdc125csv-s5-1.png',
-                    'https://dienmaythienphu.vn/wp-content/uploads/2025/05/bia-cay-lg752025-1.jpg'
+                    'https://dienmaythienphu.vn/wp-content/uploads/2025/05/bia-cay-lg752025-1.jpg',
+                    'https://daikinvietnam.co/wp-content/uploads/2021/07/dieu-hoa-tu-dung-daikin-1-chieu-khong-inverter.jpg',
+                    'https://daikinvietnam.co/wp-content/uploads/2024/05/FVC140AV1V-RC140AGY1V.jpg',
+                    'https://cdn.tgdd.vn//News/1118989//Nen-mua-dieu-hoa-tu-dung-cua-hang-nao-tot-nhat-hien-nay-3-730x517.jpg'
                 ],
                 'specs_template': {
                     'Công suất lạnh': '{btu} BTU/h',
@@ -636,7 +863,11 @@ class Command(BaseCommand):
                     'https://mi-lux.vn/wp-content/uploads/2025/05/Gradient-xanh-duong-don-gian-de-thuong-khung-san-pham-dang-Instagram-23.png',
                     'https://mi-lux.vn/wp-content/uploads/59.png',
                     'https://mi-lux.vn/wp-content/uploads/2025/05/Gradient-xanh-duong-don-gian-de-thuong-khung-san-pham-dang-Instagram-2.png',
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVsZNc8tR1pQjfAqVDNt0N0YscjWj8qEsgGQ&s'
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVsZNc8tR1pQjfAqVDNt0N0YscjWj8qEsgGQ&s',
+                    'https://img.gigadigital.vn/image/1725596848355-may-loc-khong-khi-lg-puricare-360-hit-as60ghwg0-ban-quoc-te-6.jpg',
+                    'https://cdn.khongkhixanh.vn/media/lg%20as65gdwh0/m%C3%A1y%20l%E1%BB%8Dc%20kh%C3%B4ng%20kh%C3%AD%20lg%20puricare%201%20t%E1%BA%A7ng%20as65gdwh0%20safeplus%20kh%C3%B4ng%20kh%C3%AD%20xanh%20%E1%BA%A3nh%201.jpg',
+                    'https://product.hstatic.net/200000547251/product/may-loc-khong-khi-lumias-bulma_049b5b366d924e7a8277746770744d8c_master.png',
+                    'https://maylockhongkhitot.net/wp-content/uploads/2019/03/sharp-kcb70.jpg'
                 ],
                 'specs_template': {
                     'Diện tích phòng': 'Đến {area}m²',
@@ -658,7 +889,9 @@ class Command(BaseCommand):
                     'https://cdn.tgdd.vn//News/1042485//cong-nghe-plasmacluster-ion-tren-may-loc-khong-khi-1-730x405.jpg',
                     'https://cdn.tgdd.vn//News/1042485//cong-nghe-plasmacluster-ion-tren-may-loc-khong-khi-3-730x405.jpg',
                     'https://reviewmaylockhongkhi.com/wp-content/uploads/2025/06/cong-nghe-plasmacluster-ion-3.jpg',
-                    'https://cdn2.fptshop.com.vn/unsafe/Uploads/images/tin-tuc/137506/Originals/Plasmacluster-05.jpg'
+                    'https://cdn2.fptshop.com.vn/unsafe/Uploads/images/tin-tuc/137506/Originals/Plasmacluster-05.jpg',
+                    'https://novadigital.net/wp-content/uploads/1-405.jpg',
+                    'https://bizweb.dktcdn.net/thumb/large/100/465/278/products/1-1.jpg?v=1680514200240'
                 ],
                 'specs_template': {
                     'Diện tích phòng': 'Đến {area}m²',
@@ -682,7 +915,10 @@ class Command(BaseCommand):
                         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3qySjw1UQMA8kpQPyOO0bh_ZRlWx41cpBzg&s',
                         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRt8QjNQR1k5JguZI4djC8KYDk1nVqX-FPfjw&s',
                         'https://cdn.tgdd.vn//News/1418736//cac-dieu-huong-tren-robot-hut-bui-3-min-730x500.jpg',
-                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLuHidtcHQlLTN_46NV9Nc1QuselrzdqfRgw&s'
+                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLuHidtcHQlLTN_46NV9Nc1QuselrzdqfRgw&s',
+                        'https://mivietnam.vn/wp-content/uploads/2025/05/jdhjhdjahs23423.jpg',
+                        'https://mivietnam.vn/wp-content/uploads/2025/11/aqua-10-pro-track-1-1.jpg',
+                        'https://homego.vn/Data/upload/images/Demax/s300.jpg'
                     ],
                     'Công nghệ định vị': 'LiDAR Navigation',
                     'Lực hút': '4000 Pa',
@@ -704,7 +940,9 @@ class Command(BaseCommand):
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGA4sZCmVtbv-X0yu8WJTSn3-Htm9o6-TMxg&s',
                     'https://down-vn.img.susercontent.com/file/55db3548602fef1ac667acf1c786d086',
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqzscYUoAo3zYou3ce23DoWGDEop-kKXsUog&s',
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq3CGwN8IbXgUhw-5WwBF504J7GNJB2Bf00w&s'
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq3CGwN8IbXgUhw-5WwBF504J7GNJB2Bf00w&s',
+                    'https://hakawa.vn/wp-content/uploads/2023/11/may-hut-bui-k7.webp',
+                    'https://mivietnam.vn/wp-content/uploads/2024/11/z7083959627791_5a602e1f55b3eae18980e08ac78c4361.jpg'
                 ],
                 'specs_template': {
                     'Kiểu máy': 'Cầm tay không dây (Stick Vacuum)',
@@ -728,7 +966,9 @@ class Command(BaseCommand):
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyl6dm5mlhXqO47GaHjVV4IXKmivyWIvcrpg&s',
                     'https://yenphat.vn/storage/2020/02/21/7576-may-hut-bui-phong-sach-gp127-hepa-iso5-2.webp',
                     'https://kumisai.vn/storage/photos/18/may-hut-bui-cong-nghiep-kumisai-kms70h-hepa.jpg',
-                    'https://mediamart.vn/images/uploads/2024/5a25ab72-0b45-42db-8daf-08366ba0769f.png'
+                    'https://mediamart.vn/images/uploads/2024/5a25ab72-0b45-42db-8daf-08366ba0769f.png',
+                    'https://hanhtinhxanh.com.vn/media/catalog/product/cache/4/image/800x800/5e06319eda06f020e43594a9c230972d/m/a/may_hut_bui_sc-603w_1/htx-m%C3%A1y-h%C3%BAt-b%E1%BB%A5i-c%C3%B4ng-su%E1%BA%A5t-l%E1%BB%9Bn-gi%C3%A0nh-cho-khu-c%C3%B4ng-nghi%E1%BB%87p-sc-603-33.jpg',
+                    'https://dienmay248.vn/vnt_upload/product/08_2024/z5638696111327_e258abc21e4801f2476cffa88492f96b.jpg',
                 ],
                 'specs_template': {
                     'Công suất': '{power}W',
@@ -753,7 +993,9 @@ class Command(BaseCommand):
                     'https://meta.vn/Data/Image/2025/09/18/lo-vi-song-sharp-r-205vn-s-1.jpg',
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqHPRypzzvfmaFF54QlmZDziraQod33ItRcw&s',
                     'https://cdn11.dienmaycholon.vn/filewebdmclnew/DMCL21/Picture/News/News_expe_13430/13430.png?version=150248',
-                    'https://bephungphu.com/wp-content/uploads/2024/06/lo-vi-song-hap-nuong-panasonic-nn-ds59nbyue.png'
+                    'https://bephungphu.com/wp-content/uploads/2024/06/lo-vi-song-hap-nuong-panasonic-nn-ds59nbyue.png',
+                    'https://bizweb.dktcdn.net/100/435/504/products/my5mby.png?v=1667787766987',
+                    'https://bizweb.dktcdn.net/thumb/1024x1024/100/395/483/products/lo-vi-song-dien-tu-co-nuong-sharp-r678vnw-the-phan-home-01.jpg?v=1626160624267'
                 ],
                 'specs_template': {
                     'Dung tích': '{capacity} lít',
