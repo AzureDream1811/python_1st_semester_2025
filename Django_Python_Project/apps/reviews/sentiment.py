@@ -2,7 +2,7 @@
 import warnings
 import numpy as np
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 import fasttext
 from ml_models.aivivn_fasttext.preprocess import PreprocessText
 
@@ -24,10 +24,17 @@ MODEL_PATH = BASE_DIR / "ml_models" / "aivivn_fasttext" / "models" / "fasttext_s
 
 
 class SentimentAnalyzer:
-    """Singleton class để phân tích sentiment từ text + rating"""
+    """Singleton class để phân tích sentiment từ text + rating với conflict detection"""
     
     _instance = None
     _predictor = None
+
+    # Thresholds
+    CONFLICT_THRESHOLD = 1.2  # Gap giữa text_score và rating_score
+    SHORT_TEXT_LENGTH = 20    # Text ngắn (chars)
+    LONG_TEXT_LENGTH = 100    # Text dài
+    LOW_CONFIDENCE = 0.5      # Confidence thấp
+    HIGH_CONFIDENCE = 0.85    # Confidence cao
 
     def __new__(cls):
         if cls._instance is None:
@@ -56,19 +63,19 @@ class SentimentAnalyzer:
 
     def analyze(self, text: str, rating: Optional[int] = None) -> dict:
         """
-        Phân tích sentiment từ text và rating.
+        Phân tích sentiment từ text và rating với adaptive weighting.
         
         Returns:
             dict: {
                 'sentiment': 'positive' | 'negative' | 'neutral',
                 'score': float (-1 đến 1),
                 'text_score': float,
-                'rating_score': float
+                'rating_score': float,
+                'confidence': float,
+                'conflict': bool,
+                'source': str  # 'text', 'rating', hoặc 'combined'
             }
         """
-        TEXT_WEIGHT = 0.6
-        RATING_WEIGHT = 0.4
-        
         # Fallback: chỉ dùng rating
         rating_score = self._rating_to_score(rating) if rating else 0.0
         
@@ -77,35 +84,66 @@ class SentimentAnalyzer:
             return self._build_result(
                 score=rating_score,
                 text_score=0.0,
-                rating_score=rating_score
+                rating_score=rating_score,
+                confidence=1.0 if rating else 0.0,
+                conflict=False,
+                source='rating' if rating else 'none'
             )
         
         # Predict sentiment từ text
-        text_score = self._predict_text_score(text)
+        text_score, text_confidence = self._predict_text_score(text)
+        text_length = len(text.strip())
+        
+        # Case 1: Không có rating → chỉ dùng text
+        if not rating:
+            return self._build_result(
+                score=text_score,
+                text_score=text_score,
+                rating_score=0.0,
+                confidence=text_confidence,
+                conflict=False,
+                source='text'
+            )
+        
+        # Case 2: Có cả text và rating → adaptive weighting
+        text_weight, rating_weight = self._calculate_adaptive_weights(
+            text_length, text_confidence
+        )
         
         # Kết hợp text + rating
-        if rating:
-            final_score = TEXT_WEIGHT * text_score + RATING_WEIGHT * rating_score
-        else:
+        final_score = text_weight * text_score + rating_weight * rating_score
+        
+        # Detect conflict
+        conflict = self._detect_conflict(text_score, rating_score)
+        
+        # Nếu conflict → ưu tiên text (nếu text đủ dài và confidence cao)
+        if conflict and text_length > self.SHORT_TEXT_LENGTH and text_confidence > self.LOW_CONFIDENCE:
             final_score = text_score
+            source = 'text_priority'
+            print(f"[CONFLICT] Text={text_score:.2f} vs Rating={rating_score:.2f} → Ưu tiên text")
+        else:
+            source = 'combined'
         
         return self._build_result(
             score=final_score,
             text_score=text_score,
-            rating_score=rating_score
+            rating_score=rating_score,
+            confidence=text_confidence,
+            conflict=conflict,
+            source=source
         )
 
-    def _predict_text_score(self, text: str) -> float:
+    def _predict_text_score(self, text: str) -> Tuple[float, float]:
         """
         Dự đoán sentiment score từ text.
         
         Returns:
-            float: Score từ -1 (negative) đến 1 (positive)
+            tuple: (score, confidence)
+                - score: -1 (negative) đến 1 (positive)
+                - confidence: 0 đến 1
         """
-
-        # ✅ CHECK: Nếu predictor chưa load, return 0.0
         if self._predictor is None:
-            return 0.0
+            return 0.0, 0.0
 
         try:
             # Tiền xử lý
@@ -117,7 +155,12 @@ class SentimentAnalyzer:
                 labels, probs = self._predictor.predict(processed_text, k=3)
             
             if not labels or not probs:
-                return 0.0
+                return 0.0, 0.0
+            
+            # Normalize probabilities (trong trường hợp model chỉ trả về < 3 labels)
+            total_prob = sum(probs)
+            if total_prob > 0:
+                probs = tuple(p / total_prob for p in probs)
             
             # Value mapping
             value_map = {"0": -1.0, "1": 1.0, "2": 0.0}
@@ -128,11 +171,50 @@ class SentimentAnalyzer:
                 raw_label = label.replace("__label__", "")
                 text_score += float(prob) * value_map.get(raw_label, 0.0)
             
-            return text_score
+            # Confidence = probability của label cao nhất
+            confidence = float(max(probs)) if probs else 0.0
+            
+            return text_score, confidence
             
         except Exception as e:
             print(f"[WARNING] Lỗi predict: {e}")
-            return 0.0
+            return 0.0, 0.0
+
+    def _calculate_adaptive_weights(self, text_length: int, confidence: float) -> Tuple[float, float]:
+        """
+        Tính toán weights động dựa trên text length và confidence.
+        
+        Logic:
+        - Text dài + confidence cao → text_weight cao (0.75)
+        - Text ngắn hoặc confidence thấp → rating_weight cao (0.6)
+        - Default: 0.6 text, 0.4 rating
+        """
+        base_text_weight = 0.6
+        
+        # Text dài và confidence cao → tăng text weight
+        if text_length > self.LONG_TEXT_LENGTH and confidence > self.HIGH_CONFIDENCE:
+            text_weight = 0.75
+        
+        # Text ngắn hoặc confidence thấp → giảm text weight
+        elif text_length < self.SHORT_TEXT_LENGTH or confidence < self.LOW_CONFIDENCE:
+            text_weight = 0.4
+        
+        # Medium case
+        else:
+            text_weight = base_text_weight
+        
+        rating_weight = 1.0 - text_weight
+        return text_weight, rating_weight
+
+    def _detect_conflict(self, text_score: float, rating_score: float) -> bool:
+        """
+        Phát hiện conflict giữa text sentiment và rating.
+        
+        Returns:
+            bool: True nếu có conflict đáng kể
+        """
+        gap = abs(text_score - rating_score)
+        return gap > self.CONFLICT_THRESHOLD
 
     def _rating_to_score(self, rating: Optional[int]) -> float:
         """
@@ -154,11 +236,22 @@ class SentimentAnalyzer:
         else:
             return "neutral"
 
-    def _build_result(self, score: float, text_score: float, rating_score: float) -> dict:
+    def _build_result(
+        self, 
+        score: float, 
+        text_score: float, 
+        rating_score: float,
+        confidence: float,
+        conflict: bool,
+        source: str
+    ) -> dict:
         """Build kết quả trả về"""
         return {
             "sentiment": self._score_to_sentiment(score),
             "score": round(score, 2),
             "text_score": round(text_score, 2),
             "rating_score": round(rating_score, 2),
+            "confidence": round(confidence, 2),
+            "conflict": conflict,
+            "source": source,  # text, rating, combined, text_priority, none
         }
