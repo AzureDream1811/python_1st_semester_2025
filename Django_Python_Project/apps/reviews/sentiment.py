@@ -154,14 +154,19 @@ class SentimentAnalyzer:
                 warnings.filterwarnings('ignore')
                 labels, probs = self._predictor.predict(processed_text, k=3)
             
-            if not labels or not probs:
+            # Kiểm tra kết quả (xử lý cả list và numpy array)
+            if len(labels) == 0 or len(probs) == 0:
                 return 0.0, 0.0
             
+            # Chuyển sang list để tránh lỗi numpy array ambiguity
+            labels = list(labels) if hasattr(labels, '__iter__') else [labels]
+            probs = list(probs) if hasattr(probs, '__iter__') else [probs]
+
             # Normalize probabilities (trong trường hợp model chỉ trả về < 3 labels)
             total_prob = sum(probs)
             if total_prob > 0:
-                probs = tuple(p / total_prob for p in probs)
-            
+                probs = [p / total_prob for p in probs]
+
             # Value mapping
             value_map = {"0": -1.0, "1": 1.0, "2": 0.0}
             
@@ -172,8 +177,8 @@ class SentimentAnalyzer:
                 text_score += float(prob) * value_map.get(raw_label, 0.0)
             
             # Confidence = probability của label cao nhất
-            confidence = float(max(probs)) if probs else 0.0
-            
+            confidence = float(max(probs)) if len(probs) > 0 else 0.0
+
             return text_score, confidence
             
         except Exception as e:
