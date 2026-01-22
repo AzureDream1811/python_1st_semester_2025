@@ -251,12 +251,16 @@ class SentimentAnalyzer:
         source: str
     ) -> dict:
         """Build kết quả trả về"""
+        sentiment = self._score_to_sentiment(score)
+        # Map sentiment to label: positive=1, negative=0, neutral=unknown
+        label_map = {"positive": "1", "negative": "0", "neutral": "unknown"}
         return {
-            "sentiment": self._score_to_sentiment(score),
-            "score": round(score, 2),
-            "text_score": round(text_score, 2),
-            "rating_score": round(rating_score, 2),
-            "confidence": round(confidence, 2),
-            "conflict": conflict,
-            "source": source,  # text, rating, combined, text_priority, none
+            "sentiment": sentiment,
+            "score": float(round(float(score), 2)),
+            "text_score": float(round(float(text_score), 2)),
+            "rating_score": float(round(float(rating_score), 2)),
+            "confidence": float(round(float(confidence), 2)),
+            "conflict": bool(conflict),
+            "source": str(source),  # text, rating, combined, text_priority, none
+            "label": label_map.get(sentiment, "unknown"),
         }

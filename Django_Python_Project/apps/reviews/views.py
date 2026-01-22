@@ -270,9 +270,9 @@ def analyze_sentiment_api(request):
         return JsonResponse({
             'success': True,
             'sentiment': result['sentiment'],
-            'score': round(result['score'], 4),
-            'text_score': round(result['text_score'], 4),
-            'rating_score': round(result['rating_score'], 4),
+            'score': result['score'],
+            'text_score': result['text_score'],
+            'rating_score': result['rating_score'],
             'label': result['label'],
         })
 
